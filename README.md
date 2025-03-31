@@ -1,3 +1,3 @@
 # Majordome
 
-General utilities for scientific Python.
+General utilities for scientific Python and numerical simulation.

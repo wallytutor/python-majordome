@@ -6,8 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "majordome"
-version = "0.4.0"
-requires-python = ">=3.12"
+version = "0.4.1"
 dependencies = [
     # Docs:
     'sphinx',
@@ -25,6 +24,28 @@ dependencies = [
     'pyvista>=0.44',
     'pyyaml>=6',
 ]
+requires-python = ">=3.12"
+authors = [
+  {name = "Walter Dal'Maz Silva", email = "walter.dalmazsilva@gmail.com"},
+]
+description = "General utilities for scientific Python and numerical simulation."
+readme = "README.md"
+license = "MIT" 
+license-files = ["LICENSE"]
+keywords = ["scientific", "simulation", "utilities", "python"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/wallytutor/python-majordome"
+# Documentation = "https://readthedocs.org"
+Repository = "https://github.com/wallytutor/python-majordome.git"
+Issues = "https://github.com/wallytutor/python-majordome/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
