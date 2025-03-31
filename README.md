@@ -1,2 +1,3 @@
-# python-majordome
+# Majordome
+
 General utilities for scientific Python.
