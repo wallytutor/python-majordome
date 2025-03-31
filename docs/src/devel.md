@@ -27,6 +27,7 @@ sphinx-build -b html -c docs/ docs/src/ docs/_build/
 ## Distribution
 
 ```bash
+python -m pip install --upgrade twine
 python -m pip install --upgrade build
 
 python -m build
