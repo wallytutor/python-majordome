@@ -1,0 +1,5 @@
+# Majordome usage
+
+```{eval-rst}
+
+```
