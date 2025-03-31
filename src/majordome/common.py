@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-T_REFERNCE = 298.15
+T_REFERENCE = 298.15
 """ Thermodynamic reference temperature [K]. """
 
 T_NORMAL = 273.15
