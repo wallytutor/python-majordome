@@ -46,19 +46,19 @@ class CombustionAtmosphereCHON:
         
     def _species_heating_value(self, species, oxidizer):
         """ Lower heating value of a single species [MJ/kg]. """
-        h1, Y_comburant = self._state_initial(species, oxidizer)
-        return (self._state_final() - h1) / Y_comburant
+        h1, Y_fuel = self._state_initial(species, oxidizer)
+        return (self._state_final() - h1) / Y_fuel
     
     def solution_heating_value(self,
-            comburant: CompositionType, 
+            fuel: CompositionType, 
             oxidizer: CompositionType
         ) -> float:
         """ Evaluate lower heating value of mixture.
 
         Parameters
         ----------
-        comburant: CompositionType
-            Composition of comburant in species mole fractions.
+        fuel: CompositionType
+            Composition of fuel in species mole fractions.
         oxidizer: CompositionType
             Composition of oxidizer in species mole fractions.
 
@@ -67,18 +67,18 @@ class CombustionAtmosphereCHON:
         float
             Lower heating value of provided mixture [MJ/kg].
         """
-        self._solution.TPX = None, None, comburant
-        Y_comburant = self._solution.mass_fraction_dict()
+        self._solution.TPX = None, None, fuel
+        Y_fuel = self._solution.mass_fraction_dict()
     
         hv = sum(Y * self._species_heating_value(species, oxidizer)
-                 for species, Y in Y_comburant.items())
+                 for species, Y in Y_fuel.items())
     
         return -1.0e-06 * float(hv)
 
     def combustion_setup(self,
             power: float,
             phi: float,
-            comburant: CompositionType, 
+            fuel: CompositionType, 
             oxidizer: CompositionType,
             species: str = "O2"
         ) -> tuple[float, float, float]:
@@ -90,17 +90,17 @@ class CombustionAtmosphereCHON:
             Total supplied power [kW]
         phi: float
             Air-fuel equivalence ratio.
-        comburant: CompositionType
-            Composition of comburant in species mole fractions.
+        fuel: CompositionType
+            Composition of fuel in species mole fractions.
         oxidizer: CompositionType
             Composition of oxidizer in species mole fractions.
         species: str = "O2"
             Reference species for oxidizer mass balance.
         """
-        lhv = self.solution_heating_value(comburant, oxidizer)
+        lhv = self.solution_heating_value(fuel, oxidizer)
         mdot_c = 0.001 * power / lhv
         
-        self._state_standard(comburant)
+        self._state_standard(fuel)
         Y_c = self._solution.mass_fraction_dict()
         
         self._state_standard(oxidizer)
@@ -162,8 +162,8 @@ class CombustionPowerSupply:
         Total supplied power [kW]
     equivalence: float
         Air-fuel equivalence ratio.
-    comburant: CompositionType
-        Composition of comburant in species mole fractions.
+    fuel: CompositionType
+        Composition of fuel in species mole fractions.
     oxidizer: CompositionType
         Composition of oxidizer in species mole fractions.
     mechanism: str
@@ -174,7 +174,7 @@ class CombustionPowerSupply:
     def __init__(self,
             power: float,
             equivalence: float,
-            comburant: CompositionType,
+            fuel: CompositionType,
             oxidizer: CompositionType,
             mechanism: str,
             species: str = "O2"
@@ -182,10 +182,10 @@ class CombustionPowerSupply:
         self._ca = CombustionAtmosphereCHON(mechanism)
 
         (self._lhv, self._mdot_c, self._mdot_o) = self._ca.combustion_setup(
-            power, equivalence, comburant, oxidizer, species=species)
+            power, equivalence, fuel, oxidizer, species=species)
 
         self._power = power
-        self._Xc = comburant
+        self._Xc = fuel
         self._Xo = oxidizer
 
     @property
@@ -194,8 +194,8 @@ class CombustionPowerSupply:
         return self._power
 
     @property
-    def comburant_mass(self) -> float:
-        """ Access to comburant mass flow rate. """
+    def fuel_mass(self) -> float:
+        """ Access to fuel mass flow rate. """
         return self._mdot_c
 
     @property
@@ -204,8 +204,8 @@ class CombustionPowerSupply:
         return self._mdot_o
 
     @property
-    def comburant_volume(self) -> float:
-        """ Access to comburant volume flow rate. """
+    def fuel_volume(self) -> float:
+        """ Access to fuel volume flow rate. """
         if not hasattr(self, "_qdot_c"):
             self._qdot_c = self._ca.normal_flow(self._mdot_c, self._Xc)
         return self._qdot_c
@@ -218,8 +218,8 @@ class CombustionPowerSupply:
         return self._qdot_o
 
     @property
-    def comburant(self) -> CompositionType:
-        """ Access to comburant mole fractions. """
+    def fuel(self) -> CompositionType:
+        """ Access to fuel mole fractions. """
         return self._Xc
 
     @property
@@ -228,8 +228,8 @@ class CombustionPowerSupply:
         return self._Xo
 
     @property
-    def comburant_normal_density(self):
-        """ Comburant normal density. """
+    def fuel_normal_density(self):
+        """ Fuel normal density. """
         if not hasattr(self, "_rho_c"):
             self._rho_c = self._ca.normal_density(self._Xc)
         return self._rho_c
@@ -251,9 +251,9 @@ class CombustionPowerSupply:
         return dedent(f"""\
         - Required power              {self._power:7.1f} kW
         - Lower heating value         {self._lhv:7.1f} MJ/kg
-        - Comburant mass flow rate    {3600*self._mdot_c:7.3f} kg/h
+        - Fuel mass flow rate         {3600*self._mdot_c:7.3f} kg/h
         - Oxidizer mass flow rate     {3600*self._mdot_o:7.3f} kg/h
-        - Comburant volume flow rate  {self.comburant_volume:7.3f} Nm³/h
+        - Fuel volume flow rate       {self.fuel_volume:7.3f} Nm³/h
         - Oxidizer volume flow rate   {self.oxidizer_volume:7.3f} Nm³/h
         """)
 
