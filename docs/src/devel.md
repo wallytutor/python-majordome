@@ -17,6 +17,9 @@ source venv/bin/activate
 # Ensure latest pip:
 python -m pip install --upgrade pip
 
+# Install documentation dependencies:
+pip install sphinx sphinx_book_theme numpydoc myst_parser
+
 # Install package in dev mode:
 pip install -e .
 
