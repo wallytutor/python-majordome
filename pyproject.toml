@@ -6,15 +6,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "majordome"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
-    # Docs:
-    'sphinx',
-    'myst-parser',
-    'numpydoc',
-    'sphinx_book_theme',
-
-    # General:
     'cantera>=3',
     'matplotlib>=3',
     'numpy>2',
@@ -43,7 +36,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/wallytutor/python-majordome"
-# Documentation = "https://readthedocs.org"
+Documentation = "https://wallytutor.github.io/python-majordome/"
 Repository = "https://github.com/wallytutor/python-majordome.git"
 Issues = "https://github.com/wallytutor/python-majordome/issues"
 
