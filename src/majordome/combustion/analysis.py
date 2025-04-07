@@ -12,7 +12,7 @@ from ..common import CompositionType
 
 class CombustionAtmosphereCHON:
     """ Combustion atmosphere calculations for CHON system.
-    
+
     Parameters
     ----------
     mechanism: str
@@ -28,7 +28,7 @@ class CombustionAtmosphereCHON:
     def _state_premix(self, phi, Y_c, Y_o, basis="mass"):
         """ Set internal solution to combustion premix composition. """
         self._solution.set_equivalence_ratio(phi, Y_c, Y_o, basis=basis)
-    
+
     def _state_initial(self, species, oxidizer):
         """ Before combustion: reference state, stoichiometric. """
         self._solution.TP = 298.15, ct.one_atm
@@ -43,14 +43,14 @@ class CombustionAtmosphereCHON:
             "N2":  0.5 * self._solution.elemental_mole_fraction("N")
         }
         return self._solution.enthalpy_mass
-        
+
     def _species_heating_value(self, species, oxidizer):
         """ Lower heating value of a single species [MJ/kg]. """
         h1, Y_fuel = self._state_initial(species, oxidizer)
         return (self._state_final() - h1) / Y_fuel
-    
+
     def solution_heating_value(self,
-            fuel: CompositionType, 
+            fuel: CompositionType,
             oxidizer: CompositionType
         ) -> float:
         """ Evaluate lower heating value of mixture.
@@ -69,16 +69,16 @@ class CombustionAtmosphereCHON:
         """
         self._solution.TPX = None, None, fuel
         Y_fuel = self._solution.mass_fraction_dict()
-    
+
         hv = sum(Y * self._species_heating_value(species, oxidizer)
                  for species, Y in Y_fuel.items())
-    
+
         return -1.0e-06 * float(hv)
 
     def combustion_setup(self,
             power: float,
             phi: float,
-            fuel: CompositionType, 
+            fuel: CompositionType,
             oxidizer: CompositionType,
             species: str = "O2"
         ) -> tuple[float, float, float]:
@@ -99,23 +99,23 @@ class CombustionAtmosphereCHON:
         """
         lhv = self.solution_heating_value(fuel, oxidizer)
         mdot_c = 0.001 * power / lhv
-        
+
         self._state_standard(fuel)
         Y_c = self._solution.mass_fraction_dict()
-        
+
         self._state_standard(oxidizer)
         Y_o = self._solution.mass_fraction_dict()
-        
+
         self._state_premix(phi, Y_c, Y_o)
         Y_m = self._solution.mass_fraction_dict()
 
         y_c = Y_c.get(species, 0.0)
         y_o = Y_o.get(species, 0.0)
         y_m = Y_m.get(species, 0.0)
-        
+
         mdot_t = mdot_c * (y_c - y_o) / (y_m - y_o)
         mdot_o = mdot_t - mdot_c
-    
+
         return (lhv, mdot_c, mdot_o)
 
     def normal_density(self, X: CompositionType) -> float:
@@ -149,7 +149,7 @@ class CombustionAtmosphereCHON:
         float
             Volume flow rate under standard state [Nm³/h].
         """
-        
+
         return 3600 * mdot / self.normal_density(X)
 
 
@@ -187,6 +187,25 @@ class CombustionPowerSupply:
         self._power = power
         self._Xc = fuel
         self._Xo = oxidizer
+
+        self._m_h2o, self._m_co2 = self._emissions(mechanism)
+
+    def _emissions(self, mechanism, h2o="H2O", co2="CO2"):
+        """ Evaluate complete combustion products for a gas. """
+        mixer = CombustionAtmosphereMixer(mechanism)
+        mixer.add_quantity(self._mdot_o, self._Xo)
+        mixer.add_quantity(self._mdot_c, self._Xc)
+
+        qty = mixer.solution
+        qty.TP = 298.15, ct.one_atm
+        qty.equilibrate("TP")
+        # print(qty.report())
+
+        Y = qty.mass_fraction_dict()
+        m_1 = qty.mass * Y[h2o]
+        m_2 = qty.mass * Y[co2]
+
+        return m_1, m_2
 
     @property
     def power(self) -> float:
@@ -241,6 +260,16 @@ class CombustionPowerSupply:
             self._rho_o = self._ca.normal_density(self._Xo)
         return self._rho_o
 
+    @property
+    def production_steam(self) -> float:
+        """ Access to complete combustion H2O mass flow rate. """
+        return self._m_h2o
+
+    @property
+    def production_carbon_dioxide(self) -> float:
+        """ Access to complete combustion CO2 mass flow rate. """
+        return self._m_co2
+
     def __repr__(self) -> str:
         """ Standard representation of class instance. """
         args = f"P={self._power:.4e} kW LHV={self._lhv:.4e} MJ/kg"
@@ -249,12 +278,19 @@ class CombustionPowerSupply:
     def report(self) -> str:
         """ Generate combustion power and flow rates report."""
         return dedent(f"""\
+        General
+        -------
         - Required power              {self._power:7.1f} kW
         - Lower heating value         {self._lhv:7.1f} MJ/kg
         - Fuel mass flow rate         {3600*self._mdot_c:7.3f} kg/h
         - Oxidizer mass flow rate     {3600*self._mdot_o:7.3f} kg/h
         - Fuel volume flow rate       {self.fuel_volume:7.3f} Nm³/h
         - Oxidizer volume flow rate   {self.oxidizer_volume:7.3f} Nm³/h
+
+        Emissions
+        ---------
+        - Steam production            {3600*self._m_h2o:7.3f} kg/h
+        - Carbon dioxide production   {3600*self._m_co2:7.3f} kg/h
         """)
 
 
@@ -269,13 +305,13 @@ class CombustionAtmosphereMixer:
     def __init__(self, mechanism: str) -> None:
         self._mechanism = mechanism
         self._quantity = None
-    
+
     def _new_quantity(self, mass, T, P, X):
         """ Create a new quantity with provided state. """
         solution = ct.Solution(self._mechanism)
         solution.TPX = T, P, X
         return ct.Quantity(solution, mass=mass)
-    
+
     def add_quantity(self,
             mass: float,
             X: CompositionType,
@@ -296,7 +332,7 @@ class CombustionAtmosphereMixer:
             Solution pressure in pascal.
         """
         quantity = self._new_quantity(mass, T, P, X)
-        
+
         if self._quantity is None:
             self._quantity = quantity
         else:
@@ -458,7 +494,7 @@ class FluidStream:
         mass = other.quantity.mass
         T, P, X = other.quantity.TPX
         return cls(mech, mass, T=T, P=P, X=X)
-    
+
 
 def mix_streams(streams: list[FluidStream]):
     """ Perform stream algebra to produce the resulting fluid. """
@@ -474,10 +510,10 @@ def complete_combustion(streams, threshold=1.0e-06):
     """ Compute equivalent stream of complete combustion. """
     mixture = mix_streams(streams)
     mixture.equilibrate("TP")
-    
+
     X = mixture.mole_fraction_dict()
     X = {k: v for k, v in X.items() if v > threshold}
-    
+
     mixture = mix_streams(streams)
     mixture.equilibrate("HP")
 
