@@ -207,8 +207,8 @@ class CombustionPowerSupply:
         # print(qty.report())
 
         Y = qty.mass_fraction_dict()
-        m_1 = qty.mass * Y[h2o]
-        m_2 = qty.mass * Y[co2]
+        m_1 = qty.mass * Y.get(h2o, 0.0)
+        m_2 = qty.mass * Y.get(co2, 0.0)
 
         return m_1, m_2
 
@@ -287,19 +287,37 @@ class CombustionPowerSupply:
     def report(self) -> str:
         """ Generate combustion power and flow rates report."""
         if not hasattr(self, "_report"):
-            report = dedent(f"""
+            mdot = self._mdot_c + self._mdot_o
+            qdot = self.fuel_volume + self.oxidizer_volume
+
+            report = dedent(f"""\
             - Required power              {self._power:7.1f} kW
             - Lower heating value         {self._lhv:7.1f} MJ/kg
-            - Fuel mass flow rate         {3600*self._mdot_c:7.3f} kg/h
-            - Oxidizer mass flow rate     {3600*self._mdot_o:7.3f} kg/h
-            - Fuel volume flow rate       {self.fuel_volume:7.3f} Nm³/h
-            - Oxidizer volume flow rate   {self.oxidizer_volume:7.3f} Nm³/h
             """)
 
             self._report = report_title("General", report)
 
+            report = dedent(f"""\
+            - Total mass flow rate        {3600*mdot:7.3f} kg/h
+            - Fuel mass flow rate         {3600*self._mdot_c:7.3f} kg/h
+            - Oxidizer mass flow rate     {3600*self._mdot_o:7.3f} kg/h
+            """)
+
+            self._report += report_title("Mass flow", report)
+
+            report = dedent(f"""\
+            - Total volume flow rate      {qdot:7.3f} Nm³/h
+            - Fuel volume flow rate       {self.fuel_volume:7.3f} Nm³/h
+            - Oxidizer volume flow rate   {self.oxidizer_volume:7.3f} Nm³/h
+            """)
+
+            self._report += report_title("Volume flow", report)
+
             if hasattr(self, "_m_h2o"):
-                report = dedent(f"""
+                mdot =  self._m_h2o + self._m_co2
+
+                report = dedent(f"""\
+                - Total emissions             {3600*mdot:7.3f} kg/h
                 - Water production            {3600*self._m_h2o:7.3f} kg/h
                 - Carbon dioxide production   {3600*self._m_co2:7.3f} kg/h
                 """)
