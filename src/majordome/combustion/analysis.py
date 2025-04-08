@@ -8,6 +8,7 @@ import logging
 from ..common import T_NORMAL
 from ..common import P_NORMAL
 from ..common import CompositionType
+from ..common import report_title
 
 
 class CombustionAtmosphereCHON:
@@ -170,6 +171,8 @@ class CombustionPowerSupply:
         Kinetics mechanism/database to use in computations.
     species: str = "O2"
         Reference species for oxidizer mass balance.
+    emissions: bool = True
+        If true, compute emissions of water and carbon dioxide.
     """
     def __init__(self,
             power: float,
@@ -177,7 +180,8 @@ class CombustionPowerSupply:
             fuel: CompositionType,
             oxidizer: CompositionType,
             mechanism: str,
-            species: str = "O2"
+            species: str = "O2",
+            emissions: bool = True
         ) -> None:
         self._ca = CombustionAtmosphereCHON(mechanism)
 
@@ -188,7 +192,8 @@ class CombustionPowerSupply:
         self._Xc = fuel
         self._Xo = oxidizer
 
-        self._m_h2o, self._m_co2 = self._emissions(mechanism)
+        if emissions:
+            self._m_h2o, self._m_co2 = self._emissions(mechanism)
 
     def _emissions(self, mechanism, h2o="H2O", co2="CO2"):
         """ Evaluate complete combustion products for a gas. """
@@ -261,13 +266,17 @@ class CombustionPowerSupply:
         return self._rho_o
 
     @property
-    def production_steam(self) -> float:
+    def production_water(self) -> float:
         """ Access to complete combustion H2O mass flow rate. """
+        if not hasattr(self, "_m_h2o"):
+            raise RuntimeError("Emissions not computed")
         return self._m_h2o
 
     @property
     def production_carbon_dioxide(self) -> float:
         """ Access to complete combustion CO2 mass flow rate. """
+        if not hasattr(self, "_m_co2"):
+            raise RuntimeError("Emissions not computed")
         return self._m_co2
 
     def __repr__(self) -> str:
@@ -277,21 +286,27 @@ class CombustionPowerSupply:
 
     def report(self) -> str:
         """ Generate combustion power and flow rates report."""
-        return dedent(f"""\
-        General
-        -------
-        - Required power              {self._power:7.1f} kW
-        - Lower heating value         {self._lhv:7.1f} MJ/kg
-        - Fuel mass flow rate         {3600*self._mdot_c:7.3f} kg/h
-        - Oxidizer mass flow rate     {3600*self._mdot_o:7.3f} kg/h
-        - Fuel volume flow rate       {self.fuel_volume:7.3f} Nm³/h
-        - Oxidizer volume flow rate   {self.oxidizer_volume:7.3f} Nm³/h
+        if not hasattr(self, "_report"):
+            report = dedent(f"""
+            - Required power              {self._power:7.1f} kW
+            - Lower heating value         {self._lhv:7.1f} MJ/kg
+            - Fuel mass flow rate         {3600*self._mdot_c:7.3f} kg/h
+            - Oxidizer mass flow rate     {3600*self._mdot_o:7.3f} kg/h
+            - Fuel volume flow rate       {self.fuel_volume:7.3f} Nm³/h
+            - Oxidizer volume flow rate   {self.oxidizer_volume:7.3f} Nm³/h
+            """)
 
-        Emissions
-        ---------
-        - Steam production            {3600*self._m_h2o:7.3f} kg/h
-        - Carbon dioxide production   {3600*self._m_co2:7.3f} kg/h
-        """)
+            self._report = report_title("General", report)
+
+            if hasattr(self, "_m_h2o"):
+                report = dedent(f"""
+                - Water production            {3600*self._m_h2o:7.3f} kg/h
+                - Carbon dioxide production   {3600*self._m_co2:7.3f} kg/h
+                """)
+
+                self._report += report_title("Emissions", report)
+
+        return self._report
 
 
 class CombustionAtmosphereMixer:
