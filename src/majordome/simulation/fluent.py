@@ -29,6 +29,8 @@ class FluentInputRow:
     value: str
         String representation of the value, if required with units.
     unit: str = ""
+        Units of parameter.
+    kind: str = ""
         Unit family of parameter.
     inpar: bool = False
         Whether to use parameter as a design input parameter.
@@ -41,16 +43,25 @@ class FluentInputRow:
             name: str,
             value: str,
             unit: str = "",
+            kind: str = "",
             inpar: bool = False,
             outpar: bool = False,
             descr: str = ""
         ):
+        # Handle values provided with no units:
+        if unit and unit not in value:
+            value = f"{value} {unit}"
+
         self._name   = name
         self._value  = value
-        self._unit   = unit
+        self._descr  = descr
+
+        # If a unit family (kind) is provided, use it as unit:
+        self._unit   = kind if kind else unit
+
+        # Handle specific flags formatting:
         self._inpar  = self._parflag(inpar)
         self._outpar = self._parflag(outpar)
-        self._descr  = descr
 
     def _parflag(self, test):
         return "#t" if test else "#f"
