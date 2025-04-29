@@ -63,4 +63,7 @@
 ```{eval-rst}
 .. autodata:: majordome.common.CompositionType
     :annotation:
+
+.. autoclass:: majordome.common.StateType
+	:members:
 ```
