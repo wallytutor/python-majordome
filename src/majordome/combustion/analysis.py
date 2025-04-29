@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from numbers import Number
 from textwrap import dedent
-from typing import Any
 import cantera as ct
-import logging
 
 from ..common import T_NORMAL
 from ..common import P_NORMAL
