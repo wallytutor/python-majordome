@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "majordome"
-version = "0.4.4"
+version = "0.4.5"
 dependencies = [
     'cantera>=3',
     'matplotlib>=3',
