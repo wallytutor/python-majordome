@@ -1,0 +1,1054 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Majordome API &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Majordome development" href="devel.html" />
+    <link rel="prev" title="Majordome usage" href="usage.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Majordome usage</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Majordome API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devel.html">Majordome development</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/api.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Majordome API</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome-combustion">majordome.combustion</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.combustion_setup"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.combustion_setup()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_density()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.normal_flow"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_flow()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.solution_heating_value"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.solution_heating_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.power"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.production_carbon_dioxide"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_carbon_dioxide</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.production_water"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_water</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.report"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.report()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereMixer"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereMixer.add_quantity"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.add_quantity()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereMixer.solution"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.solution</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome-simulation">majordome.simulation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fluent">Fluent</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#generation-of-tsv-files">Generation of TSV files</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputRow"><code class="docutils literal notranslate"><span class="pre">FluentInputRow</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputRow.name"><code class="docutils literal notranslate"><span class="pre">FluentInputRow.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputFile"><code class="docutils literal notranslate"><span class="pre">FluentInputFile</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputFile.append"><code class="docutils literal notranslate"><span class="pre">FluentInputFile.append()</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputFile.to_file"><code class="docutils literal notranslate"><span class="pre">FluentInputFile.to_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#parsing-scheme-data">Parsing Scheme data</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemePatch"><code class="docutils literal notranslate"><span class="pre">FluentSchemePatch</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemePatch.index"><code class="docutils literal notranslate"><span class="pre">FluentSchemePatch.index</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemePatch.name"><code class="docutils literal notranslate"><span class="pre">FluentSchemePatch.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeHeader"><code class="docutils literal notranslate"><span class="pre">FluentSchemeHeader</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeHeader.names"><code class="docutils literal notranslate"><span class="pre">FluentSchemeHeader.names</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeTableRow"><code class="docutils literal notranslate"><span class="pre">FluentSchemeTableRow</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeTableRow.values"><code class="docutils literal notranslate"><span class="pre">FluentSchemeTableRow.values</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentDpmFile"><code class="docutils literal notranslate"><span class="pre">FluentDpmFile</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentDpmFile.to_dataframe"><code class="docutils literal notranslate"><span class="pre">FluentDpmFile.to_dataframe()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#others">Others</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.convert_xy_to_dict"><code class="docutils literal notranslate"><span class="pre">convert_xy_to_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.load_dpm_table"><code class="docutils literal notranslate"><span class="pre">load_dpm_table()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome-common">majordome.common</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#constants">Constants</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.T_REFERENCE"><code class="docutils literal notranslate"><span class="pre">T_REFERENCE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.T_NORMAL"><code class="docutils literal notranslate"><span class="pre">T_NORMAL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.P_NORMAL"><code class="docutils literal notranslate"><span class="pre">P_NORMAL</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#type-aliases">Type aliases</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.CompositionType"><code class="docutils literal notranslate"><span class="pre">CompositionType</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType"><code class="docutils literal notranslate"><span class="pre">StateType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.P"><code class="docutils literal notranslate"><span class="pre">StateType.P</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.T"><code class="docutils literal notranslate"><span class="pre">StateType.T</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.X"><code class="docutils literal notranslate"><span class="pre">StateType.X</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="majordome-api">
+<h1>Majordome API<a class="headerlink" href="#majordome-api" title="Link to this heading">#</a></h1>
+<section id="majordome-combustion">
+<h2>majordome.combustion<a class="headerlink" href="#majordome-combustion" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereCHON">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.combustion.analysis.</span></span><span class="sig-name descname"><span class="pre">CombustionAtmosphereCHON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereCHON" title="Link to this definition">#</a></dt>
+<dd><p>Combustion atmosphere calculations for CHON system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mechanism: str</strong></dt><dd><p>Kinetics mechanism/database to use in computations.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereCHON.combustion_setup">
+<span class="sig-name descname"><span class="pre">combustion_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxidizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'O2'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.combustion_setup" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates combustion setup for given quantities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>power: float</strong></dt><dd><p>Total supplied power [kW]</p>
+</dd>
+<dt><strong>phi: float</strong></dt><dd><p>Air-fuel equivalence ratio.</p>
+</dd>
+<dt><strong>fuel: CompositionType</strong></dt><dd><p>Composition of fuel in species mole fractions.</p>
+</dd>
+<dt><strong>oxidizer: CompositionType</strong></dt><dd><p>Composition of oxidizer in species mole fractions.</p>
+</dd>
+<dt><strong>species: str = “O2”</strong></dt><dd><p>Reference species for oxidizer mass balance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereCHON.normal_density">
+<span class="sig-name descname"><span class="pre">normal_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.normal_density" title="Link to this definition">#</a></dt>
+<dd><p>Compute solution normal density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X: CompositionType</strong></dt><dd><p>Composition of solution in species mole fractions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Solution density under standard state [kg/Nm³].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereCHON.normal_flow">
+<span class="sig-name descname"><span class="pre">normal_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.normal_flow" title="Link to this definition">#</a></dt>
+<dd><p>Computes volume flow rate from mass flow and composition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mdot: float</strong></dt><dd><p>Solution mass flow rate [kg/s].</p>
+</dd>
+<dt><strong>X: CompositionType</strong></dt><dd><p>Composition of solution in species mole fractions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Volume flow rate under standard state [Nm³/h].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereCHON.solution_heating_value">
+<span class="sig-name descname"><span class="pre">solution_heating_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fuel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxidizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.solution_heating_value" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate lower heating value of mixture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fuel: CompositionType</strong></dt><dd><p>Composition of fuel in species mole fractions.</p>
+</dd>
+<dt><strong>oxidizer: CompositionType</strong></dt><dd><p>Composition of oxidizer in species mole fractions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Lower heating value of provided mixture [MJ/kg].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.combustion.analysis.</span></span><span class="sig-name descname"><span class="pre">CombustionPowerSupply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equivalence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxidizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'O2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply" title="Link to this definition">#</a></dt>
+<dd><p>Provides combustion calculations for given power supply.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>power: float</strong></dt><dd><p>Total supplied power [kW]</p>
+</dd>
+<dt><strong>equivalence: float</strong></dt><dd><p>Air-fuel equivalence ratio.</p>
+</dd>
+<dt><strong>fuel: CompositionType</strong></dt><dd><p>Composition of fuel in species mole fractions.</p>
+</dd>
+<dt><strong>oxidizer: CompositionType</strong></dt><dd><p>Composition of oxidizer in species mole fractions.</p>
+</dd>
+<dt><strong>mechanism: str</strong></dt><dd><p>Kinetics mechanism/database to use in computations.</p>
+</dd>
+<dt><strong>species: str = “O2”</strong></dt><dd><p>Reference species for oxidizer mass balance.</p>
+</dd>
+<dt><strong>emissions: bool = True</strong></dt><dd><p>If true, compute emissions of water and carbon dioxide.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.fuel">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fuel</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel" title="Link to this definition">#</a></dt>
+<dd><p>Access to fuel mole fractions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.fuel_mass">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fuel_mass</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_mass" title="Link to this definition">#</a></dt>
+<dd><p>Access to fuel mass flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.fuel_normal_density">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fuel_normal_density</span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_normal_density" title="Link to this definition">#</a></dt>
+<dd><p>Fuel normal density.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.fuel_volume">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fuel_volume</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_volume" title="Link to this definition">#</a></dt>
+<dd><p>Access to fuel volume flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.oxidizer">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">oxidizer</span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer" title="Link to this definition">#</a></dt>
+<dd><p>Access to oxidizer mole fractions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.oxidizer_mass">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">oxidizer_mass</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_mass" title="Link to this definition">#</a></dt>
+<dd><p>Access to oxidizer mass flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.oxidizer_normal_density">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">oxidizer_normal_density</span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_normal_density" title="Link to this definition">#</a></dt>
+<dd><p>Oxidizer normal density.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.oxidizer_volume">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">oxidizer_volume</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_volume" title="Link to this definition">#</a></dt>
+<dd><p>Access to oxidizer volume flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.power">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">power</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.power" title="Link to this definition">#</a></dt>
+<dd><p>Access to combustion power [kW].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.production_carbon_dioxide">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">production_carbon_dioxide</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.production_carbon_dioxide" title="Link to this definition">#</a></dt>
+<dd><p>Access to complete combustion CO2 mass flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.production_water">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">production_water</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.production_water" title="Link to this definition">#</a></dt>
+<dd><p>Access to complete combustion H2O mass flow rate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionPowerSupply.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionPowerSupply.report" title="Link to this definition">#</a></dt>
+<dd><p>Generate combustion power and flow rates report.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereMixer">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.combustion.analysis.</span></span><span class="sig-name descname"><span class="pre">CombustionAtmosphereMixer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereMixer" title="Link to this definition">#</a></dt>
+<dd><p>Provides addition of thermochemical quantities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mechanism: str</strong></dt><dd><p>Kinetics mechanism/database to use in computations.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereMixer.add_quantity">
+<span class="sig-name descname"><span class="pre">add_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">101325.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereMixer.add_quantity" title="Link to this definition">#</a></dt>
+<dd><p>Add quantity at given state to global mixture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mass: float</strong></dt><dd><p>Amount of matter in kilograms.</p>
+</dd>
+<dt><strong>X: CompositionType</strong></dt><dd><p>Composition of quantity in mole fractions.</p>
+</dd>
+<dt><strong>T: float = 273.15</strong></dt><dd><p>Solution temperature in kelvin.</p>
+</dd>
+<dt><strong>P: float = ct.one_atm</strong></dt><dd><p>Solution pressure in pascal.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.combustion.analysis.CombustionAtmosphereMixer.solution">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">solution</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Quantity</span></em><a class="headerlink" href="#majordome.combustion.analysis.CombustionAtmosphereMixer.solution" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to computed solution, if any.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="majordome-simulation">
+<h2>majordome.simulation<a class="headerlink" href="#majordome-simulation" title="Link to this heading">#</a></h2>
+<section id="fluent">
+<h3>Fluent<a class="headerlink" href="#fluent" title="Link to this heading">#</a></h3>
+<section id="generation-of-tsv-files">
+<h4>Generation of TSV files<a class="headerlink" href="#generation-of-tsv-files" title="Link to this heading">#</a></h4>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentInputRow">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">FluentInputRow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inpar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outpar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentInputRow" title="Link to this definition">#</a></dt>
+<dd><p>Fluent TSV file data entry for automated parameter generation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name: str</strong></dt><dd><p>Name of parameter, no spaces allowed.</p>
+</dd>
+<dt><strong>value: str</strong></dt><dd><p>String representation of the value, if required with units.</p>
+</dd>
+<dt><strong>unit: str = “”</strong></dt><dd><p>Units of parameter.</p>
+</dd>
+<dt><strong>kind: str = “”</strong></dt><dd><p>Unit family of parameter.</p>
+</dd>
+<dt><strong>inpar: bool = False</strong></dt><dd><p>Whether to use parameter as a design input parameter.</p>
+</dd>
+<dt><strong>outpar: bool = False</strong></dt><dd><p>Whether to use parameter as a design output parameter.</p>
+</dd>
+<dt><strong>descr: str = “”</strong></dt><dd><p>A short description of the parameter.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentInputRow.name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#majordome.simulation.fluent.FluentInputRow.name" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to entry name.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentInputFile">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">FluentInputFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#majordome.simulation.fluent.FluentInputRow" title="majordome.simulation.fluent.FluentInputRow"><span class="pre">FluentInputRow</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentInputFile" title="Link to this definition">#</a></dt>
+<dd><p>Representation of an Ansys Fluent expressions input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>HEAD</strong><span class="classifier">tuple[str]</span></dt><dd><p>Tuple containing TSV file headers.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentInputFile.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#majordome.simulation.fluent.FluentInputRow" title="majordome.simulation.fluent.FluentInputRow"><span class="pre">FluentInputRow</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentInputFile.append" title="Link to this definition">#</a></dt>
+<dd><p>Append a single row to the inputs file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentInputFile.to_file">
+<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saveas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentInputFile.to_file" title="Link to this definition">#</a></dt>
+<dd><p>Generate Fluent input file.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="parsing-scheme-data">
+<h4>Parsing Scheme data<a class="headerlink" href="#parsing-scheme-data" title="Link to this heading">#</a></h4>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentSchemePatch">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">FluentSchemePatch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentSchemePatch" title="Link to this definition">#</a></dt>
+<dd><p>Parse patch name from a Scheme file.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentSchemePatch.index">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#majordome.simulation.fluent.FluentSchemePatch.index" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to patch index.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentSchemePatch.name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#majordome.simulation.fluent.FluentSchemePatch.name" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to patch name.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentSchemeHeader">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">FluentSchemeHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentSchemeHeader" title="Link to this definition">#</a></dt>
+<dd><p>Parse header row from a Scheme table file.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentSchemeHeader.names">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#majordome.simulation.fluent.FluentSchemeHeader.names" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to column names.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentSchemeTableRow">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">FluentSchemeTableRow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentSchemeTableRow" title="Link to this definition">#</a></dt>
+<dd><p>Parse data row from a Scheme table file.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentSchemeTableRow.values">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#majordome.simulation.fluent.FluentSchemeTableRow.values" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to row data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentDpmFile">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">FluentDpmFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentDpmFile" title="Link to this definition">#</a></dt>
+<dd><p>Parse a sampled Scheme DPM file generated by Fluent.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.FluentDpmFile.to_dataframe">
+<span class="sig-name descname"><span class="pre">to_dataframe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#majordome.simulation.fluent.FluentDpmFile.to_dataframe" title="Link to this definition">#</a></dt>
+<dd><p>Convert parsed data to a data frame for analysis.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="others">
+<h4>Others<a class="headerlink" href="#others" title="Link to this heading">#</a></h4>
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.convert_xy_to_dict">
+<span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">convert_xy_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.simulation.fluent.convert_xy_to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Convert Ansys XY format to a dictionary structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fname: str | Path</strong></dt><dd><p>Path to “.xy” file to be converted by function.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>dict[int, dict[str, list[float]]]</dt><dd><p>A dictionary with each particle from pathlines transformed
+into a dictionary of coordinates X and Y.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.simulation.fluent.load_dpm_table">
+<span class="sig-prename descclassname"><span class="pre">majordome.simulation.fluent.</span></span><span class="sig-name descname"><span class="pre">load_dpm_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#majordome.simulation.fluent.load_dpm_table" title="Link to this definition">#</a></dt>
+<dd><p>Wrapper for simple loading of data table.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+<section id="majordome-common">
+<h2>majordome.common<a class="headerlink" href="#majordome-common" title="Link to this heading">#</a></h2>
+<section id="constants">
+<h3>Constants<a class="headerlink" href="#constants" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.T_REFERENCE">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">T_REFERENCE</span></span><a class="headerlink" href="#majordome.common.T_REFERENCE" title="Link to this definition">#</a></dt>
+<dd><p>Thermodynamic reference temperature [K].</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.T_NORMAL">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">T_NORMAL</span></span><a class="headerlink" href="#majordome.common.T_NORMAL" title="Link to this definition">#</a></dt>
+<dd><p>Normal state reference temperature [K].</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.P_NORMAL">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">P_NORMAL</span></span><a class="headerlink" href="#majordome.common.P_NORMAL" title="Link to this definition">#</a></dt>
+<dd><p>Normal state reference temperature [K].</p>
+</dd></dl>
+
+</section>
+<section id="type-aliases">
+<h3>Type aliases<a class="headerlink" href="#type-aliases" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.CompositionType">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">CompositionType</span></span><a class="headerlink" href="#majordome.common.CompositionType" title="Link to this definition">#</a></dt>
+<dd><p>Input type for Cantera composition dictionaries.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.StateType">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">StateType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Number</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Number</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">101325.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.StateType" title="Link to this definition">#</a></dt>
+<dd><p>Input type for Cantera TPX state dictionaries.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.common.StateType.P">
+<span class="sig-name descname"><span class="pre">P</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Number</span></em><a class="headerlink" href="#majordome.common.StateType.P" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.common.StateType.T">
+<span class="sig-name descname"><span class="pre">T</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Number</span></em><a class="headerlink" href="#majordome.common.StateType.T" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.common.StateType.X">
+<span class="sig-name descname"><span class="pre">X</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#majordome.common.StateType.X" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="usage.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Majordome usage</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="devel.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Majordome development</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome-combustion">majordome.combustion</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.combustion_setup"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.combustion_setup()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_density()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.normal_flow"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_flow()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereCHON.solution_heating_value"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.solution_heating_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.fuel_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.oxidizer_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.power"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.production_carbon_dioxide"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_carbon_dioxide</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.production_water"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_water</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionPowerSupply.report"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.report()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereMixer"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereMixer.add_quantity"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.add_quantity()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.combustion.analysis.CombustionAtmosphereMixer.solution"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.solution</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome-simulation">majordome.simulation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fluent">Fluent</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#generation-of-tsv-files">Generation of TSV files</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputRow"><code class="docutils literal notranslate"><span class="pre">FluentInputRow</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputRow.name"><code class="docutils literal notranslate"><span class="pre">FluentInputRow.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputFile"><code class="docutils literal notranslate"><span class="pre">FluentInputFile</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputFile.append"><code class="docutils literal notranslate"><span class="pre">FluentInputFile.append()</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentInputFile.to_file"><code class="docutils literal notranslate"><span class="pre">FluentInputFile.to_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#parsing-scheme-data">Parsing Scheme data</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemePatch"><code class="docutils literal notranslate"><span class="pre">FluentSchemePatch</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemePatch.index"><code class="docutils literal notranslate"><span class="pre">FluentSchemePatch.index</span></code></a></li>
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemePatch.name"><code class="docutils literal notranslate"><span class="pre">FluentSchemePatch.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeHeader"><code class="docutils literal notranslate"><span class="pre">FluentSchemeHeader</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeHeader.names"><code class="docutils literal notranslate"><span class="pre">FluentSchemeHeader.names</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeTableRow"><code class="docutils literal notranslate"><span class="pre">FluentSchemeTableRow</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentSchemeTableRow.values"><code class="docutils literal notranslate"><span class="pre">FluentSchemeTableRow.values</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentDpmFile"><code class="docutils literal notranslate"><span class="pre">FluentDpmFile</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h6 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.FluentDpmFile.to_dataframe"><code class="docutils literal notranslate"><span class="pre">FluentDpmFile.to_dataframe()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#others">Others</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.convert_xy_to_dict"><code class="docutils literal notranslate"><span class="pre">convert_xy_to_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.simulation.fluent.load_dpm_table"><code class="docutils literal notranslate"><span class="pre">load_dpm_table()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome-common">majordome.common</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#constants">Constants</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.T_REFERENCE"><code class="docutils literal notranslate"><span class="pre">T_REFERENCE</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.T_NORMAL"><code class="docutils literal notranslate"><span class="pre">T_NORMAL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.P_NORMAL"><code class="docutils literal notranslate"><span class="pre">P_NORMAL</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#type-aliases">Type aliases</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.CompositionType"><code class="docutils literal notranslate"><span class="pre">CompositionType</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType"><code class="docutils literal notranslate"><span class="pre">StateType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.P"><code class="docutils literal notranslate"><span class="pre">StateType.P</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.T"><code class="docutils literal notranslate"><span class="pre">StateType.T</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.X"><code class="docutils literal notranslate"><span class="pre">StateType.X</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
