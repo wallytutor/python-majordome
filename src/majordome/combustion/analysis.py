@@ -208,8 +208,12 @@ class CombustionPowerSupply:
     def _emissions(self, mechanism, h2o="H2O", co2="CO2"):
         """ Evaluate complete combustion products for a gas. """
         mixer = CombustionAtmosphereMixer(mechanism)
-        mixer.add_quantity(self._mdot_o, self._Xo)
-        mixer.add_quantity(self._mdot_c, self._Xc)
+        
+        if self._mdot_o > 0.0:
+            mixer.add_quantity(self._mdot_o, self._Xo)
+
+        if self._mdot_c > 0.0:
+            mixer.add_quantity(self._mdot_c, self._Xc)
 
         qty = mixer.solution
         qty.TP = 298.15, ct.one_atm
@@ -374,6 +378,10 @@ class CombustionAtmosphereMixer:
         P: float = ct.one_atm
             Solution pressure in pascal.
         """
+        # XXX: maybe consider this and add warning!
+        # SMALL_MASS = 1.0e-12
+        # mass = mass if mass > 0 else SMALL_MASS
+
         quantity = self._new_quantity(mass, T, P, X)
 
         if self._quantity is None:
