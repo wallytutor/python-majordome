@@ -16,15 +16,18 @@ class CombustionAtmosphereCHON:
     ----------
     mechanism: str
         Kinetics mechanism/database to use in computations.
+    basis: str = "mass"
+        Basis on which to compute equivalence ratio.
     """
-    def __init__(self, mechanism: str) -> None:
+    def __init__(self, mechanism: str, basis: str = "mass") -> None:
         self._solution = ct.Solution(mechanism)
+        self._basis = basis
 
     def _state_standard(self, X):
         """ Set internal solution to standard state / composition. """
         self._solution.TPX = 273.15, ct.one_atm, X
 
-    def _state_premix(self, phi, Y_c, Y_o, basis="mass"):
+    def _state_premix(self, phi, Y_c, Y_o, basis):
         """ Set internal solution to combustion premix composition. """
         self._solution.set_equivalence_ratio(phi, Y_c, Y_o, basis=basis)
 
@@ -88,7 +91,7 @@ class CombustionAtmosphereCHON:
         power: float
             Total supplied power [kW]
         phi: float
-            Air-fuel equivalence ratio.
+            Oxidizer-fuel equivalence ratio.
         fuel: CompositionType
             Composition of fuel in species mole fractions.
         oxidizer: CompositionType
@@ -101,11 +104,17 @@ class CombustionAtmosphereCHON:
 
         self._state_standard(fuel)
         Y_c = self._solution.mass_fraction_dict()
+        X_c = self._solution.mole_fraction_dict()
 
         self._state_standard(oxidizer)
         Y_o = self._solution.mass_fraction_dict()
+        X_o = self._solution.mole_fraction_dict()
 
-        self._state_premix(phi, Y_c, Y_o)
+        if self._basis == "mole":
+            self._state_premix(phi, X_c, X_o, self._basis)
+        else:
+            self._state_premix(phi, Y_c, Y_o, self._basis)
+
         Y_m = self._solution.mass_fraction_dict()
 
         y_c = Y_c.get(species, 0.0)
@@ -160,7 +169,7 @@ class CombustionPowerSupply:
     power: float
         Total supplied power [kW]
     equivalence: float
-        Air-fuel equivalence ratio.
+        Oxidizer-fuel equivalence ratio.
     fuel: CompositionType
         Composition of fuel in species mole fractions.
     oxidizer: CompositionType
@@ -171,6 +180,8 @@ class CombustionPowerSupply:
         Reference species for oxidizer mass balance.
     emissions: bool = True
         If true, compute emissions of water and carbon dioxide.
+    basis: str = "mass"
+        Basis on which to compute equivalence ratio.
     """
     def __init__(self,
             power: float,
@@ -179,9 +190,10 @@ class CombustionPowerSupply:
             oxidizer: CompositionType,
             mechanism: str,
             species: str = "O2",
-            emissions: bool = True
+            emissions: bool = True,
+            basis: str = "mass"
         ) -> None:
-        self._ca = CombustionAtmosphereCHON(mechanism)
+        self._ca = CombustionAtmosphereCHON(mechanism, basis=basis)
 
         (self._lhv, self._mdot_c, self._mdot_o) = self._ca.combustion_setup(
             power, equivalence, fuel, oxidizer, species=species)
