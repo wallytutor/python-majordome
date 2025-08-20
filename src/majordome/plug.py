@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import warnings
 import cantera as ct
 import numpy as np
+import pandas as pd
 
 
 class PlugFlowChainCantera:
@@ -34,10 +36,11 @@ class PlugFlowChainCantera:
 
         # Setup reactor network:
         self._net = ct.ReactorNet([self._r_content])
+        self._net.max_time_step = 0.1
         self._net.initialize()
 
         # Create array of states for results:
-        extra = {"z_cell": z, "V_cell": V, "Q_cell": self._Q}
+        extra = {"z_cell": z, "V_cell": V, "Q_cell": self._Q, "m_cell": 0.0}
         self._states = ct.SolutionArray(self._r_content.thermo,
                                         shape = (z.shape[0],),
                                         extra = extra)
@@ -69,10 +72,11 @@ class PlugFlowChainCantera:
 
         return qty_srcs
 
-    def _store(self, n_slice):
+    def _store(self, n_slice) -> None:
         """ Store current state of tracked reactor. """
         self._states[n_slice].HPY = self._r_content.thermo.HPY
         self._states[n_slice].Q_cell = self._Q[n_slice]
+        self._states[n_slice].m_cell = self._r_content.mass
 
     def _guess(self, n_slice, qty_next) -> ct.Quantity:
         """ Guess next state based on previous one. """
@@ -80,8 +84,8 @@ class PlugFlowChainCantera:
             return self._states[n_slice].HPY
         return qty_next.HPY
 
-    def _step(self, hpy_reac, qty_next, V, Q, **opts):
-        """ Advance reactor to steady state with given inflow. """
+    def _prepare(self, hpy_reac, qty_next, V, Q) -> None:
+        """ Prepare reactor for next iteration. """
         # Modify volume of reactor:
         self._r_content.volume = V
 
@@ -99,16 +103,61 @@ class PlugFlowChainCantera:
         # Update injection mass flow:
         self._mfc.mass_flow_rate = qty_next.mass
 
+    def _fallback(self,  hpy_reac, qty_next, V, Q, **opts):
+        """ Alternative approach to advance reactor to steady state. """
+        self._prepare(hpy_reac, qty_next, V, Q)
+
+        # Get time scale for approaching steady-state:
+        tau = opts.get("t_mult", 100) * self._r_content.mass / qty_next.mass
+        warnings.warn(f"Fall-back solution with tau={tau:.2f} s")
+
+        self._net.reinitialize()
+        self._net.advance(self._net.time + tau)
+
+    def _step(self, hpy_reac, qty_next, V, Q, **opts):
+        """ Advance reactor to steady state with given inflow. """
+        self._prepare(hpy_reac, qty_next, V, Q)
+
         # Reinitialize reactor network and advance to steady state:
         self._net.reinitialize()
-        self._net.advance_to_steady_state(**opts)
+        self._net.advance_to_steady_state(
+            max_steps = opts.get("max_step", 10000),
+            residual_threshold = opts.get("residual_threshold", 0),
+            atol = opts.get("atol", 0.0),
+            return_residuals = False
+        )
 
-        # Return new quantity for next iteration:
-        return ct.Quantity(self._r_content.thermo, mass=qty_next.mass)
+    def _next_quantity(self, mass) -> ct.Quantity:
+        """ Compute quantity to be used as source in next step. """
+        return ct.Quantity(self._r_content.thermo, mass=mass)
 
-    def loop(self, m_source, h_source, Y_source, Q=None, **opts):
-        """ Loop over the slices of the plug-flow reactor. """
+    def _ensure_solution(self):
+        """ Ensure that a solution is available. """
+        if not self._has_solution:
+            raise RuntimeError("No solution available, run `loop` first!")
+
+    def loop(self, m_source: np.ndarray, h_source: np.ndarray,
+             Y_source: np.ndarray, Q: np.ndarray = None,
+             save_history: bool = False, **opts) -> pd.DataFrame | None:
+        """ Loop over the slices of the plug-flow reactor.
+
+        In case of solver failure, one might try the following configurations;
+        it is recommended to start by reducing `max_time_step` before tweaking
+        other parameters.
+
+        ```python
+        pfc.network.atol = 1.0e-12
+        pfc.network.rtol = 1.0e-06
+        pfc.network.max_time_step = 0.1
+        pfc.network.linear_solver_type = "GMRES"
+        pfc.network.max_err_test_fails = 10
+        pfc.network.max_order = 5
+        pfc.network.max_steps = 2000
+        ```
+        """
+        stats = []
         qty_prev = None
+
         self._Q[:] = 0 if Q is None else Q
 
         for n_slice in range(self._z.shape[0]):
@@ -119,13 +168,33 @@ class PlugFlowChainCantera:
             h = h_source[n_slice]
             Y = Y_source[n_slice]
 
+            qty_next = self._inflow(m, h, Y, qty_prev)
+            hpy_reac = self._guess(n_slice, qty_next)
+
             try:
-                qty_next = self._inflow(m, h, Y, qty_prev)
-                hpy_reac = self._guess(n_slice, qty_next)
-                qty_prev = self._step(hpy_reac, qty_next, V, q, **opts)
-                self._store(n_slice)
+                self._step(hpy_reac, qty_next, V, q, **opts)
             except Exception as err:
-                # TODO: make equilibrate solution? Find a fallback!
-                raise RuntimeError(f"While in slice {n_slice}:\n{err}")
+                # TODO: if fail, force equilibrium? Find another fallback!
+                warnings.warn(f"While in slice {n_slice}:\n{err}")
+                self._fallback(hpy_reac, qty_next, V, q, **opts)
+
+            qty_prev = self._next_quantity(qty_next.mass)
+            self._store(n_slice)
+
+            if save_history:
+                stats.append(self._net.solver_stats)
 
         self._has_solution = True
+        return None if not save_history else pd.DataFrame(stats)
+
+    @property
+    def states(self) -> ct.SolutionArray:
+        """ Provides access to the states of the reactor. """
+        self._ensure_solution()
+        return self._states
+
+    @property
+    def network(self) -> ct.ReactorNet:
+        """ Provides access to the reactor network. """
+        self._ensure_solution()
+        return self._net
