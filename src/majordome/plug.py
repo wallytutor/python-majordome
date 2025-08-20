@@ -37,9 +37,10 @@ class PlugFlowChainCantera:
         self._net.initialize()
 
         # Create array of states for results:
+        extra = {"z_cell": z, "V_cell": V, "Q_cell": self._Q}
         self._states = ct.SolutionArray(self._r_content.thermo,
                                         shape = (z.shape[0],),
-                                        extra = ["z_cell", "V_cell"])
+                                        extra = extra)
 
     def _source(self, m, h, Y) -> ct.Quantity | None:
         """ Update source if any flow is available. """
@@ -68,8 +69,7 @@ class PlugFlowChainCantera:
     def _store(self, n_slice):
         """ Store current state of tracked reactor. """
         self._states[n_slice].HPY = self._r_content.thermo.HPY
-        self._states[n_slice].z_cell = self._z[n_slice]
-        self._states[n_slice].V_cell = self._V[n_slice]
+        self._states[n_slice].Q_cell = self._Q[n_slice]
 
     def _guess(self, n_slice, qty_next) -> ct.Quantity:
         """ Guess next state based on previous one. """
