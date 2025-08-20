@@ -42,6 +42,9 @@ class PlugFlowChainCantera:
                                         shape = (z.shape[0],),
                                         extra = extra)
 
+        # Flag if (previous) solution is available:
+        self._has_solution = False
+
     def _source(self, m, h, Y) -> ct.Quantity | None:
         """ Update source if any flow is available. """
         if m <= 0.0:
@@ -73,9 +76,8 @@ class PlugFlowChainCantera:
 
     def _guess(self, n_slice, qty_next) -> ct.Quantity:
         """ Guess next state based on previous one. """
-        if n_slice < self._states.shape[0]:
+        if self._has_solution:
             return self._states[n_slice].HPY
-
         return qty_next.HPY
 
     def _step(self, hpy_reac, qty_next, V, Q, **opts):
@@ -110,7 +112,6 @@ class PlugFlowChainCantera:
         self._Q[:] = 0 if Q is None else Q
 
         for n_slice in range(self._z.shape[0]):
-            z = self._z[n_slice]
             V = self._V[n_slice]
             q = self._Q[n_slice]
 
@@ -126,3 +127,5 @@ class PlugFlowChainCantera:
             except Exception as err:
                 # TODO: make equilibrate solution? Find a fallback!
                 raise RuntimeError(f"While in slice {n_slice}:\n{err}")
+
+        self._has_solution = True
