@@ -196,5 +196,4 @@ class PlugFlowChainCantera:
     @property
     def network(self) -> ct.ReactorNet:
         """ Provides access to the reactor network. """
-        self._ensure_solution()
         return self._net
