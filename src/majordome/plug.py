@@ -5,7 +5,13 @@ import numpy as np
 
 class PlugFlowChainCantera:
     """ Plug-flow reactor as a chain of 0-D reactors with Cantera. """
-    def __init__(self, mechanism: str, K: float = 1.0) -> None:
+    def __init__(self, mechanism: str, z: np.ndarray, V: np.ndarray,
+                 K: float = 1.0) -> None:
+        # Store coordinates and volume of slices:
+        self._z = z
+        self._V = V
+        self._Q = np.zeros_like(self._z)
+
         # Create solutions from compatible mechanism:
         self._f_sources = ct.Solution(mechanism, basis="mass")
         self._f_content = ct.Solution(mechanism, basis="mass")
@@ -19,7 +25,7 @@ class PlugFlowChainCantera:
         # Connect the reactor to the *world* (unit area wall). Notice
         # that imposing `A=1.0` means that when setting up the heat flux
         # that value is identical to the absolute integral exchange.
-        conf = dict(A=1.0, K=None, U=None, Q=0.0, velocity=0.0)
+        conf = dict(A=1.0, K=0.0, U=0.0, Q=0.0, velocity=0.0)
         self._w_world = ct.Wall(self._r_content, self._r_outflow, **conf)
 
         # Connect chain of reactors:
@@ -31,9 +37,9 @@ class PlugFlowChainCantera:
         self._net.initialize()
 
         # Create array of states for results:
-        extra = ["z", "V"]
-        thermo = self._r_content.thermo
-        self._states = ct.SolutionArray(thermo, extra=extra)
+        self._states = ct.SolutionArray(self._r_content.thermo,
+                                        shape = (z.shape[0],),
+                                        extra = ["z_cell", "V_cell"])
 
     def _source(self, m, h, Y) -> ct.Quantity | None:
         """ Update source if any flow is available. """
@@ -59,15 +65,11 @@ class PlugFlowChainCantera:
 
         return qty_srcs
 
-    def _store(self, n_slice, z, V):
+    def _store(self, n_slice):
         """ Store current state of tracked reactor. """
-        if n_slice >= self._states.shape[0]:
-            self._states.append(T = self._r_content.thermo.T,
-                                P = self._r_content.thermo.P,
-                                Y = self._r_content.thermo.Y,
-                                z = z, V = V)
-        else:
-            self._states[n_slice].HPY = self._r_content.thermo.HPY
+        self._states[n_slice].HPY = self._r_content.thermo.HPY
+        self._states[n_slice].z_cell = self._z[n_slice]
+        self._states[n_slice].V_cell = self._V[n_slice]
 
     def _guess(self, n_slice, qty_next) -> ct.Quantity:
         """ Guess next state based on previous one. """
@@ -102,15 +104,15 @@ class PlugFlowChainCantera:
         # Return new quantity for next iteration:
         return ct.Quantity(self._r_content.thermo, mass=qty_next.mass)
 
-    def loop(self, zc, Vc, m_source, h_source, Y_source, Q=None, **opts):
+    def loop(self, m_source, h_source, Y_source, Q=None, **opts):
         """ Loop over the slices of the plug-flow reactor. """
         qty_prev = None
-        Qs = np.zeros_like(Vc) if Q is None else Q
+        self._Q[:] = 0 if Q is None else Q
 
-        for n_slice in range(zc.shape[0]):
-            z = zc[n_slice]
-            V = Vc[n_slice]
-            q = Qs[n_slice]
+        for n_slice in range(self._z.shape[0]):
+            z = self._z[n_slice]
+            V = self._V[n_slice]
+            q = self._Q[n_slice]
 
             m = m_source[n_slice]
             h = h_source[n_slice]
@@ -120,7 +122,7 @@ class PlugFlowChainCantera:
                 qty_next = self._inflow(m, h, Y, qty_prev)
                 hpy_reac = self._guess(n_slice, qty_next)
                 qty_prev = self._step(hpy_reac, qty_next, V, q, **opts)
-                self._store(n_slice, z, V)
+                self._store(n_slice)
             except Exception as err:
                 # TODO: make equilibrate solution? Find a fallback!
                 raise RuntimeError(f"While in slice {n_slice}:\n{err}")
