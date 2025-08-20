@@ -4,7 +4,7 @@ import numpy as np
 
 
 class PlugFlowChainCantera:
-    """ Plug-flow reactor as a chain of 0-D reactors with Cantera. """"
+    """ Plug-flow reactor as a chain of 0-D reactors with Cantera. """
     def __init__(self, mechanism: str, K: float = 1.0) -> None:
         # Create solutions from compatible mechanism:
         self._f_sources = ct.Solution(mechanism, basis="mass")
