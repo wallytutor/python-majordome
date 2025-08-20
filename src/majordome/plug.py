@@ -102,7 +102,7 @@ class PlugFlowChainCantera:
         # Return new quantity for next iteration:
         return ct.Quantity(self._r_content.thermo, mass=qty_next.mass)
 
-    def loop(self, zc, Vc, m1, mh, mY, Q=None, **opts):
+    def loop(self, zc, Vc, m_source, h_source, Y_source, Q=None, **opts):
         """ Loop over the slices of the plug-flow reactor. """
         qty_prev = None
         Qs = np.zeros_like(Vc) if Q is None else Q
@@ -112,13 +112,9 @@ class PlugFlowChainCantera:
             V = Vc[n_slice]
             q = Qs[n_slice]
 
-            m, h, Y = -1.0, None, None
-
-            # TODO these should be provided already as m, h, Y!
-            if (m := m1[n_slice]) > 0:
-                m = m1[n_slice]
-                h = mh[n_slice] / m
-                Y = mY[n_slice] / m
+            m = m_source[n_slice]
+            h = h_source[n_slice]
+            Y = Y_source[n_slice]
 
             try:
                 qty_next = self._inflow(m, h, Y, qty_prev)
