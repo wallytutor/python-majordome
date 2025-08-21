@@ -9,6 +9,13 @@ from ..common import CompositionType
 from ..common import report_title
 
 
+def copy_quantity(qty: ct.Quantity) -> ct.Quantity:
+    """ Makes a hard copy of a ct.Quantity object. """
+    sol = ct.Solution(qty.source, qty.phase.name)
+    sol.TPY = qty.TPY
+    return ct.Quantity(sol, mass=qty.mass)
+
+
 class CombustionAtmosphereCHON:
     """ Combustion atmosphere calculations for CHON system.
 
@@ -364,7 +371,7 @@ class CombustionAtmosphereMixer:
             X: CompositionType,
             T: float = 273.15,
             P: float = ct.one_atm
-        ) -> None:
+        ) -> ct.Quantity:
         """ Add quantity at given state to global mixture.
 
         Parameters
@@ -381,13 +388,14 @@ class CombustionAtmosphereMixer:
         # XXX: maybe consider this and add warning!
         # SMALL_MASS = 1.0e-12
         # mass = mass if mass > 0 else SMALL_MASS
-
         quantity = self._new_quantity(mass, T, P, X)
 
         if self._quantity is None:
             self._quantity = quantity
         else:
             self._quantity += quantity
+
+        return copy_quantity(quantity)
 
     @property
     def solution(self) -> ct.Quantity:
