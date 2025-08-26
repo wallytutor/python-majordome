@@ -188,6 +188,11 @@ class PlugFlowChainCantera:
         return None if not save_history else pd.DataFrame(stats)
 
     @property
+    def n_species(self) -> int:
+        """ Number of species in mechanism. """
+        return self._f_content.n_species
+    
+    @property
     def states(self) -> ct.SolutionArray:
         """ Provides access to the states of the reactor. """
         self._ensure_solution()
