@@ -2,6 +2,7 @@
 from numbers import Number
 from textwrap import dedent
 from typing import NamedTuple
+import cantera as ct
 
 T_REFERENCE = 298.15
 """ Thermodynamic reference temperature [K]. """
@@ -21,6 +22,27 @@ class StateType(NamedTuple):
     X: CompositionType
     T: Number = T_NORMAL
     P: Number = P_NORMAL
+
+
+class NormalFlowRate:
+    """ Compute normal flow rate for a given composition. """
+    def __init__(self, mech, X=None, Y=None, T_ref=T_NORMAL):
+        if sum((x is not None for x in (X, Y))) != 1:
+            raise ValueError("Must provide either X or Y, not both.")
+
+        self._sol = ct.Solution(mech)
+
+        if X is not None:
+            self._sol.TPX = T_ref, ct.one_atm, X
+
+        if Y is not None:
+            self._sol.TPY = T_ref, ct.one_atm, Y
+
+        self._rho = self._sol.density_mass
+
+    def __call__(self, qdot: float) -> float:
+        """ Convert flow rate [Nm³/h] to mass units [kg/s]. """
+        return self._rho * qdot / 3600
 
 
 def report_title(title: str, report: str) -> str:
