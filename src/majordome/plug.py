@@ -41,7 +41,8 @@ class PlugFlowChainCantera:
         self._net.initialize()
 
         # Create array of states for results:
-        extra = {"z_cell": z, "V_cell": V, "Q_cell": self._Q, "m_cell": 0.0}
+        extra = {"z_cell": z, "V_cell": V, "Q_cell": self._Q,
+                 "m_cell": 0.0, "mdot_cell": 0.0}
         self._states = ct.SolutionArray(self._r_content.thermo,
                                         shape = (z.shape[0],),
                                         extra = extra)
@@ -84,6 +85,7 @@ class PlugFlowChainCantera:
         self._states[n_slice].HPY = self._r_content.thermo.HPY
         self._states[n_slice].Q_cell = self._Q[n_slice]
         self._states[n_slice].m_cell = self._r_content.mass
+        self._states[n_slice].mdot_cell = self._vlv.mass_flow_rate
 
     def _guess(self, n_slice, qty_next) -> ct.Quantity:
         """ Guess next state based on previous one. """
