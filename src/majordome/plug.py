@@ -8,11 +8,12 @@ import pandas as pd
 class PlugFlowChainCantera:
     """ Plug-flow reactor as a chain of 0-D reactors with Cantera. """
     def __init__(self, mechanism: str, z: np.ndarray, V: np.ndarray,
-                 K: float = 1.0) -> None:
+                 K: float = 1.0, smoot_flux: bool = True) -> None:
         # Store coordinates and volume of slices:
         self._z = z
         self._V = V
         self._Q = np.zeros_like(self._z)
+        self._smoot_flux = smoot_flux
 
         # Create solutions from compatible mechanism:
         self._f_sources = ct.Solution(mechanism, basis="mass")
@@ -47,6 +48,12 @@ class PlugFlowChainCantera:
 
         # Flag if (previous) solution is available:
         self._has_solution = False
+
+        # Store failures encountered during last `loop`:
+        self._failures = []
+
+        # Characteristic time of reactor:
+        self._tau = None
 
     def _source(self, m, h, Y) -> ct.Quantity | None:
         """ Update source if any flow is available. """
@@ -84,8 +91,18 @@ class PlugFlowChainCantera:
             return self._states[n_slice].HPY
         return qty_next.HPY
 
-    def _prepare(self, hpy_reac, qty_next, V, Q) -> None:
+    def _heat_flux(self, Q) -> ct.Func1 | float:
+        """ Create smoothed heat flux as function of time. """
+        if not self._smoot_flux:
+            return Q
+        return ct.Func1(lambda t: Q * (1.0 - np.exp(-t / self._tau)))
+
+    def _prepare(self, hpy_reac, qty_next, V, Q, **opts) -> None:
         """ Prepare reactor for next iteration. """
+        # Get time scale for approaching steady-state:
+        self._tau = self._r_content.mass / qty_next.mass
+        self._tau *= opts.get("t_mult", 10)
+
         # Modify volume of reactor:
         self._r_content.volume = V
 
@@ -94,7 +111,7 @@ class PlugFlowChainCantera:
         self._r_sources.syncState()
 
         # Apply total external external exchanges:
-        self._w_world.heat_flux = Q
+        self._w_world.heat_flux = self._heat_flux(Q)
 
         # State current reactor close to inlet or previous state:
         self._f_content.HPY = hpy_reac
@@ -105,26 +122,27 @@ class PlugFlowChainCantera:
 
     def _fallback(self,  hpy_reac, qty_next, V, Q, **opts):
         """ Alternative approach to advance reactor to steady state. """
-        self._prepare(hpy_reac, qty_next, V, Q)
+        self._prepare(hpy_reac, qty_next, V, Q, **opts)
+        self._failures.append(f"Fall-back solution with tau={self._tau:.2f} s")
 
-        # Get time scale for approaching steady-state:
-        tau = opts.get("t_mult", 100) * self._r_content.mass / qty_next.mass
-        warnings.warn(f"Fall-back solution with tau={tau:.2f} s")
-
-        self._net.reinitialize()
-        self._net.advance(self._net.time + tau)
+        try:
+            self._net.reinitialize()
+            self._net.advance(self._net.time + self._tau)
+        except Exception as err:
+            # TODO: if fail, force equilibrium? Find another fallback!
+            self._failures.append(f"Fall-back also failed:\n{err}")
 
     def _step(self, hpy_reac, qty_next, V, Q, **opts):
         """ Advance reactor to steady state with given inflow. """
-        self._prepare(hpy_reac, qty_next, V, Q)
+        self._prepare(hpy_reac, qty_next, V, Q, **opts)
 
         # Reinitialize reactor network and advance to steady state:
         self._net.reinitialize()
         self._net.advance_to_steady_state(
-            max_steps = opts.get("max_step", 10000),
+            max_steps          = opts.get("max_step", 10000),
             residual_threshold = opts.get("residual_threshold", 0),
-            atol = opts.get("atol", 0.0),
-            return_residuals = False
+            atol               = opts.get("atol", 0.0),
+            return_residuals   = False
         )
 
     def _next_quantity(self, mass) -> ct.Quantity:
@@ -160,6 +178,8 @@ class PlugFlowChainCantera:
 
         self._Q[:] = 0 if Q is None else Q
 
+        self._failures = []
+
         for n_slice in range(self._z.shape[0]):
             V = self._V[n_slice]
             q = self._Q[n_slice]
@@ -174,8 +194,7 @@ class PlugFlowChainCantera:
             try:
                 self._step(hpy_reac, qty_next, V, q, **opts)
             except Exception as err:
-                # TODO: if fail, force equilibrium? Find another fallback!
-                warnings.warn(f"While in slice {n_slice}:\n{err}")
+                self._failures.append(f"While in slice {n_slice}:\n{err}")
                 self._fallback(hpy_reac, qty_next, V, q, **opts)
 
             qty_prev = self._next_quantity(qty_next.mass)
@@ -184,14 +203,23 @@ class PlugFlowChainCantera:
             if save_history:
                 stats.append(self._net.solver_stats)
 
+        if self._failures:
+            warnings.warn("Some failures were encountered during the loop! "
+                          "Check `failures` property for details.")
+
         self._has_solution = True
         return None if not save_history else pd.DataFrame(stats)
+
+    @property
+    def failures(self) -> list[str]:
+        """ List of failures encountered during last `loop`. """
+        return self._failures
 
     @property
     def n_species(self) -> int:
         """ Number of species in mechanism. """
         return self._f_content.n_species
-    
+
     @property
     def states(self) -> ct.SolutionArray:
         """ Provides access to the states of the reactor. """
