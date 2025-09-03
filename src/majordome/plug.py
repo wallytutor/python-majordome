@@ -7,8 +7,8 @@ import pandas as pd
 
 class PlugFlowChainCantera:
     """ Plug-flow reactor as a chain of 0-D reactors with Cantera. """
-    def __init__(self, mechanism: str, z: np.ndarray, V: np.ndarray,
-                 K: float = 1.0, smoot_flux: bool = True) -> None:
+    def __init__(self, mechanism: str, phase: str, z: np.ndarray,
+                 V: np.ndarray, K: float = 1.0, smoot_flux: bool = True) -> None:
         # Store coordinates and volume of slices:
         self._z = z
         self._V = V
@@ -16,9 +16,9 @@ class PlugFlowChainCantera:
         self._smoot_flux = smoot_flux
 
         # Create solutions from compatible mechanism:
-        self._f_sources = ct.Solution(mechanism, basis="mass")
-        self._f_content = ct.Solution(mechanism, basis="mass")
-        self._f_outflow = ct.Solution(mechanism, basis="mass")
+        self._f_sources = ct.Solution(mechanism, phase, basis="mass")
+        self._f_content = ct.Solution(mechanism, phase, basis="mass")
+        self._f_outflow = ct.Solution(mechanism, phase, basis="mass")
 
         # Create reactors and reservoirs for system:
         self._r_sources = ct.Reservoir(self._f_sources)
