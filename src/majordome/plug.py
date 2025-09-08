@@ -27,9 +27,12 @@ class PlugFlowChainCantera:
 
         # Connect the reactor to the *world* (unit area wall). Notice
         # that imposing `A=1.0` means that when setting up the heat flux
-        # that value is identical to the absolute integral exchange.
+        # that value is identical to the absolute integral exchange. The
+        # contents of the system are set as the right reactor so that a
+        # positive flux means energy being supplied to the system.
         conf = dict(A=1.0, K=0.0, U=0.0, Q=0.0, velocity=0.0)
-        self._w_world = ct.Wall(self._r_content, self._r_outflow, **conf)
+        self._w_world = ct.Wall(self._r_outflow, self._r_content, **conf)
+        self._w_world.emissivity = 0.0
 
         # Connect chain of reactors:
         self._mfc = ct.MassFlowController(self._r_sources, self._r_content)
@@ -129,6 +132,14 @@ class PlugFlowChainCantera:
 
         try:
             self._net.reinitialize()
+
+            # TODO maybe consider this stepping instead?
+            # t_now = 0
+            # t_end = self._net.time + self._tau
+            #
+            # while t_now < t_end:
+            #     t_now = self._net.step()
+
             self._net.advance(self._net.time + self._tau)
         except Exception as err:
             # TODO: if fail, force equilibrium? Find another fallback!
