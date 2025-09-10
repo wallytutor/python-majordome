@@ -9,9 +9,12 @@ import numpy as np
 def safe_remove(target_list: list, to_remove: list, inplace: bool = False) -> list:
     """ Safely remove elements from a list and return it. """
     the_clist = target_list if inplace else target_list.copy()
-    to_remove = filter(lambda n: n in the_clist, to_remove)
-
-    for remove in to_remove:
+    
+    # Support an empty/None to_remove list.
+    if not to_remove:
+        return the_clist
+    
+    for remove in filter(lambda n: n in the_clist, to_remove):
         the_clist.remove(remove)
 
     return the_clist
