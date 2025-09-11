@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from collections import deque
+from io import StringIO
 from IPython import embed
 from matplotlib import pyplot as plt
 import functools
 import sys
 import numpy as np
+import pandas as pd
 
 
 def safe_remove(target_list: list, to_remove: list, inplace: bool = False) -> list:
@@ -99,3 +102,26 @@ class InteractiveSession:
 
             return results
         return wrapper
+
+
+class ReadTextData:
+    @staticmethod
+    def read_nlines(fp, nlines):
+        """ Read at most `n` lines from text file. """
+        return "".join(list(deque(fp, maxlen=nlines)))
+
+    @staticmethod
+    def read_data(fname, nlines=None):
+        """ Read raw text data file with optional number of lines at end. """
+        with open(fname) as fp:
+            if not nlines or nlines <= 0:
+                return fp.read()
+
+            return ReadTextData.read_nlines(fp, nlines)
+
+    @staticmethod
+    def read_sep(fname, nlines=None, sep=r"\s+", **kwargs):
+        """ Read raw text data file as a pandas.DataFrame object. """
+        text = StringIO(ReadTextData.read_data(fname, nlines=nlines))
+        data = pd.read_csv(text, sep=sep, **kwargs)
+        return data
