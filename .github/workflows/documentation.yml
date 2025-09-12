@@ -17,8 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install sphinx sphinx_book_theme numpydoc myst_parser
-          pip install .
+          pip install .[docs]
 
       - name: Sphinx build
         run: |
