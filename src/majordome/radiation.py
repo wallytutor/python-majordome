@@ -119,7 +119,7 @@ class WSGGRadlibBordbar2020(AbstractWSGG):
     def _build_polynomials(self):
         # Parse `cCoef` and balance clear band.
         self._p_ccoefs = list(map(lambda c: list(map(Polynomial, c)), self._cCoef))
-        self._p_ccoefs.insert(0, (1-np.sum(self._p_ccoefs, axis=0)).tolist())
+        self._p_ccoefs.insert(0, (1.0 - np.sum(self._p_ccoefs, axis=0)).tolist())
 
         # Parse `dCoef` and add zero-valued clear band.
         self._p_dcoefs = list(map(Polynomial, self._dCoef))
@@ -138,16 +138,16 @@ class WSGGRadlibBordbar2020(AbstractWSGG):
     # Models
     # -----------------------------------------------------------------
 
-    def _domain_h2o(self, iband, MrOrig, Tr, pfac, kabs, awts):
+    def _domain_h2o(self, iband, Mr, Tr, pfac, kabs, awts):
         """ Add modified contribution to H2O-rich mixtures. """
-        f = (1e8 - MrOrig) / (1e8 - 4.0)
+        f = (self.MR_LIM_INF - Mr) / (self.MR_LIM_INF - self.MR_LIM_H2O)
         kabs = self.relax(f, kabs, self._kh2o[iband] * pfac)
         awts = self.relax(f, awts, self._p_bh2o[iband](Tr))
         return kabs, awts
 
-    def _domain_co2(self, iband, MrOrig, Tr, pfac, kabs, awts):
+    def _domain_co2(self, iband, Mr, Tr, pfac, kabs, awts):
         """ Add modified contribution to CO2-rich mixtures. """
-        f = (0.01 - MrOrig) / 0.01
+        f = (self.MR_LIM_CO2 - Mr) / self.MR_LIM_CO2
         kabs = self.relax(f, self._kco2[iband] * pfac, kabs)
         awts = self.relax(f, self._p_bco2[iband](Tr),  awts)
         return kabs, awts
