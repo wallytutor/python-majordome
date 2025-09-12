@@ -5,6 +5,6 @@ Majordome
     :maxdepth: 2
     :caption: Contents
 
-    usage.md
-    api.md
-    devel.md
+    devel
+    usage/index
+    modules/index

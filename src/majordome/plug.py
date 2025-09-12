@@ -6,7 +6,24 @@ import pandas as pd
 
 
 class PlugFlowChainCantera:
-    """ Plug-flow reactor as a chain of 0-D reactors with Cantera. """
+    """ Plug-flow reactor as a chain of 0-D reactors with Cantera.
+    
+    Parameters
+    ----------
+    mechanism: str
+        Name or path to Cantera mechanism to be used.
+    phase: str
+        Name of phase to simulate (not inferred, even if a single is present!).
+    z: np.ndarray
+        Spatial coordinates of reactor cells [m].
+    V: np.ndarray
+        Volumes of reactor cells [m³].
+    K: float = 1.0
+        Valve response constant (do not use unless simulation fails).
+    smoot_flux: bool = True
+        Apply a smoot transition function when internal stepping is performed;
+        this is intended to avoid unphysical steady state approximations.
+    """
     def __init__(self, mechanism: str, phase: str, z: np.ndarray,
                  V: np.ndarray, K: float = 1.0, smoot_flux: bool = True) -> None:
         # Store coordinates and volume of slices:
