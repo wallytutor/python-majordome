@@ -3,11 +3,11 @@
 ## majordome.combustion
 
 ```{eval-rst}
-.. autoclass:: majordome.combustion.analysis.CombustionAtmosphereCHON
+.. autoclass:: majordome.combustion.CombustionAtmosphereCHON
 	:members:
-.. autoclass:: majordome.combustion.analysis.CombustionPowerSupply
+.. autoclass:: majordome.combustion.CombustionPowerSupply
 	:members:
-.. autoclass:: majordome.combustion.analysis.CombustionAtmosphereMixer
+.. autoclass:: majordome.combustion.CombustionAtmosphereMixer
 	:members:
 ```
 

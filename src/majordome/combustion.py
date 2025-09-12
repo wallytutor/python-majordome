@@ -3,10 +3,7 @@ from numbers import Number
 from textwrap import dedent
 import cantera as ct
 
-from ..common import T_NORMAL
-from ..common import P_NORMAL
-from ..common import CompositionType
-from ..common import report_title
+from .common import T_NORMAL, P_NORMAL, CompositionType, report_title
 
 
 def copy_quantity(qty: ct.Quantity) -> ct.Quantity:
