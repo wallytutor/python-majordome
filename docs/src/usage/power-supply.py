@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from majordome.combustion.analysis import CombustionPowerSupply
+from majordome.combustion import CombustionPowerSupply
 
 supply = CombustionPowerSupply(500.0, 1.0, "CH4: 1", "O2: 1", "gri30.yaml")
 print(supply.report())
