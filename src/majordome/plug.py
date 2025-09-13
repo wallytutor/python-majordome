@@ -4,6 +4,10 @@ import cantera as ct
 import numpy as np
 import pandas as pd
 
+from .common import DATA, safe_remove, standard_plot
+
+ct.add_directory(DATA)
+
 
 class PlugFlowChainCantera:
     """ Plug-flow reactor as a chain of 0-D reactors with Cantera.
@@ -260,3 +264,34 @@ class PlugFlowChainCantera:
     def network(self) -> ct.ReactorNet:
         """ Provides access to the reactor network. """
         return self._net
+
+    @standard_plot(shape=(2, 1), sharex=True, grid=True, resized=(8, 8))
+    def quick_plot(self, ax, selected=None, but=None, **kwargs):
+        if selected and but:
+            but = []
+            warnings.warn(("Keywords `selected` and `but` are mutually "
+                           "exclusive, ignoring `but`..."))
+
+        if not selected:
+            selected = self._states.species_names
+
+        z = self._states.z_cell
+        T = self._states.T
+        Y = self._states.Y
+
+        for label in safe_remove(selected, but):
+            Yk = Y[:, self._states.species_index(label)]
+            ax[0].plot(z, Yk, label=label)
+
+        ax[0].set_xlabel("Coordinate [m]")
+        ax[0].set_ylabel("Mass fraction")
+        ax[0].set_xlim(kwargs.get("xlim", None))
+        ax[0].set_ylim(kwargs.get("ylim_Y", None))
+        ax[0].legend(loc=kwargs.get("loc_Y", 1))
+
+        ax[1].plot(z, T, label="T")
+        ax[1].set_xlabel("Coordinate [m]")
+        ax[1].set_ylabel("Temperature [K]")
+        ax[1].set_xlim(kwargs.get("xlim", None))
+        ax[1].set_ylim(kwargs.get("ylim_T", None))
+        ax[1].legend(loc=kwargs.get("loc_T", 1))

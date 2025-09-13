@@ -132,6 +132,35 @@ class InteractiveSession:
         return wrapper
 
 
+class RelaxUpdate:
+    """ Relax solution for updating new iteration.
+
+    Parameters
+    ----------
+    v_ini: np.ndarray
+        Initial guess of solution.
+    alpha: float = 0.5
+        Fraction of old solution to use at updates.
+    """
+    def __init__(self, v_ini: np.ndarray, alpha: float = 0.5) -> None:
+        self._c_old = alpha
+        self._c_new = 1.0 - alpha
+
+        self._v_old = np.copy(alpha * v_ini)
+        self._v_new = np.empty_like(v_ini)
+
+    def update(self, alpha: float) -> None:
+        """ Update relaxation coefficients. """
+        self._c_old = alpha
+        self._c_new = 1.0 - alpha
+
+    def __call__(self, v_new: np.ndarray) -> np.ndarray:
+        """ Evaluate new relaxed solution estimate. """
+        self._v_new[:] = self._c_new * v_new + self._v_old
+        self._v_old[:] = self._c_old * self._v_new
+        return self._v_new
+
+
 def report_title(title: str, report: str) -> str:
     """ Generate a text report with a underscored title. """
     return dedent(f"""\n{title}\n{len(title) * "-"}\n""") + report
@@ -140,11 +169,11 @@ def report_title(title: str, report: str) -> str:
 def safe_remove(target_list: list, to_remove: list, inplace: bool = False) -> list:
     """ Safely remove elements from a list and return it. """
     the_clist = target_list if inplace else target_list.copy()
-    
+
     # Support an empty/None to_remove list.
     if not to_remove:
         return the_clist
-    
+
     for remove in filter(lambda n: n in the_clist, to_remove):
         the_clist.remove(remove)
 
@@ -179,3 +208,13 @@ def standard_plot(shape: tuple[int, int] = (1, 1), sharex: bool = True,
             return plot
         return wrapper
     return decorator
+
+
+def bounds(arr):
+    """ Returns minimum and maximum values of array `arr`. """
+    return np.min(arr), np.max(arr)
+
+
+def within(x, arr):
+    """ Check if value `x` is between extrema of array `arr`. """
+    return np.min(arr) <= x <= np.max(arr)

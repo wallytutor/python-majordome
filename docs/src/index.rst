@@ -3,8 +3,20 @@ Majordome
 
 .. toctree::
     :maxdepth: 2
-    :caption: Contents
+    :caption: Majordome
 
+    common
+    combustion
+    fluent
+    plug
+    radiation
     devel
-    usage/index
-    modules/index
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Examples
+
+    combustion_
+    common_
+    plug_
+    radiation_

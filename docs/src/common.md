@@ -41,6 +41,11 @@
 .. autoclass:: majordome.common.InteractiveSession
     :members:
 
+.. autoclass:: majordome.common.RelaxUpdate
+    :members:
+
 .. autofunction:: majordome.common.safe_remove
 .. autofunction:: majordome.common.standard_plot
+.. autofunction:: majordome.common.bounds
+.. autofunction:: majordome.common.within
 ```
