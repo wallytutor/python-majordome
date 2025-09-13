@@ -149,6 +149,16 @@ class StandardPlot:
         """ Save figure to file. """
         self._fig.savefig(filename, **kwargs)
 
+    @property
+    def figure(self):
+        """ Provides access to undelining figure. """
+        return self._fig
+
+    @property
+    def axes(self):
+        """ Provides access to undelining figure. """
+        return self._ax
+    
 
 class InteractiveSession:
     """ Produce interactive sessions with a copy of function locals. """

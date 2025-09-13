@@ -22,89 +22,218 @@
 
 # %%
 from majordome.common import RelaxUpdate
+from majordome.common import standard_plot
 from majordome.plug import PlugFlowChainCantera
 from majordome.plug import get_reactor_data
-from matplotlib import pyplot as plt
 from tabulate import tabulate
 import cantera as ct
 import numpy as np
 
 
+# %% [markdown]
+# ## Single plug-flow reactor
+
 # %%
 class ReactorModel:
     """ Wrapper model for creation of a plug flow reactor. """
-    def __init__(self, z, V, T_inj=300):       
-        self._T_inj = T_inj
-
-        self._sol = sol = ct.Solution("airish.yaml", "air")
-        self._sol.TP = T_inj, ct.one_atm
-
-        self._pfr = PlugFlowChainCantera(sol.source, sol.name, z, V)
-        self._src = get_reactor_data(self._pfr)
-
-    def add_source(self, *, where, m, X, T=None):
-        self._sol.TPX = T or self._T_inj, None, X
-        self._src.m[where] = m
-        self._src.h[where] = self._sol.h
-        self._src.Y[where, :] = self._sol.Y
-
-    def set_power(self, Q):
-        self._src.Q[:] = Q
-
-    def solve(self, report=True):
-        self._pfr.update(self._src)
-
-        if report:
-            print(tabulate([
-                ("Total mass flow rate", "g/s", 1000*self._src.m.sum()),
-                ("Total external power", "W",   self._src.Q.sum()),
-                ("Final temperature ",   "K",   self._pfr.states.T[-1]),
-            ], tablefmt="github"))
-
-    def plot(self, *args, **kwargs):
-        return self._pfr.quick_plot(*args, **kwargs)
-
-    @property
-    def table(self):
-        return reactor._pfr.states.to_pandas()
-
-
-# %% [markdown]
-# ## Single freeboard reactor
-
-# %%
-def sample_case(l=0.001):
-    z = np.arange(l/2, 1.0-l/2+0.1*l, l)
-    V = np.full_like(z, np.pi * 0.05**2 * l)
-
-    dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.40))
-
-    Q = 100_000 * l * (1 - np.exp(-z / 0.3))
-    Q[z > z[-1]/2] = 0
-    
-    reactor = ReactorModel(z, V)
-    reactor.add_source(where=0,      m=0.05,  X="N2: 0.79, O2: 0.21")
-    reactor.add_source(where=dilute, m=1.0*l, X="AR: 1")
-    reactor.set_power(Q)
-    reactor.solve()
-    return reactor
+    def __init__(self, z, V):       
+        self.solution = sol = ct.Solution("airish.yaml", "air")
+        self.reactor  = PlugFlowChainCantera(sol.source, sol.name, z, V)
+        self.source   = get_reactor_data(self.reactor)
 
 
 # %%
-reactor = sample_case()
+def add_source(model, *, where, m, T, X):
+    """ Set axial source terms along reactor. """
+    model.solution.TPX = T, None, X
+    model.source.m[where] = m
+    model.source.h[where] = model.solution.h
+    model.source.Y[where, :] = model.solution.Y
+
 
 # %%
-reactor.table.head().T
+def solve_reactor(model, report=True):
+    """ Solve reactor model with provided source terms. """
+    model.reactor.update(model.source)
+
+    if report:
+        print(tabulate([
+            ("Total mass flow rate", "g/s", 1000*model.source.m.sum()),
+            ("Total external power", "W",   model.source.Q.sum()),
+            ("Final temperature ",   "K",   model.reactor.states.T[-1]),
+        ], tablefmt="github"))
+
 
 # %%
-reactor.plot().resize(8, 6)
+l = 0.001
+z = np.arange(l/2, 1.0-l/2+0.1*l, l)
+V = np.full_like(z, np.pi * 0.05**2 * l)
+
+dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.40))
+
+Q = 100_000 * l * (1 - np.exp(-z / 0.3))
+Q[z > z[-1]/2] = 0
+
+model = ReactorModel(z, V)
+model.source.Q[:] = Q
+
+add_source(model, where=0,      m=0.05,  T=300, X="N2: 0.79, O2: 0.21")
+add_source(model, where=dilute, m=1.0*l, T=300, X="AR: 1")
+
+solve_reactor(model)
 
 # %%
-reactor.solve()
-reactor.plot().resize(8, 6)
+model.reactor.states.to_pandas().head().T
+
+# %%
+model.reactor.quick_plot().resize(8, 6)
+
+# %%
+solve_reactor(model)
+model.reactor.quick_plot().resize(8, 6)
+
 
 # %% [markdown]
 # ## Counter-current freeboard reactors
+
+# %%
+class CounterCurrentHeatExchange:
+    """ Wrap a pair of reactors and exchange heat between them. """
+    def __init__(self, z, V1, V2, S, alpha=0.8):
+        self.z = z
+        self.S = S
+        
+        self.r1 = ReactorModel(z, V1)
+        self.r2 = ReactorModel(z, V2)
+
+        self.Q = np.zeros_like(z)
+        self.relax = RelaxUpdate(self.Q, alpha)
+
+
+# %%
+def initialize(model):
+    """ First solution for *initial guess*. """
+    solve_reactor(model.r1, report=False)
+    solve_reactor(model.r2, report=False)
+
+
+# %%
+def iter_direct(model, T1, T2):
+    """ Strategy 1: compute flux, update both reactors. """
+    model.Q[:] = model.relax(model.S * (T1 - T2[::-1]))
+    
+    model.r1.source.Q[:] = -1 * model.Q
+    model.r2.source.Q[:] = +1 * model.Q[::-1]
+
+    solve_reactor(model.r1, report=False)
+    solve_reactor(model.r2, report=False)
+
+
+# %%
+def iter_alternate(model, T1, T2):
+    """ Strategy 2: sequentally compute flux and update a reactor. """
+    # Step 1:
+    model.Q[:] = model.relax(model.S * (T1 - T2[::-1]))
+    model.r1.source.Q[:] = -1 * model.Q
+    solve_reactor(model.r1, report=False)
+    T1 = model.r1.reactor.states.T
+
+    # Step 2:
+    model.Q[:] = model.relax(model.S * (T1 - T2[::-1]))
+    model.r2.source.Q[:] = +1 * model.Q[::-1]
+    solve_reactor(model.r2, report=False)
+
+
+# %%
+def solve_once(model, T1, T2):
+    """ Run a single iteration of the model. """
+    match method:
+        case "alternate":
+            iter_alternate(model, T1, T2)
+        case _:
+            iter_direct(model, T1, T2)
+
+
+# %%
+class ConvergenceCheck:
+    """ A simple convergence check to manage model solution. """
+    def __init__(self, max_iter, patience):
+        self._max_iter = max_iter
+        self._patience = patience
+        self._niter = 0
+        self._count = 0
+    
+        self.T1_last = np.inf
+        self.T2_last = np.inf
+    
+    def __call__(self, T1, T2):
+        self._niter += 1
+        
+        c1 = np.isclose(T1, self.T1_last)
+        c2 = np.isclose(T2, self.T2_last)
+        
+        if c1 and c2:
+            self._count += 1
+            
+        if c1 and c2 and self._count >= self._patience:
+            print(f"Converged after {self._niter} iterations")
+            return True
+
+        if self._niter >= self._max_iter:
+            print(f"Leaving after `max_iter` without convergence")
+            return True
+
+        self.T1_last = T1
+        self.T2_last = T2
+        
+        return False
+
+
+# %%
+def solve_pair(model, method, max_iter=50, patience=3):
+    """ Iterativelly solve pair of reactors with method. """
+    converged = ConvergenceCheck(max_iter, patience)
+
+    T1 = model.r1.reactor.states.T
+    T2 = model.r2.reactor.states.T
+
+    while True:
+        if converged(T1[-1], T2[-1]):
+            break
+
+        solve_once(model, T1, T2)
+
+        T1 = model.r1.reactor.states.T
+        T2 = model.r2.reactor.states.T
+
+
+# %%
+@standard_plot(shape=(3, 1), resized=(10, 8))
+def plot_pair(pair, ax):
+    """ Plot pair of reactors in counter-current. """
+    T1 = pair.r1.reactor.states.T
+    T2 = pair.r2.reactor.states.T[::-1]
+    
+    cp1 = pair.r1.reactor.states.cp_mass
+    cp2 = pair.r2.reactor.states.cp_mass[::-1]
+
+    ax[0].plot(pair.z, T1, label="Cold fluid")
+    ax[0].plot(pair.z, T2, label="Hot fluid")
+    ax[1].plot(pair.z, cp1, label="Cold fluid")
+    ax[1].plot(pair.z, cp2, label="Hot fluid")
+    ax[2].plot(pair.z, -pair.Q)
+
+    ax[0].set_xlabel("z [m]")
+    ax[1].set_xlabel("z [m]")
+    ax[2].set_xlabel("z [m]")
+    
+    ax[0].set_ylabel("$T$ [K]")
+    ax[1].set_ylabel("$c_p$ [J/(kg.K)]")
+    ax[2].set_ylabel("$Q$ [W]")
+    
+    ax[0].legend(loc=4)
+    ax[1].legend(loc=2)
+
 
 # %%
 m = 0.1
@@ -112,116 +241,34 @@ L = 0.02
 R = 0.05
 
 h = 100.0
-Sc = 2.0 * np.pi * R * L
-Vc = 1.0 * np.pi * R**2 * L
+S = 2.0 * np.pi * R * L
+V = 1.0 * np.pi * R**2 * L
 X = "N2: 0.79, O2: 0.21"
 
+method = "alternate"
+
 z = np.arange(L/2, 1.0-0.99*L/2, L)
-V = np.full_like(z, Vc)
-
-r1 = ReactorModel(z, V)
-r2 = ReactorModel(z, V)
-
-r1.add_source(where=0, m=m*0.1,  X=X, T=300)
-r2.add_source(where=0, m=m*1.0,  X=X, T=600)
+V = np.full_like(z, V)
+S = np.full_like(z, h * S)
 
 dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.20) + 1)
-r2.add_source(where=dilute, m=0.01,  X="AR: 1", T=450)
 
-r1.solve(report=False)
-r2.solve(report=True)
+pair = CounterCurrentHeatExchange(z, V, V, S, alpha=0.8)
 
-# %%
-q = np.zeros_like(z)
-relax = RelaxUpdate(q, alpha=0.8)
+add_source(pair.r1, where=0, m=m*0.1,  X=X, T=300)
+add_source(pair.r2, where=0, m=m*1.0,  X=X, T=600)
+add_source(pair.r2, where=dilute, m=0.01,  X="AR: 1", T=450)
+initialize(pair)
 
-h = 200.0
-
-count = 0
-patience = 3
-max_iters = 50
-T1_last = np.inf
-T2_last = np.inf
-
-T1 = r1._pfr.states.T
-T2 = r2._pfr.states.T
-
-alternate = True
-alternate = False
-
-for k in range(max_iters):
-    if alternate:
-        q[:] = relax(Sc * h * (T1 - T2[::-1]))
-        r1.set_power(-1 * q)
-        r1.solve(report=False)
-        T1 = r1._pfr.states.T
-    
-        q[:] = relax(Sc * h * (T1 - T2[::-1]))
-        r2.set_power(q[::-1])
-        r2.solve(report=False)
-        T2 = r2._pfr.states.T
-    else:
-        T1 = r1._pfr.states.T
-        T2 = r2._pfr.states.T
-    
-        q[:] = relax(Sc * h * (T1 - T2[::-1]))
-        
-        r1.set_power(-1 * q)
-        r2.set_power(q[::-1])
-        
-        r1.solve(report=False)
-        r2.solve(report=False)
-
-    c1 = np.isclose(T1[-1], T1_last)
-    c2 = np.isclose(T2[-1], T2_last)
-    
-    T1_last = T1[-1]
-    T2_last = T2[-1]
-
-    if c1 and c2:
-        count += 1
-        
-    if c1 and c2 and count >= patience:
-        print(f"Converged after {k} iterations")
-        break
+solve_pair(pair, method, max_iter=50, patience=3)
 
 # %%
-T1 = r1._pfr.states.T
-T2 = r2._pfr.states.T[::-1]
-
-cp1 = r1._pfr.states.cp_mass
-cp2 = r2._pfr.states.cp_mass[::-1]
-
-plt.close("all")
-plt.style.use("classic")
-plt.figure(figsize=(8, 6), facecolor="w")
-
-plt.subplot(311)
-plt.plot(z, T1, label="Cold fluid")
-plt.plot(z, T2, label="Hot fluid")
-plt.grid(linestyle=":")
-plt.legend(loc=4)
-
-plt.subplot(312)
-plt.plot(z, cp1, label="Cold fluid")
-plt.plot(z, cp2, label="Hot fluid")
-plt.grid(linestyle=":")
-plt.legend(loc=2)
-
-plt.subplot(313)
-plt.plot(z, -q)
-plt.grid(linestyle=":")
-
-plt.tight_layout()
+plot = plot_pair(pair)
+plot.figure.suptitle("Hot flow from right to left, cold flow left to right")
+plot.figure.tight_layout()
 
 # %%
-r1.solve(report=True)
+solve_reactor(pair.r1, report=True)
 
 # %%
-r2.solve(report=True)
-
-# %%
-r1.plot().resize(8, 5)
-
-# %%
-r2.plot().resize(8, 5)
+solve_reactor(pair.r2, report=True)
