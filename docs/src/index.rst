@@ -10,6 +10,7 @@ Majordome
     fluent
     plug
     radiation
+    transport
     devel
 
 .. toctree::
