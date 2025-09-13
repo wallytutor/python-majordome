@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.2
+#       jupytext_version: 1.17.2
 #   kernelspec:
-#     display_name: venv
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -23,6 +23,7 @@
 # %%
 from majordome.common import RelaxUpdate
 from majordome.plug import PlugFlowChainCantera
+from majordome.plug import get_reactor_data
 from matplotlib import pyplot as plt
 from tabulate import tabulate
 import cantera as ct
@@ -37,30 +38,26 @@ class ReactorModel:
 
         self._sol = sol = ct.Solution("airish.yaml", "air")
         self._sol.TP = T_inj, ct.one_atm
+
         self._pfr = PlugFlowChainCantera(sol.source, sol.name, z, V)
-        
-        self._Q_source = np.zeros_like(z)
-        self._m_source = np.zeros_like(z)
-        self._h_source = np.zeros_like(z)
-        self._Y_source = np.zeros((z.shape[0], self._pfr.n_species))
+        self._src = get_reactor_data(self._pfr)
 
     def add_source(self, *, where, m, X, T=None):
         self._sol.TPX = T or self._T_inj, None, X
-        self._m_source[where] = m
-        self._h_source[where] = self._sol.h
-        self._Y_source[where, :] = self._sol.Y
+        self._src.m[where] = m
+        self._src.h[where] = self._sol.h
+        self._src.Y[where, :] = self._sol.Y
 
     def set_power(self, Q):
-        self._Q_source[:] = Q
+        self._src.Q[:] = Q
 
     def solve(self, report=True):
-        self._pfr.loop(self._m_source, self._h_source,
-                       self._Y_source, Q=self._Q_source)
+        self._pfr.update(self._src)
 
         if report:
             print(tabulate([
-                ("Total mass flow rate", "g/s", 1000*self._m_source.sum()),
-                ("Total external power", "W",   self._Q_source.sum()),
+                ("Total mass flow rate", "g/s", 1000*self._src.m.sum()),
+                ("Total external power", "W",   self._src.Q.sum()),
                 ("Final temperature ",   "K",   self._pfr.states.T[-1]),
             ], tablefmt="github"))
 

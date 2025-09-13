@@ -1,10 +1,50 @@
 # -*- coding: utf-8 -*-
+from dataclasses import dataclass
+from numpy.typing import NDArray
 import warnings
 import cantera as ct
 import numpy as np
 import pandas as pd
 
-from .common import DATA, safe_remove, standard_plot
+from .common import safe_remove, standard_plot
+
+
+@dataclass
+class PlugFlowAxialSources:
+    """ Provides a data structure for use with `PlugFlowChainCantera`.
+    
+    Helper data class for use with the solution method `loop` of the
+    plug-flow reactor implementation. It provides the required memory
+    for storage of source terms distributed along the reactor.
+
+    Parameters
+    ----------
+    n_reactors: int
+        Number of reactors in chain.
+    n_species: int
+        Number of species in mechanism.
+
+    Attributes
+    ----------
+    Q: NDArray[np.float64]
+        Array of external heat source [W].
+    m: NDArray[np.float64]
+        Array of axial mass source terms [kg/s].
+    h: NDArray[np.float64]
+        Array of enthalpy of axial mass source terms [J/kg].
+    Y: NDArray[np.float64, np.float64]
+        Array of mass fractions of axial mass source terms [-].
+    """
+    Q: NDArray[np.float64]
+    m: NDArray[np.float64]
+    h: NDArray[np.float64]
+    Y: NDArray[np.float64]
+
+    def __init__(self, n_reactors: int, n_species: int) -> None:
+        self.Q = np.zeros(n_reactors, np.float64)
+        self.m = np.zeros(n_reactors, np.float64)
+        self.h = np.zeros(n_reactors, np.float64)
+        self.Y = np.zeros((n_reactors, n_species), np.float64)
 
 
 class PlugFlowChainCantera:
@@ -242,10 +282,19 @@ class PlugFlowChainCantera:
         self._has_solution = True
         return None if not save_history else pd.DataFrame(stats)
 
+    def update(self, source: PlugFlowAxialSources, **kwargs):
+        """ Wraps call to `loop` when using a data structure. """
+        self.loop(source.m, source.h, source.Y, Q=source.Q, **kwargs)
+
     @property
     def failures(self) -> list[str]:
         """ List of failures encountered during last `loop`. """
         return self._failures
+
+    @property
+    def n_reactors(self) -> int:
+        """ Number of reactors in mechanism. """
+        return self._z.shape[0]
 
     @property
     def n_species(self) -> int:
@@ -293,3 +342,8 @@ class PlugFlowChainCantera:
         ax[1].set_xlim(kwargs.get("xlim", None))
         ax[1].set_ylim(kwargs.get("ylim_T", None))
         ax[1].legend(loc=kwargs.get("loc_T", 1))
+
+
+def get_reactor_data(pfr: PlugFlowChainCantera) -> PlugFlowAxialSources:
+    """ Wrapper to allocate properly dimensioned solver data. """
+    return PlugFlowAxialSources(pfr.n_reactors, pfr.n_species)
