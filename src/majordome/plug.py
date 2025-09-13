@@ -6,8 +6,6 @@ import pandas as pd
 
 from .common import DATA, safe_remove, standard_plot
 
-ct.add_directory(DATA)
-
 
 class PlugFlowChainCantera:
     """ Plug-flow reactor as a chain of 0-D reactors with Cantera.
