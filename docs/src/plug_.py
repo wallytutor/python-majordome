@@ -175,7 +175,7 @@ class ConvergenceCheck:
         if c1 and c2:
             self._count += 1
             
-        if c1 and c2 and self._count >= self._patience:
+        if self._count >= self._patience:
             print(f"Converged after {self._niter} iterations")
             return True
 
@@ -272,3 +272,8 @@ solve_reactor(pair.r1, report=True)
 
 # %%
 solve_reactor(pair.r2, report=True)
+
+# %% [markdown]
+# ## Adding losses to the environment
+
+# %%
