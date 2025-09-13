@@ -302,6 +302,11 @@ class PlugFlowChainCantera:
         return self._f_content.n_species
 
     @property
+    def contents(self) -> ct.Solution:
+        """ Provides direct access to reactor contents. """
+        return self._f_content
+    
+    @property
     def states(self) -> ct.SolutionArray:
         """ Provides access to the states of the reactor. """
         self._ensure_solution()
