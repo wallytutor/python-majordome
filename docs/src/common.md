@@ -6,6 +6,9 @@
 .. autodata:: majordome.common.DATA
     :annotation:
 
+.. autodata:: majordome.common.GRAVITY
+    :annotation:
+
 .. autodata:: majordome.common.T_REFERENCE
     :annotation:
 
