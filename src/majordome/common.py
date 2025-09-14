@@ -22,6 +22,9 @@ DATA = Path(resources.files("majordome").joinpath("data"))
 # XXX: add globally to Cantera path:
 ct.add_directory(DATA)
 
+GRAVITY = 9.80665
+""" Conventional gravitational acceleration on Earth [m/s²]. """
+
 T_REFERENCE = 298.15
 """ Thermodynamic reference temperature [K]. """
 

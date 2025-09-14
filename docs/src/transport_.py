@@ -21,6 +21,7 @@
 from majordome.common import standard_plot
 import majordome.common as mc
 import majordome.transport as mt
+from tabulate import tabulate
 import cantera as ct
 import numpy as np
 
@@ -110,4 +111,27 @@ plot_etc((T, k_gas, k_eff_m)).resize(10, 5)
 
 # ## Dimensionless numbers
 
+# +
+Tw = 1000.0  # Wall temperature [K]
+U = 10.0     # Characteristic velocity [m/s]
+D = 0.05     # Pipe diameter [m]
+L = 1.0      # Pipe length [m]
 
+calculator = mt.SolutionDimless("airish.yaml")
+calculator.solution.TPX = 300.0, 101325.0, "N2: 1"
+calculator.update()
+
+Re   = calculator.reynolds(U, D)
+Pr   = calculator.prandtl()
+Sc   = calculator.schmidt()
+Pe_m = calculator.peclet_mass(U, L)
+Pe_h = calculator.peclet_heat(U, L)
+Gr   = calculator.grashof(Tw, D)
+Ra   = calculator.rayleigh(Tw, D)
+
+print(calculator.report())
+# -
+
+# ## Sutherland fitting
+
+# WIP, sorry for the inconvenience...
