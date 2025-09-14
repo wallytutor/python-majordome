@@ -21,6 +21,7 @@
 from majordome.common import standard_plot
 import majordome.common as mc
 import majordome.transport as mt
+import cantera as ct
 import numpy as np
 
 # ## *EffectiveThermalConductivity*
@@ -72,6 +73,39 @@ k_eff_s = etc.singh1994(T, phi, d_p, k_s, eps)
 k_eff_m = etc.maxwell_garnett(phi, k_g, k_eff_s)
 
 plot_etc((T, k_eff_s, k_eff_m)).resize(10, 5)
+
+
+# -
+
+# Due to kinetic theory implications, gas thermal conductivity tend to have a positive slope in temperature; the following illustrates how this can be accounted for and the roughly linear behaviour introduced when computing medium properties within air.
+
+# +
+@standard_plot(shape=(1, 2))
+def plot_etc(data, ax):
+    T, k_g, k_m =  data
+    
+    ax[0].plot(T, k_g)
+    ax[1].plot(T, k_m)
+    
+    ax[0].set_xlim(mc.bounds(T))
+    ax[1].set_xlim(mc.bounds(T))
+
+    ax[0].set_title("Fluid property")
+    ax[1].set_title("Medium property")
+    ax[0].set_xlabel("Temperature [K]")
+    ax[1].set_xlabel("Temperature [K]")
+    ax[0].set_ylabel("Thermal conductivity [W/(m.K)]")
+    ax[1].set_ylabel("Thermal conductivity [W/(m.K)]")
+    
+
+gas = ct.Solution("airish.yaml")
+sol = ct.SolutionArray(gas, (T.shape[0],))
+sol.TP = T, None
+
+k_gas = sol.thermal_conductivity
+k_eff_m = etc.maxwell_garnett(phi, k_gas, k_eff_s)
+
+plot_etc((T, k_gas, k_eff_m)).resize(10, 5)
 # -
 
 # ## Dimensionless numbers
