@@ -52,4 +52,5 @@
 .. autofunction:: majordome.common.solution_report
 .. autofunction:: majordome.common.bounds
 .. autofunction:: majordome.common.within
+.. autofunction:: majordome.common.apply
 ```

@@ -207,7 +207,7 @@ class SolutionDimless:
         """
         D = max(self._diff_coefs(vname))
         self._pe_mass = self.bydef_peclet(U, L, D)
-        self._pe_mass_data = f"U={U}, L={L}"
+        self._pe_mass_data = f"U={U}, L={L}, {vname}"
         return self._pe_mass
 
     def peclet_heat(self, U: float, L: float) -> float:
