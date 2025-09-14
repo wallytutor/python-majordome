@@ -342,3 +342,8 @@ def bounds(arr):
 def within(x, arr):
     """ Check if value `x` is between extrema of array `arr`. """
     return np.min(arr) <= x <= np.max(arr)
+
+
+def apply(f, iterable):
+    """ Apply unit operation over iterable items. """
+    return list(map(f, iterable))
