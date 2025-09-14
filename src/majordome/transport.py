@@ -6,8 +6,8 @@ import numpy as np
 class EffectiveThermalConductivity:
     """ Models for effective thermal conductivity of granular media. """
     @staticmethod
-    def maxwell_eucken(phi: float, k_g: float, k_s: float) -> float:
-        """ Maxwell-Eucken effective medium theory approximation.
+    def maxwell_garnett(phi: float, k_g: float, k_s: float) -> float:
+        """ Maxwell-Garnett effective medium theory approximation.
         
         Parameters
         ----------
