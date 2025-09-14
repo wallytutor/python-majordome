@@ -57,10 +57,10 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
-    ".trash/*",                 # In SMB disks this may appear here
-    "**/.ipynb_checkpoints/*",  # Keep clean from notebook trash
-    "**/_*.md",                 # Files intended for Pandoc docs
-    "**/_*.py",                 # Python development files
+    ".trash/*",              # In SMB disks this may appear here
+    ".ipynb_checkpoints/*",  # Keep clean from notebook trash
+    "_*.md",                 # Files intended for Pandoc docs
+    "_*.py",                 # Python development files
 ]
 
 ##############################################################################
