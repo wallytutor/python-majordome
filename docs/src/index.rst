@@ -5,13 +5,19 @@ Majordome
     :maxdepth: 2
     :caption: Majordome
 
+    devel
+    references
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Modules
+
     common
     combustion
     fluent
     plug
     radiation
     transport
-    devel
 
 .. toctree::
     :maxdepth: 2

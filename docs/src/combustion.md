@@ -1,4 +1,4 @@
-# Combustion
+# majordome.combustion
 
 ## Process setup
 
