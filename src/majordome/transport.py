@@ -299,3 +299,19 @@ class SolutionDimless:
         return tabulate(data)
 
 
+class SutherlandFitting:
+    def __init__(self) -> None:
+        pass
+
+    @staticmethod
+    def bydef_eval():
+        pass
+
+    def plot_species(self):
+        pass
+
+    def to_dataframe(self):
+        pass
+
+    def to_openfoam(self):
+        pass
