@@ -111,6 +111,15 @@ plot_etc((T, k_gas, k_eff_m)).resize(10, 5)
 
 # ## Dimensionless numbers
 
+# A dimensionless numbers calculator is provided for gas flows; it currently has a certain number of groups which are all evaluated by definition (which might change according to your field, please check the docs). The mechanics of using the class can be resumed to:
+#
+# 1. loading a mechanism file (Cantera YAML)
+# 2. setting the state of the solution
+# 3. evaluating the required properties
+# 4. (optional) displaying a report
+#
+# The meaning of the tuple of arguments provided to `set_state` is specified by `tuple_name="TPX"`, which defaults to temperature, pressure, and molar proportions. Any triplet allowed by [Cantera](https://cantera.org/stable/python/thermo.html#id3) can be specified here.
+
 # +
 Tw = 1000.0  # Wall temperature [K]
 U = 10.0     # Characteristic velocity [m/s]
@@ -118,20 +127,49 @@ D = 0.05     # Pipe diameter [m]
 L = 1.0      # Pipe length [m]
 
 calculator = mt.SolutionDimless("airish.yaml")
-calculator.solution.TPX = 300.0, 101325.0, "N2: 1"
-calculator.update()
+calculator.set_state(300.0, 101325.0, "N2: 1", tuple_name="TPX")
 
 Re   = calculator.reynolds(U, D)
 Pr   = calculator.prandtl()
 Sc   = calculator.schmidt()
+print(calculator.report())
+# -
+
+# If you prefer to have direct access to the internal solution, you can set properties as usual in Cantera, but you need to keep in mind to call `update()` to refresh the internal state of the calculator. Every time the properties are updated, the internal buffer of computed dimensionless numbers is refreshed, as you migth notice in the following table.
+
+# +
+calculator.solution.TPX = 300.0, 101325.0, "N2: 1"
+calculator.update()
+
 Pe_m = calculator.peclet_mass(U, L)
 Pe_h = calculator.peclet_heat(U, L)
 Gr   = calculator.grashof(Tw, D)
 Ra   = calculator.rayleigh(Tw, D)
-
 print(calculator.report())
 # -
 
 # ## Sutherland fitting
 
-# WIP, sorry for the inconvenience...
+# To the author's knowledge, there is no standard tool to convert Cantera transport data to Sutherland parameters for use with OpenFOAM, what led to the motivation to develop `SutherlandFitting`. This simple class wraps a Cantera solution object, which it makes use for fitting Sutherland parameters to export as a table (to be used elswhere), and also allows for retrieving a converted database in OpenFOAM compatible format. The following example should be self-explanatory:
+
+# +
+T = np.linspace(500, 2500, 100)
+
+sutherland = mt.SutherlandFitting("airish.yaml")
+sutherland.fit(T, species_names=["O2", "N2"])
+
+coef = sutherland.coefs_table
+coef
+# -
+
+# If needed, it is also possible to have direct access to the viscosity data used in parameter fitting:
+
+sutherland.viscosity.head()
+
+# Because RMSE compresses all the error in a single value, you can check graphically where the deviations happen in the interval:
+
+plot = sutherland.plot_species("N2")
+
+# Finally, it *also* responds to its initial goal of exporting values in OpenFOAM format:
+
+print(sutherland.to_openfoam())
