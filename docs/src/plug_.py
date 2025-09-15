@@ -46,25 +46,43 @@ import numpy as np
 
 
 # %% [markdown]
+# ## Shared functionalties
+
+# %%
+def dicretize_length(L, dL):
+    """ Discretize length L in cells of length `dL`. """
+    return np.arange(dL/2, L-dL/2+0.1*dL, dL)
+
+
+# %% [markdown]
 # ## Single plug-flow reactor
+
+# %% [markdown]
+# For the single reactor `ReactorModel` we write a simple wrapper around `PlugFlowChainCantera`; this model holds an instance of a `solution` object conceived with the same mechanism as provided to the PFR, and a simple `source` structure for the distributed source terms.
 
 # %%
 class ReactorModel:
     """ Wrapper model for creation of a plug flow reactor. """
-    def __init__(self, z, V):
-        self.solution = sol = ct.Solution("airish.yaml", "air")
+    def __init__(self, z, V, mech="airish.yaml"):
+        self.solution = sol = ct.Solution(mech)
         self.reactor  = PlugFlowChainCantera(sol.source, sol.name, z, V)
         self.source   = get_reactor_data(self.reactor)
 
 
+# %% [markdown]
+# Both the `solution` and `source` are used in `add_source` to inject a mass flow rate `mdot` at temperature `T`, and composition `X` (given in mole fractions) at a set of cell indices `where` along the reactor. We will see later how discretization is performed and thus how to link `where` to an actual axial coordinate along the reactor.
+
 # %%
-def add_source(model, *, where, m, T, X):
+def add_source(model, *, where, mdot, T, X):
     """ Set axial source terms along reactor. """
     model.solution.TPX = T, None, X
-    model.source.m[where] = m
+    model.source.m[where] = mdot
     model.source.h[where] = model.solution.h
     model.source.Y[where, :] = model.solution.Y
 
+
+# %% [markdown]
+# The underlining PFR model has already its own solution method (which is actually called `update`) that *seeks* a steady state for the reactor given a certaing `source`; sometimes it fail to converge and multiple calls may be required to find the steady state of a reactor. In `solve_reactor` below we wrap the aforementioned method and add some reporting.
 
 # %%
 def solve_reactor(model, report=True):
@@ -79,38 +97,87 @@ def solve_reactor(model, report=True):
         ], tablefmt="github"))
 
 
+# %% [markdown]
+# As this first case is already fully supported by the underlining library class, we are ready to solve a first example problem. Comments are provided in the function `sample_single` to guide you through the setup. A distributed power supply is added to the reactor as an analytical function as:
+#
+# $$
+# Q(z) = \begin{cases}
+# A \left[1 - \exp\left(-\dfrac{z}{z_0}\right)\right] & z < \dfrac{L}{2}\\[12pt]
+# 0 & \text{otherwise}
+# \end{cases}
+# $$
+#
+# This is arbitrarily parametrized and is intended just to show that accessing `model.source.Q` allows to provide any heat source function to a reactor.
+
 # %%
-def sample_single():
-    l = 0.001
-    z = np.arange(l/2, 1.0-l/2+0.1*l, l)
-    V = np.full_like(z, np.pi * 0.05**2 * l)
+def sample_single(l=0.001, report_first=False):
+    """ Single reactor model sample. """
+    D = 0.10   # Reactor diameter [m]
+    L = 1.0    # Reactor length [m[
+    
+    # Volume of a single cell [m³]
+    V = np.pi * (D / 2)**2 * l
 
-    dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.40))
+    # Discretize length in equal length cells [m].
+    z = dicretize_length(L, l)
+    
+    # Find indexes where z>0.2 and z<=0.4 m to apply some
+    # distributed gas injection (to test robustness of method).
+    dilute = slice(np.argmax(z > 0.2), np.argmax(z > 0.4))
 
-    Q = 100_000 * l * (1 - np.exp(-z / 0.3))
-    Q[z > z[-1]/2] = 0
+    # Create reactor with equal volume cells:
+    model = ReactorModel(z, V=np.full_like(z, V))
 
-    model = ReactorModel(z, V)
-    model.source.Q[:] = Q
+    # Compute a power supply function:
+    model.source.Q[:] = 2*9_481.15 * l * (1 - np.exp(-z / 0.2))
+    model.source.Q[z > z[-1]/2] = 0
 
-    add_source(model, where=0,      m=0.05,  T=300, X="N2: 0.79, O2: 0.21")
-    add_source(model, where=dilute, m=1.0*l, T=300, X="AR: 1")
+    # Inject plain air at cell 0 (inlet):
+    add_source(model, where=0,      mdot=0.05,  T=300, X="N2: 0.79, O2: 0.21")
 
+    # Inject a distributed flow of argon along the dilution region; notice
+    # that in order to make the total flow independent of the discretized
+    # cell length, it is made proportional to its values:
+    add_source(model, where=dilute, mdot=1.0*l, T=300, X="AR: 1")
+
+    # Perform the initial solution and fix:
+    solve_reactor(model, report=report_first)
     solve_reactor(model)
 
     return model
 
 
+# %% [markdown]
+# We said no convergence study was going to be performed; that was a lie. Below we inspect the evolution of final temperature in terms of reactor cell length in range $l\in[0.001;0.1]$ m. Solution quickly approaches 334.5 K, and for practical purposes a discretization of 1 cm seems a good compromise between execution time and accuracy. Also notice that total supplied power may depend on discretization because of how it is provided.
+
 # %%
-model = sample_single()
+model = sample_single(l=0.1)
+
+# %%
+model = sample_single(l=0.01)
+
+# %%
+model = sample_single(l=0.001)
+
+# %% [markdown]
+# Below we show the report of first solution, which here is no better than an initial guess; sequential solution of reactor towards steady state is recommended in practice.
+
+# %%
+model = sample_single(l=0.005, report_first=True)
+
+# %% [markdown]
+# Finally we illustate the composition and temperature profiles induced by the simultaneous mass and heat transfer:
+
+# %%
+plot = model.reactor.quick_plot()
+plot.axes[0].set_ylim(0, 1)
+plot.resize(8, 6)
+
+# %% [markdown]
+# You can also access the data in base reactor for post-processing as desired:
+
+# %%
 model.reactor.states.to_pandas().head().T
-
-# %%
-model.reactor.quick_plot().resize(8, 6)
-
-# %%
-solve_reactor(model)
-model.reactor.quick_plot().resize(8, 6)
 
 
 # %% [markdown]
