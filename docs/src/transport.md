@@ -20,6 +20,9 @@ In some fields of research, such as porous media or composite materials, the eva
     :members:
 ```
 
-## Wishlist
+## Sutherland fitting
 
-- Implement diffusional Grashof number, which is related to mass transfer arising because of the buoyant force caused by the concentration inhomogeneities.
+```{eval-rst}
+.. autoclass:: majordome.transport.SutherlandFitting
+    :members:
+```

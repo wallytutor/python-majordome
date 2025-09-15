@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
+from textwrap import dedent
+from numpy.typing import NDArray
+from scipy.optimize import curve_fit
 from tabulate import tabulate
 import cantera as ct
 import numpy as np
+import pandas as pd
 
-from .common import GRAVITY
+from .common import GRAVITY, standard_plot
 
 
 class EffectiveThermalConductivity:
@@ -78,7 +82,8 @@ class SolutionDimless:
     to call `update` as there is no pre-defined hook. It is not possible
     to implement such behavior of automatic call because you may simply
     retrieve the solution object and set the state later, after a hook
-    has been called.
+    has been called. The recommended way of setting state of the mixture
+    is through `set_state` (see below).
 
     Parameters
     ----------
@@ -279,6 +284,11 @@ class SolutionDimless:
         self._reset_memory()
         return self._sol
 
+    def set_state(self, *args, tuple_name="TPX"):
+        """ Set state of system with given arguments. """
+        setattr(self.solution, tuple_name, args)
+        self.update()
+
     def report(self, show_fitting_errors: bool = False,
                tablefmt: str = "simple") -> str:
         """ Produces a table for inspecting all computed values. """
@@ -300,18 +310,149 @@ class SolutionDimless:
 
 
 class SutherlandFitting:
-    def __init__(self) -> None:
-        pass
+    """ Helper for fitting Sutherland parameters for all species in solution.
+
+    Parameters
+    ----------
+    mech: str
+        Name or path to Cantera YAML solution mechanism.
+    name = None
+        Name of phase in mechanism if not a single one is present.
+    """
+    def __init__(self, mech: str, *, name = None) -> None:
+        self._sol = ct.Solution(mech, name)
+        self._data = None
+        self._visc = None
+
+    def _get_species(self, species_names: list[str]):
+        """ Return array of selected species for fitting. """
+        allowed_species = self._sol.species_names
+
+        if species_names is not None:
+            # TODO add some warnings here for unknown species
+            return [n for n in species_names if n in allowed_species]
+
+        return allowed_species
+
+    def fit(self, T: NDArray[float], P: float = ct.one_atm,
+            species_names: list[str] = None,
+            p0: tuple[float, float] = (1.0, 1000)) -> None:
+        """ Manage fitting of selected species from mechanism.
+
+        Parameters
+        ----------
+        T: NDArray[float]
+            Array of temperatures over which fit model [K].
+        P: float = ct.one_atm
+            Operating pressure for fitting [Pa].
+        species_names: list[str] = None
+            Names of species to be fitted; if none is provided, then
+            all species in database are processed.
+        p0: tuple[float, float] = (1.0, 1000)
+            Initial guess for fitting; values are provided in (uPa.s, K)
+            units (not the usual Pa.s values for readability of values).
+
+        Returns
+        -------
+        pd.DataFrame
+            Table with evaluated proper
+        """
+        data = []
+        visc = pd.DataFrame({"T": T})
+        arr = ct.SolutionArray(self._sol, shape=(T.shape[0],))
+
+        for name in self._get_species(species_names):
+            arr.TPY = T, P, {name: 1}
+            visc[name] = mu = 1e6 * arr.viscosity
+            popt = curve_fit(SutherlandFitting.bydef, T, mu, p0=p0)[0]
+
+            mu_fit = SutherlandFitting.bydef(T, *popt)
+            err = np.sqrt(np.mean((mu_fit - mu) ** 2))
+
+            data.append((name, popt[0], popt[1], err))
+
+        names = ["species", "As [uPa.s]", "Ts [K]", "RMSE [uPa.s]"]
+        self._data = pd.DataFrame(data, columns=names)
+        self._visc = visc
+        return self._data
 
     @staticmethod
-    def bydef_eval():
-        pass
+    def bydef(T: NDArray[np.float64], As: float, Ts: float) -> NDArray[np.float64]:
+        """ Sutherland transport parametric model as used in OpenFOAM.
 
-    def plot_species(self):
-        pass
+        Function provided to be used in curve fitting to establish Sutherland
+        coefficients from data computed by Cantera using Lennard-Jones model.
+        Reference: https://cfd.direct/openfoam/user-guide/thermophysical.
 
-    def to_dataframe(self):
-        pass
+        Parameters
+        ----------
+        T : NDArray[np.float64]
+            Temperature array given in kelvin.
+        As : float
+            Sutherland coefficient.
+        Ts : float
+            Sutherland temperature.
 
-    def to_openfoam(self):
-        pass
+        Returns
+        -------
+        NDArray[np.float64]
+            The viscosity in terms of temperature.
+        """
+        return As * np.sqrt(T) / (1 + Ts / T)
+
+    @standard_plot(shape=(1, 2), resized=(10, 5))
+    def plot_species(self, ax, name, loc=2):
+        """ Generate verification plot for a given species. """
+        where = (self._data["species"] == name)
+        As, Ts = self._data.loc[where].iloc[0, 1:-1].to_numpy()
+
+        T = self._visc["T"].to_numpy()
+        Y = self._visc[name].to_numpy()
+        Z = self.bydef(T, As, Ts)
+
+        err = 100 * (Z - Y) / Y
+        ax[0].plot(T, Y, label="Cantera")
+        ax[0].plot(T, Z, label="Sutherland")
+        ax[1].plot(T, err)
+
+        ax[0].set_xlabel("Temperature [$K$]")
+        ax[1].set_xlabel("Temperature [$K$]")
+        ax[0].set_ylabel("Viscosity [$\\mu{}Pa\\,s$]")
+        ax[1].set_ylabel("Fitting error [%]")
+        ax[0].legend(loc=loc)
+
+    @property
+    def coefs_table(self) -> pd.DataFrame:
+        """ Retrieve table of fitted model for all species. """
+        if self._data is None:
+            raise ValueError("First call `fit` for generating data.")
+        return self._data
+
+    @property
+    def viscosity(self) -> pd.DataFrame:
+        """ Retrieve viscosity of species used in fitting. """
+        if self._visc is None:
+            raise ValueError("First call `fit` for generating data.")
+        return self._visc
+
+    def to_openfoam(self) -> str:
+        """ Convert fitting to OpenFOAM format. """
+        if self._data is None:
+            raise ValueError("First call `fit` for generating data.")
+
+        fmt = dedent("""
+            /* --- RMSE {3} ---*/
+            "{0}"
+            {{
+                transport
+                {{
+                    As  {1:.10e};
+                    Ts  {2:.10e};
+                }}
+            }}\
+            """)
+
+        data = pd.DataFrame(self._data.copy())
+        data["As [uPa.s]"] *= 1.0e-06
+
+        return "".join(fmt.format(*row) for _, row in data.iterrows())
