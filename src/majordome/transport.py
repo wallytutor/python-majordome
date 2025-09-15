@@ -334,7 +334,7 @@ class SutherlandFitting:
 
         return allowed_species
 
-    def fit(self, T: NDArray[float], P: float = ct.one_atm,
+    def fit(self, T: NDArray[np.float64], P: float = ct.one_atm,
             species_names: list[str] = None,
             p0: tuple[float, float] = (1.0, 1000)) -> None:
         """ Manage fitting of selected species from mechanism.
