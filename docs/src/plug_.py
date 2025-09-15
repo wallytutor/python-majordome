@@ -337,9 +337,9 @@ def sample_countercurrent():
     dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.20) + 1)
 
     pair = CounterCurrentHeatExchange(z, V, V, S, alpha=0.75)
-    add_source(pair.r1, where=0, m=m*0.1,  X=X, T=300)
-    add_source(pair.r2, where=0, m=m*1.0,  X=X, T=600)
-    add_source(pair.r2, where=dilute, m=0.01,  X="AR: 1", T=450)
+    add_source(pair.r1, where=0, mdot=m*0.1,  X=X, T=300)
+    add_source(pair.r2, where=0, mdot=m*1.0,  X=X, T=600)
+    add_source(pair.r2, where=dilute, mdot=0.01,  X="AR: 1", T=450)
     initialize(pair)
 
     solve_pair(pair, method, max_iter=50, patience=3)
@@ -483,8 +483,8 @@ def sample_full():
     reactor = CounterCurrentReactors(z, V1, V2, U_inner, U_reac1, U_reac2, R_total, Te=Te)
 
     pair = reactor.inner
-    add_source(pair.r1, where=0, m=m1,  X=X, T=T1)
-    add_source(pair.r2, where=0, m=m2,  X=X, T=T2)
+    add_source(pair.r1, where=0, mdot=m1,  X=X, T=T1)
+    add_source(pair.r2, where=0, mdot=m2,  X=X, T=T2)
     initialize(pair)
 
     solve_full(reactor, max_iter=50, patience=3)
