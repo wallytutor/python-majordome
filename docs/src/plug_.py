@@ -16,15 +16,30 @@
 # %% [markdown]
 # # Reactor models
 
+# %% [markdown]
+# The goal of this tutorial is to discuss a sequence of increasingly complex plug-flow reactor (PFR) models. These are all built upon `PlugFlowChainCantera` which approximates a PFR as a cascade of perfect-stirred reactors (PSR), as illustrated [here](https://cantera.org/stable/examples/python/reactors/pfr.html#sphx-glr-examples-python-reactors-pfr-py). Care must be taken when using such an approach because this zero-dimensional modeling does not formally represent a PFR, but approaches one - so grid convergence studies might be required to validate a model, what is beyond our scope here (and has been done during the conception of this report), which limits itself to studying the coupling of reactors. Nonetheless, this representation proves very interesting when assembling complex systems as it remains modular, allowing for extensibility of models.
+
+# %% [markdown]
+# In what follows we will be guided through the following models:
+#
+# - A single PFR with possibility of distributed mass sources along its length; this case is often encountered in industry when modeling reactors coupled through a permeable membrane, or in a rotary kiln, where solids may eventually release gases, what is especially important in the field of biomatter gaseification.
+#
+# - Next we will couple a pair of reactors as conceived in the first example, which will be allowed to exchange energy through a pseudo-convective model; there is no major difficulty at this point as the coupling can be stabilized through a relaxation routine. We investigate how the ordering of reactor solution affects convergence rate.
+#
+# - At the last level of complexity studied here, we add a shared common wall around the pair of reactors of the previous step; one might argue that such a system would require two *wall* temperatures to be described at steady state; here we will assume that this wall is *rotating* around the pair of reactors in such a way that it remains in contact with a reactor during part of a cycle, and a *statistically significant mean temperature* is solely used as a process measurable. 
+
+# %% [markdown]
+# Because writting long classes is not didatic for the purposes of a tutorial, we will use a *semi-object-oriented* programming approach here. That means, there will be minimal classes just holding the basic elements representing the state of a problem, and functions that resemble class methods (receiving the class instance as first argument) to perform the required operations.
+#
+# Below we start by importing all required tools at once:
+
 # %%
 # %load_ext autoreload
 # %autoreload 2
 
 # %%
-from majordome.common import RelaxUpdate
-from majordome.common import standard_plot
-from majordome.plug import PlugFlowChainCantera
-from majordome.plug import get_reactor_data
+from majordome import (PlugFlowChainCantera, RelaxUpdate,
+                       standard_plot, get_reactor_data)
 from tabulate import tabulate
 import cantera as ct
 import numpy as np
@@ -358,7 +373,7 @@ def sample_full():
     # - PARAMETERS
     h_inner = 100.0  # HTC r1-r2 [W/(m².K)]
     h_reac1 = 10.0   # HTC r1-wall [W/(m².K)]
-    h_reac2 = 20.0   # HTC r2-wall [W/(m².K)]
+    h_reac2 = 50.0   # HTC r2-wall [W/(m².K)]
     h_shell = 10.0   # HTC shell-env [W/(m².K)]
     k_shell = 1.0    # Conductivity [W/(m.K)]
 
