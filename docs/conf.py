@@ -61,6 +61,7 @@ exclude_patterns = [
     ".ipynb_checkpoints/*",  # Keep clean from notebook trash
     "_*.md",                 # Files intended for Pandoc docs
     "_*.py",                 # Python development files
+    "*_.md",                 # Sync of .py notebooks
 ]
 
 ##############################################################################
