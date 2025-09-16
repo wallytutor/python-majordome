@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.2
+#       jupytext_version: 1.17.3
 #   kernelspec:
-#     display_name: venv
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -32,7 +32,7 @@ import numpy as np
 
 # %% [markdown]
 # Common daily work activity for the process engineer is to perform mass balances, but wait, ..., gas flow rates are generally provided under normal conditions, and compositions may vary, so you need to compute normal densities first... whatever. This class provides a calculator wrapping a Cantera solution object so that your life gets easier.
-# 
+#
 # Its simples use case is as follows:
 
 # %%
@@ -54,40 +54,42 @@ print(nfr.report())
 
 # %% [markdown]
 # ## *ReadTextData*
-# 
+#
 # WIP, sorry for the inconvenience...
 
 # %% [markdown]
 # ## *StandardPlot*
-# 
+#
 # WIP, sorry for the inconvenience...
 
 # %% [markdown]
 # ## *InteractiveSession*
-# 
+#
 # WIP, sorry for the inconvenience...
 
 # %% [markdown]
-# ## *RelaxUpdate*
+# ## *RelaxUpdate* and *StabilizeNvarsConvergenceCheck*
 
 # %% [markdown]
 # Simplest of relaxation methods; assume you have a new updated solution $A_{new}^{\star}$ for a problem whose past state was $A_{old}$, then the manager will ensure the following relaxation will be applied to compute the next solution state $A_{new}$ to be used in whatever you are computing:
-# 
+#
 # $$
 # \begin{align}
 # A_{new} &= \alpha{}A_{old} + (1-\alpha)A_{new}^{\star}\\
 # A_{old} &= A_{new}
 # \end{align}
 # $$
-# 
+#
 # Notice that in this formulation, $\alpha$ (or `alpha` in the API) represents the fraction of old solution to be used in the *smearing* process. Below we illustrate the effect of a step function $H$ valued at `10` from the begining over consecutive updates (here we do not test for convergence, as that is problem specific and for this simple case the required number of steps could be evaluated by hand, take some time to try!).
 
 # %%
-alpha = 0.75
-niter = 20
+alpha = 0.76
+niter = 200
 
 single = np.ones(1)
 relaxer = mc.RelaxUpdate(single, alpha)
+
+converged = mc.StabilizeNvarsConvergenceCheck(niter, patience=3, n_vars=1)
 
 history = np.zeros(niter+1)
 history[0] = single[0]
@@ -97,6 +99,10 @@ H = np.asarray([10])
 for n in range(niter):
     single[:] = relaxer(H)
     history[n+1] = single[0]
+
+    if converged(single[0]):
+        history = history[:n+2]
+        break
 
 @mc.standard_plot()
 def plot_history(history, fig, ax):
