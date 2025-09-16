@@ -2,6 +2,9 @@
 # LOCAL
 ##############################################################################
 
+# Ignore obsidian
+.obsidian
+
 # Any sandbox
 sandbox*
 
