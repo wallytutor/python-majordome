@@ -2,11 +2,12 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
+#     formats: py:percent,md
 #     text_representation:
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.17.2
+#       jupytext_version: 1.17.3
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -15,6 +16,9 @@
 
 # %% [markdown]
 # # Reactor models
+
+# %% [markdown]
+# ## Introduction
 
 # %% [markdown]
 # The goal of this tutorial is to discuss a sequence of increasingly complex plug-flow reactor (PFR) models. These are all built upon `PlugFlowChainCantera` which approximates a PFR as a cascade of perfect-stirred reactors (PSR), as illustrated [here](https://cantera.org/stable/examples/python/reactors/pfr.html#sphx-glr-examples-python-reactors-pfr-py). Care must be taken when using such an approach because this zero-dimensional modeling does not formally represent a PFR, but approaches one - so grid convergence studies might be required to validate a model, what is beyond our scope here (and has been done during the conception of this report), which limits itself to studying the coupling of reactors. Nonetheless, this representation proves very interesting when assembling complex systems as it remains modular, allowing for extensibility of models.
@@ -39,10 +43,17 @@
 
 # %%
 from majordome import (PlugFlowChainCantera, RelaxUpdate,
+                       StabilizeNvarsConvergenceCheck,
                        standard_plot, get_reactor_data)
+
+from numpy.typing import NDArray
 from tabulate import tabulate
+import logging
 import cantera as ct
 import numpy as np
+
+# %%
+logging.basicConfig(level=logging.INFO, force=True)
 
 # %% [markdown]
 # ## Shared functionalties
@@ -58,51 +69,6 @@ X_AIR = "N2: 0.79, O2: 0.21"
 def dicretize_length(L, dL):
     """ Discretize length L in cells of length `dL`. """
     return np.arange(dL/2, L-dL/2+0.1*dL, dL)
-
-
-# %%
-class ConvergenceCheck:
-    """ A simple convergence check to manage model solution. """
-    def __init__(self, max_iter, patience):
-        # TODO generalize for N states to be checked!
-        self._max_iter = max_iter
-        self._patience = patience
-        self._niter = 0
-        self._count = 0
-
-        self.T1_last = np.inf
-        self.T2_last = np.inf
-
-    def __call__(self, T1, T2):
-        # Increase counter:
-        self._niter += 1
-
-        # Check if states are close to past:
-        c1 = np.isclose(T1, self.T1_last)
-        c2 = np.isclose(T2, self.T2_last)
-
-        # If converging for a while, good!
-        if self._count >= self._patience:
-            print(f"Converged after {self._niter} iterations")
-            return True
-
-        # If reached each, we are *good* here...
-        if self._niter >= self._max_iter:
-            print(f"Leaving after `max_iter` without convergence")
-            return True
-
-        # Both converge once, count it:
-        if c1 and c2:
-            self._count += 1
-        else:
-            self._count = 0
-
-        # Swap solution states for next call:
-        self.T1_last = T1
-        self.T2_last = T2
-
-        # Not good, call me back later, folks!
-        return False
 
 
 # %% [markdown]
@@ -147,6 +113,9 @@ def solve_reactor(model, report=True):
             ("Final temperature ",   "K",   model.reactor.states.T[-1]),
         ], tablefmt="github", floatfmt='+.6e'))
 
+
+# %% [markdown]
+# ### Example - single PFR simulation
 
 # %% [markdown]
 # As this first case is already fully supported by the underlining library class, we are ready to solve a first example problem. Comments are provided in the function `sample_single` to guide you through the setup. A distributed power supply is added to the reactor as an analytical function as:
@@ -199,7 +168,7 @@ def sample_single(l=0.001, report_first=False):
 
 
 # %% [markdown]
-# We said no convergence study was going to be performed; that was a lie. Below we inspect the evolution of final temperature in terms of reactor cell length in range $l\in[0.001;0.1]$ m. Solution quickly approaches 334.5 K, and for practical purposes a discretization of 1 cm seems a good compromise between execution time and accuracy. Also notice that total supplied power may depend on discretization because of how it is provided.
+# We said no convergence study was going to be performed; that was a lie. Below we inspect the evolution of final temperature in terms of reactor cell length in range $l\in[0.001;0.1]$ m. Solution quickly approaches 340.6 K, and for practical purposes a discretization of 1 cm seems a good compromise between execution time and accuracy. Also notice that total supplied power may depend on discretization because of how it is provided.
 
 # %%
 model = sample_single(l=0.1)
@@ -297,15 +266,14 @@ def iter_alternate(model, T1, T2):
 # Based on the previous discussion, a mixed approach can be proposed: relax the problem with the alternating solution and move to direct one after a certain criteria or maximum number of iterations has been achieved. This is emulated in `solve_pair` provided below.
 
 # %%
-def solve_pair(model, method="alternate", *, max_alternate=5,
+def solve_pair(model, method="alternate", *, max_alternate=np.inf,
                max_iter=50, patience=3):
     """ Iterativelly solve pair of reactors with method. """
-    converged = ConvergenceCheck(max_iter, patience)
+    converged = StabilizeNvarsConvergenceCheck(max_iter, patience, 2)
 
     T1 = model.r1.reactor.states.T
     T2 = model.r2.reactor.states.T
     count_alt = 0
-
     
     while True:
         if converged(T1[-1], T2[-1]):
@@ -358,8 +326,23 @@ def plot_pair(pair, fig, ax):
     fig.suptitle("Hot flow from right to left, cold flow left to right")
 
 
+# %% [markdown]
+# ### Example - pair of coupled PFR
+
+# %% [markdown]
+# This second example replaces the user-defined heat flow function by a convective heat exchange through a fin separating the reactions; this is modeled through a heat transfer coefficient `h` which is made constant here for illustration purposes only. To test the robustness of the approach, a relativelly high dilution flow is applied to a concentrated region in reactor 2 (hot stream).
+#
+# After building the reactor pair, inlet and distributed conditions and the reactors are initialized, *.i.e.* solved individually, before iterative solution is performed. The user may require a final solution step for printing reactor quantities in a table.
+
 # %%
-def sample_pair(l=0.02, alpha=0.75, method="alternate", final_solve=False):
+def solve_and_report(r1, r2):
+    """ Solve both reactors with results reporting. """
+    solve_reactor(r1, report=True) # O
+    solve_reactor(r2, report=True)
+
+
+# %%
+def sample_pair(l=0.02, alpha=0.75, method="alternate", final_solve=False, **kwargs):
     """ Pair of reactors model sample. """
     # - PARAMETERS
     h = 100.0
@@ -385,23 +368,26 @@ def sample_pair(l=0.02, alpha=0.75, method="alternate", final_solve=False):
     z = dicretize_length(L, l)
     V1 = V2 = np.full_like(z, V)
     U = np.full_like(z, h * A)
-    
-    dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.20) + 1)
 
+    # Select region of reactor to apply dilution flow:
+    dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.20) + 1)
+    
     pair = CounterCurrentReactors(z, V1, V2, U, alpha=alpha)
     add_source(pair.r1, where=0, mdot=m1,  X=X_AIR, T=T1)
     add_source(pair.r2, where=0, mdot=m2,  X=X_AIR, T=T2)
-    add_source(pair.r2, where=dilute, mdot=0.01*l,  X="AR: 1", T=Td)
+    add_source(pair.r2, where=dilute, mdot=1.0*l,  X="AR: 1", T=Td)
     initialize(pair)
 
-    solve_pair(pair, method, max_iter=50, patience=3)
+    solve_pair(pair, method, max_iter=50, patience=3, **kwargs)
 
     if final_solve:
-        solve_reactor(pair.r1, report=True)
-        solve_reactor(pair.r2, report=True)
+        solve_and_report(pair.r1, pair.r2)
 
     return pair
 
+
+# %% [markdown]
+# For low relaxation values ($\alpha<0.5$), both methods may eventually converge under the same number of iterations.
 
 # %%
 pair = sample_pair(l=0.010, alpha=0.3, method="alternate", final_solve=True)
@@ -409,11 +395,17 @@ pair = sample_pair(l=0.010, alpha=0.3, method="alternate", final_solve=True)
 # %%
 pair = sample_pair(l=0.010, alpha=0.3, method="not_alternate", final_solve=True)
 
+# %% [markdown]
+# Refining the grid for the present case has an impact of a few degrees over final solution (but takes much longer to solve), as illustrated below. Below 2 mm there is little change in the final solution and this value is a practical limit for grid refinement here.
+
 # %%
 pair = sample_pair(l=0.002, alpha=0.3, method="alternate", final_solve=True)
 
 # %%
-pair = sample_pair(l=0.01, alpha=0.75, method="alternate", final_solve=True)
+pair = sample_pair(l=0.001, alpha=0.1, method="alternate", final_solve=True, max_alternate=5)
+
+# %% [markdown]
+# Finally we display the results; for the hot stream we observe a sharp decrease in temperature (and associated specific heat capacity) due to argon dilution. Cold stream progressivelly heats up along the channel length as expected.
 
 # %%
 plot = plot_pair(pair)
@@ -422,96 +414,167 @@ plot = plot_pair(pair)
 # %% [markdown]
 # ## Adding losses to the environment
 
+# %% [markdown]
+# So far we have developed the ideas required to reach the final goal of conceiving a fully coupled system with a pair of reactors and walls. Again we proceed with a wrapper class which countains our problem variables, but in this case we fully develop it as a single block. Also, this time documentation is provided in the class itself as that seems clearer to the author in this case, and provides some closure to the study.
+#
+# The main increment in problem solution here is the extra step of solving for the wall temperature, which can be found from the global flux definition:
+#
+# $$
+# \dot{Q}_{w} = \dfrac{T_w - T_e}{R_{tot}}
+# \quad\text{where}\quad
+# R_{tot} = \dfrac{1}{hA}+\dfrac{1}{2\pi{}lk}\log\dfrac{R_{ext}}{R_{int}}
+# $$
+#
+# We make use of the main takes of the previous sections, which have shown that alternating reactor solution order is not always an advantage; here the problem has been programmed to use direct solution. Relaxation is applied to reactor fluxes, but not to wall flux, which is computed from a balance of the relaxed quantities for the sake of energy conservation.
+
 # %%
 class FullCounterCurrentReactors:
-    def __init__(self, z, V1, V2, U_inner, U_reac1, U_reac2, R_wall,
-                 alpha_inner=0.8, alpha_wall=0.9, Te=300):
-        self.inner =  CounterCurrentReactors(z, V1, V2, U_inner, alpha_inner)
+    """ Add external losses to a pair of coupled reactors.
 
+    Parameters
+    ----------
+    z: NDArray[np.float64]
+        Coordinates of cell centers [m].
+    V1: NDArray[np.float64]
+        Volumes of cells of reactor 1 [m³].
+    V2: NDArray[np.float64]
+        Volumes of cells of reactor 2 [m³].
+    U_inner: NDArray[np.float64]
+        Global HTC between reactors [W/K].
+    U_reac1: NDArray[np.float64]
+        Global HTC between reactor 1 and wall [W/K].
+    U_reac2: NDArray[np.float64]
+        Global HTC between reactor 2 and wall [W/K].
+    R_wall: NDArray[np.float64]
+        Wall thermal resistance [K/W].
+    alpha_: float = 0.8
+        Relaxation factor for internal exchanges.
+    Te: float = 300.0
+        External environment temperature [K]
+    """
+    def __init__(self, z: NDArray[np.float64], V1: NDArray[np.float64],
+                 V2: NDArray[np.float64], U_inner: NDArray[np.float64],
+                 U_reac1: NDArray[np.float64], U_reac2: NDArray[np.float64],
+                 R_wall: NDArray[np.float64], alpha: float = 0.8,
+                 Te: float = 300.0) -> None:
+        self.z = z
+        self.r1 = ReactorModel(z, V1)
+        self.r2 = ReactorModel(z, V2)
+
+        self.Ui  = U_inner
         self.U1  = U_reac1
         self.U2  = U_reac2
         self.Rw  = R_wall
+
         self.Te  = Te
         self.Tw  = np.full_like(z, Te)
+
+        self.q1w = np.zeros_like(z)
+        self.q2w = np.zeros_like(z)
+        self.q12 = np.zeros_like(z)
         self.Qw  = np.zeros_like(z)
-        self.qw1 = np.zeros_like(z)
-        self.qw2 = np.zeros_like(z)
 
-        self.relax1 = RelaxUpdate(self.qw1, alpha_wall)
-        self.relax2 = RelaxUpdate(self.qw2, alpha_wall)
+        self.relax_1 = RelaxUpdate(self.r1.source.Q, alpha)
+        self.relax_2 = RelaxUpdate(self.r2.source.Q, alpha)
 
+    def _compute_balances(self, T1, T2):
+        """ Evaluate balances of all phases in system. """
+        # Compute all heat fluxes between system components.
+        self.q12[:] = -self.Ui * (T1       - T2[::-1])
+        self.q1w[:] = -self.U1 * (T1       - self.Tw)
+        self.q2w[:] = -self.U2 * (T2[::-1] - self.Tw)
+        
+        self.r1.source.Q[:] = self.relax_1(+1 * self.q12        + self.q1w)
+        self.r2.source.Q[:] = self.relax_2(-1 * self.q12[::-1]  + self.q2w[::-1])
 
-# %%
-def update_full(reactor, T1, T2):
-    # Step 0: wall
-    reactor.qw1[:] = reactor.relax1(-reactor.U1 * (T1 - reactor.Tw))
-    reactor.qw2[:] = reactor.relax2(-reactor.U2 * (T2 - reactor.Tw))
+        # XXX: use overall by balance (no relax for energy conservation!)
+        self.Qw[:] = -(self.r1.source.Q + self.r2.source.Q[::-1])
+        
+    def _iter_direct(self, T1, T2):
+        """ Strategy 1: compute flux, update both reactors. """
+        self._compute_balances(T1, T2)
 
-    reactor.Qw[:] = -1 * (reactor.qw1 + reactor.qw2)
-    reactor.Tw[:] = reactor.Qw * reactor.Rw + reactor.Te
+        # Solve both reactors with updated fluxes:
+        solve_reactor(self.r1, report=False)
+        solve_reactor(self.r2, report=False)
 
-    model = reactor.inner
+        # Solve steady-state radial heat transfer with resistance.
+        self.Tw[:] = self.Te + self.Qw * self.Rw
 
-    # Step 1: reactor 1
-    model.Q[:] = model.relax(model.U * (T1 - T2[::-1]))
-    model.r1.source.Q[:] = -1 * model.Q + reactor.qw1
-    solve_reactor(model.r1, report=False)
-    T1 = model.r1.reactor.states.T
+    def _iter_alternate(self, T1, T2):
+        """ Strategy 2: sequentally compute flux and update a reactor. """
+        # Step 1: solve r1
+        self._compute_balances(T1, T2)
+        solve_reactor(self.r1, report=False)
+        T1 = self.r1.reactor.states.T
 
-    # Step 2: reactor 2
-    model.Q[:] = model.relax(model.U * (T1 - T2[::-1]))
-    model.r2.source.Q[:] = +1 * model.Q[::-1]
-    solve_reactor(model.r2, report=False)
+        # Step 2: solve r2
+        self._compute_balances(T1, T2)
+        solve_reactor(self.r2, report=False)
+        T2 = self.r2.reactor.states.T
 
+        # Step 3: solve wall
+        self._compute_balances(T1, T2)
+        self.Tw[:] = self.Te + self.Qw * self.Rw
 
-# %%
-def solve_full(reactor, *, max_iter=50, patience=3):
-    """ Iterativelly solve pair of reactors with wall loss. """
-    converged = ConvergenceCheck(max_iter, patience)
+    def solve(self, method="direct", *, max_iter=50, patience=3, inner_solve=True):
+        """ Iterativelly solve pair of reactors with wall loss. """
+        converged = StabilizeNvarsConvergenceCheck(max_iter, patience, 3)
+        count_alt = 0
 
-    T1 = reactor.inner.r1.reactor.states.T
-    T2 = reactor.inner.r2.reactor.states.T
+        T1 = self.r1.reactor.states.T
+        T2 = self.r2.reactor.states.T
+        Tw = self.Tw
 
-    while True:
-        if converged(T1[-1], T2[-1]):
-            break
+        while True:
+            if converged(np.mean(T1), np.mean(T2), np.mean(Tw)):
+                break
 
-        update_full(reactor, T1, T2)
-
-        T1 = reactor.inner.r1.reactor.states.T
-        T2 = reactor.inner.r2.reactor.states.T
-
-
-# %%
-@standard_plot(shape=(2, 1), resized=(10, 8))
-def plot_full(reactor, fig, ax):
-    """ Plot fully integrated system. """
-    z = reactor.inner.z
-    T1 = reactor.inner.r1.reactor.states.T
-    T2 = reactor.inner.r2.reactor.states.T[::-1]
-
-    ax[0].plot(z, T1, label="Cold fluid")
-    ax[0].plot(z, T2, label="Hot fluid")
-    ax[0].plot(z, reactor.Tw, label="Wall")
+            match method:
+                case "direct":
+                    self._iter_direct(T1, T2)
+                case _:
+                    self._iter_alternate(T1, T2)
+                    count_alt += 1
     
-    ax[1].plot(z, reactor.qw1, label="$Q_{w,1}$")
-    ax[1].plot(z, reactor.qw2, label="$Q_{w,2}$")
-    ax[1].plot(z, -reactor.inner.Q, label="$Q_{1,2}$")
-    
-    ax[0].set_xlabel("z [m]")
-    ax[1].set_xlabel("z [m]")
+                    if count_alt >= max_alternate:
+                        method = "direct"
 
-    ax[0].set_ylabel("$T$ [K]")
-    ax[1].set_ylabel("$Q$ [W]")
+            T1 = self.r1.reactor.states.T
+            T2 = self.r2.reactor.states.T
+            Tw = self.Tw
 
-    ax[0].legend(loc=4)
-    ax[1].legend(loc=1)
+    @standard_plot(shape=(2, 1), resized=(10, 8))
+    def plot(self, fig, ax):
+        """ Plot fully integrated system. """
+        T1 = self.r1.reactor.states.T
+        T2 = self.r2.reactor.states.T[::-1]
 
-    fig.suptitle("Hot flow from right to left, cold flow left to right")
+        ax[0].plot(self.z, T1, label="Cold fluid")
+        ax[0].plot(self.z, T2, label="Hot fluid")
+        ax[0].plot(self.z, reactor.Tw, label="Wall")
 
+        ax[1].plot(self.z, self.q1w, label="$Q_{1,w}$")
+        ax[1].plot(self.z, self.q2w, label="$Q_{2,w}$")
+        ax[1].plot(self.z, self.q12, label="$Q_{1,2}$")
+
+        ax[0].set_xlabel("z [m]")
+        ax[1].set_xlabel("z [m]")
+
+        ax[0].set_ylabel("$T$ [K]")
+        ax[1].set_ylabel("$Q$ [W]")
+
+        ax[0].legend(loc=4)
+        ax[1].legend(loc=1)
+
+        fig.suptitle("Hot flow from right to left, cold flow left to right")
+
+
+# %% [markdown]
+# ### Example - environment coupling 
 
 # %%
-def sample_full():
+def sample_full(l=0.02, alpha=0.3):
     """ Sample case with a pair of coupled reactor and wall losses. """
     # - PARAMETERS
     h_inner = 100.0  # HTC r1-r2 [W/(m².K)]
@@ -524,13 +587,13 @@ def sample_full():
     Te = 298         # Environment temperature [K]
     T1 = 300         # Temperature in channel 1 [K]
     T2 = 600         # Temperature in channel 2 [K]
+    Td = 450         # Temperature of argon in channel 2 [K]
     m1 = 0.005       # Mass flow in channel 1 [kg/s]
     m2 = 0.10        # Mass flow in channel 2 [kg/s]
 
     # - GEOMETRY
     r = 0.05         # Internal radius [m]
     R = 0.07         # External radius [m]
-    l = 0.02         # Length of a cell [m]
     L = 1.00         # Length of reactor [m]
 
     # Exchange areas [m²]
@@ -553,21 +616,31 @@ def sample_full():
     R_env   = 1 / (S_shell * h_shell)
     R_total = R_shell + R_env
 
-    reactor = FullCounterCurrentReactors(z, V1, V2, U_inner, U_reac1, U_reac2, R_total, Te=Te)
+    # Select region of reactor to apply dilution flow:
+    dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.20) + 1)
+    
+    reactor = FullCounterCurrentReactors(z, V1, V2, U_inner, U_reac1, U_reac2,
+                                         R_total, alpha=alpha, Te=Te)
+    
+    add_source(reactor.r1, where=0, mdot=m1,  X=X_AIR, T=T1)
+    add_source(reactor.r2, where=0, mdot=m2,  X=X_AIR, T=T2)
+    add_source(reactor.r2, where=dilute, mdot=1.0*l,  X="AR: 1", T=Td)
+    initialize(reactor)
 
-    pair = reactor.inner
-    add_source(pair.r1, where=0, mdot=m1,  X=X_AIR, T=T1)
-    add_source(pair.r2, where=0, mdot=m2,  X=X_AIR, T=T2)
-    initialize(pair)
+    reactor.solve(max_iter=50, patience=3)
+    solve_and_report(reactor.r1, reactor.r2)
 
-    solve_full(reactor, max_iter=50, patience=3)
     return reactor
 
 
 # %%
-reactor = sample_full()
+reactor = sample_full(l=0.100, alpha=0.3)
 
 # %%
-plot = plot_full(reactor)
+reactor = sample_full(l=0.010, alpha=0.3)
 
 # %%
+reactor = sample_full(l=0.001, alpha=0.3)
+
+# %%
+plot = reactor.plot()
