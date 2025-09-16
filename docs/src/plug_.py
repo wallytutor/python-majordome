@@ -2,7 +2,7 @@
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: -all
-#     formats: py:percent,md
+#     formats: py:percent,md,ipynb
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -56,7 +56,7 @@ import numpy as np
 logging.basicConfig(level=logging.INFO, force=True)
 
 # %% [markdown]
-# ## Shared functionalties
+# ## Shared functionalities
 
 # %% [markdown]
 # This section is not commented, variables and functions should speak by themselves.
@@ -517,7 +517,7 @@ class FullCounterCurrentReactors:
         self._compute_balances(T1, T2)
         self.Tw[:] = self.Te + self.Qw * self.Rw
 
-    def solve(self, method="direct", *, max_iter=50, patience=3, inner_solve=True):
+    def solve(self, method="direct", *, max_iter=50, patience=3, max_alternate=5):
         """ Iterativelly solve pair of reactors with wall loss. """
         converged = StabilizeNvarsConvergenceCheck(max_iter, patience, 3)
         count_alt = 0
@@ -574,7 +574,7 @@ class FullCounterCurrentReactors:
 # ### Example - environment coupling 
 
 # %%
-def sample_full(l=0.02, alpha=0.3):
+def sample_full(l=0.02, alpha=0.3, method="direct"):
     """ Sample case with a pair of coupled reactor and wall losses. """
     # - PARAMETERS
     h_inner = 100.0  # HTC r1-r2 [W/(m².K)]
@@ -627,7 +627,8 @@ def sample_full(l=0.02, alpha=0.3):
     add_source(reactor.r2, where=dilute, mdot=1.0*l,  X="AR: 1", T=Td)
     initialize(reactor)
 
-    reactor.solve(max_iter=50, patience=3)
+    # XXX: max_alternate greater than default to test the approach alone!
+    reactor.solve(method, max_iter=50, patience=3, max_alternate=50)
     solve_and_report(reactor.r1, reactor.r2)
 
     return reactor
@@ -637,7 +638,10 @@ def sample_full(l=0.02, alpha=0.3):
 reactor = sample_full(l=0.100, alpha=0.3)
 
 # %%
-reactor = sample_full(l=0.010, alpha=0.3)
+reactor = sample_full(l=0.010, alpha=0.3, method="direct")
+
+# %%
+reactor = sample_full(l=0.010, alpha=0.3, method="alternate")
 
 # %%
 reactor = sample_full(l=0.001, alpha=0.3)
