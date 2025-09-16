@@ -263,6 +263,8 @@ def initialize(model):
 
 # %% [markdown]
 # There are two ways one can solve the relaxation problem here, each with its strengths and weaknesses; one could simply calculate calculate the flux, apply it to both reactors, and solve (`iter_direct`) or compose a series of flux and solution calculations (`iter_alternate`). When initial guess is not good enough, the alternating approach tends to deliver results in a more reliable fashion (because it is compatible with high relaxation factors), but it is slower. On the other hand, direct solution may converge faster as solution is already relaxed.
+#
+# **IMPORTANT:** notice here that we get the reverse of `T2` to compute flux (as the reactors are in counter-current) and then `model.Q` is reversed againt to set heat flux to reactor 2. This class could easily be generalized by adding a flag on whether temperature and flux should be treated as is (co-current) or reversed.
 
 # %%
 def iter_direct(model, T1, T2):
@@ -323,11 +325,12 @@ def solve_pair(model, method="alternate", *, max_alternate=5,
         T2 = model.r2.reactor.states.T
 
 
-# %%
+# %% [markdown]
+# A simple standard ploting function is provided for the counter-current reactor pair:
 
 # %%
 @standard_plot(shape=(3, 1), resized=(10, 8))
-def plot_pair(pair, ax):
+def plot_pair(pair, fig, ax):
     """ Plot pair of reactors in counter-current. """
     T1 = pair.r1.reactor.states.T
     T2 = pair.r2.reactor.states.T[::-1]
@@ -351,6 +354,8 @@ def plot_pair(pair, ax):
 
     ax[0].legend(loc=4)
     ax[1].legend(loc=2)
+
+    fig.suptitle("Hot flow from right to left, cold flow left to right")
 
 
 # %%
@@ -412,8 +417,6 @@ pair = sample_pair(l=0.01, alpha=0.75, method="alternate", final_solve=True)
 
 # %%
 plot = plot_pair(pair)
-plot.figure.suptitle("Hot flow from right to left, cold flow left to right")
-plot.figure.tight_layout()
 
 
 # %% [markdown]
@@ -480,20 +483,31 @@ def solve_full(reactor, *, max_iter=50, patience=3):
 
 
 # %%
-def plot_full(reactor):
+@standard_plot(shape=(2, 1), resized=(10, 8))
+def plot_full(reactor, fig, ax):
     """ Plot fully integrated system. """
-    plot = plot_pair(reactor.inner)
+    z = reactor.inner.z
+    T1 = reactor.inner.r1.reactor.states.T
+    T2 = reactor.inner.r2.reactor.states.T[::-1]
+
+    ax[0].plot(z, T1, label="Cold fluid")
+    ax[0].plot(z, T2, label="Hot fluid")
+    ax[0].plot(z, reactor.Tw, label="Wall")
     
-    plot.axes[0].plot(reactor.inner.z, reactor.Tw, label="Wall")
-    plot.axes[0].legend(loc=4)
+    ax[1].plot(z, reactor.qw1, label="$Q_{w,1}$")
+    ax[1].plot(z, reactor.qw2, label="$Q_{w,2}$")
+    ax[1].plot(z, -reactor.inner.Q, label="$Q_{1,2}$")
     
-    plot.axes[2].plot(reactor.inner.z, reactor.qw1, label="$Q_{w,1}$")
-    plot.axes[2].plot(reactor.inner.z, reactor.qw2, label="$Q_{w,2}$")
-    plot.axes[2].legend(loc=1)
-    
-    plot.figure.suptitle("Hot flow from right to left, cold flow left to right")
-    plot.figure.tight_layout()
-    return plot
+    ax[0].set_xlabel("z [m]")
+    ax[1].set_xlabel("z [m]")
+
+    ax[0].set_ylabel("$T$ [K]")
+    ax[1].set_ylabel("$Q$ [W]")
+
+    ax[0].legend(loc=4)
+    ax[1].legend(loc=1)
+
+    fig.suptitle("Hot flow from right to left, cold flow left to right")
 
 
 # %%
@@ -554,4 +568,6 @@ def sample_full():
 reactor = sample_full()
 
 # %%
-plot_full(reactor).resize(10, 10)
+plot = plot_full(reactor)
+
+# %%
