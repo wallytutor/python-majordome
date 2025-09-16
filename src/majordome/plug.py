@@ -318,7 +318,7 @@ class PlugFlowChainCantera:
         return self._net
 
     @standard_plot(shape=(2, 1), sharex=True, grid=True, resized=(8, 8))
-    def quick_plot(self, ax, selected=None, but=None, **kwargs):
+    def quick_plot(self, fig, ax, selected=None, but=None, **kwargs):
         if selected and but:
             but = []
             warnings.warn(("Keywords `selected` and `but` are mutually "

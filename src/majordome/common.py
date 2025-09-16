@@ -264,7 +264,7 @@ def standard_plot(shape: tuple[int, int] = (1, 1), sharex: bool = True,
                 for ax_k in ax:
                     ax_k.grid(linestyle=":")
 
-            func(self, ax, *args, **kwargs)
+            func(self, fig, ax, *args, **kwargs)
             fig.tight_layout()
 
             plot = StandardPlot(fig, ax)

@@ -49,7 +49,7 @@ etc.maxwell_garnett(phi, k_g, k_s)
 
 # +
 @standard_plot(shape=(1, 2))
-def plot_etc(data, ax):
+def plot_etc(data, fig, ax):
     T, k_s, k_m =  data
     
     ax[0].plot(T, k_s)
@@ -82,7 +82,7 @@ plot_etc((T, k_eff_s, k_eff_m)).resize(10, 5)
 
 # +
 @standard_plot(shape=(1, 2))
-def plot_etc(data, ax):
+def plot_etc(data, fig, ax):
     T, k_g, k_m =  data
     
     ax[0].plot(T, k_g)

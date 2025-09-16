@@ -99,7 +99,7 @@ for n in range(niter):
     history[n+1] = single[0]
 
 @mc.standard_plot()
-def plot_history(history, ax):
+def plot_history(history, fig, ax):
     ax[0].plot(history)
     ax[0].set_title("Verification of relaxation progress")
     ax[0].set_xlabel("Update iteration")

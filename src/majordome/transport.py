@@ -401,7 +401,7 @@ class SutherlandFitting:
         return As * np.sqrt(T) / (1 + Ts / T)
 
     @standard_plot(shape=(1, 2), resized=(10, 5))
-    def plot_species(self, ax, name, loc=2):
+    def plot_species(self, fig, ax, name, loc=2):
         """ Generate verification plot for a given species. """
         where = (self._data["species"] == name)
         As, Ts = self._data.loc[where].iloc[0, 1:-1].to_numpy()
