@@ -44,6 +44,9 @@
 .. autoclass:: majordome.common.InteractiveSession
     :members:
 
+.. autoclass:: majordome.common.StabilizeNvarsConvergenceCheck
+    :members:
+
 .. autoclass:: majordome.common.RelaxUpdate
     :members:
 

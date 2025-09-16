@@ -11,7 +11,9 @@ from IPython import embed
 from matplotlib import pyplot as plt
 from tabulate import tabulate
 import functools
+import logging
 import sys
+import warnings
 import cantera as ct
 import numpy as np
 import pandas as pd
@@ -161,7 +163,7 @@ class StandardPlot:
     def axes(self):
         """ Provides access to undelining figure. """
         return self._ax
-    
+
 
 class InteractiveSession:
     """ Produce interactive sessions with a copy of function locals. """
@@ -227,6 +229,63 @@ class RelaxUpdate:
         return self._v_new
 
 
+class StabilizeNvarsConvergenceCheck:
+    """ Check stabilization towards a constant value along iterations.
+
+    Parameters
+    ----------
+    max_iter: int
+        Maximum number of iterations before considering failure.
+    patience: int
+        Number of consecutive convergences before declaring convergence.
+    n_vars: int
+        Number of variables to be checked in problem.
+    """
+    def __init__(self, max_iter: int, patience: int, n_vars: int) -> None:
+        self._max_iter = max_iter
+        self._patience = patience
+        self._last = np.full(n_vars, np.inf)
+        self._niter = 0
+        self._count = 0
+
+    def _compare(self, A, B):
+        # TODO parametrize constructor for isclose options!
+        return np.isclose(A, B)
+
+    def __call__(self, *args):
+        """ Check if all variables have stabilized at current iteration. """
+        # Increase counter:
+        self._niter += 1
+
+        # If converging for a while, good!
+        if self._count >= self._patience:
+            logging.info(f"Converged after {self._niter} iterations")
+            return True
+
+        # If reached each, we are *good* here...
+        if self._niter >= self._max_iter:
+            warnings.warn(f"Leaving after `max_iter` without convergence")
+            return True
+
+        # Check if states are close to past:
+        converged = map(lambda a: self._compare(*a), zip(self._last, args))
+
+        # TODO report variables lacking convergence?
+
+        # Both converge once, count it:
+        if all(converged):
+            self._count += 1
+        else:
+            self._count = 0
+
+        # Swap solution states for next call:
+        self._last[:] = args
+
+        # Not good, call me back later, folks!
+        return False
+
+
+
 def report_title(title: str, report: str) -> str:
     """ Generate a text report with a underscored title. """
     return dedent(f"""\n{title}\n{len(title) * "-"}\n""") + report
@@ -282,7 +341,7 @@ def solution_report(sol: ct.Solution,
                     selected_species: list[str] = []
                     ) -> list[tuple[str, str, Any]]:
     """ Generate a solution report for tabulation.
-    
+
     Parameters
     ----------
     sol: ct.Solution
