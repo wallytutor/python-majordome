@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.17.2
+#       jupytext_version: 1.17.3
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -34,7 +34,7 @@ model(L=1, T=1000, P=101325, x_h2o=0.18, x_co2=0.08, fvsoot=0.0)
 # Evaluation of the model against original source of Bordbar (2014) is satisfactory, as follows:
 
 @standard_plot(shape=(1, 2))
-def plot_bordbar2014(_obj, ax):
+def plot_bordbar2014(_obj, fig, ax):
     """ Reproduce plots of Bordbar (2014), Fig. 2. """
     def scan_flue(T, L, *, M):
         x_co2 = 1 / (1 + M)
