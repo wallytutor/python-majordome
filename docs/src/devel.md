@@ -38,3 +38,5 @@ python -m twine upload --repository majordome dist/*
 - Implement diffusional Grashof number in `majordome.transport.SutherlandFitting`, which is related to mass transfer arising because of the buoyant force caused by the concentration inhomogeneities.
 
 - Create a data converter to create Ansys Fluent SCM files directly from Cantera YAML (species data and reactions).
+
+- Add generation of TUI commands for Fluent expression generator (and further expand to general Fluent setup).
