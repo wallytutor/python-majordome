@@ -65,14 +65,19 @@ class PlugFlowChainCantera:
     smoot_flux: bool = True
         Apply a smoot transition function when internal stepping is performed;
         this is intended to avoid unphysical steady state approximations.
+    cantera_steady: bool = True
+        If true, use Cantera' s `advance_to_steady_state` to solve problem;
+        otherwise advance over meaninful time-scale of the problem.
     """
     def __init__(self, mechanism: str, phase: str, z: np.ndarray,
-                 V: np.ndarray, K: float = 1.0, smoot_flux: bool = True) -> None:
+                 V: np.ndarray, K: float = 1.0, smoot_flux: bool = True,
+                 cantera_steady: bool = True) -> None:
         # Store coordinates and volume of slices:
         self._z = z
         self._V = V
         self._Q = np.zeros_like(self._z)
         self._smoot_flux = smoot_flux
+        self._advance_steady_cantera = cantera_steady
 
         # Create solutions from compatible mechanism:
         self._f_sources = ct.Solution(mechanism, phase, basis="mass")
@@ -226,6 +231,10 @@ class PlugFlowChainCantera:
         if not self._has_solution:
             raise RuntimeError("No solution available, run `loop` first!")
 
+    def use_cantera_steady_solver(self, state: bool) -> None:
+        """ Select method to approach steady-state solution. """
+        self._advance_steady_cantera = state
+
     def loop(self, m_source: np.ndarray, h_source: np.ndarray,
              Y_source: np.ndarray, Q: np.ndarray = None,
              save_history: bool = False, **opts) -> pd.DataFrame | None:
@@ -264,7 +273,10 @@ class PlugFlowChainCantera:
             hpy_reac = self._guess(n_slice, qty_next)
 
             try:
-                self._step(hpy_reac, qty_next, V, q, **opts)
+                if self._advance_steady_cantera:
+                    self._step(hpy_reac, qty_next, V, q, **opts)
+                else:
+                    self._fallback(hpy_reac, qty_next, V, q, **opts)
             except Exception as err:
                 self._failures.append(f"While in slice {n_slice}:\n{err}")
                 self._fallback(hpy_reac, qty_next, V, q, **opts)
