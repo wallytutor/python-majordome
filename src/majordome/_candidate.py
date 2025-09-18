@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from io import StringIO
 from pathlib import Path
 from time import perf_counter
 from typing import Iterator
@@ -26,7 +25,7 @@ class ExtendedDict(dict):
 
 class ClassPropertyDescriptor:
     """ Implements a basic class property descriptor.
-    
+
     Based on https://stackoverflow.com/a/5191224.
     """
     def __init__(self, fget, fset=None):
@@ -61,28 +60,7 @@ def classproperty(func):
 
 
 
-class Capturing(list):
-    """ Helper to capture excessive solver output.
 
-    In some cases, specially when running from a notebook, it might
-    be desirable to capture solver (here Ipopt specifically) output
-    to later check, thus avoiding a overly long notebook.  For this
-    end this context manager is to be used and redirect to a list.
-    """
-    def __enter__(self):
-        self._stdout = sys.stdout
-        self._stderr = sys.stderr
-        sys.stdout = self._tmpout = StringIO()
-        sys.stderr = self._tmperr = StringIO()
-        return self
-
-    def __exit__(self, *args):
-        self.extend(self._tmpout.getvalue().splitlines())
-        self.extend(self._tmperr.getvalue().splitlines())
-        del self._tmpout
-        del self._tmperr
-        sys.stdout = self._stdout
-        sys.stderr = self._stderr
 
 
 # TODO: provide all of these stackoverflow.com/questions/4842424
@@ -101,7 +79,7 @@ class TextColor:
 
 class ProgressBar:
     """ Simple progress bar with duration estimation for simulation tracking.
-    
+
     This basic progress bar display process status advance on the screen and
     also total run-time and e.t.a (estimated time of arrival). It is extremely
     minimalist and cannot handle overflow, thus it is up to the user to ensure
@@ -129,7 +107,7 @@ class ProgressBar:
 
     def update(self, frac: float) -> None:
         """ Update fraction of bar filling.
-        
+
         Parameters
         ----------
         frac: float
@@ -164,11 +142,11 @@ def progress_bar(
         enum: Optional[bool] = False
     ):
     """ Wrapper to use progress bar as iterator.
-    
+
     Parameters
     ----------
     array: list[object] | Iterator
-        List of iterator of objects to track progression. 
+        List of iterator of objects to track progression.
     ncols: Optional[int] = 40
         Number of columns used for bar tracing.
     marker: Optional[str] = "█"
