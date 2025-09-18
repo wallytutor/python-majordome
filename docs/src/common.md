@@ -44,10 +44,13 @@
 .. autoclass:: majordome.common.InteractiveSession
     :members:
 
-.. autoclass:: majordome.common.StabilizeNvarsConvergenceCheck
+.. autoclass:: majordome.common.Capturing
     :members:
 
 .. autoclass:: majordome.common.RelaxUpdate
+    :members:
+
+.. autoclass:: majordome.common.StabilizeNvarsConvergenceCheck
     :members:
 
 .. autofunction:: majordome.common.safe_remove
