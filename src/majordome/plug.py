@@ -63,7 +63,7 @@ class PlugFlowChainCantera:
         Volumes of reactor cells [m³].
     K: float = 1.0
         Valve response constant (do not use unless simulation fails).
-    smoot_flux: bool = True
+    smoot_flux: bool = False
         Apply a smoot transition function when internal stepping is performed;
         this is intended to avoid unphysical steady state approximations.
     cantera_steady: bool = True
@@ -71,7 +71,7 @@ class PlugFlowChainCantera:
         otherwise advance over meaninful time-scale of the problem.
     """
     def __init__(self, mechanism: str, phase: str, z: np.ndarray,
-                 V: np.ndarray, K: float = 1.0, smoot_flux: bool = True,
+                 V: np.ndarray, K: float = 1.0, smoot_flux: bool = False,
                  cantera_steady: bool = True) -> None:
         # Store coordinates and volume of slices:
         self._z = z
@@ -165,16 +165,25 @@ class PlugFlowChainCantera:
             return self._states[n_slice].HPY
         return qty_next.HPY
 
+    def _heat_flow_func(self) -> ct.Func1:
+        """ Generate heat flow function for external coupling. """
+        def heat_flow(_t):
+            idx = self._ext_index
+            self._Q[idx] = self._ext_flow(idx, self._r_content.thermo.T)
+            return self._Q[idx]
+
+        if not self._smoot_flux:
+            return ct.Func1(heat_flow)
+
+        def smoothed_flow(t):
+            return heat_flow(t) * (1.0 - np.exp(-t / self._tau))
+
+        return ct.Func1(smoothed_flow)
+
     def _heat_flux(self, Q) -> ct.Func1 | float:
         """ Create smoothed heat flux as function of time. """
         if self._ext_flow is not None:
-            def heat_flow(_t):
-                idx = self._ext_index
-                self._Q[idx] = self._ext_flow(idx, self._r_content.thermo.T)
-                return self._Q[idx]
-
-            return ct.Func1(heat_flow)
-
+            return self._heat_flow_func()
 
         if not self._smoot_flux:
             return Q
@@ -246,9 +255,21 @@ class PlugFlowChainCantera:
         if not self._has_solution:
             raise RuntimeError("No solution available, run `loop` first!")
 
+    # -----------------------------------------------------------------
+    # API (methods)
+    # -----------------------------------------------------------------
+
+    def use_smooth_flux(self, state: bool) -> None:
+        """ Select if smoothed heat flux is to be used. """
+        self._smoot_flux = state
+
     def use_cantera_steady_solver(self, state: bool) -> None:
         """ Select method to approach steady-state solution. """
         self._advance_steady_cantera = state
+
+    def register_heat_flow(self, func: Callable) -> None:
+        """ Provides registration of heat flux function. """
+        self._ext_flow = func
 
     def loop(self, m_source: np.ndarray, h_source: np.ndarray,
              Y_source: np.ndarray, Q: np.ndarray = None,
@@ -318,9 +339,9 @@ class PlugFlowChainCantera:
         """ Wraps call to `loop` when using a data structure. """
         return self.loop(source.m, source.h, source.Y, Q=source.Q, **kwargs)
 
-    def register_heat_flow(self, func: Callable) -> None:
-        """ Provides registration of heat flux function. """
-        self._ext_flow = func
+    # -----------------------------------------------------------------
+    # API (properties)
+    # -----------------------------------------------------------------
 
     @property
     def failures(self) -> list[str]:
@@ -352,6 +373,10 @@ class PlugFlowChainCantera:
     def network(self) -> ct.ReactorNet:
         """ Provides access to the reactor network. """
         return self._net
+
+    # -----------------------------------------------------------------
+    # API (other)
+    # -----------------------------------------------------------------
 
     @standard_plot(shape=(2, 1), sharex=True, grid=True, resized=(8, 8))
     def quick_plot(self, fig, ax, selected=None, but=None, **kwargs):
