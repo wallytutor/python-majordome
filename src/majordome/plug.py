@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
+from typing import Callable
 from numpy.typing import NDArray
 import warnings
 import cantera as ct
@@ -12,7 +13,7 @@ from .common import safe_remove, standard_plot
 @dataclass
 class PlugFlowAxialSources:
     """ Provides a data structure for use with `PlugFlowChainCantera`.
-    
+
     Helper data class for use with the solution method `loop` of the
     plug-flow reactor implementation. It provides the required memory
     for storage of source terms distributed along the reactor.
@@ -49,7 +50,7 @@ class PlugFlowAxialSources:
 
 class PlugFlowChainCantera:
     """ Plug-flow reactor as a chain of 0-D reactors with Cantera.
-    
+
     Parameters
     ----------
     mechanism: str
@@ -123,6 +124,10 @@ class PlugFlowChainCantera:
         # Characteristic time of reactor:
         self._tau = None
 
+        # Registered heat flow:
+        self._ext_index = None
+        self._ext_flow = None
+
     def _source(self, m, h, Y) -> ct.Quantity | None:
         """ Update source if any flow is available. """
         if m <= 0.0:
@@ -162,8 +167,18 @@ class PlugFlowChainCantera:
 
     def _heat_flux(self, Q) -> ct.Func1 | float:
         """ Create smoothed heat flux as function of time. """
+        if self._ext_flow is not None:
+            def heat_flow(_t):
+                idx = self._ext_index
+                self._Q[idx] = self._ext_flow(idx, self._r_content.thermo.T)
+                return self._Q[idx]
+
+            return ct.Func1(heat_flow)
+
+
         if not self._smoot_flux:
             return Q
+
         return ct.Func1(lambda t: Q * (1.0 - np.exp(-t / self._tau)))
 
     def _prepare(self, hpy_reac, qty_next, V, Q, **opts) -> None:
@@ -262,6 +277,10 @@ class PlugFlowChainCantera:
         self._failures = []
 
         for n_slice in range(self._z.shape[0]):
+            # Track the current slice for external communication with
+            # registered heat flow function, if any.
+            self._ext_index = n_slice
+
             V = self._V[n_slice]
             q = self._Q[n_slice]
 
@@ -294,9 +313,14 @@ class PlugFlowChainCantera:
         self._has_solution = True
         return None if not save_history else pd.DataFrame(stats)
 
-    def update(self, source: PlugFlowAxialSources, **kwargs):
+    def update(self, source: PlugFlowAxialSources, **kwargs
+               ) -> pd.DataFrame | None:
         """ Wraps call to `loop` when using a data structure. """
-        self.loop(source.m, source.h, source.Y, Q=source.Q, **kwargs)
+        return self.loop(source.m, source.h, source.Y, Q=source.Q, **kwargs)
+
+    def register_heat_flow(self, func: Callable) -> None:
+        """ Provides registration of heat flux function. """
+        self._ext_flow = func
 
     @property
     def failures(self) -> list[str]:
@@ -317,7 +341,7 @@ class PlugFlowChainCantera:
     def contents(self) -> ct.Solution:
         """ Provides direct access to reactor contents. """
         return self._f_content
-    
+
     @property
     def states(self) -> ct.SolutionArray:
         """ Provides access to the states of the reactor. """

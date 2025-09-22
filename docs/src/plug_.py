@@ -107,10 +107,11 @@ def solve_reactor(model, report=True):
     model.reactor.update(model.source)
 
     if report:
+        states = model.reactor.states
         print(tabulate([
             ("Total mass flow rate", "g/s", 1000*model.source.m.sum()),
-            ("Total external power", "W",   model.source.Q.sum()),
-            ("Final temperature ",   "K",   model.reactor.states.T[-1]),
+            ("Total external power", "W",   np.sum(states.Q_cell)),
+            ("Final temperature ",   "K",   states.T[-1]),
         ], tablefmt="github", floatfmt='+.6e'))
 
 
@@ -648,3 +649,284 @@ reactor = sample_full(l=0.001, alpha=0.3)
 
 # %%
 plot = reactor.plot()
+
+
+# %% [markdown]
+# ## Registering flow
+
+# %% [markdown]
+# ### Example - prototype with a single reactor
+
+# %% [markdown]
+# Below we develop further the idea into registering heat flows as an alternative to relaxation. The method may prove useful because heat flows are computed from current state of the reactors instead of an external guess.
+
+# %%
+def sample_register_single(l=0.001, report_first=False):
+    """ Single reactor model sample. """
+    # - PARAMETERS ----------------------------------------------------
+    h = 200.0
+    
+    # - PROCESS -------------------------------------------------------
+    T1 = 300         # Temperature in channel 1 [K]
+    T2 = 600         # Temperature in channel 2 [K]
+    Td = 450         # Temperature of argon in channel 2 [K]
+
+    # - GEOMETRY ------------------------------------------------------
+    D = 0.10   # Reactor diameter [m]
+    L = 1.0    # Reactor length [m]
+    
+    # Volume of a single cell [m³]
+    V = np.pi * (D / 2)**2 * l
+
+    # Area of exchange between cells [m²]
+    A = D * l
+
+    # Discretize space and prepare inputs:
+    z = dicretize_length(L, l)
+    V = np.full_like(z, V)
+    U = np.full_like(z, h * A)
+
+    # - REGISTER ------------------------------------------------------
+
+    def heat_flow(idx, T_reac):
+        """ Compute heat flow at cell `idx` [W]. """
+        return -U[idx] * (T_reac - T2)
+        
+    # - SETUP ---------------------------------------------------------
+    # Select region of reactor to apply dilution flow:
+    dilute = slice(np.argmax(z > 0.2), np.argmax(z > 0.4))
+
+    # Create reactor with equal volume cells:
+    model = ReactorModel(z, V=V)
+    model.reactor.register_heat_flow(heat_flow)
+    
+    # Enforce a zero a power supply function:
+    model.source.Q[:] = 0
+
+    add_source(model, where=0, mdot=0.05, T=T1, X=X_AIR)
+    add_source(model, where=dilute, mdot=1.0*l, T=Td, X="AR: 1")
+
+    solve_reactor(model, report=False)
+    solve_reactor(model, report=True)
+
+    return model
+
+
+# %%
+model = sample_register_single(l=0.001)
+
+# %%
+plot = model.reactor.quick_plot()
+plot.axes[0].set_ylim(0, 1)
+plot.resize(8, 6)
+
+
+# %% [markdown]
+# ### Example - extension to coupled system
+
+# %%
+class FullCounterCurrentReactorsWithRegister:
+    """ Add external losses to a pair of coupled reactors.
+
+    Parameters
+    ----------
+    z: NDArray[np.float64]
+        Coordinates of cell centers [m].
+    V1: NDArray[np.float64]
+        Volumes of cells of reactor 1 [m³].
+    V2: NDArray[np.float64]
+        Volumes of cells of reactor 2 [m³].
+    U_inner: NDArray[np.float64]
+        Global HTC between reactors [W/K].
+    U_reac1: NDArray[np.float64]
+        Global HTC between reactor 1 and wall [W/K].
+    U_reac2: NDArray[np.float64]
+        Global HTC between reactor 2 and wall [W/K].
+    R_wall: NDArray[np.float64]
+        Wall thermal resistance [K/W].
+    alpha_: float = 0.8
+        Relaxation factor for internal exchanges.
+    Te: float = 300.0
+        External environment temperature [K]
+    """
+    def __init__(self, z: NDArray[np.float64], V1: NDArray[np.float64],
+                 V2: NDArray[np.float64], U_inner: NDArray[np.float64],
+                 U_reac1: NDArray[np.float64], U_reac2: NDArray[np.float64],
+                 R_wall: NDArray[np.float64], alpha: float = 0.8,
+                 Te: float = 300.0) -> None:
+        self.z = z
+        self.r1 = ReactorModel(z, V1)
+        self.r2 = ReactorModel(z, V2)
+
+        self.Ui  = U_inner
+        self.U1  = U_reac1
+        self.U2  = U_reac2
+        self.Rw  = R_wall
+
+        self.Te  = Te
+        self.Tw  = np.full_like(z, Te)
+
+        self.q1w = np.zeros_like(z)
+        self.q2w = np.zeros_like(z)
+        self.q12 = np.zeros_like(z)
+        self.Qw  = np.zeros_like(z)
+
+        self.relax_1 = RelaxUpdate(self.r1.source.Q, alpha)
+        self.relax_2 = RelaxUpdate(self.r2.source.Q, alpha)
+
+    def _compute_balances(self, T1, T2):
+        """ Evaluate balances of all phases in system. """
+        # Compute all heat fluxes between system components.
+        self.q12[:] = -self.Ui * (T1       - T2[::-1])
+        self.q1w[:] = -self.U1 * (T1       - self.Tw)
+        self.q2w[:] = -self.U2 * (T2[::-1] - self.Tw)
+        
+        self.r1.source.Q[:] = self.relax_1(+1 * self.q12        + self.q1w)
+        self.r2.source.Q[:] = self.relax_2(-1 * self.q12[::-1]  + self.q2w[::-1])
+
+        # XXX: use overall by balance (no relax for energy conservation!)
+        self.Qw[:] = -(self.r1.source.Q + self.r2.source.Q[::-1])
+        
+    def _iter_direct(self, T1, T2):
+        """ Strategy 1: compute flux, update both reactors. """
+        self._compute_balances(T1, T2)
+
+        # Solve both reactors with updated fluxes:
+        solve_reactor(self.r1, report=False)
+        solve_reactor(self.r2, report=False)
+
+        # Solve steady-state radial heat transfer with resistance.
+        self.Tw[:] = self.Te + self.Qw * self.Rw
+
+    def _iter_alternate(self, T1, T2):
+        """ Strategy 2: sequentally compute flux and update a reactor. """
+        # Step 1: solve r1
+        self._compute_balances(T1, T2)
+        solve_reactor(self.r1, report=False)
+        T1 = self.r1.reactor.states.T
+
+        # Step 2: solve r2
+        self._compute_balances(T1, T2)
+        solve_reactor(self.r2, report=False)
+        T2 = self.r2.reactor.states.T
+
+        # Step 3: solve wall
+        self._compute_balances(T1, T2)
+        self.Tw[:] = self.Te + self.Qw * self.Rw
+
+    def solve(self, method="direct", *, max_iter=50, patience=3, max_alternate=5):
+        """ Iterativelly solve pair of reactors with wall loss. """
+        converged = StabilizeNvarsConvergenceCheck(max_iter, patience, 3)
+        count_alt = 0
+
+        T1 = self.r1.reactor.states.T
+        T2 = self.r2.reactor.states.T
+        Tw = self.Tw
+
+        while True:
+            if converged(np.mean(T1), np.mean(T2), np.mean(Tw)):
+                break
+
+            match method:
+                case "direct":
+                    self._iter_direct(T1, T2)
+                case _:
+                    self._iter_alternate(T1, T2)
+                    count_alt += 1
+    
+                    if count_alt >= max_alternate:
+                        method = "direct"
+
+            T1 = self.r1.reactor.states.T
+            T2 = self.r2.reactor.states.T
+            Tw = self.Tw
+
+    @standard_plot(shape=(2, 1), resized=(10, 8))
+    def plot(self, fig, ax):
+        """ Plot fully integrated system. """
+        T1 = self.r1.reactor.states.T
+        T2 = self.r2.reactor.states.T[::-1]
+
+        ax[0].plot(self.z, T1, label="Cold fluid")
+        ax[0].plot(self.z, T2, label="Hot fluid")
+        ax[0].plot(self.z, reactor.Tw, label="Wall")
+
+        ax[1].plot(self.z, self.q1w, label="$Q_{1,w}$")
+        ax[1].plot(self.z, self.q2w, label="$Q_{2,w}$")
+        ax[1].plot(self.z, self.q12, label="$Q_{1,2}$")
+
+        ax[0].set_xlabel("z [m]")
+        ax[1].set_xlabel("z [m]")
+
+        ax[0].set_ylabel("$T$ [K]")
+        ax[1].set_ylabel("$Q$ [W]")
+
+        ax[0].legend(loc=4)
+        ax[1].legend(loc=1)
+
+        fig.suptitle("Hot flow from right to left, cold flow left to right")
+
+
+# %%
+def sample_register_full(l=0.02, alpha=0.3, method="direct"):
+    """ Sample case with a pair of coupled reactor and wall losses. """
+    # - PARAMETERS
+    h_inner = 100.0  # HTC r1-r2 [W/(m².K)]
+    h_reac1 = 10.0   # HTC r1-wall [W/(m².K)]
+    h_reac2 = 50.0   # HTC r2-wall [W/(m².K)]
+    h_shell = 10.0   # HTC shell-env [W/(m².K)]
+    k_shell = 1.0    # Conductivity [W/(m.K)]
+
+    # - PROCESS
+    Te = 298         # Environment temperature [K]
+    T1 = 300         # Temperature in channel 1 [K]
+    T2 = 600         # Temperature in channel 2 [K]
+    Td = 450         # Temperature of argon in channel 2 [K]
+    m1 = 0.005       # Mass flow in channel 1 [kg/s]
+    m2 = 0.10        # Mass flow in channel 2 [kg/s]
+
+    # - GEOMETRY
+    r = 0.05         # Internal radius [m]
+    R = 0.07         # External radius [m]
+    L = 1.00         # Length of reactor [m]
+
+    # Exchange areas [m²]
+    S_inner = 2 * r * l
+    S_reacn = np.pi * r * l
+    S_shell = 2 * np.pi * R * l
+
+    # Semi-reactor volumes [m³]
+    V_half = 0.5 * np.pi * r**2 * l
+
+    # Discretize space and prepare inputs
+    z = np.arange(l/2, L-0.99*l/2, l)
+    V1 = V2 = np.full_like(z, V_half)
+    U_inner = np.full_like(z, h_inner * S_inner)
+    U_reac1 = np.full_like(z, h_reac1 * S_reacn)
+    U_reac2 = np.full_like(z, h_reac2 * S_reacn)
+    S_shell = np.full_like(z, h_shell * S_shell)
+
+    R_shell = np.log(R / r) / (2 * np.pi * l * k_shell)
+    R_env   = 1 / (S_shell * h_shell)
+    R_total = R_shell + R_env
+
+    # Select region of reactor to apply dilution flow:
+    dilute = slice(np.argmax(z > 0.15), np.argmax(z > 0.20) + 1)
+    
+    reactor = FullCounterCurrentReactorsWithRegister(
+        z, V1, V2, U_inner, U_reac1, U_reac2, R_total, alpha=alpha, Te=Te)
+    
+    add_source(reactor.r1, where=0, mdot=m1,  X=X_AIR, T=T1)
+    add_source(reactor.r2, where=0, mdot=m2,  X=X_AIR, T=T2)
+    add_source(reactor.r2, where=dilute, mdot=1.0*l,  X="AR: 1", T=Td)
+    initialize(reactor)
+
+    # XXX: max_alternate greater than default to test the approach alone!
+    reactor.solve(method, max_iter=50, patience=3, max_alternate=50)
+    solve_and_report(reactor.r1, reactor.r2)
+
+    return reactor
+
+
+# %%
+reactor = sample_register_full(l=0.010, alpha=0.3, method="direct")
