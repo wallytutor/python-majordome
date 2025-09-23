@@ -41,6 +41,8 @@
 # %load_ext autoreload
 # %autoreload 2
 
+# %load_ext majordome.skipper
+
 # %%
 from majordome import (PlugFlowChainCantera, RelaxUpdate,
                        StabilizeNvarsConvergenceCheck,
@@ -48,12 +50,19 @@ from majordome import (PlugFlowChainCantera, RelaxUpdate,
 
 from numpy.typing import NDArray
 from tabulate import tabulate
+import os
 import logging
 import cantera as ct
 import numpy as np
 
 # %%
 logging.basicConfig(level=logging.INFO, force=True)
+
+# %% [markdown]
+# Because some cells take some time to execute, during development you can set this to `"true"` so that they are not run. You can recognize these cells by the presence of magic `%%skipper`. Setting this to `"false"` will not skip the cells (this is the logic of the booleans here, we are saying true to skip, not true to execute!).
+
+# %%
+os.environ["MJ_SOLVE_FINEST"] = "true"
 
 # %% [markdown]
 # ## Shared functionalities
@@ -178,6 +187,7 @@ model = sample_single(l=0.1)
 model = sample_single(l=0.01)
 
 # %%
+# %%skipper MJ_SOLVE_FINEST
 model = sample_single(l=0.001)
 
 # %% [markdown]
@@ -394,15 +404,18 @@ def sample_pair(l=0.02, alpha=0.75, method="alternate", final_solve=False, **kwa
 pair = sample_pair(l=0.010, alpha=0.3, method="alternate", final_solve=True)
 
 # %%
+# %%skipper MJ_SOLVE_FINEST
 pair = sample_pair(l=0.010, alpha=0.3, method="not_alternate", final_solve=True)
 
 # %% [markdown]
 # Refining the grid for the present case has an impact of a few degrees over final solution (but takes much longer to solve), as illustrated below. Below 2 mm there is little change in the final solution and this value is a practical limit for grid refinement here.
 
 # %%
+# %%skipper MJ_SOLVE_FINEST
 pair = sample_pair(l=0.002, alpha=0.3, method="alternate", final_solve=True)
 
 # %%
+# %%skipper MJ_SOLVE_FINEST
 pair = sample_pair(l=0.001, alpha=0.1, method="alternate", final_solve=True, max_alternate=5)
 
 # %% [markdown]
@@ -642,9 +655,11 @@ reactor = sample_full(l=0.100, alpha=0.3)
 reactor = sample_full(l=0.010, alpha=0.3, method="direct")
 
 # %%
+# %%skipper MJ_SOLVE_FINEST
 reactor = sample_full(l=0.010, alpha=0.3, method="alternate")
 
 # %%
+# %%skipper MJ_SOLVE_FINEST
 reactor = sample_full(l=0.001, alpha=0.3)
 
 # %%
@@ -794,7 +809,7 @@ class FullCounterCurrentReactorsWithRegister:
         self._compute_balances(T1, T2)
         self.Tw[:] = self.Te + self.Qw * self.Rw
 
-    def _iterate(self, method="method-2"):
+    def _iterate(self, method="method-3"):
         """ Iterate once over the solution of all items. """
         N = self.z.shape[0] - 1
 
@@ -828,6 +843,35 @@ class FullCounterCurrentReactorsWithRegister:
                 self._update_wall()
 
             case "method-2":
+                ## ----- SOLVE 1
+                T2_now = self.r2.reactor.states.T
+
+                def heat_flow_1(idx, T1):
+                    T2 = T2_now[N-idx]
+                    q12 = -self.Ui[idx] * (T1 - T2)
+                    q1w = -self.U1[idx] * (T1 - self.Tw[idx])
+                    return +1 * q12 + q1w
+
+                self.r1.source.Q[:] = 0.0
+                self.r1.reactor.register_heat_flow(heat_flow_1)
+                solve_reactor(self.r1, report=False)
+                self._update_wall()
+
+                ## ----- SOLVE 2
+                T1_now = self.r1.reactor.states.T
+
+                def heat_flow_2(idx, T2):
+                    T1 = T1_now[N-idx]
+                    q12 = -self.Ui[N-idx] * (T1 - T2)
+                    q2w = -self.U2[N-idx] * (T2 - self.Tw[N-idx])
+                    return -1 * q12  + q2w
+
+                self.r2.source.Q[:] = 0.0
+                self.r2.reactor.register_heat_flow(heat_flow_2)
+                solve_reactor(self.r2, report=False)
+                self._update_wall()
+
+            case "method-3":
                 ## ----- SOLVE 1
                 T2_now = self.r2.reactor.states.T
 
@@ -976,3 +1020,5 @@ reactor = sample_full(l=0.010, alpha=0.35, method="direct")
 
 # %%
 plot = reactor.plot()
+
+# %%
