@@ -14,6 +14,7 @@ Majordome
 
     common
     combustion
+    energy
     fluent
     plug
     radiation
@@ -23,8 +24,9 @@ Majordome
     :maxdepth: 2
     :caption: Examples
 
-    combustion_
     common_
+    combustion_
+    energy_
     plug_
     radiation_
     transport_
