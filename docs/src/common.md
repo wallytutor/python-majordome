@@ -53,6 +53,9 @@
 .. autoclass:: majordome.common.StabilizeNvarsConvergenceCheck
     :members:
 
+.. autoclass:: majordome.common.ComposedStabilizedConvergence
+    :members:
+
 .. autofunction:: majordome.common.safe_remove
 .. autofunction:: majordome.common.standard_plot
 .. autofunction:: majordome.common.solution_report

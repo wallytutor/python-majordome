@@ -89,7 +89,8 @@ niter = 200
 single = np.ones(1)
 relaxer = mc.RelaxUpdate(single, alpha)
 
-converged = mc.StabilizeNvarsConvergenceCheck(niter, patience=3, n_vars=1)
+converged = mc.StabilizeNvarsConvergenceCheck(
+    n_vars=1, max_iter=niter, patience=3)
 
 history = np.zeros(niter+1)
 history[0] = single[0]

@@ -46,6 +46,7 @@
 # %%
 from majordome import (PlugFlowChainCantera, RelaxUpdate,
                        StabilizeNvarsConvergenceCheck,
+                       ComposedStabilizedConvergence,
                        standard_plot, get_reactor_data)
 
 from numpy.typing import NDArray
@@ -280,14 +281,15 @@ def iter_alternate(model, T1, T2):
 def solve_pair(model, method="alternate", *, max_alternate=np.inf,
                max_iter=50, patience=3):
     """ Iterativelly solve pair of reactors with method. """
-    converged = StabilizeNvarsConvergenceCheck(max_iter, patience, 2)
+    converged = StabilizeNvarsConvergenceCheck(
+        n_vars=2, max_iter=max_iter, patience=patience)
 
     T1 = model.r1.reactor.states.T
     T2 = model.r2.reactor.states.T
     count_alt = 0
 
     while True:
-        if converged(T1[-1], T2[-1]):
+        if converged([T1[-1], T2[-1]]):
             break
 
         match method:
@@ -533,7 +535,8 @@ class FullCounterCurrentReactors:
 
     def solve(self, method="direct", *, max_iter=50, patience=3, max_alternate=5):
         """ Iterativelly solve pair of reactors with wall loss. """
-        converged = StabilizeNvarsConvergenceCheck(max_iter, patience, 3)
+        converged = StabilizeNvarsConvergenceCheck(
+            n_vars=3, max_iter=max_iter, patience=patience)
         count_alt = 0
 
         T1 = self.r1.reactor.states.T
@@ -541,7 +544,7 @@ class FullCounterCurrentReactors:
         Tw = self.Tw
 
         while True:
-            if converged(np.mean(T1), np.mean(T2), np.mean(Tw)):
+            if converged([np.mean(T1), np.mean(T2), np.mean(Tw)]):
                 break
 
             match method:
@@ -791,6 +794,10 @@ class FullCounterCurrentReactorsWithRegister:
 
         self.relax = RelaxUpdate(self.Qw, alpha)
 
+    # -----------------------------------------------------------------
+    # STEPWISE
+    # -----------------------------------------------------------------
+    
     def _compute_balances(self, T1, T2):
         """ Evaluate balances of all phases in system. """
         # Compute all heat fluxes between system components.
@@ -809,112 +816,132 @@ class FullCounterCurrentReactorsWithRegister:
         self._compute_balances(T1, T2)
         self.Tw[:] = self.Te + self.Qw * self.Rw
 
-    def _iterate(self, method="method-3"):
-        """ Iterate once over the solution of all items. """
-        N = self.z.shape[0] - 1
+    # -----------------------------------------------------------------
+    # WEAK COUPLING
+    # -----------------------------------------------------------------
 
+    def _get_cell_flows(self, i, T1, T2):
+        """ Compute cell flows for a single pair. """
+        q12 = -self.Ui[i] * (T1 - T2)
+        q1w = -self.U1[i] * (T1 - self.Tw[i])
+        q2w = -self.U2[i] * (T2 - self.Tw[i])
+
+        if self._solve_wall:
+            self.Tw[i] = self.Te - (q1w + q2w) * self.Rw[i]
+
+        return q12, q1w, q2w
+
+    # -----------------------------------------------------------------
+    # CORE STEPS
+    # -----------------------------------------------------------------
+    
+    def _heat_flow_1(self, k, T1, T2):
+        q12, q1w, _ = self._get_cell_flows(k, T1, T2[self._N-k])
+        return +1 * q12 + q1w
+        
+    def _heat_flow_2(self, k, T1, T2):
+        q12, _, q2w = self._get_cell_flows(self._N-k, T1[self._N-k], T2)
+        return -1 * q12 + q2w
+    
+    def _solve_r1(self, T2):
+        def heat_flow(i, T): return self._heat_flow_1(i, T, T2)
+    
+        self.r1.source.Q[:] = 0.0
+        self.r1.reactor.register_heat_flow(heat_flow)
+        solve_reactor(self.r1, report=False)
+        
+    def _solve_r2(self, T1):
+        def heat_flow(i, T): return self._heat_flow_2(i, T1, T)
+
+        self.r2.source.Q[:] = 0.0
+        self.r2.reactor.register_heat_flow(heat_flow)
+        solve_reactor(self.r2, report=False)
+
+    # -----------------------------------------------------------------
+    # ALGORITHM SELECTION
+    # -----------------------------------------------------------------
+    
+    def _iterate(self, N, method):
+        """ Perform a single iteration of solution. """
+        self._solve_wall = method.startswith("weak")
+    
         match method:
-            case "method-1":
+            case "step_alt":
+                self._solve_r1(self.r2.reactor.states.T)
+                self._update_wall()
+                
+                self._solve_r2(self.r1.reactor.states.T)
+                self._update_wall()
+                
+            case "step_seq":
                 T1_now = self.r1.reactor.states.T
                 T2_now = self.r2.reactor.states.T
-
-                def heat_flow_1(idx, T1):
-                    T2 = T2_now[N-idx]
-                    q12 = -self.Ui[idx] * (T1 - T2)
-                    q1w = -self.U1[idx] * (T1 - self.Tw[idx])
-                    return +1 * q12 + q1w
-
-                def heat_flow_2(idx, T2):
-                    T1 = T1_now[N-idx]
-                    q12 = -self.Ui[N-idx] * (T1 - T2)
-                    q2w = -self.U2[N-idx] * (T2 - self.Tw[N-idx])
-                    return -1 * q12  + q2w
-
-                self.r1.reactor.register_heat_flow(heat_flow_1)
-                self.r2.reactor.register_heat_flow(heat_flow_2)
-
-                self.r1.source.Q[:] = 0.0
-                self.r2.source.Q[:] = 0.0
-
-                solve_reactor(self.r1, report=False)
+                
+                self._solve_r1(T2_now)
                 self._update_wall()
-
-                solve_reactor(self.r2, report=False)
+                
+                self._solve_r2(T1_now)
                 self._update_wall()
-
-            case "method-2":
-                ## ----- SOLVE 1
-                T2_now = self.r2.reactor.states.T
-
-                def heat_flow_1(idx, T1):
-                    T2 = T2_now[N-idx]
-                    q12 = -self.Ui[idx] * (T1 - T2)
-                    q1w = -self.U1[idx] * (T1 - self.Tw[idx])
-                    return +1 * q12 + q1w
-
-                self.r1.source.Q[:] = 0.0
-                self.r1.reactor.register_heat_flow(heat_flow_1)
-                solve_reactor(self.r1, report=False)
-                self._update_wall()
-
-                ## ----- SOLVE 2
+                
+            case "weak_alt":
+                self._solve_r1(self.r2.reactor.states.T)
+                self._solve_r2(self.r1.reactor.states.T)
+                
+            case "weak_seq":
                 T1_now = self.r1.reactor.states.T
-
-                def heat_flow_2(idx, T2):
-                    T1 = T1_now[N-idx]
-                    q12 = -self.Ui[N-idx] * (T1 - T2)
-                    q2w = -self.U2[N-idx] * (T2 - self.Tw[N-idx])
-                    return -1 * q12  + q2w
-
-                self.r2.source.Q[:] = 0.0
-                self.r2.reactor.register_heat_flow(heat_flow_2)
-                solve_reactor(self.r2, report=False)
-                self._update_wall()
-
-            case "method-3":
-                ## ----- SOLVE 1
                 T2_now = self.r2.reactor.states.T
+                
+                self._solve_r1(T2_now)
+                self._solve_r2(T1_now)
 
-                def heat_flow_1(idx, T1):
-                    T2 = T2_now[N-idx]
-                    q12 = -self.Ui[idx] * (T1 - T2)
-                    q1w = -self.U1[idx] * (T1 - self.Tw[idx])
-                    return +1 * q12 + q1w
+            case _:
+                raise ValueError(f"Unknown method {method}")
 
-                self.r1.source.Q[:] = 0.0
-                self.r1.reactor.register_heat_flow(heat_flow_1)
-                solve_reactor(self.r1, report=False)
-                self._update_wall()
+    # -----------------------------------------------------------------
+    # API
+    # -----------------------------------------------------------------
 
-                ## ----- SOLVE 2
-                T1_now = self.r1.reactor.states.T
-
-                def heat_flow_2(idx, T2):
-                    T1 = T1_now[N-idx]
-                    q12 = -self.Ui[N-idx] * (T1 - T2)
-                    q2w = -self.U2[N-idx] * (T2 - self.Tw[N-idx])
-                    return -1 * q12  + q2w
-
-                self.r2.source.Q[:] = 0.0
-                self.r2.reactor.register_heat_flow(heat_flow_2)
-                solve_reactor(self.r2, report=False)
-                self._update_wall()
-
-    def solve(self, *, max_iter=50, patience=3):
+    def solve(self, method="solve_alt", *, max_iter=200, patience=3):
         """ Iterativelly solve pair of reactors with wall loss. """
-        converged = StabilizeNvarsConvergenceCheck(max_iter, patience, 3)
+        self._N = N = self.z.shape[0] - 1
+
+        conv = ComposedStabilizedConvergence(
+            3, n_vars=N+1, min_iter=50, max_iter=max_iter,
+            patience=patience)
 
         while True:
-            T1 = np.mean(self.r1.reactor.states.T)
-            T2 = np.mean(self.r2.reactor.states.T)
-            Tw = np.mean(self.Tw)
-
-            if converged(T1, T2, Tw):
-                self._iterate()
+            if conv(self.r1.reactor.states.T,
+                    self.r2.reactor.states.T,
+                    self.Tw):
+                bal = np.abs(self.compute_residual())
+                idx = np.argmax(bal)
+                val = bal[idx]
+                logging.info(f"Converged after {conv.n_iterations} iterations "
+                             f"with maximum residual of {val:.6e} at cell {idx}")
                 break
 
-            self._iterate()
+            self._iterate(N, method)
 
+    def compute_residual(self):
+        """ Evaluate reactor residual of energy flow. """
+        T1 = self.r1.reactor.states.T
+        T2 = self.r2.reactor.states.T
+        self._compute_balances(T1, T2)
+        
+        Qw = -1 * (self.q1w + self.q2w)
+        Q1 = self.r1.reactor.states.Q_cell
+        Q2 = self.r2.reactor.states.Q_cell[::-1]
+
+        return Q1 + Q2 + Qw
+        
+    @standard_plot(shape=(1, 1), resized=(10, 5))
+    def plot_residual(self, fig, ax):
+        """ Display residual of energy balance over length. """
+        bal = self.compute_residual()
+        ax[0].plot(self.z, bal)
+        ax[0].set_xlabel("z [m]")
+        ax[0].set_ylabel("Balance [W]")
+        
     @standard_plot(shape=(2, 1), resized=(10, 8))
     def plot(self, fig, ax):
         """ Plot fully integrated system. """
@@ -945,7 +972,7 @@ class FullCounterCurrentReactorsWithRegister:
 # ### Example - extension to coupled system
 
 # %%
-def sample_register_full(l=0.02):
+def sample_register_full(l=0.02, method="method-2"):
     """ Sample case with a pair of coupled reactor and wall losses. """
     # - PARAMETERS
     h_inner = 100.0  # HTC r1-r2 [W/(m².K)]
@@ -1001,7 +1028,7 @@ def sample_register_full(l=0.02):
     reactor.r1.reactor.use_smooth_flux(False)
     reactor.r2.reactor.use_smooth_flux(False)
 
-    reactor.solve(max_iter=50, patience=3)
+    reactor.solve(method)
     solve_and_report(reactor.r1, reactor.r2)
 
     return reactor
@@ -1009,7 +1036,22 @@ def sample_register_full(l=0.02):
 
 # %%
 # %%time
-reactor = sample_register_full(l=0.010)
+reactor = sample_register_full(l=0.010, method="weak_alt")
+
+# %%
+# %%time
+reactor = sample_register_full(l=0.010, method="weak_seq")
+
+# %%
+plot = reactor.plot()
+
+# %%
+# %%time
+reactor = sample_register_full(l=0.010, method="step_alt")
+
+# %%
+# %%time
+reactor = sample_register_full(l=0.010, method="step_seq")
 
 # %%
 plot = reactor.plot()
@@ -1020,5 +1062,3 @@ reactor = sample_full(l=0.010, alpha=0.35, method="direct")
 
 # %%
 plot = reactor.plot()
-
-# %%
