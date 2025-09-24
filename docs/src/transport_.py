@@ -18,10 +18,9 @@
 # %load_ext autoreload
 # %autoreload 2
 
-from majordome.common import standard_plot
-import majordome.common as mc
-import majordome.transport as mt
-from tabulate import tabulate
+from majordome import (standard_plot, EffectiveThermalConductivity,         
+                       SolutionDimless, SutherlandFitting)
+import majordome as mc
 import cantera as ct
 import numpy as np
 
@@ -29,7 +28,7 @@ import numpy as np
 
 # Class `EffectiveThermalConductivity` implements static methods for the evaluation of properties; its name is quite long, let's start by getting an alias before evaluating the desired models:
 
-etc = mt.EffectiveThermalConductivity()
+etc = EffectiveThermalConductivity()
 
 # Using [Maxwell](https://en.wikipedia.org/wiki/Effective_medium_approximations) approximation, we could estimate the the effective thermal conductivity of a packed bed of particles in a *matrix* of air; assume particles loosly embeded in air and the following properties; the computed effective thermal conductivity is shown to approach the air limit:
 
@@ -126,7 +125,7 @@ U = 10.0     # Characteristic velocity [m/s]
 D = 0.05     # Pipe diameter [m]
 L = 1.0      # Pipe length [m]
 
-calculator = mt.SolutionDimless("airish.yaml")
+calculator = SolutionDimless("airish.yaml")
 calculator.set_state(300.0, 101325.0, "N2: 1", tuple_name="TPX")
 
 Re   = calculator.reynolds(U, D)
@@ -155,7 +154,7 @@ print(calculator.report())
 # +
 T = np.linspace(500, 2500, 100)
 
-sutherland = mt.SutherlandFitting("airish.yaml")
+sutherland = SutherlandFitting("airish.yaml")
 sutherland.fit(T, species_names=["O2", "N2"])
 
 coef = sutherland.coefs_table
