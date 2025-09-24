@@ -18,8 +18,7 @@
 # %load_ext autoreload
 # %autoreload 2
 
-from majordome.common import standard_plot
-from majordome.radiation import WSGGRadlibBordbar2020
+from majordome import standard_plot, WSGGRadlibBordbar2020
 from matplotlib import pyplot as plt
 import numpy as np
 
