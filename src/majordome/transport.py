@@ -75,8 +75,6 @@ class EffectiveThermalConductivity:
 class SolutionDimless:
     """ Provides evaluation of dimensionless numbers for a solution.
 
-    Note
-    ----
     For keeping the API simple (as are the main use cases of this class),
     after accessing `solution` to setting its state, it is up to the user
     to call `update` as there is no pre-defined hook. It is not possible
