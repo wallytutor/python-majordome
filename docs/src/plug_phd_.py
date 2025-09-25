@@ -18,25 +18,18 @@
 # %load_ext autoreload
 # %autoreload 2
 
-# +
 from majordome import (
-    StabilizeNvarsConvergenceCheck,
     NormalFlowRate,
     PlugFlowChainCantera,
     get_reactor_data,
 )
-
-from tabulate import tabulate
-import logging
 import cantera as ct
 import numpy as np
+import pandas as pd
 
-
-# -
 
 # ## Toolbox
 
-# +
 class AcetylenePyrolysisReactor:
     """ Simulate a plug-flow reactor for acetylene pyrolysis. """
     def __init__(self, L = 0.60, D = 0.028, d = 0.002):
@@ -48,7 +41,7 @@ class AcetylenePyrolysisReactor:
         self._V = np.full_like(self._z, self._V_cell)
     
     @staticmethod
-    def _mass_flow(mechanism, X, qdot, verbose=True):
+    def _mass_flow(mechanism, X, qdot, verbose):
         """ Evaluate mass flow rate from mechanism. """
         nfr = NormalFlowRate(mechanism, X=X)
         qdot *= 1.0e-06 * 60  # SCCM to Nm³/h
@@ -82,16 +75,17 @@ class AcetylenePyrolysisReactor:
         return self._A_cell * Nu * k / self._D
 
     def solve(self, mechanism, fraction, qdot, P, T_wall,
-              T_env=298.15, K=0.01, Nu=3.66):
+              T_env=298.15, K=0.01, Nu=3.66, verbose=False):
         """ Integrate reactor model with given operating conditions. """
         sol = ct.Solution(mechanism)
-        sol.TPX = T_env, P, self._mixture(sol, fraction)
+        sol.TPX = T_env, 100*P, self._mixture(sol, fraction)
 
+        mdot = self._mass_flow(mechanism, sol.X, qdot, verbose)
         reactor = PlugFlowChainCantera(sol.source, sol.name, self._z,
-                                       self._V, P=P, K=K)
-        
+                                       self._V, P=sol.P, K=K)
+
         sources = get_reactor_data(reactor)
-        sources.m[0] = self._mass_flow(mechanism, sol.X, qdot)
+        sources.m[0] = mdot
         sources.h[0] = sol.h
         sources.Y[0, :] = sol.Y
         sources.Q[:] = 0
@@ -106,38 +100,70 @@ class AcetylenePyrolysisReactor:
         reactor.update(sources)
         return reactor
 
+
+# +
+MECHS = ["c2h2/dalmazsi-2017.yaml",
+         "c2h2/graf-2007.yaml"]
+
+TABLE5_9 = [
+    dict(N= 1, P= 50, Q=222, T= 773),
+    dict(N= 2, P= 50, Q=222, T= 873),
+    dict(N= 3, P= 50, Q=222, T= 973),
+    dict(N= 4, P= 50, Q=222, T=1073),
+    dict(N= 5, P= 50, Q=222, T=1123),
+    dict(N= 6, P= 50, Q=222, T=1173),
+    dict(N= 7, P= 50, Q=222, T=1273),
+    dict(N= 8, P= 30, Q=222, T=1173),
+    dict(N= 9, P= 30, Q=222, T=1223),
+    dict(N=10, P=100, Q=222, T=1173),
+    dict(N=11, P=100, Q=222, T=1223),
+    dict(N=12, P=100, Q=222, T=1273),
+    dict(N=13, P=100, Q=378, T=1023),
+    dict(N=14, P=100, Q=378, T=1123),
+]
+
+def solve_case(mech, P=50, Q=222, T=1173.15, f=0.36, **kwargs):
+    reactor = AcetylenePyrolysisReactor()
+    results = reactor.solve(mech, f, Q, P, T)
+
+    cols = kwargs.get("cols", ["z_cell", "Q_cell", "T", "X"])
+    return results, results.states.to_pandas(cols=cols)
+    
 def plot_reactor(reactor):
     config = dict(composition_variable="X", y_label="Mole fraction")
     plot = reactor.quick_plot(selected=["C2H2"], **config)
     plot.axes[0].legend(loc=3)
 
-def tabulate(reactor, cols=["z_cell", "Q_cell", "T", "X"]):
-    """ Retrieve solution as a pandas.DataFrame. """
-    return reactor.states.to_pandas(cols=cols)
+def scan_with_mech(mech):
+    table = TABLE5_9.copy()
+    for k, row in enumerate(TABLE5_9):
+        print(f"Working on case no. {k+1}")
+        reactor, df = solve_case(mech, **row)
+        table[k]["X"] = float(df["X_C2H2"].iloc[-1])
+    
+    return pd.DataFrame(table)
 
 
 # -
 
 # ## Reference case
 
-def solve_case(mech, T_wall = 1173.15, P = 5000, qdot = 222, f = 0.36):
-    sim = AcetylenePyrolysisReactor(L, D, d)
-    return sim.solve(mech, f, qdot, P, T_wall)
-
-
-mechs = ["c2h2/dalmazsi-2017.yaml", "c2h2/graf-2007.yaml"]
+# %%time
+results, df = solve_case(MECHS[0], P=50, Q=222, T=1173.15, f=0.36)
+plot_reactor(results)
 
 # %%time
-reactor = solve_case(mechs[0], T_wall = 1173.15, P = 5000, qdot = 222, f = 0.36)
+results, df = solve_case(MECHS[1], P=50, Q=222, T=1173.15, f=0.36)
+plot_reactor(results)
 
-plot_reactor(reactor)
+# ## Scan table
 
 # %%time
-reactor = solve_case(mechs[1], T_wall = 1173.15, P = 5000, qdot = 222, f = 0.36)
+scan_mech0 = scan_with_mech(MECHS[0])
 
-plot_reactor(reactor)
+scan_mech0
 
-df = tabulate(reactor)
-df.head().T
+# %%time
+scan_mech1 = scan_with_mech(MECHS[1])
 
-df["X_C2H2"].iloc[-1]
+scan_mech1
