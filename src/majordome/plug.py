@@ -61,6 +61,8 @@ class PlugFlowChainCantera:
         Spatial coordinates of reactor cells [m].
     V: np.ndarray
         Volumes of reactor cells [m³].
+    P: float = ct.one_atm
+        Reactor operating pressure [Pa].
     K: float = 1.0
         Valve response constant (do not use unless simulation fails).
     smoot_flux: bool = False
@@ -71,11 +73,12 @@ class PlugFlowChainCantera:
         otherwise advance over meaninful time-scale of the problem.
     """
     def __init__(self, mechanism: str, phase: str, z: np.ndarray,
-                 V: np.ndarray, K: float = 1.0, smoot_flux: bool = False,
-                 cantera_steady: bool = True) -> None:
+                 V: np.ndarray, P: float = ct.one_atm, K: float = 1.0,
+                 smoot_flux: bool = False, cantera_steady: bool = True) -> None:
         # Store coordinates and volume of slices:
         self._z = z
         self._V = V
+        self._P = P
         self._Q = np.zeros_like(self._z)
         self._smoot_flux = smoot_flux
         self._advance_steady_cantera = cantera_steady
@@ -84,6 +87,11 @@ class PlugFlowChainCantera:
         self._f_sources = ct.Solution(mechanism, phase, basis="mass")
         self._f_content = ct.Solution(mechanism, phase, basis="mass")
         self._f_outflow = ct.Solution(mechanism, phase, basis="mass")
+
+        # Enforce operating pressure:
+        self._f_sources.TP = None, self._P
+        self._f_content.TP = None, self._P
+        self._f_outflow.TP = None, self._P
 
         # Create reactors and reservoirs for system:
         self._r_sources = ct.Reservoir(self._f_sources)
@@ -133,7 +141,7 @@ class PlugFlowChainCantera:
         if m <= 0.0:
             return None
 
-        self._f_sources.HPY = h, None, Y
+        self._f_sources.HPY = h, self._P, Y
         self._r_sources.syncState()
         return ct.Quantity(self._f_sources, mass=m)
 
@@ -213,7 +221,7 @@ class PlugFlowChainCantera:
         # Update injection mass flow:
         self._mfc.mass_flow_rate = qty_next.mass
 
-    def _fallback(self,  hpy_reac, qty_next, V, Q, **opts):
+    def _fallback(self, hpy_reac, qty_next, V, Q, **opts):
         """ Alternative approach to advance reactor to steady state. """
         self._prepare(hpy_reac, qty_next, V, Q, **opts)
         self._failures.append(f"Fall-back solution with tau={self._tau:.2f} s")
@@ -390,14 +398,14 @@ class PlugFlowChainCantera:
 
         z = self._states.z_cell
         T = self._states.T
-        Y = self._states.Y
+        Y = getattr(self._states, kwargs.get("composition_variable", "Y"))
 
         for label in safe_remove(selected, but):
             Yk = Y[:, self._states.species_index(label)]
             ax[0].plot(z, Yk, label=label)
 
         ax[0].set_xlabel("Coordinate [m]")
-        ax[0].set_ylabel("Mass fraction")
+        ax[0].set_ylabel(kwargs.get("y_label", "Mass fraction"))
         ax[0].set_xlim(kwargs.get("xlim", None))
         ax[0].set_ylim(kwargs.get("ylim_Y", None))
         ax[0].legend(loc=kwargs.get("loc_Y", 1))
