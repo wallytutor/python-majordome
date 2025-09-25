@@ -6,7 +6,7 @@ For developing the package, consider doing so from within a virtual environment;
 
 ```bash
 python -m venv venv
-venv\Scripts\Activate.ps1
+venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip
 pip install -e .
 ```
