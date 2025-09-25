@@ -39,7 +39,7 @@ import numpy as np
 # +
 class AcetylenePyrolysisReactor:
     """ Simulate a plug-flow reactor for acetylene pyrolysis. """
-    def __init__(self, L, D, d):
+    def __init__(self, L = 0.60, D = 0.028, d = 0.002):
         self._D = D
         self._A_cell = d * np.pi * D
         self._V_cell = d * np.pi * (D/2)**2
@@ -120,26 +120,24 @@ def tabulate(reactor, cols=["z_cell", "Q_cell", "T", "X"]):
 
 # ## Reference case
 
-# +
-mechanisms = ["c2h2/dalmazsi-2017.yaml", "c2h2/graf-2007.yaml"]
+def solve_case(mech, T_wall = 1173.15, P = 5000, qdot = 222, f = 0.36):
+    sim = AcetylenePyrolysisReactor(L, D, d)
+    return sim.solve(mech, f, qdot, P, T_wall)
 
-L = 0.60
-D = 0.028
-d = 0.002
 
-f = 0.36
-P = 5000
-qdot = 222
-T_wall = 1173.15
-# -
+mechs = ["c2h2/dalmazsi-2017.yaml", "c2h2/graf-2007.yaml"]
 
-sim = AcetylenePyrolysisReactor(L, D, d)
-reactor = sim.solve(mechanisms[0], f, qdot, P, T_wall)
+# %%time
+reactor = solve_case(mechs[0], T_wall = 1173.15, P = 5000, qdot = 222, f = 0.36)
+
 plot_reactor(reactor)
 
-sim = AcetylenePyrolysisReactor(L, D, d)
-reactor = sim.solve(mechanisms[1], f, qdot, P, T_wall)
+# %%time
+reactor = solve_case(mechs[1], T_wall = 1173.15, P = 5000, qdot = 222, f = 0.36)
+
 plot_reactor(reactor)
 
 df = tabulate(reactor)
 df.head().T
+
+df["X_C2H2"].iloc[-1]
