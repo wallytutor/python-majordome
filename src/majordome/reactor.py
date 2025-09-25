@@ -105,7 +105,8 @@ def composition_to_array(Y: str, species_names: list[str]
 def solution_report(sol: ct.Solution,
                     specific_props: bool = True,
                     composition_spec: str = "mass",
-                    selected_species: list[str] = []
+                    selected_species: list[str] = [],
+                    **kwargs,
                     ) -> list[tuple[str, str, Any]]:
     """ Generate a solution report for tabulation.
 
@@ -225,4 +226,11 @@ class NormalFlowRate:
     def report(self, **kwargs) -> str:
         """ Provides a report of the mixture state. """
         data = solution_report(self._sol, **kwargs)
+
+        if (qdot := kwargs.get("qdot", None)):
+            data.extend([
+                ("Volume flow rate", "Nm³/h", qdot),
+                ("Mass flow rate", "kg/s", self(qdot))
+            ])
+ 
         return tabulate(data, tablefmt="github")
