@@ -15,7 +15,7 @@
 # ---
 
 # %% [markdown]
-# # Reactor models
+# # Plug flow coupling
 
 # %% [markdown]
 # ## Introduction

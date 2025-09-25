@@ -28,7 +28,12 @@ Majordome
     common_
     combustion_
     energy_
-    plug_
     radiation_
     reactor_
     transport_
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Advanced
+
+    plug_
