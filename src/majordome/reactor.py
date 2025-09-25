@@ -17,6 +17,7 @@ WARN_UNKNOWN_SPECIES = True
 
 def toggle_reactor_warnings(*,
         toggle_non_key_value: bool = True,
+        toggle_missing_species_name: bool = True,
         toggle_unknown_species: bool = True,
         **kwargs
     ) -> None:
@@ -25,7 +26,7 @@ def toggle_reactor_warnings(*,
         global WARN_CANTERA_NON_KEY_VALUE 
         WARN_CANTERA_NON_KEY_VALUE = not WARN_CANTERA_NON_KEY_VALUE
 
-    if toggle_unknown_species:
+    if toggle_missing_species_name:
         global WARN_MISSING_SPECIES_NAME
         WARN_MISSING_SPECIES_NAME = not WARN_MISSING_SPECIES_NAME
 
