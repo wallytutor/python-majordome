@@ -37,3 +37,4 @@ Majordome
     :caption: Advanced
 
     plug_
+    plug_phd_
