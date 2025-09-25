@@ -48,7 +48,10 @@ exclude = ["majordome.tests*"]
 namespaces = false
 
 [tool.setuptools.package-data]
-"majordome" = ["data/*.yaml"]
+"majordome" = [
+    "data/*.yaml",
+    "data/*/*.yaml"
+]
 
 # PEP621
 [project.optional-dependencies]
