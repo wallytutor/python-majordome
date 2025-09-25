@@ -5,7 +5,6 @@ from io import StringIO
 from numbers import Number
 from pathlib import Path
 from textwrap import dedent
-from typing import Any
 from typing import NamedTuple
 from IPython import embed
 from matplotlib import pyplot as plt
@@ -425,64 +424,6 @@ def standard_plot(shape: tuple[int, int] = (1, 1), sharex: bool = True,
             return plot
         return wrapper
     return decorator
-
-
-def solution_report(sol: ct.Solution,
-                    specific_props: bool = True,
-                    composition_spec: str = "mass",
-                    selected_species: list[str] = []
-                    ) -> list[tuple[str, str, Any]]:
-    """ Generate a solution report for tabulation.
-
-    Parameters
-    ----------
-    sol: ct.Solution
-        Cantera solution object for report generation.
-    specific_props: bool = True
-        If true, add specific heat capacity and enthalpy.
-    composition_spec: str = "mass"
-        Composition units specification, `mass` or `mole`.
-    selected_species: list[str] = []
-        Selected species to display; return all if a composition
-        specification was provided.
-
-    Raises
-    ------
-    ValueError
-        If in invalid composition specification is provided.
-        If species filtering lead to an empty set of compositions.
-
-    Returns
-    -------
-    list[tuple[str, str, Any]]
-        A list of data entries intended to be displayed externally,
-        *e.g.* with `tabulate.tabulate` or appended.
-    """
-    report = [("Temperature", "K", sol.T), ("Pressure", "Pa",sol.P),
-              ("Density", "kg/m³", sol.density_mass)]
-
-    if specific_props:
-        report.extend([
-            ("Specific enthalpy", "J/(kg.K)", sol.enthalpy_mass),
-            ("Specific heat capacity", "J/(kg.K)", sol.cp_mass),
-        ])
-
-    if composition_spec is not None:
-        if composition_spec not in ["mass", "mole"]:
-            raise ValueError(f"Unknown composition type {composition_spec}")
-
-        comp = getattr(sol, f"{composition_spec}_fraction_dict")()
-
-        if selected_species:
-            comp = {s: v for s, v in comp.items() if s in selected_species}
-
-        if not comp:
-            raise ValueError("No species left in mixture for display!")
-
-        for species, X in comp.items():
-            report.append((f"{composition_spec}: {species}", "-", X))
-
-    return report
 
 
 def bounds(arr):

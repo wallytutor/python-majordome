@@ -18,6 +18,7 @@ Majordome
     fluent
     plug
     radiation
+    reactor
     transport
 
 .. toctree::
@@ -29,4 +30,5 @@ Majordome
     energy_
     plug_
     radiation_
+    reactor_
     transport_
