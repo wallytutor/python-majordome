@@ -17,6 +17,9 @@
 
 .. autodata:: majordome.common.P_NORMAL
     :annotation:
+
+.. autoclass:: majordome.common.Constants
+    :members:
 ```
 
 ## Type aliases
@@ -32,9 +35,6 @@
 ## Utilities
 
 ```{eval-rst}
-.. autoclass:: majordome.common.NormalFlowRate
-    :members:
-
 .. autoclass:: majordome.common.ReadTextData
     :members:
 

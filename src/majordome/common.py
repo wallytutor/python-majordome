@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import deque
+from functools import wraps
 from importlib import resources
 from io import StringIO
 from numbers import Number
@@ -11,6 +12,7 @@ from matplotlib import pyplot as plt
 from tabulate import tabulate
 import functools
 import logging
+import re
 import sys
 import warnings
 import cantera as ct
@@ -23,16 +25,112 @@ DATA = Path(resources.files("majordome").joinpath("data"))
 # XXX: add globally to Cantera path:
 ct.add_directory(DATA)
 
-GRAVITY = 9.80665
+
+class Singleton:
+    """ Create a class with a single instance. """
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+
+class classproperty(property):
+    """ Extend Python to support class properties.
+    
+    Note: this class does not reproduce the full behavior of `property`
+    because accessing `fget` will return the computed value and thus it
+    is not possible to recover directly the docstring of the attribute.
+    A proxy object would be required, but then things would slow down,
+    what is undesirable. You can retrieve the actual docstring through
+    `cls.__dict__[name].fget.__wrapped__.__doc__` in a class, where the
+    value of `name` is the attribute being accessed.
+    """
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None):
+        fget = fget if fget is None else wraps(fget)(fget)
+        fset = fset if fset is None else wraps(fset)(fset)
+        fdel = fdel if fdel is None else wraps(fdel)(fdel)
+        super().__init__(fget, fset, fdel, doc or fget.__doc__)
+
+    def __get__(self, obj, objtype=None):
+        # Instead of binding to instance, bind to class
+        return self.fget(objtype)
+
+    def __set__(self, obj, value):
+        if self.fset is None:
+            raise AttributeError("can't set attribute")
+        return self.fset(type(obj), value)
+
+    def __delete__(self, obj):
+        if self.fdel is None:
+            raise AttributeError("can't delete attribute")
+        return self.fdel(type(obj))
+
+    def __getattribute__(self, name):
+        if name == "__doc__":
+            return super().__getattribute__("fget").__doc__
+        return super().__getattribute__(name)
+
+
+class Constants(Singleton):
+    """ Singleton class with constant properties. """
+    @classproperty
+    def GRAVITY(cls) -> float:
+        """ Conventional gravity acceleration on Earth [m/s²]. """
+        return 9.80665
+
+    @classproperty
+    def T_REFERENCE(cls) -> float:
+        """ Thermodynamic reference temperature [K]. """
+        return 298.15
+
+    @classproperty
+    def T_NORMAL(cls) -> float:
+        """ Normal state reference temperature [K]. """
+        return 273.15
+
+    @classproperty
+    def P_NORMAL(cls) -> float:
+        """ Normal state reference pressure [Pa]. """
+        return 101325.0
+
+    @classproperty
+    def X_NORMAL(cls) -> float:
+        """ Normal state reference pressure. """
+        return 101325.0
+
+    @classmethod
+    def _entry(cls, name):
+        """ Generate an entry for report table. """
+        doc = cls.__dict__[name].fget.__wrapped__.__doc__
+        val = getattr(cls, name)
+
+        if (matched := re.match(r'^(.*?)\s*\[([^\]]+)\]', doc)):
+            text, unit = matched.groups()
+            return name, text.strip(), unit, val
+
+        return name, doc, "", val
+
+    @classmethod
+    def report(cls) -> str:
+        """ Tabulates all constants in a readable manner. """
+        data = [cls._entry("GRAVITY"), cls._entry("T_REFERENCE"),
+                cls._entry("T_NORMAL"), cls._entry("P_NORMAL")]
+        return tabulate(data, tablefmt="github")
+
+
+# WIP: eliminating this module level constants.
+GRAVITY = Constants.GRAVITY
 """ Conventional gravitational acceleration on Earth [m/s²]. """
 
-T_REFERENCE = 298.15
+T_REFERENCE = Constants.T_REFERENCE
 """ Thermodynamic reference temperature [K]. """
 
-T_NORMAL = 273.15
+T_NORMAL = Constants.T_NORMAL
 """ Normal state reference temperature [K]. """
 
-P_NORMAL = 101325.0
+P_NORMAL = Constants.P_NORMAL
 """ Normal state reference temperature [K]. """
 
 CompositionType = str | dict[str, float]
@@ -44,74 +142,6 @@ class StateType(NamedTuple):
     X: CompositionType
     T: Number = T_NORMAL
     P: Number = P_NORMAL
-
-
-class NormalFlowRate:
-    """ Compute normal flow rate for a given composition.
-
-    This class makes use of the user defined state to create a function
-    object that converts industrial scale flow rates in normal cubic
-    meters per hour to kilograms per second. Nothing more, nothing less,
-    it aims at helping the process engineer in daily life for this quite
-    repetitive need when performing mass balances.
-
-    Parameters
-    ----------
-    mech: str | Path
-        Path to Cantera mechanism used to compute mixture properties.
-    X: CompositionType = None
-        Composition specification in mole fractions. Notice that both
-        `X` and `Y` are mutally exclusive keyword arguments.
-    Y: CompositionType = None
-        Composition specification in mass fractions. Notice that both
-        `X` and `Y` are mutally exclusive keyword arguments.
-    T_ref: float = T_NORMAL
-        Reference temperature of the system. If your industry does not
-        use the same standard as the default values, and only in that
-        case, please consider updating this keyword.
-    P_ref: float = P_NORMAL
-        Reference pressure of the system. If your industry does not
-        use the same standard as the default values, and only in that
-        case, please consider updating this keyword.
-    name: str = None
-        Name of phase in mechanism, if more than one are specified
-        within the same Cantera YAML database file.
-    """
-    def __init__(self, mech: str | Path, *, X: CompositionType = None,
-                 Y: CompositionType = None, T_ref: float = T_NORMAL,
-                 P_ref: float = P_NORMAL, name: str = None) -> None:
-        if X is not None and Y is not None:
-            raise ValueError("You can provide either X or Y, not both!")
-
-        self._sol = ct.Solution(mech, name)
-        self._sol.TP = T_ref, P_ref
-
-        if X is not None:
-            self._sol.TPX = None, None, X
-
-        if Y is not None:
-            self._sol.TPY = None, None, Y
-
-        self._rho = self._sol.density_mass
-
-    def __call__(self, qdot: float) -> float:
-        """ Convert flow rate [Nm³/h] to mass units [kg/s]. """
-        return self._rho * qdot / 3600
-
-    @property
-    def density(self) -> float:
-        """ Provides access to the density of internal solution [kg/m³]. """
-        return self._rho
-
-    @property
-    def TPX(self) -> tuple[float, float, dict[str, float]]:
-        """ Provides access to the state of internal solution. """
-        return (*self._sol.TP, self._sol.mole_fraction_dict())
-
-    def report(self, **kwargs) -> str:
-        """ Provides a report of the mixture state. """
-        data = solution_report(self._sol, **kwargs)
-        return tabulate(data, tablefmt="github")
 
 
 class ReadTextData:
@@ -342,7 +372,7 @@ class StabilizeNvarsConvergenceCheck:
 
 class ComposedStabilizedConvergence:
     """ Wrapper for checking stabilization of several arrays.
-    
+
     See `StabilizeNvarsConvergenceCheck` for key-word arguments;
     these are shared by all tested arrays. It is always possible to
     compose your own convergence checker using individual instances
@@ -360,7 +390,7 @@ class ComposedStabilizedConvergence:
     def __call__(self, *arrs):
         """ Check if all arrays have stabilized at current iteration. """
         self._niter += 1
-        
+
         if len(arrs) != self._conv.shape[0]:
             raise RuntimeError("Bad number of arrays to verify")
 

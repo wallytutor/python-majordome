@@ -18,11 +18,14 @@
 # %load_ext autoreload
 # %autoreload 2
 
-from majordome import (toggle_warnings,
-                       toggle_reactor_warnings,
-                       composition_to_dict,
-                       composition_to_array,
-                       solution_report)
+from majordome import (
+    toggle_warnings,
+    toggle_reactor_warnings,
+    composition_to_dict,
+    composition_to_array,
+    solution_report,
+    NormalFlowRate,
+)
 from tabulate import tabulate
 import cantera as ct
 
@@ -60,3 +63,21 @@ composition_to_array(", teste: 1", solution.species_names)
 data = solution_report(solution, specific_props=True,
                        composition_spec="mass", selected_species=[])
 print(tabulate(data))
+
+# ## *NormalFlowRate*
+
+# Common daily work activity for the process engineer is to perform mass balances, but wait, ..., gas flow rates are generally provided under normal conditions, and compositions may vary, so you need to compute normal densities first... whatever. This class provides a calculator wrapping a Cantera solution object so that your life gets easier.
+#
+# Its simples use case is as follows:
+
+nfr = NormalFlowRate("airish.yaml")
+print(f"Convert 1000 Nm³/h to {nfr(1000.0):.5f} kg/s")
+
+# If the database file default composition does not suit you, no problems:
+
+nfr = NormalFlowRate("airish.yaml", X="N2: 1")
+print(f"Convert 1000 Nm³/h to {nfr(1000.0):.5f} kg/s")
+
+# You can also print a nice report to inspect the details of internal state. For more, please check its documentation at the [API page](reactor.md).
+
+print(nfr.report())
