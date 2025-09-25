@@ -18,7 +18,6 @@ from .common import (
     ComposedStabilizedConvergence,
     safe_remove,
     standard_plot,
-    solution_report,
     bounds,
     within,
     apply,
@@ -35,7 +34,6 @@ __all__ += [
     "ComposedStabilizedConvergence",
     "safe_remove",
     "standard_plot",
-    "solution_report",
     "bounds",
     "within",
     "apply",
@@ -75,7 +73,7 @@ __all__ += [
     "FluentInputRow",
     "FluentInputFile",
     "convert_xy_to_dict",
-    "load_dpm_table," 
+    "load_dpm_table", 
 ]
 
 # ---------------------------------------------------------------------
@@ -110,6 +108,24 @@ __all__ += [
 ]
 
 # ---------------------------------------------------------------------
+# majordome.reactor
+# ---------------------------------------------------------------------
+
+from .reactor import (
+    toggle_reactor_warnings,
+    composition_to_dict,
+    composition_to_array,
+    solution_report,
+)
+
+__all__ += [
+    "toggle_reactor_warnings",
+    "composition_to_dict",
+    "composition_to_array",
+    "solution_report",
+]
+
+# ---------------------------------------------------------------------
 # majordome.transport
 # ---------------------------------------------------------------------
 
@@ -124,3 +140,7 @@ __all__ += [
     "SolutionDimless",
     "SutherlandFitting",
 ]
+
+def toggle_warnings(**kwargs):
+    """ Unified caller for modules warnings. """
+    toggle_reactor_warnings(**kwargs)
