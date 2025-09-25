@@ -24,33 +24,25 @@
 # %autoreload 2
 
 # %%
-import majordome.common as mc
+from majordome import (
+    Constants,
+    RelaxUpdate,
+    StabilizeNvarsConvergenceCheck,
+    standard_plot,
+)
 import numpy as np
 
 # %% [markdown]
-# ## *NormalFlowRate*
+# ## *Constants*
 
 # %% [markdown]
-# Common daily work activity for the process engineer is to perform mass balances, but wait, ..., gas flow rates are generally provided under normal conditions, and compositions may vary, so you need to compute normal densities first... whatever. This class provides a calculator wrapping a Cantera solution object so that your life gets easier.
-#
-# Its simples use case is as follows:
+# Singleton class for storing real constants.
 
 # %%
-nfr = mc.NormalFlowRate("airish.yaml")
-print(f"Convert 1000 Nm³/h to {nfr(1000.0):.5f} kg/s")
-
-# %% [markdown]
-# If the database file default composition does not suit you, no problems:
+Constants() is Constants()
 
 # %%
-nfr = mc.NormalFlowRate("airish.yaml", X="N2: 1")
-print(f"Convert 1000 Nm³/h to {nfr(1000.0):.5f} kg/s")
-
-# %% [markdown]
-# You can also print a nice report to inspect the details of internal state. For more, please check its documentation at the [API page](common.md).
-
-# %%
-print(nfr.report())
+print(Constants.report())
 
 # %% [markdown]
 # ## *ReadTextData*
@@ -84,13 +76,13 @@ print(nfr.report())
 
 # %%
 alpha = 0.76
-niter = 200
+niter = 50
 
 single = np.ones(1)
-relaxer = mc.RelaxUpdate(single, alpha)
+relaxer = RelaxUpdate(single, alpha)
 
-converged = mc.StabilizeNvarsConvergenceCheck(
-    n_vars=1, max_iter=niter, patience=3)
+opts = dict(n_vars=1, max_iter=niter, patience=3, rtol=0.001)
+converged = StabilizeNvarsConvergenceCheck(**opts)
 
 history = np.zeros(niter+1)
 history[0] = single[0]
@@ -105,7 +97,7 @@ for n in range(niter):
         history = history[:n+2]
         break
 
-@mc.standard_plot()
+@standard_plot(resized=(8, 5))
 def plot_history(history, fig, ax):
     ax[0].plot(history)
     ax[0].set_title("Verification of relaxation progress")

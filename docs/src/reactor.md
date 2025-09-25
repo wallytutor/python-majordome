@@ -3,6 +3,9 @@
 ## Utilities
 
 ```{eval-rst}
+.. autoclass:: majordome.reactor.NormalFlowRate
+    :members:
+
 .. autofunction:: majordome.reactor.toggle_reactor_warnings
 .. autofunction:: majordome.reactor.composition_to_dict
 .. autofunction:: majordome.reactor.composition_to_array

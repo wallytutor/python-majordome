@@ -8,9 +8,9 @@ __all__ = []
 # ---------------------------------------------------------------------
 
 from .common import (
+    Constants,
     CompositionType,
     StateType,
-    NormalFlowRate,
     ReadTextData,
     Capturing,
     RelaxUpdate,
@@ -24,9 +24,9 @@ from .common import (
 )
 
 __all__ += [
+    "Constants",
     "CompositionType",
     "StateType",
-    "NormalFlowRate",
     "ReadTextData",
     "Capturing",
     "RelaxUpdate",
@@ -112,6 +112,7 @@ __all__ += [
 # ---------------------------------------------------------------------
 
 from .reactor import (
+    NormalFlowRate,
     toggle_reactor_warnings,
     composition_to_dict,
     composition_to_array,
@@ -119,6 +120,7 @@ from .reactor import (
 )
 
 __all__ += [
+    "NormalFlowRate",
     "toggle_reactor_warnings",
     "composition_to_dict",
     "composition_to_array",

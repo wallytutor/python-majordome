@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
+from pathlib import Path
 from typing import Any
 from numpy.typing import NDArray
+from tabulate import tabulate
 import cantera as ct
 import numpy as np
 import warnings
+
+from .common import CompositionType, T_NORMAL, P_NORMAL
 
 WARN_CANTERA_NON_KEY_VALUE = True
 """ If true, warns about compostion not compliant with Cantera format. """
@@ -154,3 +158,71 @@ def solution_report(sol: ct.Solution,
             report.append((f"{composition_spec}: {species}", "-", X))
 
     return report
+
+
+class NormalFlowRate:
+    """ Compute normal flow rate for a given composition.
+
+    This class makes use of the user defined state to create a function
+    object that converts industrial scale flow rates in normal cubic
+    meters per hour to kilograms per second. Nothing more, nothing less,
+    it aims at helping the process engineer in daily life for this quite
+    repetitive need when performing mass balances.
+
+    Parameters
+    ----------
+    mech: str | Path
+        Path to Cantera mechanism used to compute mixture properties.
+    X: CompositionType = None
+        Composition specification in mole fractions. Notice that both
+        `X` and `Y` are mutally exclusive keyword arguments.
+    Y: CompositionType = None
+        Composition specification in mass fractions. Notice that both
+        `X` and `Y` are mutally exclusive keyword arguments.
+    T_ref: float = T_NORMAL
+        Reference temperature of the system. If your industry does not
+        use the same standard as the default values, and only in that
+        case, please consider updating this keyword.
+    P_ref: float = P_NORMAL
+        Reference pressure of the system. If your industry does not
+        use the same standard as the default values, and only in that
+        case, please consider updating this keyword.
+    name: str = None
+        Name of phase in mechanism, if more than one are specified
+        within the same Cantera YAML database file.
+    """
+    def __init__(self, mech: str | Path, *, X: CompositionType = None,
+                 Y: CompositionType = None, T_ref: float = T_NORMAL,
+                 P_ref: float = P_NORMAL, name: str = None) -> None:
+        if X is not None and Y is not None:
+            raise ValueError("You can provide either X or Y, not both!")
+
+        self._sol = ct.Solution(mech, name)
+        self._sol.TP = T_ref, P_ref
+
+        if X is not None:
+            self._sol.TPX = None, None, X
+
+        if Y is not None:
+            self._sol.TPY = None, None, Y
+
+        self._rho = self._sol.density_mass
+
+    def __call__(self, qdot: float) -> float:
+        """ Convert flow rate [Nm³/h] to mass units [kg/s]. """
+        return self._rho * qdot / 3600
+
+    @property
+    def density(self) -> float:
+        """ Provides access to the density of internal solution [kg/m³]. """
+        return self._rho
+
+    @property
+    def TPX(self) -> tuple[float, float, dict[str, float]]:
+        """ Provides access to the state of internal solution. """
+        return (*self._sol.TP, self._sol.mole_fraction_dict())
+
+    def report(self, **kwargs) -> str:
+        """ Provides a report of the mixture state. """
+        data = solution_report(self._sol, **kwargs)
+        return tabulate(data, tablefmt="github")
