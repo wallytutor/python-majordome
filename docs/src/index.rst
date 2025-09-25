@@ -7,6 +7,8 @@ Majordome
 
     devel
     references
+    examples/index
+    advanced/index
 
 .. toctree::
     :maxdepth: 2
@@ -20,21 +22,3 @@ Majordome
     radiation
     reactor
     transport
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Examples
-
-    common_
-    combustion_
-    energy_
-    radiation_
-    reactor_
-    transport_
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Advanced
-
-    plug_
-    plug_phd_
