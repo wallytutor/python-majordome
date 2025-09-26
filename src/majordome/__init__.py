@@ -63,6 +63,7 @@ __all__ += [
 # ---------------------------------------------------------------------
 
 from .fluent import (
+    FluentInterpolationParser,
     FluentInputRow,
     FluentInputFile,
     convert_xy_to_dict,
@@ -70,6 +71,7 @@ from .fluent import (
 )
 
 __all__ += [
+    "FluentInterpolationParser",
     "FluentInputRow",
     "FluentInputFile",
     "convert_xy_to_dict",

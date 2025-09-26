@@ -1,17 +1,114 @@
 # -*- coding: utf-8 -*-
 from io import StringIO
 from pathlib import Path
+from numpy.typing import NDArray
 from pyparsing import OneOrMore
 from pyparsing import Word
 from pyparsing import Suppress
+import mmap
 import numpy as np
 import pandas as pd
 import pyparsing as pp
 
 
-#######################################################################
-# TSV INPUT FILES
-#######################################################################
+class FluentInterpolationParser:
+    """ Provides parsing of exported Fluent interpolation files.
+    
+    Parameters
+    ----------
+    fname: str | Path
+        Path to `.ip` file to be parsed; file must be stored in plain
+        text format, by default in UTF-8 encoding.
+    float_type: type = float
+        Floatting point type; using built-in is faster, but you may also
+        use some NumPy type at your convenience (much slower).
+    encoding: str = "utf-8"
+        Encoding type for reading the file.
+    """
+    def __init__(self, fname: str | Path, float_type: type = float,
+                 encoding: str = "utf-8"):
+        if not Path(fname).exists():
+            raise FileNotFoundError(f"Fluent IP file not found {fname}")
+
+        with open(fname, "r", encoding=encoding) as fp:
+            self._parse_manager(float_type, fp)
+
+    def _parse_manager(self, float_type, fp):
+        """ Handle memory mapping with read-only access for parsing. """
+        self._names = []
+
+        with mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+            parser = iter(mm.readline, b"")
+
+            self._n_first      = int(next(parser).decode())
+            self._n_dimensions = int(next(parser).decode())
+            self._n_points     = int(next(parser).decode())
+            self._n_variables  = int(next(parser).decode())
+
+            for _ in range(self._n_variables):
+                self._names.append(next(parser).decode()\
+                                   .strip("\r").strip("\n").strip("\r\n"))
+
+            num_cols = self._n_variables #+ self._n_dimensions
+            shape = (num_cols, self._n_points)
+
+            self._data = np.empty(shape, float_type)
+            self._parse_data(float_type, parser)
+
+        # TODO maybe working on 1-D array and reshaping would be
+        # faster `data = data.reshape((num_points, num_cols))`?
+        self._data = self._data.T
+
+    def _parse_data(self, float_type, parser):
+        """ Manage parsing of all variables from raw text. """
+        vars_finish = self._n_variables + 5
+
+        for var_idx in range(self._n_variables):
+            name = self._names[var_idx]
+            s_idx = vars_finish + var_idx * (self._n_points + 1)
+            e_idx = s_idx + self._n_points
+            print(f"{name:>15s} in range ({s_idx:>10}:{e_idx:>10})")
+
+            self._parse_variable(float_type, parser, self._data[var_idx])
+
+    def _parse_variable(self, float_type, parser, data):
+        """ Manage parsing of a single variable into an array segment. """
+        for pnt_idx in range(self._n_points):
+            data[pnt_idx] = float_type(next(parser).decode().strip("("))
+
+        # XXX: ignore `)` in the end so that parser is ready for next:
+        _ = next(parser) 
+
+    @property
+    def n_dimensions(self) -> int:
+        """ Provides access to number of dimensions. """
+        return self._n_dimensions
+    
+    @property
+    def n_points(self) -> int:
+        """ Provides access to number of points. """
+        return self._n_points
+
+    @property
+    def n_variables(self) -> int:
+        """ Provides access to number of variables. """
+        return self._n_variables
+
+    @property
+    def variable_names(self) -> list[str]:
+        """ Provides access to list of variables names. """
+        return self._names
+    
+    @property
+    def data(self) -> NDArray[np.float64]:
+        """ Return access to the whole data table. """
+        return self._data
+    
+    def get_data(self, name) -> NDArray[np.float64]:
+        """ Retrieve data for selected variable name. """
+        if name not in self._names:
+            raise KeyError(f"Unknown variable `{name}`")
+        return self._data[:, self._names.index(name)]
 
 
 class FluentInputRow:
@@ -120,11 +217,6 @@ class FluentInputFile:
                   
         with open(saveas, "w") as fp:
             fp.write(str(self))
-
-
-#######################################################################
-# SCHEME FILES
-#######################################################################
 
 
 class FluentSchemePatch:
@@ -241,11 +333,6 @@ class FluentDpmFile:
         return pd.DataFrame(self._data, columns=self._header)
 
 
-#######################################################################
-# OTHERS
-#######################################################################
-
-
 def convert_xy_to_dict(
         fname: str | Path
         ) -> dict[int, dict[str, list[float]]]:
@@ -313,8 +400,3 @@ def convert_xy_to_dict(
 def load_dpm_table(fname: str) -> pd.DataFrame:
     """ Wrapper for simple loading of data table. """
     return FluentDpmFile(fname).to_dataframe()
-
-
-#######################################################################
-# EOF
-#######################################################################

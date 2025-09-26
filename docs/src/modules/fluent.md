@@ -1,5 +1,12 @@
 # majordome.fluent
 
+## Handling of interpolation files
+
+```{eval-rst}
+.. autoclass:: majordome.fluent.FluentInterpolationParser
+    :members:
+```
+
 ## Generation of TSV files
 
 ```{eval-rst}
