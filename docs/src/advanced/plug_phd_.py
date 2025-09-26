@@ -31,105 +31,111 @@ import cantera as ct
 import numpy as np
 import pandas as pd
 
-os.environ["MJ_SOLVE_FINEST"] = "true"
-
+# +
 ct.suppress_thermo_warnings(suppress=True)
 
+os.environ["MJ_SOLVE_FINEST"] = "true"
+
+
+# -
 
 # ## Toolbox
 
-class AcetylenePyrolysisReactor:
-    """ Simulate a plug-flow reactor for acetylene pyrolysis. """
+class TubularReactor:
+    """ Provides the discretization of a tubular reactor. """
     def __init__(self, L=0.52, D=0.028, d=0.01):
-        self._D = D
-        self._A_cell = d * np.pi * D
-        self._V_cell = d * np.pi * (D/2)**2
+        self.D = D
+        self.A_cell = d * np.pi * D
+        self.V_cell = d * np.pi * (D/2)**2
 
-        self._z = self._dicretize_length(L, d)
-        self._V = np.full_like(self._z, self._V_cell)
+        self.z = np.arange(d/2, L-d/2+0.1*d, d)
+        self.V = np.full_like(self.z, self.V_cell)
 
-    @staticmethod
-    def _mass_flow(mechanism, X, qdot, verbose):
-        """ Evaluate mass flow rate from mechanism. """
-        qdot *= 1.0e-06 * 60  # SCCM to Nm³/h
-        nfr = NormalFlowRate(mechanism, X=X)
-        if verbose:
-            print(nfr.report(qdot=qdot))
-        return nfr(qdot)
 
-    @staticmethod
-    def _mixture(sol, fraction):
-        """ Compute mixture accounting for imputiries. """
-        if "CH3COCH3" in sol.species_names:
-            X = {"C2H2"     : 0.980 * fraction,
-                 "CH4"      : 0.002 * fraction,
-                 "CH3COCH3" : 0.018 * fraction}
-        else:
-            X = {"C2H2"     : 0.998 * fraction,
-                 "CH4"      : 0.002 * fraction}
+def mass_flow_rate(mechanism, X, qdot, verbose):
+    """ Evaluate mass flow rate from mechanism [kg/s]. """
+    nfr = NormalFlowRate(mechanism, X=X)
+    if verbose:
+        print(nfr.report(qdot=qdot))
+    return nfr(qdot)
 
-        X["N2"] = 1.0 - sum(X.values())
-        return X
 
-    @staticmethod
-    def _dicretize_length(L, dL):
-        """ Discretize length L in cells of length `dL`. """
-        return np.arange(dL/2, L-dL/2+0.1*dL, dL)
+def initial_mixture(sol, fraction):
+    """ Compute mixture accounting for imputiries. """
+    if "CH3COCH3" in sol.species_names:
+        X = {"C2H2"     : 0.980 * fraction,
+             "CH4"      : 0.002 * fraction,
+             "CH3COCH3" : 0.018 * fraction}
+    else:
+        X = {"C2H2"     : 0.998 * fraction,
+             "CH4"      : 0.002 * fraction}
 
-    def _global_htc(self, sol, Nu):
-        """ Evaluate global heat transfer coefficient. """
-        try:
-            k = sol.thermal_conductivity
-        except:
-            k = 0.025 # Norinaga lacks transport!
-        return self._A_cell * Nu * k / self._D
+    X["N2"] = 1.0 - sum(X.values())
+    return X
 
-    def solve(self, mechanism, fraction, qdot, P, T_wall,
-              T_env=298.15, K=0.01, Nu=3.66, verbose=False):
-        """ Integrate reactor model with given operating conditions. """
-        sol = ct.Solution(mechanism)
-        sol.TPX = T_env, 100*P, self._mixture(sol, fraction)
 
-        mdot = self._mass_flow(mechanism, sol.X, qdot, verbose)
-        reactor = PlugFlowChainCantera(sol.source, sol.name, self._z,
-                                       self._V, P=sol.P, K=K)
+def global_htc(reactor, sol, Nu):
+    """ Evaluate global heat transfer coefficient. """
+    try:
+        k = sol.thermal_conductivity
+    except:
+        k = 0.025 # Norinaga lacks transport!
+    return reactor.A_cell * Nu * k / reactor.D
 
-        sources = get_reactor_data(reactor)
-        sources.m[0] = mdot
-        sources.h[0] = sol.h
-        sources.Y[0, :] = sol.Y
-        sources.Q[:] = 0
 
-        def heat_flow(i, T):
-            U = self._global_htc(reactor.contents, Nu)
-            return -U * (T - T_wall(self._z[i]))
+def solve(mechanism, fraction, qdot, P, T_wall, *, T_env=298.15,
+          K=0.01, Nu=3.66, verbose=False, **kwargs):
+    """ Integrate reactor model with given operating conditions. """
+    # -- HANDLE UNITS
+    P    *= 100           # hPa to Pa
+    qdot *= 1.0e-06 * 60  # SCCM to Nm³/h
 
-        reactor.register_heat_flow(heat_flow)
-        reactor.update(sources)
-        return reactor
+    # -- CREATE PROBLEM
+    reactor = TubularReactor()
+    
+    sol = ct.Solution(mechanism)
+    sol.TPX = T_env, P, initial_mixture(sol, fraction)
+
+    mdot = mass_flow_rate(mechanism, sol.X, qdot, verbose)
+    apfr = PlugFlowChainCantera(sol.source, sol.name, reactor.z,
+                                reactor.V, P=sol.P, K=K)
+
+    ## -- SETUP CONDITIONS
+    sources = get_reactor_data(apfr)
+    sources.m[0] = mdot
+    sources.h[0] = sol.h
+    sources.Y[0, :] = sol.Y
+    sources.Q[:] = 0
+
+    ## -- REGISTER HEAT TRASNFER
+    def heat_flow(i, T):
+        U = global_htc(reactor, sol, Nu)
+        Q = -U * (T - T_wall(reactor.z[i]))
+        return Q
+
+    apfr.register_heat_flow(heat_flow)
+
+    ## -- SOLVE AND PROCESS
+    apfr.update(sources)
+
+    cols = kwargs.get("cols", ["z_cell", "Q_cell", "T", "X"])
+    data = apfr.states.to_pandas(cols=cols)
+    
+    return apfr, data
+
+
+def plot_reactor(apfr):
+    config = dict(selected=["C2H2"], y_label="Mole fraction",
+                  composition_variable="X")
+
+    plot = apfr.quick_plot(**config)
+    plot.axes[0].legend(loc=3)
 
 
 # +
 MECHS = ["c2h2/dalmazsi-2017.yaml",
          "c2h2/graf-2007.yaml",
          "c2h2/norinaga-2009.yaml"]
-
-TABLE5_9 = [
-    dict(N= 1, P= 50, Q=222, T= 773, X_meas=0.352),
-    dict(N= 2, P= 50, Q=222, T= 873, X_meas=0.364),
-    dict(N= 3, P= 50, Q=222, T= 973, X_meas=0.364),
-    dict(N= 4, P= 50, Q=222, T=1073, X_meas=0.346),
-    dict(N= 5, P= 50, Q=222, T=1123, X_meas=0.312),
-    dict(N= 6, P= 50, Q=222, T=1173, X_meas=0.307),
-    dict(N= 7, P= 50, Q=222, T=1273, X_meas=0.288),
-    dict(N= 8, P= 30, Q=222, T=1173, X_meas=0.323),
-    dict(N= 9, P= 30, Q=222, T=1223, X_meas=0.314),
-    dict(N=10, P=100, Q=222, T=1173, X_meas=0.249),
-    dict(N=11, P=100, Q=222, T=1223, X_meas=0.226),
-    dict(N=12, P=100, Q=222, T=1273, X_meas=0.201),
-    dict(N=13, P=100, Q=378, T=1023, X_meas=0.343),
-    dict(N=14, P=100, Q=378, T=1123, X_meas=0.298),
-]
 
 PROFILES = pd.DataFrame({
     "z":    [ 0.00,   0.05,   0.10,   0.12,   0.15,   0.20, 0.25,
@@ -153,21 +159,44 @@ PROFILES = pd.DataFrame({
     "1273": [ 298.0,  299.0,  550.0,  803.0, 1095.0, 1200.0, 1235.0,
              1253.0, 1234.0, 1214.0, 1013.0,  811.0,  400.0 ],
 })
+# -
 
+# ## Reference case
 
-# +
-def solve_case(mech, T_wall, P=50, Q=222, f=0.36, **kwargs):
-    reactor = AcetylenePyrolysisReactor()
-    results = reactor.solve(mech, f, Q, P, T_wall)
+# %%skipper MJ_SOLVE_FINEST
+# %%time
+results, df = solve(MECHS[2], fraction=0.36, qdot=222, P=50,
+                    T_wall=CubicSpline(PROFILES["z"], PROFILES["1173"]))
+plot_reactor(results)
 
-    cols = kwargs.get("cols", ["z_cell", "Q_cell", "T", "X"])
-    return results, results.states.to_pandas(cols=cols)
+# %%time
+results, df = solve(MECHS[1], fraction=0.36, qdot=222, P=50,
+                    T_wall=CubicSpline(PROFILES["z"], PROFILES["1173"]))
+plot_reactor(results)
 
+# %%time
+results, df = solve(MECHS[0], fraction=0.36, qdot=222, P=50,
+                    T_wall=CubicSpline(PROFILES["z"], PROFILES["1173"]))
+plot_reactor(results)
 
-def plot_reactor(reactor):
-    config = dict(composition_variable="X", y_label="Mole fraction")
-    plot = reactor.quick_plot(selected=["C2H2"], **config)
-    plot.axes[0].legend(loc=3)
+# ## Scan table
+
+TABLE5_9 = [
+    dict(N= 1, P= 50, Q=222, T= 773, X_meas=0.352),
+    dict(N= 2, P= 50, Q=222, T= 873, X_meas=0.364),
+    dict(N= 3, P= 50, Q=222, T= 973, X_meas=0.364),
+    dict(N= 4, P= 50, Q=222, T=1073, X_meas=0.346),
+    dict(N= 5, P= 50, Q=222, T=1123, X_meas=0.312),
+    dict(N= 6, P= 50, Q=222, T=1173, X_meas=0.307),
+    dict(N= 7, P= 50, Q=222, T=1273, X_meas=0.288),
+    dict(N= 8, P= 30, Q=222, T=1173, X_meas=0.323),
+    dict(N= 9, P= 30, Q=222, T=1223, X_meas=0.314),
+    dict(N=10, P=100, Q=222, T=1173, X_meas=0.249),
+    dict(N=11, P=100, Q=222, T=1223, X_meas=0.226),
+    dict(N=12, P=100, Q=222, T=1273, X_meas=0.201),
+    dict(N=13, P=100, Q=378, T=1023, X_meas=0.343),
+    dict(N=14, P=100, Q=378, T=1123, X_meas=0.298),
+]
 
 
 def scan_with_mech(mech):
@@ -176,46 +205,42 @@ def scan_with_mech(mech):
         print(f"Working on case no. {k+1}")
 
         T_name = str(int(row["T"]))
-        T_wall = CubicSpline(PROFILES["z"], PROFILES[T_name])
+        _, df = solve(mech, fraction=0.36, qdot=row["Q"], P=row["P"],
+                      T_wall=CubicSpline(PROFILES["z"], PROFILES[T_name]))
 
-        reactor, df = solve_case(mech, T_wall, **row)
         table[k]["X_calc"] = float(df["X_C2H2"].iloc[-1])
 
     return pd.DataFrame(table)
 
 
-# -
+def run_mech(mech, df=None):
+    name = mech.split("/")[1].split(".")[0].replace("-", "_")
+    x_name, e_name = f"X_{name}", f"err_{name}"
+    
+    scan = scan_with_mech(mech).rename(columns={"X_calc": x_name})
 
-# ## Reference case
+    if df is None:
+        df = scan
 
-T_wall = CubicSpline(PROFILES["z"], PROFILES["1173"])
+    df[e_name] = 100 * (scan[x_name] / scan["X_meas"] - 1)
+
+    return df
+
+
+# %%time
+df = run_mech(MECHS[0], df=None)
+
+# %%time
+df = run_mech(MECHS[1], df=df)
 
 # %%skipper MJ_SOLVE_FINEST
 # %%time
-results, df = solve_case(MECHS[2], T_wall, P=50, Q=222, f=0.36)
-plot_reactor(results)
-
-# %%time
-results, df = solve_case(MECHS[1], T_wall, P=50, Q=222, f=0.36)
-plot_reactor(results)
-
-# %%time
-results, df = solve_case(MECHS[0], T_wall, P=50, Q=222, f=0.36)
-plot_reactor(results)
-
-# ## Scan table
-
-# %%time
-scan_mech0 = scan_with_mech(MECHS[0])
-df = scan_mech0.rename(columns={"X_calc": "X_dalmazsi"})
-
-# %%time
-scan_mech1 = scan_with_mech(MECHS[1])
-df["X_graf2007"] = scan_mech1["X_calc"]
-
-# %%skipper MJ_SOLVE_FINEST
-# %%time
-scan_mech2 = scan_with_mech(MECHS[2])
-df["X_norinaga2009"] = scan_mech2["X_calc"]
+df = run_mech(MECHS[2], df=df)
 
 df
+
+# +
+error_cols = [c for c in df.columns if c.startswith("err")]
+rmse_frame = np.sqrt((df[error_cols]**2).mean())
+
+pd.DataFrame(rmse_frame).T
