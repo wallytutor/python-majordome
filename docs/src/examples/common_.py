@@ -17,7 +17,7 @@
 # # Common utilities
 
 # %% [markdown]
-# Module [majordome.common](common.md) provides a set of utilities that are whether too general purpose for integrating another module or still waiting to find their definitive home. These include constants, type aliases, and functionalities of different kinds. Regarding this last kind of components, this tutorial aims at illustrating their use for practical documentation.
+# Module [majordome.common](../modules/common.md) provides a set of utilities that are whether too general purpose for integrating another module or still waiting to find their definitive home. These include constants, type aliases, and functionalities of different kinds. Regarding this last kind of components, this tutorial aims at illustrating their use for practical documentation.
 
 # %%
 # %load_ext autoreload

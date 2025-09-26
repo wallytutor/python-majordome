@@ -78,6 +78,6 @@ print(f"Convert 1000 Nm³/h to {nfr(1000.0):.5f} kg/s")
 nfr = NormalFlowRate("airish.yaml", X="N2: 1")
 print(f"Convert 1000 Nm³/h to {nfr(1000.0):.5f} kg/s")
 
-# You can also print a nice report to inspect the details of internal state. For more, please check its documentation at the [API page](reactor.md).
+# You can also print a nice report to inspect the details of internal state. For more, please check its documentation at the [API page](../modules/reactor.md).
 
 print(nfr.report())
