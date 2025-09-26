@@ -32,7 +32,7 @@ ip.variable_names
 
 # Valid names can be used to retrieve data for a given variable:
 
-ip.get_data("pressure")
+ip.get_data("x0")
 
 # The whole data table can be retreived with `data` property, where each variable correspond to a column:
 
