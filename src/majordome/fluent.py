@@ -13,7 +13,7 @@ import pyparsing as pp
 
 class FluentInterpolationParser:
     """ Provides parsing of exported Fluent interpolation files.
-    
+
     Parameters
     ----------
     fname: str | Path
@@ -35,8 +35,6 @@ class FluentInterpolationParser:
 
     def _parse_manager(self, float_type, fp):
         """ Handle memory mapping with read-only access for parsing. """
-        self._names = []
-
         with mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ) as mm:
             parser = iter(mm.readline, b"")
 
@@ -45,11 +43,13 @@ class FluentInterpolationParser:
             self._n_points     = int(next(parser).decode())
             self._n_variables  = int(next(parser).decode())
 
+            self._names = [f"x{i}" for i in range(self._n_dimensions)]
+
             for _ in range(self._n_variables):
                 self._names.append(next(parser).decode()\
                                    .strip("\r").strip("\n").strip("\r\n"))
 
-            num_cols = self._n_variables #+ self._n_dimensions
+            num_cols = self._n_variables + self._n_dimensions
             shape = (num_cols, self._n_points)
 
             self._data = np.empty(shape, float_type)
@@ -77,13 +77,13 @@ class FluentInterpolationParser:
             data[pnt_idx] = float_type(next(parser).decode().strip("("))
 
         # XXX: ignore `)` in the end so that parser is ready for next:
-        _ = next(parser) 
+        _ = next(parser)
 
     @property
     def n_dimensions(self) -> int:
         """ Provides access to number of dimensions. """
         return self._n_dimensions
-    
+
     @property
     def n_points(self) -> int:
         """ Provides access to number of points. """
@@ -98,12 +98,12 @@ class FluentInterpolationParser:
     def variable_names(self) -> list[str]:
         """ Provides access to list of variables names. """
         return self._names
-    
+
     @property
     def data(self) -> NDArray[np.float64]:
         """ Return access to the whole data table. """
         return self._data
-    
+
     def get_data(self, name) -> NDArray[np.float64]:
         """ Retrieve data for selected variable name. """
         if name not in self._names:
@@ -118,7 +118,7 @@ class FluentInputRow:
     ====
     - Clarify the meaning of `parameterid` in Ansys Fluent.
     - Allow operations between input variables (overloads).
-    
+
     Parameters
     ==========
     name: str
@@ -201,7 +201,7 @@ class FluentInputFile:
             rows = sorted(rows, key=lambda x: x.name)
 
         self._data = ["\t".join(self.HEAD), *(map(repr, rows))]
-        
+
     def __str__(self):
         return "\t\n".join((*self._data, ""))
 
@@ -214,7 +214,7 @@ class FluentInputFile:
         if Path(saveas).exists() and not overwrite:
             print(f"File {saveas} exists, use `overwrite=True`.")
             return
-                  
+
         with open(saveas, "w") as fp:
             fp.write(str(self))
 
@@ -255,9 +255,9 @@ class FluentSchemeHeader:
         self._names = self._parse_row(row)
 
     def _parse_row(self, row: str) -> list[str]:
-        name = Word(pp.printables, exclude_chars="()") 
+        name = Word(pp.printables, exclude_chars="()")
         return np.ravel(name.search_string(row)).tolist()
-        
+
     def __repr__(self) -> str:
         return f"<Header names=\"{' '.join(self._names)}\" />"
 
@@ -271,7 +271,7 @@ class FluentSchemeTableRow:
     """ Parse data row from a Scheme table file. """
     def __init__(self, row: str) -> None:
         self._values = self._parse_row(row)
-        
+
     def _parse_row(self, row: str) -> list[float]:
         values = OneOrMore(pp.common.sci_real)
         return np.ravel(values.search_string(row)).tolist()
@@ -325,7 +325,7 @@ class FluentDpmFile:
 
         if len(data.values) != self._ncols:
             raise ValueError(f"Malformed file at row {k+1}")
-            
+
         self._data.append(data.values)
 
     def to_dataframe(self):
@@ -337,7 +337,7 @@ def convert_xy_to_dict(
         fname: str | Path
         ) -> dict[int, dict[str, list[float]]]:
     """ Convert Ansys XY format to a dictionary structure.
-    
+
     Parameters
     ----------
     fname: str | Path
@@ -358,7 +358,7 @@ def convert_xy_to_dict(
 
     while True:
         print(f"Extracting block {block_index}")
-        
+
         # Markers for block start and end.
         start = f"((xy/key/label \"particle-{block_index}\")"
         end = ")"
