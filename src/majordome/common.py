@@ -428,7 +428,9 @@ def safe_remove(target_list: list, to_remove: list, inplace: bool = False) -> li
 
 def standard_plot(shape: tuple[int, int] = (1, 1), sharex: bool = True,
                   grid: bool = True, style: str = "classic",
-                  resized: tuple[float, float] = None) -> StandardPlot:
+                  resized: tuple[float, float] = None,
+                  xlabel: str = None, ylabel: str = None
+                  ) -> StandardPlot:
     """ Wraps a function for ensuring a standardized plot. """
     opts = dict(sharex=sharex, facecolor="white")
 
@@ -443,6 +445,14 @@ def standard_plot(shape: tuple[int, int] = (1, 1), sharex: bool = True,
             if grid:
                 for ax_k in ax:
                     ax_k.grid(linestyle=":")
+
+            if xlabel:
+                for ax_k in ax:
+                    ax_k.set_xlabel(xlabel)
+
+            if ylabel:
+                for ax_k in ax:
+                    ax_k.set_ylabel(ylabel)
 
             func(self, fig, ax, *args, **kwargs)
             fig.tight_layout()
