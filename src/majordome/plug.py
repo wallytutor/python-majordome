@@ -57,9 +57,9 @@ class PlugFlowChainCantera:
         Name or path to Cantera mechanism to be used.
     phase: str
         Name of phase to simulate (not inferred, even if a single is present!).
-    z: np.ndarray
+    z: NDArray[np.float64]
         Spatial coordinates of reactor cells [m].
-    V: np.ndarray
+    V: NDArray[np.float64]
         Volumes of reactor cells [m³].
     P: float = ct.one_atm
         Reactor operating pressure [Pa].
@@ -72,8 +72,8 @@ class PlugFlowChainCantera:
         If true, use Cantera' s `advance_to_steady_state` to solve problem;
         otherwise advance over meaninful time-scale of the problem.
     """
-    def __init__(self, mechanism: str, phase: str, z: np.ndarray,
-                 V: np.ndarray, P: float = ct.one_atm, K: float = 1.0,
+    def __init__(self, mechanism: str, phase: str, z: NDArray[np.float64],
+                 V: NDArray[np.float64], P: float = ct.one_atm, K: float = 1.0,
                  smoot_flux: bool = False, cantera_steady: bool = True) -> None:
         # Store coordinates and volume of slices:
         self._z = z
@@ -122,6 +122,10 @@ class PlugFlowChainCantera:
         self._states = ct.SolutionArray(self._r_content.thermo,
                                         shape = (z.shape[0],),
                                         extra = extra)
+
+        # TODO allocate own external sources object to be able to
+        # eliminate `loop`, changing the API to update with the
+        # built-in sources object!
 
         # Flag if (previous) solution is available:
         self._has_solution = False
@@ -275,7 +279,7 @@ class PlugFlowChainCantera:
         """ Select method to approach steady-state solution. """
         self._advance_steady_cantera = state
 
-    def register_heat_flow(self, func: Callable) -> None:
+    def register_heat_flow(self, func: Callable[[int, float], float]) -> None:
         """ Provides registration of heat flux function. """
         self._ext_flow = func
 

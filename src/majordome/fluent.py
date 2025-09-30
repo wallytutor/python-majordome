@@ -42,6 +42,7 @@ class FluentInterpolationParser:
             self._n_dimensions = int(next(parser).decode())
             self._n_points     = int(next(parser).decode())
             self._n_variables  = int(next(parser).decode())
+            self._n_columns    = self._n_variables + self._n_dimensions
 
             self._names = [f"x{i}" for i in range(self._n_dimensions)]
 
@@ -49,8 +50,7 @@ class FluentInterpolationParser:
                 self._names.append(next(parser).decode()\
                                    .strip("\r").strip("\n").strip("\r\n"))
 
-            num_cols = self._n_variables + self._n_dimensions
-            shape = (num_cols, self._n_points)
+            shape = (self._n_columns, self._n_points)
 
             self._data = np.empty(shape, float_type)
             self._parse_data(float_type, parser)
@@ -63,7 +63,7 @@ class FluentInterpolationParser:
         """ Manage parsing of all variables from raw text. """
         vars_finish = self._n_variables + 5
 
-        for var_idx in range(self._n_variables):
+        for var_idx in range(self._n_columns):
             name = self._names[var_idx]
             s_idx = vars_finish + var_idx * (self._n_points + 1)
             e_idx = s_idx + self._n_points
