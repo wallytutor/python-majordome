@@ -102,7 +102,7 @@ def composition_to_array(Y: str, species_names: list[str]
     return Y
 
 
-def solution_report(sol: ct.Solution,
+def solution_report(sol: ct.Solution | ct.Quantity,
                     specific_props: bool = True,
                     composition_spec: str = "mass",
                     selected_species: list[str] = [],
@@ -157,6 +157,9 @@ def solution_report(sol: ct.Solution,
 
         for species, X in comp.items():
             report.append((f"{composition_spec}: {species}", "-", X))
+
+    if isinstance(sol, ct.Quantity) and kwargs.get("show_mass", False):
+        report.append(("Mass", "kg", sol.mass))
 
     return report
 
