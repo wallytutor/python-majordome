@@ -102,7 +102,7 @@ def composition_to_array(Y: str, species_names: list[str]
     return Y
 
 
-def solution_report(sol: ct.Solution | ct.Quantity,
+def solution_report(sol: ct.composite.Solution | ct.Quantity,
                     specific_props: bool = True,
                     composition_spec: str = "mass",
                     selected_species: list[str] = [],

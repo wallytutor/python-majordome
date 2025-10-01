@@ -371,7 +371,7 @@ class PlugFlowChainCantera:
         return self._f_content.n_species
 
     @property
-    def contents(self) -> ct.Solution:
+    def contents(self) -> ct.composite.Solution:
         """ Provides direct access to reactor contents. """
         return self._f_content
 
