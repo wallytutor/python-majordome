@@ -3,7 +3,7 @@
 __all__ = []
 
 # ---------------------------------------------------------------------
-# majordome.common: considered internals, do not expose StandardPlot,
+# majordome.common: considered internals, do not expose:
 # InteractiveSession, report_title, ...
 # ---------------------------------------------------------------------
 
@@ -16,6 +16,7 @@ from .common import (
     RelaxUpdate,
     StabilizeNvarsConvergenceCheck,
     ComposedStabilizedConvergence,
+    StandardPlot,
     safe_remove,
     standard_plot,
     bounds,
@@ -32,6 +33,7 @@ __all__ += [
     "RelaxUpdate",
     "StabilizeNvarsConvergenceCheck",
     "ComposedStabilizedConvergence",
+    "StandardPlot",
     "safe_remove",
     "standard_plot",
     "bounds",
