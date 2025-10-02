@@ -47,6 +47,13 @@ class PlugFlowAxialSources:
         self.h = np.zeros(n_reactors, np.float64)
         self.Y = np.zeros((n_reactors, n_species), np.float64)
 
+    def reset(self) -> None:
+        """ Reset values of all arrays to zero. """
+        self.Q[:] = 0.0
+        self.m[:] = 0.0
+        self.h[:] = 0.0
+        self.Y[:] = 0.0
+
 
 class PlugFlowChainCantera:
     """ Plug-flow reactor as a chain of 0-D reactors with Cantera.
