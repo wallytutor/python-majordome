@@ -12,22 +12,24 @@ STOCK = []
 
 def stockpile(name: str, value) -> None:
     """ Store a variable in the builtins to be used in the language."""
+    name_value = repr(value)
+
     if inspect.ismodule(value):
-        value = value.__name__
+        name_value = value.__name__
 
     # The test below is simpler than `isclass(value) or isfunction(value)`
     # and also covers other types as well (e.g., numpy.ufunc).
     if hasattr(value, "__module__") and hasattr(value, "__name__"):
         mname = value.__module__
         cname = value.__name__
-        value = f"{mname}.{cname}"
+        name_value = f"{mname}.{cname}"
 
     if inspect.ismethod(value):
         cname = value.__self__.__class__.__name__
         mname = value.__func__.__name__
-        value = f"{cname}.{mname}()"
+        name_value = f"{cname}.{mname}()"
 
-    STOCK.append((name, value))
+    STOCK.append((name, name_value))
     setattr(builtins, name, value)
 
 
@@ -133,12 +135,12 @@ def setup_logging() -> None:
     handler = logging.StreamHandler()
     handler.setFormatter(ColorFormatter("%(levelname)s: %(message)s"))
 
-    logger = logging.getLogger("walang")
+    logger = logging.getLogger("majordome.walang")
     logger.setLevel(logging.DEBUG)
     logger.addHandler(handler)
 
     # XXX: Not sure this is needed...
-    # stockpile("w_logger",   logger)
+    stockpile("w_logger",   logger)
 
     stockpile("w_info",     logger.info)
     stockpile("w_debug",    logger.debug)
@@ -159,6 +161,77 @@ def setup_logging() -> None:
     stockpile("runtime_arguments", runtime_arguments)
 
 
+def _load_module(name: str):
+    """ Try to import a module by its name. """
+    try:
+        return import_module(name)
+    except ModuleNotFoundError:
+        w_warning(f"Module `{name}` not found.")
+        return None
+
+
+def _from_globals(name: str):
+    """ Try to get a variable from the global scope. """
+    return globals()[name] if name in globals() else None
+
+
+def _from_path(name: str, path: str):
+    """ Try to get a variable from a module path. """
+    if path is None:
+        return None
+
+    if (module := _load_module(f"{path}.{name}")) is None:
+        return None
+
+    try:
+        return getattr(module, name)
+    except AttributeError:
+        w_warning(f"Function `{name}` not found in `{path}.{name}`.")
+        return None
+
+
+def _from_module(name: str):
+    """ Try to get a variable from a module with the same name. """
+    if (module := _load_module(name)) is None:
+        return None
+
+    try:
+        return getattr(module, name)
+    except AttributeError:
+        w_warning(f"Function `{name}` not found in module `{name}`.")
+        return None
+
+
+def _homonym_function(name: str, path: str = None):
+    """ Dynamically import a function by its name. """
+    # Give preference to current scope, it overrides any module import:
+    if (func := _from_globals(name)) is not None:
+        return func
+
+    # If a path is explicitly provided, import from that module:
+    if (func := _from_path(name, path)) is not None:
+        return func
+
+    # Otherwise, try to import from the module named `name`:
+    if (func := _from_module(name)) is not None:
+        return func
+
+    return None
+
+
+def walab_module(class_name, requires: list[str], module: str = None):
+    """ Create a model by dynamically importing required functions. """
+    methods = {}
+
+    for name in requires:
+        if (func := _homonym_function(name, path=module)) is None:
+            raise ImportError(f"Required function `{name}` not found.")
+        else:
+            methods[name] = func
+
+    return type(class_name, (object,), methods)
+
+
 @(run_on_import := lambda f: f())
 def walang():
     """ Initialize the walang environment. """
@@ -169,6 +242,8 @@ def walang():
     setup_scipy()
     setup_physics()
     setup_logging()
+
+    stockpile("walab_module", walab_module)
 
     if os.environ.get("WALANG_VERBOSE", "0") == "1":
         print(help())
