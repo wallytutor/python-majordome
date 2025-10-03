@@ -219,7 +219,8 @@ def _homonym_function(name: str, path: str = None):
     return None
 
 
-def walab_module(class_name, requires: list[str], module: str = None):
+def walab_module(class_name, requires: list[str], module: str = None,
+                 call_logging: bool = False):
     """ Create a model by dynamically importing required functions. """
     methods = {}
 
@@ -227,6 +228,9 @@ def walab_module(class_name, requires: list[str], module: str = None):
         if (func := _homonym_function(name, path=module)) is None:
             raise ImportError(f"Required function `{name}` not found.")
         else:
+            if call_logging:
+                func = runtime_arguments(func)
+
             methods[name] = func
 
     return type(class_name, (object,), methods)
