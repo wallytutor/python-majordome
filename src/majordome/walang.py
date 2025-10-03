@@ -1,9 +1,40 @@
 # -*- coding: utf-8 -*-
 from functools import wraps
 from importlib import import_module
+from tabulate import tabulate
 import builtins
+import inspect
 import logging
 import os
+
+STOCK = []
+
+
+def stockpile(name: str, value) -> None:
+    """ Store a variable in the builtins to be used in the language."""
+    if inspect.ismodule(value):
+        value = value.__name__
+
+    # The test below is simpler than `isclass(value) or isfunction(value)`
+    # and also covers other types as well (e.g., numpy.ufunc).
+    if hasattr(value, "__module__") and hasattr(value, "__name__"):
+        mname = value.__module__
+        cname = value.__name__
+        value = f"{mname}.{cname}"
+
+    if inspect.ismethod(value):
+        cname = value.__self__.__class__.__name__
+        mname = value.__func__.__name__
+        value = f"{cname}.{mname}()"
+
+    STOCK.append((name, value))
+    setattr(builtins, name, value)
+
+
+def help() -> str:
+    """ Return a help string with all the stocked variables."""
+    return tabulate(STOCK, headers=["Alias", "Type/Value"],
+                    tablefmt="github-raw")
 
 
 def setup_math() -> None:
@@ -17,41 +48,71 @@ def setup_math() -> None:
 
     math = import_module(module)
 
-    setattr(builtins, "math", math)
-    setattr(builtins, "pi",   math.pi)
-    setattr(builtins, "sin",  math.sin)
-    setattr(builtins, "cos",  math.cos)
-    setattr(builtins, "tan",  math.tan)
-    setattr(builtins, "exp",  math.exp)
-    setattr(builtins, "log",  math.log)
-    setattr(builtins, "sqrt", math.sqrt)
-    setattr(builtins, "dot",  math.dot)
+    stockpile("math", math)
+    stockpile("pi",   math.pi)
+    stockpile("e",    math.e)
+
+    if hasattr(math, "inf"):
+        stockpile("inf",  math.inf)
+
+    if hasattr(math, "nan"):
+        stockpile("nan", math.nan)
+
+    stockpile("sin",   math.sin)
+    stockpile("cos",   math.cos)
+    stockpile("tan",   math.tan)
+    stockpile("asin",  math.asin)
+    stockpile("acos",  math.acos)
+    stockpile("atan",  math.atan)
+    stockpile("atan2", math.atan2)
+    stockpile("sinh",  math.sinh)
+    stockpile("cosh",  math.cosh)
+    stockpile("tanh",  math.tanh)
+    stockpile("exp",   math.exp)
+    stockpile("log",   math.log)
+    stockpile("sqrt",  math.sqrt)
+    stockpile("dot",   math.dot)
+
+    if hasattr(math, "radians"):
+        stockpile("radians", math.radians)
+
+    if hasattr(math, "degrees"):
+        stockpile("degrees", math.degrees)
 
     if hasattr(math, "diff"):
-        setattr(builtins, "diff", math.diff)
+        stockpile("diff", math.diff)
 
     if module == "casadi":
-        setattr(builtins, "SX", math.SX)
-        setattr(builtins, "MX", math.MX)
-        setattr(builtins, "DM", math.DM)
+        stockpile("SX", math.SX)
+        stockpile("MX", math.MX)
+        stockpile("DM", math.DM)
 
 
 def setup_scipy() -> None:
     """ Setup the SciPy modules to be used in the language. """
     integrate = import_module("scipy.integrate")
-    setattr(builtins, "integrate",   integrate)
-    setattr(builtins, "solve_bvp",   integrate.solve_bvp)
-    setattr(builtins, "solve_ivp",   integrate.solve_ivp)
-    setattr(builtins, "cum_simpson", integrate.cumulative_simpson)
+    stockpile("integrate",   integrate)
+    stockpile("solve_bvp",   integrate.solve_bvp)
+    stockpile("solve_ivp",   integrate.solve_ivp)
+    stockpile("cum_simpson", integrate.cumulative_simpson)
 
     interpolate = import_module("scipy.interpolate")
-    setattr(builtins, "interpolate", interpolate)
-    setattr(builtins, "CubicSpline", interpolate.CubicSpline)
+    stockpile("interpolate", interpolate)
+    stockpile("CubicSpline", interpolate.CubicSpline)
 
     optimize  = import_module("scipy.optimize")
-    setattr(builtins, "optimize", optimize)
-    setattr(builtins, "root",     optimize.root)
-    setattr(builtins, "minimize", optimize.minimize)
+    stockpile("optimize", optimize)
+    stockpile("root",     optimize.root)
+    stockpile("minimize", optimize.minimize)
+
+
+def setup_physics() -> None:
+    """ Setup the physics modules to be used in the language. """
+    physics = import_module("cantera")
+    stockpile("cantera", physics)
+    stockpile("R_GAS",   physics.gas_constant / 1000.0)
+    stockpile("N_AVG",   physics.avogadro)
+    stockpile("SIGMA",   physics.stefan_boltzmann)
 
 
 def setup_logging() -> None:
@@ -76,12 +137,14 @@ def setup_logging() -> None:
     logger.setLevel(logging.DEBUG)
     logger.addHandler(handler)
 
-    setattr(builtins, "w_logger",   logger)
-    setattr(builtins, "w_info",     logger.info)
-    setattr(builtins, "w_debug",    logger.debug)
-    setattr(builtins, "w_warning",  logger.warning)
-    setattr(builtins, "w_error",    logger.error)
-    setattr(builtins, "w_critical", logger.critical)
+    # XXX: Not sure this is needed...
+    # stockpile("w_logger",   logger)
+
+    stockpile("w_info",     logger.info)
+    stockpile("w_debug",    logger.debug)
+    stockpile("w_warning",  logger.warning)
+    stockpile("w_error",    logger.error)
+    stockpile("w_critical", logger.critical)
 
     def runtime_arguments(func):
         """Decorator to add runtime arguments to the main function."""
@@ -93,12 +156,19 @@ def setup_logging() -> None:
             return func(*args, **kwargs)
         return wrapper
 
-    setattr(builtins, "runtime_arguments", runtime_arguments)
+    stockpile("runtime_arguments", runtime_arguments)
 
 
 @(run_on_import := lambda f: f())
 def walang():
     """ Initialize the walang environment. """
+    print("Initializing `walang` environment...")
+    print("Call `majordome.walang.help()` to know its contents.")
+
     setup_math()
     setup_scipy()
+    setup_physics()
     setup_logging()
+
+    if os.environ.get("WALANG_VERBOSE", "0") == "1":
+        print(help())
