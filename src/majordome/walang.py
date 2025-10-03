@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from contextlib import contextmanager
 from functools import wraps
 from importlib import import_module
+from pathlib import Path
+from types import FunctionType
 from tabulate import tabulate
 import builtins
 import inspect
@@ -219,21 +222,61 @@ def _homonym_function(name: str, path: str = None):
     return None
 
 
-def walab_module(class_name, requires: list[str], module: str = None,
-                 call_logging: bool = False):
-    """ Create a model by dynamically importing required functions. """
+@contextmanager
+def _walab_module_directory(level=3):
+    """ Runs code in the context of the caller's caller directory.
+
+    Notice that the `level` argument indicates how many levels up
+    the stack to go to find the caller's caller. The default value
+    is 3, which gets the called of `walab_module`, which is usually
+    what we want.
+    """
+    origin = Path.cwd()
+    module = Path(inspect.stack()[level].filename).resolve().parent
+    os.chdir(module)
+    try:
+        yield
+    finally:
+        os.chdir(origin)
+
+
+def walab_module(class_name, requires: list[str], *, module: str = None,
+                 call_logging: bool = False, properties: dict = {}) -> type:
+    """ Create an WaLab model by dynamically importing functions. """
     methods = {}
 
-    for name in requires:
-        if (func := _homonym_function(name, path=module)) is None:
-            raise ImportError(f"Required function `{name}` not found.")
-        else:
-            if call_logging:
-                func = runtime_arguments(func)
+    with _walab_module_directory():
+        for (name, f_namespace) in requires:
+            if (func := _homonym_function(name, path=module)) is None:
+                raise ImportError(f"Required function `{name}` not found.")
+            else:
+                f_namespace = {**func.__globals__, **f_namespace}
+                func = FunctionType(func.__code__, f_namespace)
 
-            methods[name] = func
+                if call_logging:
+                    func = runtime_arguments(func)
 
-    return type(class_name, (object,), methods)
+                methods[name] = func
+
+    if (overlap := set(methods) & set(properties)):
+        raise KeyError(f"Overlapping keys found in methods and "
+                       f"properties: {overlap}. Fix before proceeding. ")
+
+    return type(class_name, (object,), {**methods, **properties})
+
+
+def walab_import(module, class_name: str) -> type:
+    """ Import a class from a WaLab module. """
+    try:
+        return getattr(import_module(module), class_name)
+    except Exception as e:
+        w_error(f"Failed to import {class_name} from {module}: {e}")
+        raise
+
+
+def walab_instance(module, class_name: str, *args, **kwargs) -> object:
+    """ Import and instantiate a class from a WaLab module. """
+    return walab_import(module, class_name)(*args, **kwargs)
 
 
 @(run_on_import := lambda f: f())
@@ -247,7 +290,9 @@ def walang():
     setup_physics()
     setup_logging()
 
-    stockpile("walab_module", walab_module)
+    stockpile("walab_module",   walab_module)
+    stockpile("walab_import",   walab_import)
+    stockpile("walab_instance", walab_instance)
 
     if os.environ.get("WALANG_VERBOSE", "0") == "1":
         print(help())
