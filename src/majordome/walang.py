@@ -175,7 +175,8 @@ def _load_module(name: str):
 
 def _from_globals(name: str):
     """ Try to get a variable from the global scope. """
-    return globals()[name] if name in globals() else None
+    globals_ = _get_globals_n_levels_up(4)
+    return globals_[name] if name in globals_ else None
 
 
 def _from_path(name: str, path: str):
@@ -207,6 +208,7 @@ def _from_module(name: str):
 
 def _homonym_function(name: str, path: str = None):
     """ Dynamically import a function by its name. """
+    print(f"Importing function `{name}`...", Path.cwd())
     # Give preference to current scope, it overrides any module import:
     if (func := _from_globals(name)) is not None:
         return func
@@ -220,6 +222,13 @@ def _homonym_function(name: str, path: str = None):
         return func
 
     return None
+
+
+def _get_globals_n_levels_up(level=3):
+    frame = inspect.currentframe()
+    for _ in range(level):
+        frame = frame.f_back
+    return frame.f_globals
 
 
 @contextmanager
