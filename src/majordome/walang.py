@@ -206,9 +206,8 @@ def _from_module(name: str):
         return None
 
 
-def _homonym_function(name: str, path: str = None):
+def _homonym_function(name: str, path: str | None = None):
     """ Dynamically import a function by its name. """
-    print(f"Importing function `{name}`...", Path.cwd())
     # Give preference to current scope, it overrides any module import:
     if (func := _from_globals(name)) is not None:
         return func
@@ -249,13 +248,17 @@ def _walab_module_directory(level=3):
         os.chdir(origin)
 
 
-def walab_module(class_name, requires: list[str], *, module: str = None,
-                 call_logging: bool = False, properties: dict = {}) -> type:
+def walab_module(class_name, requires: list[tuple[str, dict]], *,
+                 module: str | None = None, call_logging: bool = False,
+                 properties: dict = {}) -> type:
     """ Create an WaLab model by dynamically importing functions. """
     methods = {}
 
     with _walab_module_directory():
         for (name, f_namespace) in requires:
+            if name in methods:
+                raise KeyError(f"Duplicate function `{name}` found.")
+
             if (func := _homonym_function(name, path=module)) is None:
                 raise ImportError(f"Required function `{name}` not found.")
             else:
@@ -269,7 +272,7 @@ def walab_module(class_name, requires: list[str], *, module: str = None,
 
     if (overlap := set(methods) & set(properties)):
         raise KeyError(f"Overlapping keys found in methods and "
-                       f"properties: {overlap}. Fix before proceeding. ")
+                       f"properties: {overlap}.")
 
     return type(class_name, (object,), {**methods, **properties})
 
