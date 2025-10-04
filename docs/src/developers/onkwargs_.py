@@ -18,9 +18,11 @@
 # %load_ext autoreload
 # %autoreload 2
 
+from functools import wraps, update_wrapper
 from majordome.parsing import FuncArguments
-import majordome.walang
+# import majordome.walang
 
+# ## Illustrating `FuncArguments`
 
 def f(*args, **kwargs):
     """ Arbitrary interface function for illustration. """
@@ -34,8 +36,7 @@ def f(*args, **kwargs):
         pass
 
 
-
-# ## Both positional-mandatory
+# - Arguments are both positional-mandatory
 
 # +
 f.parser = FuncArguments()
@@ -46,7 +47,7 @@ f(3)
 f(3, 4)
 # -
 
-# ## Both keyword-only
+# - Arguments are both keyword-only
 
 # +
 f.parser = FuncArguments()
@@ -59,7 +60,7 @@ f(3, b=4)
 f(a=3, b=4)
 # -
 
-# ## One positional and another maybe positional
+# - One positional and another (maybe) positional
 
 # +
 f.parser = FuncArguments()
@@ -71,7 +72,7 @@ f(3, 4)
 f(3, 4, b=4)
 # -
 
-# ## Badly configured
+# - Badly configured
 
 # +
 f.parser = FuncArguments()
@@ -81,3 +82,49 @@ try:
     f.parser.add("b")
 except Exception as err:
     print(err)
+
+
+# -
+
+# ## Creating class constructors
+
+def _init_some_class(cls):
+    """ Decorator to enhance SomeClass with argument parsing. """
+    orig_init = cls.__init__
+
+    parser = FuncArguments(greedy_args=False, pop_kw=True)
+    parser.add("a", 0)
+    parser.add("x", default=None)
+
+    @wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        parser.update(*args, **kwargs)
+        a = parser.get("a")
+        x = parser.get("x")
+        parser.close()
+
+        # -- logic goes here
+        print(f"some a = {a}")
+        print(f"some x = {x}")
+
+        return orig_init(self, *parser.args, **parser.kwargs)
+
+    cls.__init__ = update_wrapper(new_init, orig_init)
+    return cls
+
+
+class BaseClass:
+    def __init__(self, *args, **kwargs) -> None:
+        print(f"args   = {args}")
+        print(f"kwargs = {kwargs}")
+
+
+@_init_some_class
+class SomeClass(BaseClass):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
+some = SomeClass(1, 2, 3, x=1, y=2)
+
+
