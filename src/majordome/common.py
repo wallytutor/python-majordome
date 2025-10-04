@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from abc import ABC
+from abc import abstractmethod
 from collections import deque
 from functools import wraps
 from importlib import resources
@@ -6,7 +8,7 @@ from io import StringIO
 from numbers import Number
 from pathlib import Path
 from textwrap import dedent
-from typing import NamedTuple
+from typing import Any, NamedTuple
 from IPython import embed
 from matplotlib import pyplot as plt
 from tabulate import tabulate
@@ -19,7 +21,7 @@ import cantera as ct
 import numpy as np
 import pandas as pd
 
-DATA = Path(resources.files("majordome").joinpath("data"))
+DATA = Path(str(resources.files("majordome").joinpath("data")))
 """ Path to project data folder. """
 
 # XXX: add globally to Cantera path:
@@ -143,6 +145,23 @@ class StateType(NamedTuple):
     T: Number = T_NORMAL
     P: Number = P_NORMAL
 
+
+class AbstractReportable(ABC):
+    """ Abstract base class for reportable objects. """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__()
+
+    @abstractmethod
+    def report_data(self, *args, **kwargs) -> list[tuple[Any, ...]]:
+        """ Provides data for assemblying the object report. """
+        pass
+
+    def report(self, *args, **kwargs) -> str:
+        """ Provides a report of the object. """
+        data = self.report_data(*args, **kwargs)
+        tablefmt = kwargs.pop("tablefmt", "github")
+        return tabulate(data, tablefmt=tablefmt, **kwargs)
+    
 
 class ReadTextData:
     """ Utilities for reading common text data formats. """

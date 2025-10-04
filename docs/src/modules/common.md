@@ -35,6 +35,9 @@
 ## Utilities
 
 ```{eval-rst}
+.. autoclass:: majordome.common.AbstractReportable
+    :members:
+
 .. autoclass:: majordome.common.ReadTextData
     :members:
 
