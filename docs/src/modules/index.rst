@@ -6,7 +6,6 @@ API Docs
     :caption: Modules
 
     common
-    combustion
     energy
     fluent
     plug

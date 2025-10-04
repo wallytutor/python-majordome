@@ -12,6 +12,6 @@
 .. autofunction:: majordome.reactor.composition_to_dict
 .. autofunction:: majordome.reactor.composition_to_array
 .. autofunction:: majordome.reactor.solution_report
-.. autofunction:: majordome.combustion.copy_solution
-.. autofunction:: majordome.combustion.copy_quantity
+.. autofunction:: majordome.reactor.copy_solution
+.. autofunction:: majordome.reactor.copy_quantity
 ```
