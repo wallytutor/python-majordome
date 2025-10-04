@@ -294,8 +294,7 @@ def walab_instance(module, class_name: str, *args, **kwargs) -> object:
 @(run_on_import := lambda f: f())
 def walang():
     """ Initialize the walang environment. """
-    print("Initializing `walang` environment...")
-    print("Call `majordome.walang.help()` to know its contents.")
+
 
     setup_math()
     setup_scipy()
@@ -306,5 +305,8 @@ def walang():
     stockpile("walab_import",   walab_import)
     stockpile("walab_instance", walab_instance)
 
-    if os.environ.get("WALANG_VERBOSE", "0") == "1":
-        print(help())
+    match os.environ.get("WALANG_VERBOSE", "0"):
+        case "1":
+            w_info("Call `majordome.walang.help()` to know its contents.")
+        case "2":
+            w_info(f"\n{help()}")
