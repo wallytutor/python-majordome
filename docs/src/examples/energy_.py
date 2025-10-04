@@ -27,8 +27,10 @@ from majordome import (
     CombustionEnergySource
 )
 
-import majordome.walang
-ct = __builtins__.cantera
+# +
+# import majordome.walang
+# ct = __builtins__.cantera
+# -
 
 # ## Combustion setup utilities
 
@@ -47,23 +49,15 @@ print(supply.report())
 
 # ## Energy sources
 
-source = HeatedGasEnergySource("airish.yaml", 500_000, mass_flow_rate=1.0)
+source = HeatedGasEnergySource("airish.yaml", 500.0, mass_flow_rate=1.0)
 print(source.report())
 
-source = HeatedGasEnergySource("airish.yaml", 500_000, mass_flow_rate=1.0,
+source = HeatedGasEnergySource("airish.yaml", 500.0, mass_flow_rate=1.0,
                                cross_area=0.1, Y="N2: 0.79, O2: 0.21")
 print(source.report())
 
-source = HeatedGasEnergySource("ch4/bfer.yaml", 500_000, mass_flow_rate=1.0,
+source = HeatedGasEnergySource("ch4/bfer.yaml", 500.0, mass_flow_rate=1.0,
                                cross_area=0.1, Y="CH4: 0.1, O2: 0.9")
 print(source.report())
-
-
-
-
-
-
-
-
 
 
