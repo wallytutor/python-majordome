@@ -5,8 +5,8 @@ Majordome
     :maxdepth: 2
     :caption: Majordome
 
-    devel
     examples/index
     advanced/index
     modules/index
+    developers/index
     references
