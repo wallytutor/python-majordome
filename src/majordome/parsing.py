@@ -33,9 +33,6 @@ class FuncArguments:
         self.args   = []
         self.kwargs = {}
 
-        print(f"FuncArguments created, greedy_args={greedy_args}, "
-              f"pop_kw={pop_kw}")
-
     def update(self, *args, **kwargs) -> None:
         """ Updates the arguments to manage at current call. """
         self.got    = 0
