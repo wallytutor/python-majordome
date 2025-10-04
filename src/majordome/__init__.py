@@ -10,6 +10,7 @@ __all__ = []
 from .common import (
     Constants,
     CompositionType,
+    SolutionLikeType,
     StateType,
     AbstractReportable,
     ReadTextData,
@@ -28,6 +29,7 @@ from .common import (
 __all__ += [
     "Constants",
     "CompositionType",
+    "SolutionLikeType",
     "StateType",
     "AbstractReportable",
     "ReadTextData",
@@ -48,6 +50,8 @@ __all__ += [
 # ---------------------------------------------------------------------
 
 from .energy import (
+    CombustionPowerOp,
+    CombustionFlowOp,
     CombustionAtmosphereCHON,
     CombustionPowerSupply,
     CombustionAtmosphereMixer,
@@ -59,6 +63,8 @@ from .energy import (
 )
 
 __all__ += [
+    "CombustionPowerOp",
+    "CombustionFlowOp",
     "CombustionAtmosphereCHON",
     "CombustionPowerSupply",
     "CombustionAtmosphereMixer",
@@ -87,7 +93,7 @@ __all__ += [
     "FluentInputRow",
     "FluentInputFile",
     "convert_xy_to_dict",
-    "load_dpm_table", 
+    "load_dpm_table",
 ]
 
 # ---------------------------------------------------------------------
