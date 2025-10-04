@@ -49,14 +49,12 @@ from .combustion import (
     CombustionAtmosphereCHON,
     CombustionPowerSupply,
     CombustionAtmosphereMixer,
-    copy_quantity,
 )
 
 __all__ += [
     "CombustionAtmosphereCHON",
     "CombustionPowerSupply",
     "CombustionAtmosphereMixer",
-    "copy_quantity",
 ]
 
 # ---------------------------------------------------------------------
@@ -121,6 +119,8 @@ from .reactor import (
     composition_to_dict,
     composition_to_array,
     solution_report,
+    copy_solution,
+    copy_quantity,
 )
 
 __all__ += [
@@ -129,6 +129,8 @@ __all__ += [
     "composition_to_dict",
     "composition_to_array",
     "solution_report",
+    "copy_solution",
+    "copy_quantity",
 ]
 
 # ---------------------------------------------------------------------
