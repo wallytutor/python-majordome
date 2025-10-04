@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from tabulate import tabulate
+from functools import wraps, update_wrapper
+from typing import Any
 import cantera as ct
 
-from .common import CompositionType
+from .common import CompositionType, AbstractReportable
 from .reactor import copy_quantity
+from .parsing import FuncArguments
 
 
 class CombustionAtmosphereCHON:
@@ -154,11 +156,55 @@ class CombustionAtmosphereCHON:
         float
             Volume flow rate under standard state [Nm³/h].
         """
-
         return 3600 * mdot / self.normal_density(X)
 
 
-class CombustionPowerSupply:
+def init_combustion_power_supply(cls):
+    """ Decorator to enhance CombustionPowerSupply with argument parsing. """
+    orig_init = cls.__init__
+
+    parser = FuncArguments(greedy_args=False, pop_kw=True)
+    parser.add("power", 0)
+    parser.add("equivalence", 1)
+    parser.add("fuel", 2)
+    parser.add("oxidizer", 3)
+    parser.add("mechanism", 4)
+    parser.add("species", default="O2")
+    parser.add("emissions", default=True)
+    parser.add("basis", default="mass")
+
+    @wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        parser.update(*args, **kwargs)
+        power       = parser.get("power")
+        equivalence = parser.get("equivalence")
+        fuel        = parser.get("fuel")
+        oxidizer    = parser.get("oxidizer")
+        mechanism   = parser.get("mechanism")
+        species     = parser.get("species")
+        emissions   = parser.get("emissions")
+        basis       = parser.get("basis")
+        parser.close()
+
+        self._ca = CombustionAtmosphereCHON(mechanism, basis=basis)
+        self._lhv, self._mdot_c, self._mdot_o = self._ca.combustion_setup(
+            power, equivalence, fuel, oxidizer, species=species)
+
+        self._power = power
+        self._Xc    = fuel
+        self._Xo   = oxidizer
+
+        if emissions:
+            self._m_h2o, self._m_co2 = self._emissions(mechanism)
+
+        return orig_init(self, *args, **kwargs)
+
+    cls.__init__ = update_wrapper(new_init, orig_init)
+    return cls
+
+
+@init_combustion_power_supply
+class CombustionPowerSupply(AbstractReportable):
     """ Provides combustion calculations for given power supply.
 
     Parameters
@@ -180,27 +226,12 @@ class CombustionPowerSupply:
     basis: str = "mass"
         Basis on which to compute equivalence ratio.
     """
-    def __init__(self,
-            power: float,
-            equivalence: float,
-            fuel: CompositionType,
-            oxidizer: CompositionType,
-            mechanism: str,
-            species: str = "O2",
-            emissions: bool = True,
-            basis: str = "mass"
-        ) -> None:
-        self._ca = CombustionAtmosphereCHON(mechanism, basis=basis)
+    __slots__ = ("_mechanism", "_power", "_lhv", "_mdot_c", "_mdot_o",
+                 "_Xc", "_Xo", "_ca", "_m_h2o", "_m_co2",
+                 "_rho_c", "_rho_o", "_qdot_c", "_qdot_o")
 
-        (self._lhv, self._mdot_c, self._mdot_o) = self._ca.combustion_setup(
-            power, equivalence, fuel, oxidizer, species=species)
-
-        self._power = power
-        self._Xc = fuel
-        self._Xo = oxidizer
-
-        if emissions:
-            self._m_h2o, self._m_co2 = self._emissions(mechanism)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     def _emissions(self, mechanism, h2o="H2O", co2="CO2"):
         """ Evaluate complete combustion products for a gas. """
@@ -294,8 +325,8 @@ class CombustionPowerSupply:
         args = f"P={self._power:.4e} kW LHV={self._lhv:.4e} MJ/kg"
         return f"<CombustionPowerSupply {args} />"
 
-    def report(self) -> str:
-        """ Generate combustion power and flow rates report."""
+    def report_data(self, *args, **kwargs) -> list[tuple[str, str, Any]]:
+        """ Provides data for assemblying the object report. """
         mdot = self._mdot_c + self._mdot_o
         qdot = self.fuel_volume + self.oxidizer_volume
     
@@ -320,8 +351,12 @@ class CombustionPowerSupply:
                 ("Carbon dioxide production", "kg/h", 3600*self._m_co2),
                 ("Total emissions", "kg/h", 3600*mdot),
             ])
+        return data
 
-        return tabulate(data, tablefmt="github-raw")
+    def report(self, *args, **kwargs) -> str:
+        """ Provides a report of the energy source. """
+        kwargs.setdefault("headers", ["Property", "Unit", "Value"])
+        return super().report(*args, **kwargs)
 
 
 class CombustionAtmosphereMixer:
