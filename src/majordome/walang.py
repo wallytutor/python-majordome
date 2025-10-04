@@ -13,30 +13,23 @@ import os
 STOCK = []
 
 
+def _get_fully_qualified_name(obj) -> str:
+    try:
+        if inspect.ismodule(obj):
+            return obj.__name__
+
+        return f"{obj.__module__}.{obj.__qualname__}"
+    except AttributeError:
+        return repr(obj)
+
+
 def stockpile(name: str, value) -> None:
     """ Store a variable in the builtins to be used in the language."""
-    name_value = repr(value)
-
-    if inspect.ismodule(value):
-        name_value = value.__name__
-
-    # The test below is simpler than `isclass(value) or isfunction(value)`
-    # and also covers other types as well (e.g., numpy.ufunc).
-    if hasattr(value, "__module__") and hasattr(value, "__name__"):
-        mname = value.__module__
-        cname = value.__name__
-        name_value = f"{mname}.{cname}"
-
-    if inspect.ismethod(value):
-        cname = value.__self__.__class__.__name__
-        mname = value.__func__.__name__
-        name_value = f"{cname}.{mname}()"
-
-    STOCK.append((name, name_value))
+    STOCK.append((name, _get_fully_qualified_name(value)))
     setattr(builtins, name, value)
 
 
-def help() -> str:
+def walab_help() -> str:
     """ Return a help string with all the stocked variables."""
     return tabulate(STOCK, headers=["Alias", "Type/Value"],
                     tablefmt="github-raw")
@@ -301,12 +294,13 @@ def walang():
     setup_physics()
     setup_logging()
 
+    stockpile("walab_help",     walab_help)
     stockpile("walab_module",   walab_module)
     stockpile("walab_import",   walab_import)
     stockpile("walab_instance", walab_instance)
 
     match os.environ.get("WALANG_VERBOSE", "0"):
         case "1":
-            w_info("Call `majordome.walang.help()` to know its contents.")
+            w_info("Call `walab_help()` to know its contents.")
         case "2":
-            w_info(f"\n{help()}")
+            w_info(f"\n{walab_help()}")
