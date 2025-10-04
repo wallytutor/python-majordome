@@ -4,13 +4,7 @@ from textwrap import dedent
 import cantera as ct
 
 from .common import T_NORMAL, P_NORMAL, CompositionType, report_title
-
-
-def copy_quantity(qty: ct.Quantity) -> ct.Quantity:
-    """ Makes a hard copy of a ct.Quantity object. """
-    sol = ct.Solution(qty.source, qty.phase.name)
-    sol.TPY = qty.TPY
-    return ct.Quantity(sol, mass=qty.mass)
+from .reactor import copy_quantity
 
 
 class CombustionAtmosphereCHON:

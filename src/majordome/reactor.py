@@ -164,6 +164,19 @@ def solution_report(sol: ct.composite.Solution | ct.Quantity,
     return report
 
 
+def copy_solution(sol: ct.composite.Solution) -> ct.composite.Solution:
+    """ Makes a hard copy of a ct.Solution object. """
+    new_sol = ct.composite.Solution(sol.source, sol.name)
+    new_sol.TPY = sol.TPY
+    return new_sol
+
+
+def copy_quantity(qty: ct.composite.Quantity) -> ct.composite.Quantity:
+    """ Makes a hard copy of a ct.Quantity object. """
+    sol = copy_solution(qty.phase)
+    return ct.Quantity(sol, mass=qty.mass, constant=qty.constant)
+
+
 class NormalFlowRate:
     """ Compute normal flow rate for a given composition.
 

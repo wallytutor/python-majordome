@@ -16,9 +16,3 @@
 .. autoclass:: majordome.combustion.CombustionAtmosphereMixer
     :members:
 ```
-
-## Utilities
-
-```{eval-rst}
-.. autofunction:: majordome.combustion.copy_quantity
-```

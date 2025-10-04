@@ -19,12 +19,14 @@
 # %autoreload 2
 
 from majordome import (
+    NormalFlowRate,
     toggle_warnings,
     toggle_reactor_warnings,
     composition_to_dict,
     composition_to_array,
     solution_report,
-    NormalFlowRate,
+    copy_solution,
+    copy_quantity,
 )
 from tabulate import tabulate
 import cantera as ct
@@ -63,6 +65,29 @@ composition_to_array(", teste: 1", solution.species_names)
 data = solution_report(solution, specific_props=True,
                        composition_spec="mass", selected_species=[])
 print(tabulate(data))
+
+# Because sometimes Cantera lacks hard-copy utilities for certain classes, we provide simple wrappers that create new instances and set the state to the same of the source object. Nothing checked, nothing tested. A first of this kind is `copy_solution`, illustrated below:
+
+newairs = copy_solution(solution)
+newairs.TPX = 373.15, None, newairs.X
+print(tabulate(solution_report(newairs)))
+
+print(tabulate(solution_report(solution)))
+
+# In addition to this, there is `copy_quantity`, which proves quite useful in establishing an *algebra* of mixtures.
+
+# +
+air = copy_solution(solution)
+
+air1 = ct.Quantity(air, mass=1.0)
+air1.TPX = 373.15, None, newairs.X
+
+air2 = copy_quantity(air1)
+air2.TPX = 273.15, None, air2.X
+
+mixair = air1 + air2
+air1.T, air2.T, mixair.T
+# -
 
 # ## *NormalFlowRate*
 
