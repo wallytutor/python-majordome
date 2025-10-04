@@ -20,19 +20,15 @@
 # %load_ext autoreload
 # %autoreload 2
 
-# +
 from majordome import (
     CombustionAtmosphereCHON,
     CombustionPowerSupply,
-)
-from majordome.energy import (
     HeatedGasEnergySource,
     CombustionEnergySource
 )
-import majordome.walang
 
+import majordome.walang
 ct = __builtins__.cantera
-# -
 
 # ## Combustion setup utilities
 

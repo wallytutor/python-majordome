@@ -44,19 +44,29 @@ __all__ += [
 ]
 
 # ---------------------------------------------------------------------
-# majordome.combustion: working on cleaning legacy, do not expose!
+# majordome.energy
 # ---------------------------------------------------------------------
 
-from .combustion import (
+from .energy import (
     CombustionAtmosphereCHON,
     CombustionPowerSupply,
     CombustionAtmosphereMixer,
+    AbstractEnergySource,
+    CanteraEnergySource,
+    GasFlowEnergySource,
+    HeatedGasEnergySource,
+    CombustionEnergySource,
 )
 
 __all__ += [
     "CombustionAtmosphereCHON",
     "CombustionPowerSupply",
     "CombustionAtmosphereMixer",
+    "AbstractEnergySource",
+    "CanteraEnergySource",
+    "GasFlowEnergySource",
+    "HeatedGasEnergySource",
+    "CombustionEnergySource",
 ]
 
 # ---------------------------------------------------------------------
