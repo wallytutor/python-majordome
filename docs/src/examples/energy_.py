@@ -21,10 +21,14 @@
 # %autoreload 2
 
 from majordome import (
+    StateType,
+    NormalFlowRate,
+    CombustionPowerOp,
+    CombustionFlowOp,
     CombustionAtmosphereCHON,
     CombustionPowerSupply,
     HeatedGasEnergySource,
-    CombustionEnergySource
+    CombustionEnergySource,
 )
 
 # +
@@ -56,8 +60,31 @@ source = HeatedGasEnergySource("airish.yaml", 500.0, mass_flow_rate=1.0,
                                cross_area=0.1, Y="N2: 0.79, O2: 0.21")
 print(source.report())
 
-source = HeatedGasEnergySource("ch4/bfer.yaml", 500.0, mass_flow_rate=1.0,
-                               cross_area=0.1, Y="CH4: 0.1, O2: 0.9")
+fuel_state = StateType("CH4: 1",             300, 101325)
+oxid_state = StateType("N2: 0.79, O2: 0.21", 300, 101325)
+
+# +
+ops = CombustionPowerOp(500.0, 1.0, fuel_state, oxid_state)
+source = CombustionEnergySource("ch4/bfer.yaml", operation=ops, cross_area=0.1)
+
+# Recover values for other tests that follow
+# TODO wrap these in properties for clean API:
+mdot_fuel = source._qty_fuel.mass
+mdot_oxid = source._qty_oxid.mass
+
+nfr_fuel = NormalFlowRate.new_from_solution(source._qty_fuel)
+nfr_oxid = NormalFlowRate.new_from_solution(source._qty_fuel)
+
+qdot_fuel = 3600 * mdot_fuel / nfr_fuel.density
+qdot_oxid = 3600 * mdot_oxid / nfr_oxid.density
+
+print(source.report())
+# -
+
+ops = CombustionFlowOp("mass", mdot_fuel, mdot_oxid, fuel_state, oxid_state)
+source = CombustionEnergySource("ch4/bfer.yaml", operation=ops, cross_area=0.1)
 print(source.report())
 
-
+ops = CombustionFlowOp("volume", qdot_fuel, qdot_oxid, fuel_state, oxid_state)
+source = CombustionEnergySource("ch4/bfer.yaml", operation=ops, cross_area=0.1)
+print(source.report())

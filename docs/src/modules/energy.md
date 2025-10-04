@@ -3,6 +3,12 @@
 ## Process setup
 
 ```{eval-rst}
+.. autoclass:: majordome.energy.CombustionPowerOp
+    :members:
+
+.. autoclass:: majordome.energy.CombustionFlowOp
+    :members:
+
 .. autoclass:: majordome.energy.CombustionPowerSupply
     :members:
 ```

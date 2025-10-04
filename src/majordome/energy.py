@@ -1,13 +1,31 @@
 # -*- coding: utf-8 -*-
 from abc import abstractmethod
 from functools import wraps, update_wrapper
-from typing import Any
+from typing import Any, NamedTuple
 from cantera.composite import Solution
 import cantera as ct
 
-from .common import CompositionType, Constants, AbstractReportable
-from .reactor import solution_report, copy_quantity
+from .common import CompositionType, SolutionLikeType, StateType
+from .common import Constants, AbstractReportable
+from .reactor import NormalFlowRate, solution_report, copy_quantity
 from .parsing import FuncArguments
+
+
+class CombustionPowerOp(NamedTuple):
+    """ Combustion power operation parameters. """
+    power: float
+    equivalence: float
+    fuel_state: StateType
+    oxid_state: StateType
+
+
+class CombustionFlowOp(NamedTuple):
+    """ Combustion flow operation parameters. """
+    mode: str
+    fuel_xdot: float
+    oxid_xdot: float
+    fuel_state: StateType
+    oxid_state: StateType
 
 
 class CombustionAtmosphereCHON:
@@ -174,6 +192,7 @@ def _init_combustion_power_supply(cls):
     parser.add("species", default="O2")
     parser.add("emissions", default=True)
     parser.add("basis", default="mass")
+    # TODO support phase name
 
     @wraps(orig_init)
     def new_init(self, *args, **kwargs):
@@ -371,13 +390,14 @@ class CombustionAtmosphereMixer:
     mechanism: str
         Kinetics mechanism/database to use in computations.
     """
-    def __init__(self, mechanism: str) -> None:
+    def __init__(self, mechanism: str, basis: str = "mole") -> None:
         self._mechanism = mechanism
         self._quantity = None
+        self._basis = basis
 
     def _new_quantity(self, mass, T, P, X):
         """ Create a new quantity with provided state. """
-        solution = ct.Solution(self._mechanism)
+        solution = Solution(self._mechanism, basis=self._basis)
         solution.TPX = T, P, X
         return ct.Quantity(solution, mass=mass)
 
@@ -457,7 +477,7 @@ def _init_cantera_energy_source(cls):
 
     parser = FuncArguments(greedy_args=False, pop_kw=True)
     parser.add("source", 0)
-    parser.add("power", 1)
+    parser.add("power", 1, default=0.0)
     parser.add("phase", default="")
 
     @wraps(orig_init)
@@ -469,7 +489,6 @@ def _init_cantera_energy_source(cls):
 
         orig_init(self, *parser.args, **parser.kwargs)
         parser.close()
-
         return None
 
     cls.__init__ = update_wrapper(new_init, orig_init)
@@ -671,7 +690,145 @@ class HeatedGasEnergySource(GasFlowEnergySource):
         return sol
 
 
+def _init_combustion_energy_source(cls):
+    """ Decorator to enhance CombustionEnergySource with argument parsing. """
+    orig_init = cls.__init__
+
+    parser = FuncArguments(greedy_args=False, pop_kw=True)
+    parser.add("operation", default=None)
+
+    @wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        # Temporary to get the mechanism (improve this!)....
+        tmp = CanteraEnergySource(*(*args, -1), **kwargs)
+
+        parser.update(*args, **kwargs)
+        operation = parser.get("operation")
+
+        if operation is None:
+            raise ValueError("Operation parameters must be provided")
+
+        # XXX: do not write to _power, let base class handle it!
+        power = self._compute_power(operation, tmp)
+        args = (*parser.args, power)
+        orig_init(self, *args, **parser.kwargs)
+        parser.close()
+
+        # Override base class (negative up to this point!)
+        self._mdot  = self._qty_flue.mass
+        self._rho   = self._qty_flue.density_mass
+        self._phase = self._qty_flue.phase.name
+        return None
+
+    cls.__init__ = update_wrapper(new_init, orig_init)
+    return cls
+
+
+@_init_combustion_energy_source
 class CombustionEnergySource(GasFlowEnergySource):
     """ Combustion based energy source. """
+    __slots__ = ("_fuel", "_oxid", "_qty_flue", "_qty_fuel", "_qty_oxid")
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    # -----------------------------------------------------------------------
+    # Internal API
+    # -----------------------------------------------------------------------
+
+    def _compute_power(self, operation, tmp) -> float:
+        """ Computes the power output of the energy source. """
+        self._fuel = operation.fuel_state.X
+        self._oxid = operation.oxid_state.X
+
+        if isinstance(operation, CombustionFlowOp):
+            if operation.fuel_xdot <= 0.0 or operation.oxid_xdot <= 0.0:
+                raise ValueError("Flow rates must be positive")
+
+            match operation.mode:
+                case "mass":
+                    mdot_fuel = operation.fuel_xdot
+                    mdot_oxid = operation.oxid_xdot
+                case "volume":
+                    opts = dict(X=self._oxid, name=tmp.phase)
+                    calc_oxid = NormalFlowRate(tmp.source, **opts)
+                    mdot_oxid = calc_oxid(operation.oxid_xdot)
+
+                    opts = dict(X=self._fuel, name=tmp.phase)
+                    calc_fuel = NormalFlowRate(tmp.source, **opts)
+                    mdot_fuel = calc_fuel(operation.fuel_xdot)
+                case _:
+                    raise ValueError("Flow mode must be 'mass' or 'volume'")
+
+            # XXX: the hard-coded "O2: 1" is here by definition! The heating
+            # value is always computed with respect to pure oxidizer. Notice
+            # that the oxidizer must be parametrized in the future!
+            ca = CombustionAtmosphereCHON(tmp.source, basis="mole")
+            lhv = ca.solution_heating_value(self._fuel, "O2: 1")
+            power = lhv * mdot_fuel * 1000.0
+        elif isinstance(operation, CombustionPowerOp):
+            supply = CombustionPowerSupply(
+                operation.power, operation.equivalence, self._fuel,
+                self._oxid, tmp.source, emissions=False, basis="mole")
+
+            mdot_fuel = supply.fuel_mass
+            mdot_oxid = supply.oxidizer_mass
+            power = operation.power
+        else:
+            raise RuntimeError("Unknown operation type")
+
+        T_fuel = operation.fuel_state.T
+        T_oxid = operation.oxid_state.T
+
+        mixture = CombustionAtmosphereMixer(tmp.source, basis="mass")
+        self._qty_fuel = mixture.add_quantity(mdot_fuel, self._fuel, T_fuel)
+        self._qty_oxid = mixture.add_quantity(mdot_oxid, self._oxid, T_oxid)
+        self._qty_flue = mixture.solution
+        self._qty_flue.equilibrate("HP")
+        return power
+
+    # -----------------------------------------------------------------------
+    # From AbstractEnergySource
+    # -----------------------------------------------------------------------
+
+    def report_data(self, *args, **kwargs) -> list[tuple[str, str, Any]]:
+        data = super().report_data(*args, **kwargs)
+        data.extend([
+            ("******* FLUE:", "", ""),
+            *solution_report(self._qty_flue, **kwargs),
+            ("******* FUEL:", "", ""),
+            *solution_report(self._qty_fuel, **kwargs),
+            ("******* OXIDIZER:", "", ""),
+            *solution_report(self._qty_oxid, **kwargs),
+        ])
+        return data
+
+    # -----------------------------------------------------------------------
+    # From CanteraEnergySource
+    # -----------------------------------------------------------------------
+
+    @property
+    def solution(self) -> Solution:
+        """ Provides access to a new Cantera solution object. """
+        sol = self._new_solution()
+        sol.TPY = self._qty_flue.TPY
+        return sol
+
+    # -----------------------------------------------------------------------
+    # Extension API
+    # -----------------------------------------------------------------------
+
+    @property
+    def fuel(self) -> CompositionType:
+        """ Provides access to used fuel. """
+        return self._fuel
+
+    @property
+    def oxidizer(self) -> CompositionType:
+        """ Provides access to used oxidizer. """
+        return self._oxid
+
+    @property
+    def flue(self) -> SolutionLikeType:
+        """ Provides access to flue gas. """
+        return self._qty_flue
