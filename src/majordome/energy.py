@@ -487,6 +487,9 @@ def _init_cantera_energy_source(cls):
         self._power  = parser.get("power") * 1000.0
         self._phase  = parser.get("phase")
 
+        # XXX to be set by derived classes:
+        self._fluid = None
+
         orig_init(self, *parser.args, **parser.kwargs)
         parser.close()
         return None
@@ -498,7 +501,7 @@ def _init_cantera_energy_source(cls):
 @_init_cantera_energy_source
 class CanteraEnergySource(AbstractEnergySource):
     """ An abstract Cantera based energy source. """
-    __slots__ = ("_power", "_source", "_phase")
+    __slots__ = ("_power", "_source", "_phase", "_fluid")
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -539,6 +542,13 @@ class CanteraEnergySource(AbstractEnergySource):
     # -----------------------------------------------------------------------
     # Extension API
     # -----------------------------------------------------------------------
+
+    @property
+    def fluid(self) -> SolutionLikeType:
+        """ Provides access to the internal Cantera solution object. """
+        if self._fluid is None:
+            self._fluid = self._new_solution()
+        return self._fluid
 
     @property
     def solution(self) -> Solution:
@@ -664,6 +674,7 @@ class HeatedGasEnergySource(GasFlowEnergySource):
         self._rho = sol.density
         self._temp_ops = sol.T
         self._phase = sol.name
+        self._fluid = sol
 
     # -----------------------------------------------------------------------
     # From AbstractEnergySource
@@ -718,6 +729,7 @@ def _init_combustion_energy_source(cls):
         self._mdot  = self._qty_flue.mass
         self._rho   = self._qty_flue.density_mass
         self._phase = self._qty_flue.phase.name
+        self._fluid = self._qty_flue
         return None
 
     cls.__init__ = update_wrapper(new_init, orig_init)
