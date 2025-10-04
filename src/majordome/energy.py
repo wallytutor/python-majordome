@@ -199,7 +199,7 @@ def _init_combustion_power_supply(cls):
         if emissions:
             self._m_h2o, self._m_co2 = self._emissions(mechanism)
 
-        return orig_init(self, *args, **kwargs)
+        return orig_init(self, *parser.args, **parser.kwargs)
 
     cls.__init__ = update_wrapper(new_init, orig_init)
     return cls
