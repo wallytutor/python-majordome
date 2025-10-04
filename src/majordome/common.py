@@ -40,7 +40,7 @@ class Singleton:
 
 class classproperty(property):
     """ Extend Python to support class properties.
-    
+
     Note: this class does not reproduce the full behavior of `property`
     because accessing `fget` will return the computed value and thus it
     is not possible to recover directly the docstring of the attribute.
@@ -138,12 +138,14 @@ P_NORMAL = Constants.P_NORMAL
 CompositionType = str | dict[str, float]
 """ Input type for Cantera composition dictionaries. """
 
+SolutionLikeType = ct.composite.Solution | ct.Quantity
+""" Input type for Cantera solution objects. """
 
 class StateType(NamedTuple):
     """ Input type for Cantera TPX state dictionaries. """
     X: CompositionType
-    T: Number = T_NORMAL
-    P: Number = P_NORMAL
+    T: int | float | Number = T_NORMAL
+    P: int | float | Number = P_NORMAL
 
 
 class AbstractReportable(ABC):
@@ -161,7 +163,7 @@ class AbstractReportable(ABC):
         data = self.report_data(*args, **kwargs)
         tablefmt = kwargs.pop("tablefmt", "github")
         return tabulate(data, tablefmt=tablefmt, **kwargs)
-    
+
 
 class ReadTextData:
     """ Utilities for reading common text data formats. """

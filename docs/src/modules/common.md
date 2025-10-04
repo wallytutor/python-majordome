@@ -28,6 +28,9 @@
 .. autodata:: majordome.common.CompositionType
     :annotation:
 
+.. autodata:: majordome.common.SolutionLikeType
+    :annotation:
+
 .. autoclass:: majordome.common.StateType
     :members:
 ```
