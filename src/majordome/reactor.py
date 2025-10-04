@@ -7,7 +7,7 @@ import cantera as ct
 import numpy as np
 import warnings
 
-from .common import CompositionType, T_NORMAL, P_NORMAL
+from .common import CompositionType, SolutionLikeType, T_NORMAL, P_NORMAL
 
 WARN_CANTERA_NON_KEY_VALUE = True
 """ If true, warns about compostion not compliant with Cantera format. """
@@ -250,3 +250,18 @@ class NormalFlowRate:
             ])
  
         return tabulate(data, tablefmt="github")
+
+    @classmethod
+    def new_from_solution(cls, sol: SolutionLikeType, **kwargs
+                          ) -> "NormalFlowRate":
+        """ Creates a new NormalFlowRate from a Cantera solution. """
+        if isinstance(sol, ct.Quantity):
+            source = sol.phase.source
+            name = sol.phase.name
+            X = sol.phase.mole_fraction_dict()
+        else:
+            source = sol.source
+            name = sol.name
+            X = sol.mole_fraction_dict()
+
+        return cls(source, X=X, name=name, **kwargs)
