@@ -186,6 +186,8 @@ def _init_combustion_power_supply(cls):
         species     = parser.get("species")
         emissions   = parser.get("emissions")
         basis       = parser.get("basis")
+
+        orig_init(self, *parser.args, **parser.kwargs)
         parser.close()
 
         self._ca = CombustionAtmosphereCHON(mechanism, basis=basis)
@@ -194,12 +196,12 @@ def _init_combustion_power_supply(cls):
 
         self._power = power
         self._Xc    = fuel
-        self._Xo   = oxidizer
+        self._Xo    = oxidizer
 
         if emissions:
             self._m_h2o, self._m_co2 = self._emissions(mechanism)
 
-        return orig_init(self, *parser.args, **parser.kwargs)
+        return None
 
     cls.__init__ = update_wrapper(new_init, orig_init)
     return cls
@@ -238,7 +240,7 @@ class CombustionPowerSupply(AbstractReportable):
     def _emissions(self, mechanism, h2o="H2O", co2="CO2"):
         """ Evaluate complete combustion products for a gas. """
         mixer = CombustionAtmosphereMixer(mechanism)
-        
+
         if self._mdot_o > 0.0:
             mixer.add_quantity(self._mdot_o, self._Xo)
 
@@ -331,7 +333,7 @@ class CombustionPowerSupply(AbstractReportable):
         """ Provides data for assemblying the object report. """
         mdot = self._mdot_c + self._mdot_o
         qdot = self.fuel_volume + self.oxidizer_volume
-    
+
         data = [
             ("Required power", "kW", self._power),
             ("Lower heating value", "MJ/kg", self._lhv),
@@ -418,6 +420,12 @@ class CombustionAtmosphereMixer:
         return self._quantity
 
 
+def _init_abstract_energy_source(cls):
+    """ Decorator to enhance AbstractEnergySource with argument parsing. """
+    return cls
+
+
+@_init_abstract_energy_source
 class AbstractEnergySource(AbstractReportable):
     """ Abstract base class for energy sources. """
     __slots__ = ()
@@ -443,18 +451,38 @@ class AbstractEnergySource(AbstractReportable):
         return super().report(*args, **kwargs)
 
 
+def _init_cantera_energy_source(cls):
+    """ Decorator to enhance CanteraEnergySource with argument parsing. """
+    orig_init = cls.__init__
+
+    parser = FuncArguments(greedy_args=False, pop_kw=True)
+    parser.add("source", 0)
+    parser.add("power", 1)
+    parser.add("phase", default="")
+
+    @wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        parser.update(*args, **kwargs)
+        self._source = parser.get("source")
+        self._power  = parser.get("power") * 1000.0
+        self._phase  = parser.get("phase")
+
+        orig_init(self, *parser.args, **parser.kwargs)
+        parser.close()
+
+        return None
+
+    cls.__init__ = update_wrapper(new_init, orig_init)
+    return cls
+
+
+@_init_cantera_energy_source
 class CanteraEnergySource(AbstractEnergySource):
     """ An abstract Cantera based energy source. """
     __slots__ = ("_power", "_source", "_phase")
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._source = args[0]
-        self._power  = args[1]
-
-        # XXX if phase is unset, after reading data set
-        # it to the actual solution phase name.
-        self._phase = kwargs.pop("phase", "")
 
     # -----------------------------------------------------------------------
     # Internal API
@@ -499,15 +527,37 @@ class CanteraEnergySource(AbstractEnergySource):
         return self._new_solution()
 
 
+def _init_gas_flow_energy_source(cls):
+    """ Decorator to enhance GasFlowEnergySource with argument parsing. """
+    orig_init = cls.__init__
+
+    parser = FuncArguments(greedy_args=False, pop_kw=True)
+    parser.add("mass_flow_rate", default=-1.0)
+    parser.add("cross_area", default=1.0)
+
+    @wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        parser.update(*args, **kwargs)
+        self._mdot = parser.get("mass_flow_rate")
+        self._area = parser.get("cross_area")
+
+        orig_init(self, *parser.args, **parser.kwargs)
+        parser.close()
+
+        self._rho  = -1.0
+        return None
+
+    cls.__init__ = update_wrapper(new_init, orig_init)
+    return cls
+
+
+@_init_gas_flow_energy_source
 class GasFlowEnergySource(CanteraEnergySource):
     """ An abstract gas flow energy source. """
     __slots__ = ("_mdot", "_area", "_rho")
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._mdot = kwargs.pop("mass_flow_rate")
-        self._area = kwargs.pop("cross_area", 1.0)
-        self._rho  = -1.0
 
     # -----------------------------------------------------------------------
     # From AbstractEnergySource
@@ -544,16 +594,39 @@ class GasFlowEnergySource(CanteraEnergySource):
         return self._mdot
 
 
+def _init_heated_gas_energy_source(cls):
+    """ Decorator to enhance HeatedGasEnergySource with argument parsing. """
+    orig_init = cls.__init__
+
+    parser = FuncArguments(greedy_args=False, pop_kw=True)
+    parser.add("temperature_ref", default=Constants.T_REFERENCE)
+    parser.add("pressure_ref", default=Constants.P_NORMAL)
+    parser.add("Y", default={})
+
+    @wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        parser.update(*args, **kwargs)
+        self._temp_ref = parser.get("temperature_ref")
+        self._pres_ref = parser.get("pressure_ref")
+        self._comp_ref = parser.get("Y")
+
+        orig_init(self, *parser.args, **parser.kwargs)
+        parser.close()
+
+        self._compute_operation()
+        return None
+
+    cls.__init__ = update_wrapper(new_init, orig_init)
+    return cls
+
+
+@_init_heated_gas_energy_source
 class HeatedGasEnergySource(GasFlowEnergySource):
     """ Non-reacting heated gas flow energy source. """
     __slots__ = ("_temp_ref", "_pres_ref", "_temp_ops", "_comp_ref")
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._temp_ref = kwargs.pop("temperature_ref", Constants.T_REFERENCE)
-        self._pres_ref = kwargs.pop("pressure_ref", Constants.P_NORMAL)
-        self._comp_ref = kwargs.pop("Y", {})
-        self._compute_operation()
 
     # -----------------------------------------------------------------------
     # Internal API

@@ -101,13 +101,15 @@ def _init_some_class(cls):
         parser.update(*args, **kwargs)
         a = parser.get("a")
         x = parser.get("x")
+
+        orig_init(self, *parser.args, **parser.kwargs)
         parser.close()
 
         # -- logic goes here
         print(f"some a = {a}")
         print(f"some x = {x}")
 
-        return orig_init(self, *parser.args, **parser.kwargs)
+        return None
 
     cls.__init__ = update_wrapper(new_init, orig_init)
     return cls
@@ -126,5 +128,3 @@ class SomeClass(BaseClass):
 
 
 some = SomeClass(1, 2, 3, x=1, y=2)
-
-
