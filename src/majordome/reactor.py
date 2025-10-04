@@ -60,8 +60,8 @@ def _split_composition(species):
     return name.strip(), float(value.strip())
 
 
-def composition_to_dict(Y: str, species_names: list[str] = None
-                       ) -> dict[str, float]:
+def composition_to_dict(Y: str, species_names: list[str] = []
+                        ) -> dict[str, float]:
     """ Convert a Cantera composition string to dictionary. """
     Y_dict = dict()
 
@@ -86,7 +86,7 @@ def composition_to_array(Y: str, species_names: list[str]
                          ) -> NDArray[np.float64]:
     """ Convert a Cantera composition string to array. """
     data = Y.split(",")
-    Y = np.zeros(len(species_names), dtype=np.float64)
+    Y_new = np.zeros(len(species_names), dtype=np.float64)
 
     for species in data:
         name, value = _split_composition(species)
@@ -95,11 +95,11 @@ def composition_to_array(Y: str, species_names: list[str]
             continue
 
         if name in species_names:
-            Y[species_names.index(name)] = value
+            Y_new[species_names.index(name)] = value
         elif WARN_UNKNOWN_SPECIES:
             warnings.warn(f"Unknown species {name}, skipping...")
 
-    return Y
+    return Y_new
 
 
 def solution_report(sol: ct.composite.Solution | ct.Quantity,
