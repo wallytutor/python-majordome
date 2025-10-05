@@ -91,6 +91,9 @@ except Exception as err:
 def _init_some_class(cls):
     """ Decorator to enhance SomeClass with argument parsing. """
     orig_init = cls.__init__
+    
+    # Maybe stash for later use?
+    # cls.__orig_init__ = orig_init
 
     parser = FuncArguments(greedy_args=False, pop_kw=True)
     parser.add("a", 0)
