@@ -6,7 +6,6 @@ Examples
     :caption: Examples
 
     common_
-    combustion_
     energy_
     fluent_
     radiation_

@@ -60,7 +60,7 @@ exclude_patterns = [
     ".trash/*",              # In SMB disks this may appear here
     ".ipynb_checkpoints/*",  # Keep clean from notebook trash
     "_*.md",                 # Files intended for Pandoc docs
-    "_*.py",                 # Python development files
+    "**/_*.py",              # Python development files
     "*_.md",                 # Sync of .py notebooks
 ]
 
