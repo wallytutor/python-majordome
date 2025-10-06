@@ -39,12 +39,12 @@ class CombustionAtmosphereCHON:
         Basis on which to compute equivalence ratio.
     """
     def __init__(self, mechanism: str, basis: str = "mass") -> None:
-        self._solution = ct.Solution(mechanism)
+        self._solution = Solution(mechanism)
         self._basis = basis
 
     def _state_standard(self, X):
         """ Set internal solution to standard state / composition. """
-        self._solution.TPX = 273.15, ct.one_atm, X
+        self._solution.TPX = 273.15, Constants.P_NORMAL, X
 
     def _state_premix(self, phi, Y_c, Y_o, basis):
         """ Set internal solution to combustion premix composition. """
@@ -52,7 +52,7 @@ class CombustionAtmosphereCHON:
 
     def _state_initial(self, species, oxidizer):
         """ Before combustion: reference state, stoichiometric. """
-        self._solution.TP = 298.15, ct.one_atm
+        self._solution.TP = 298.15, Constants.P_NORMAL
         self._solution.set_equivalence_ratio(1.0, species, oxidizer)
         return self._solution.enthalpy_mass, self._solution[species].Y[0]
 
@@ -267,10 +267,10 @@ class CombustionPowerSupply(AbstractReportable):
             mixer.add_quantity(self._mdot_c, self._Xc)
 
         qty = mixer.solution
-        qty.TP = 298.15, ct.one_atm
+        qty.phase.TP = 298.15, Constants.P_NORMAL
         qty.equilibrate("TP")
 
-        Y = qty.mass_fraction_dict()
+        Y = qty.phase.mass_fraction_dict()
         m_1 = qty.mass * Y.get(h2o, 0.0)
         m_2 = qty.mass * Y.get(co2, 0.0)
 
@@ -405,7 +405,7 @@ class CombustionAtmosphereMixer:
             mass: float,
             X: CompositionType,
             T: float = 273.15,
-            P: float = ct.one_atm
+            P: float = Constants.P_NORMAL
         ) -> ct.Quantity:
         """ Add quantity at given state to global mixture.
 
@@ -622,6 +622,11 @@ class GasFlowEnergySource(CanteraEnergySource):
         """ Provides access to mass flow rate [kg/s]. """
         return self._mdot
 
+    @property
+    def flue(self) -> SolutionLikeType:
+        """ Provides access to flue gas. """
+        return self._fluid
+
 
 def _init_heated_gas_energy_source(cls):
     """ Decorator to enhance HeatedGasEnergySource with argument parsing. """
@@ -674,7 +679,7 @@ class HeatedGasEnergySource(GasFlowEnergySource):
         self._rho = sol.density
         self._temp_ops = sol.T
         self._phase = sol.name
-        self._fluid = sol
+        self._fluid = ct.Quantity(sol, mass=self._mdot)
 
     # -----------------------------------------------------------------------
     # From AbstractEnergySource
@@ -823,7 +828,7 @@ class CombustionEnergySource(GasFlowEnergySource):
     def solution(self) -> Solution:
         """ Provides access to a new Cantera solution object. """
         sol = self._new_solution()
-        sol.TPY = self._qty_flue.TPY
+        sol.TPY = self._qty_flue.phase.TPY
         return sol
 
     # -----------------------------------------------------------------------
@@ -839,8 +844,3 @@ class CombustionEnergySource(GasFlowEnergySource):
     def oxidizer(self) -> CompositionType:
         """ Provides access to used oxidizer. """
         return self._oxid
-
-    @property
-    def flue(self) -> SolutionLikeType:
-        """ Provides access to flue gas. """
-        return self._qty_flue

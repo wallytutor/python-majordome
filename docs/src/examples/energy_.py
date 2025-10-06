@@ -73,7 +73,7 @@ mdot_fuel = source._qty_fuel.mass
 mdot_oxid = source._qty_oxid.mass
 
 nfr_fuel = NormalFlowRate.new_from_solution(source._qty_fuel)
-nfr_oxid = NormalFlowRate.new_from_solution(source._qty_fuel)
+nfr_oxid = NormalFlowRate.new_from_solution(source._qty_oxid)
 
 qdot_fuel = 3600 * mdot_fuel / nfr_fuel.density
 qdot_oxid = 3600 * mdot_oxid / nfr_oxid.density
