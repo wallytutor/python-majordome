@@ -96,7 +96,7 @@ class SolutionDimless:
     """
     def __init__(self, mech: str, *, name = None) -> None:
         supported = ["mixture-averaged"]
-        self._sol = ct.Solution(mech, name)
+        self._sol = ct.composite.Solution(mech, name)
 
         if (model := self._sol.transport_model) not in supported:
             raise ValueError(f"Unsupported transport model {model}")
@@ -119,7 +119,7 @@ class SolutionDimless:
         if val is not None:
             data.append((name, val, args))
 
-    def _diff_coefs(self, vname) -> np.ndarray:
+    def _diff_coefs(self, vname) -> NDArray[np.float64]:
         """ Return required diffusion coefficients. """
         D = getattr(self._sol, vname)
         return D[D > 0]
@@ -281,7 +281,7 @@ class SolutionDimless:
         self._alpha = self._k / (self._rho * self._cp)
 
     @property
-    def solution(self) -> ct.Solution:
+    def solution(self) -> ct.composite.Solution:
         """ Provides handle for setting state of solution. """
         self._reset_memory()
         return self._sol
@@ -321,8 +321,8 @@ class SutherlandFitting:
     name = None
         Name of phase in mechanism if not a single one is present.
     """
-    def __init__(self, mech: str, *, name = None) -> None:
-        self._sol = ct.Solution(mech, name)
+    def __init__(self, mech: str, *, name: str | None = None) -> None:
+        self._sol = ct.composite.Solution(mech, name)
         self._data = None
         self._visc = None
 
@@ -361,7 +361,7 @@ class SutherlandFitting:
         """
         data = []
         visc = pd.DataFrame({"T": T})
-        arr = ct.SolutionArray(self._sol, shape=(T.shape[0],))
+        arr = ct.composite.SolutionArray(self._sol, shape=(T.shape[0],))
 
         for name in self._get_species(species_names):
             arr.TPY = T, P, {name: 1}
@@ -487,17 +487,19 @@ class AbstractWSGG(AbstractRadiationModel):
         self._awts = np.zeros(num_gases)
 
     @property
-    def absorption_coefs(self) -> np.ndarray:
+    def absorption_coefs(self) -> NDArray[np.float64]:
         """ Component gases absorption coefficients [1/m]. """
         return self._kabs
 
     @property
-    def gases_weights(self) -> np.ndarray:
+    def gases_weights(self) -> NDArray[np.float64]:
         """ Fractional weight of model component gases [-]. """
         return self._awts
 
     @staticmethod
-    def eval_emissivity(a: np.ndarray, k: np.ndarray, pL: float) -> float:
+    def eval_emissivity(a: NDArray[np.float64],
+                        k: NDArray[np.float64],
+                        pL: float) -> NDArray[np.float64]:
         """ Compute integral emissivity over optical path. """
         return a * (1 - np.exp(-k * pL))
 

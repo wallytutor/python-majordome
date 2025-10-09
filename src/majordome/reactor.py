@@ -107,38 +107,14 @@ def composition_to_array(Y: str, species_names: list[str]
     return Y_new
 
 
-def solution_report(sol: ct.composite.Solution | ct.Quantity,
+def _solution_report(sol: ct.composite.Solution,
+                     qty: ct.composite.Quantity | None = None,
                     specific_props: bool = True,
                     composition_spec: str = "mass",
                     selected_species: list[str] = [],
                     **kwargs,
                     ) -> list[tuple[str, str, Any]]:
-    """ Generate a solution report for tabulation.
-
-    Parameters
-    ----------
-    sol: ct.Solution
-        Cantera solution object for report generation.
-    specific_props: bool = True
-        If true, add specific heat capacity and enthalpy.
-    composition_spec: str = "mass"
-        Composition units specification, `mass` or `mole`.
-    selected_species: list[str] = []
-        Selected species to display; return all if a composition
-        specification was provided.
-
-    Raises
-    ------
-    ValueError
-        If in invalid composition specification is provided.
-        If species filtering lead to an empty set of compositions.
-
-    Returns
-    -------
-    list[tuple[str, str, Any]]
-        A list of data entries intended to be displayed externally,
-        *e.g.* with `tabulate.tabulate` or appended.
-    """
+    """ Generate a solution report for tabulation, see `solution_report`. """
     report = [("Temperature", "K", sol.T), ("Pressure", "Pa",sol.P),
               ("Density", "kg/m³", sol.density_mass)]
 
@@ -163,23 +139,66 @@ def solution_report(sol: ct.composite.Solution | ct.Quantity,
         for species, X in comp.items():
             report.append((f"{composition_spec}: {species}", "-", X))
 
-    if isinstance(sol, ct.Quantity) and kwargs.get("show_mass", False):
-        report.append(("Mass", "kg", sol.mass))
+    if qty is not None and kwargs.get("show_mass", False):
+        report.append(("Mass", "kg", qty.mass))
 
     return report
 
 
+def solution_report(sol: SolutionLikeType,
+                    specific_props: bool = True,
+                    composition_spec: str = "mass",
+                    selected_species: list[str] = [],
+                    **kwargs,
+                    ) -> list[tuple[str, str, Any]]:
+    """ Generate a solution report for tabulation.
+
+    Parameters
+    ----------
+    sol: SolutionLikeType
+        Cantera solution object for report generation.
+    specific_props: bool = True
+        If true, add specific heat capacity and enthalpy.
+    composition_spec: str = "mass"
+        Composition units specification, `mass` or `mole`.
+    selected_species: list[str] = []
+        Selected species to display; return all if a composition
+        specification was provided.
+
+    Raises
+    ------
+    ValueError
+        If in invalid composition specification is provided.
+        If species filtering lead to an empty set of compositions.
+
+    Returns
+    -------
+    list[tuple[str, str, Any]]
+        A list of data entries intended to be displayed externally,
+        *e.g.* with `tabulate.tabulate` or appended.
+    """
+    if isinstance(sol, ct.composite.Quantity):
+        qty = sol
+        sol = qty.phase
+    else:
+        qty = sol
+
+    return _solution_report(sol, qty, specific_props, composition_spec,
+                            selected_species, **kwargs)
+
+
+
 def copy_solution(sol: ct.composite.Solution) -> ct.composite.Solution:
-    """ Makes a hard copy of a ct.Solution object. """
+    """ Makes a hard copy of a Solution object. """
     new_sol = ct.composite.Solution(sol.source, sol.name)
     new_sol.TPY = sol.TPY
     return new_sol
 
 
 def copy_quantity(qty: ct.composite.Quantity) -> ct.composite.Quantity:
-    """ Makes a hard copy of a ct.Quantity object. """
+    """ Makes a hard copy of a ct.composite.Quantity object. """
     sol = copy_solution(qty.phase)
-    return ct.Quantity(sol, mass=qty.mass, constant=qty.constant)
+    return ct.composite.Quantity(sol, mass=qty.mass, constant=qty.constant)
 
 
 class NormalFlowRate:
@@ -195,10 +214,10 @@ class NormalFlowRate:
     ----------
     mech: str | Path
         Path to Cantera mechanism used to compute mixture properties.
-    X: CompositionType = None
+    X: CompositionType | None = None
         Composition specification in mole fractions. Notice that both
         `X` and `Y` are mutally exclusive keyword arguments.
-    Y: CompositionType = None
+    Y: CompositionType | None = None
         Composition specification in mass fractions. Notice that both
         `X` and `Y` are mutally exclusive keyword arguments.
     T_ref: float = T_NORMAL
@@ -209,17 +228,17 @@ class NormalFlowRate:
         Reference pressure of the system. If your industry does not
         use the same standard as the default values, and only in that
         case, please consider updating this keyword.
-    name: str = None
+    name: str | None = None
         Name of phase in mechanism, if more than one are specified
         within the same Cantera YAML database file.
     """
-    def __init__(self, mech: str | Path, *, X: CompositionType = None,
-                 Y: CompositionType = None, T_ref: float = T_NORMAL,
-                 P_ref: float = P_NORMAL, name: str = None) -> None:
+    def __init__(self, mech: str | Path, *, X: CompositionType | None = None,
+                 Y: CompositionType | None = None, T_ref: float = T_NORMAL,
+                 P_ref: float = P_NORMAL, name: str | None = None) -> None:
         if X is not None and Y is not None:
             raise ValueError("You can provide either X or Y, not both!")
 
-        self._sol = ct.Solution(mech, name)
+        self._sol = ct.composite.Solution(mech, name)
         self._sol.TP = T_ref, P_ref
 
         if X is not None:
@@ -260,7 +279,7 @@ class NormalFlowRate:
     def new_from_solution(cls, sol: SolutionLikeType, **kwargs
                           ) -> "NormalFlowRate":
         """ Creates a new NormalFlowRate from a Cantera solution. """
-        if isinstance(sol, ct.Quantity):
+        if isinstance(sol, ct.composite.Quantity):
             source = sol.phase.source
             name = sol.phase.name
             X = sol.phase.mole_fraction_dict()
@@ -353,9 +372,9 @@ class PlugFlowChainCantera:
         self._advance_steady_cantera = cantera_steady
 
         # Create solutions from compatible mechanism:
-        self._f_sources = ct.Solution(mechanism, phase, basis="mass")
-        self._f_content = ct.Solution(mechanism, phase, basis="mass")
-        self._f_outflow = ct.Solution(mechanism, phase, basis="mass")
+        self._f_sources = ct.composite.Solution(mechanism, phase, basis="mass")
+        self._f_content = ct.composite.Solution(mechanism, phase, basis="mass")
+        self._f_outflow = ct.composite.Solution(mechanism, phase, basis="mass")
 
         # Enforce operating pressure:
         self._f_sources.TP = None, self._P
@@ -409,16 +428,16 @@ class PlugFlowChainCantera:
         self._ext_index = None
         self._ext_flow = None
 
-    def _source(self, m, h, Y) -> ct.Quantity | None:
+    def _source(self, m, h, Y) -> ct.composite.Quantity | None:
         """ Update source if any flow is available. """
         if m <= 0.0:
             return None
 
         self._f_sources.HPY = h, self._P, Y
         self._r_sources.syncState()
-        return ct.Quantity(self._f_sources, mass=m)
+        return ct.composite.Quantity(self._f_sources, mass=m)
 
-    def _inflow(self, m, h, Y, qty_prev) -> ct.Quantity:
+    def _inflow(self, m, h, Y, qty_prev) -> ct.composite.Quantity | None:
         """ Select next quantity ensuring at least one is specified. """
         qty_srcs = self._source(m, h, Y)
 
@@ -440,7 +459,7 @@ class PlugFlowChainCantera:
         self._states[n_slice].m_cell = self._r_content.mass
         self._states[n_slice].mdot_cell = self._vlv.mass_flow_rate
 
-    def _guess(self, n_slice, qty_next) -> ct.Quantity:
+    def _guess(self, n_slice, qty_next) -> ct.composite.Quantity:
         """ Guess next state based on previous one. """
         if self._has_solution:
             return self._states[n_slice].HPY
@@ -527,9 +546,9 @@ class PlugFlowChainCantera:
             return_residuals   = False
         )
 
-    def _next_quantity(self, mass) -> ct.Quantity:
+    def _next_quantity(self, mass) -> ct.composite.Quantity:
         """ Compute quantity to be used as source in next step. """
-        return ct.Quantity(self._r_content.thermo, mass=mass)
+        return ct.composite.Quantity(self._r_content.thermo, mass=mass)
 
     def _ensure_solution(self):
         """ Ensure that a solution is available. """
@@ -552,8 +571,11 @@ class PlugFlowChainCantera:
         """ Provides registration of heat flux function. """
         self._ext_flow = func
 
-    def loop(self, m_source: np.ndarray, h_source: np.ndarray,
-             Y_source: np.ndarray, Q: np.ndarray = None,
+    def loop(self,
+             m_source: NDArray[np.float64],
+             h_source: NDArray[np.float64],
+             Y_source: NDArray[np.float64],
+             Q: NDArray[np.float64] | None = None,
              save_history: bool = False, **opts) -> pd.DataFrame | None:
         """ Loop over the slices of the plug-flow reactor.
 
