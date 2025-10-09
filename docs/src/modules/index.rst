@@ -8,7 +8,5 @@ API Docs
     common
     energy
     fluent
-    plug
-    radiation
     reactor
     transport

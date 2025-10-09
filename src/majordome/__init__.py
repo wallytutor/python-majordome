@@ -97,74 +97,54 @@ __all__ += [
 ]
 
 # ---------------------------------------------------------------------
-# majordome.plug
-# ---------------------------------------------------------------------
-
-from .plug import (
-    PlugFlowAxialSources,
-    PlugFlowChainCantera,
-    get_reactor_data,
-)
-
-__all__ += [
-    "PlugFlowAxialSources",
-    "PlugFlowChainCantera",
-    "get_reactor_data",
-]
-
-# ---------------------------------------------------------------------
-# majordome.radiation: considered internals, do not expose
-# AbstractRadiationModel, ...
-# ---------------------------------------------------------------------
-
-from .radiation import (
-    AbstractWSGG,
-    WSGGRadlibBordbar2020,
-)
-
-__all__ += [
-    "AbstractWSGG",
-    "WSGGRadlibBordbar2020",
-]
-
-# ---------------------------------------------------------------------
 # majordome.reactor
 # ---------------------------------------------------------------------
 
 from .reactor import (
     NormalFlowRate,
+    PlugFlowAxialSources,
+    PlugFlowChainCantera,
     toggle_reactor_warnings,
     composition_to_dict,
     composition_to_array,
     solution_report,
     copy_solution,
     copy_quantity,
+    get_reactor_data,
 )
 
 __all__ += [
     "NormalFlowRate",
+    "PlugFlowAxialSources",
+    "PlugFlowChainCantera",
     "toggle_reactor_warnings",
     "composition_to_dict",
     "composition_to_array",
     "solution_report",
     "copy_solution",
     "copy_quantity",
+    "get_reactor_data",
 ]
 
 # ---------------------------------------------------------------------
-# majordome.transport
+# majordome.transport: considered internals, do not expose
+# AbstractRadiationModel, ...
 # ---------------------------------------------------------------------
 
 from .transport import (
     EffectiveThermalConductivity,
     SolutionDimless,
     SutherlandFitting,
+    AbstractWSGG,
+    WSGGRadlibBordbar2020,
 )
 
 __all__ += [
     "EffectiveThermalConductivity",
     "SolutionDimless",
     "SutherlandFitting",
+    "AbstractWSGG",
+    "WSGGRadlibBordbar2020",
 ]
 
 def toggle_warnings(**kwargs):

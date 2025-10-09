@@ -1,6 +1,6 @@
 # majordome.reactor
 
-## Utilities
+## General utilities
 
 ```{eval-rst}
 .. autoclass:: majordome.reactor.NormalFlowRate
@@ -14,4 +14,20 @@
 .. autofunction:: majordome.reactor.solution_report
 .. autofunction:: majordome.reactor.copy_solution
 .. autofunction:: majordome.reactor.copy_quantity
+```
+
+## Plug-flow reactors (PFR)
+
+```{eval-rst}
+.. autoclass:: majordome.reactor.PlugFlowChainCantera
+    :members:
+```
+
+### PFR utilities
+
+```{eval-rst}
+.. autoclass:: majordome.reactor.PlugFlowAxialSources
+    :members:
+
+.. autofunction:: majordome.reactor.get_reactor_data
 ```
