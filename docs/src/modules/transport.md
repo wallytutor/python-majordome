@@ -26,3 +26,20 @@ In some fields of research, such as porous media or composite materials, the eva
 .. autoclass:: majordome.transport.SutherlandFitting
     :members:
 ```
+
+## Radiation properties
+
+```{eval-rst}
+.. autoclass:: majordome.transport.WSGGRadlibBordbar2020
+    :members:
+```
+
+### Internals
+
+```{eval-rst}
+.. autoclass:: majordome.transport.AbstractRadiationModel
+    :members:
+
+.. autoclass:: majordome.transport.AbstractWSGG
+    :members:
+```

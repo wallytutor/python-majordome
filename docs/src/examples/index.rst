@@ -8,6 +8,5 @@ Examples
     common_
     energy_
     fluent_
-    radiation_
     reactor_
     transport_
