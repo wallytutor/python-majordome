@@ -138,7 +138,7 @@ P_NORMAL = Constants.P_NORMAL
 CompositionType = str | dict[str, float]
 """ Input type for Cantera composition dictionaries. """
 
-SolutionLikeType = ct.composite.Solution | ct.Quantity
+SolutionLikeType = ct.composite.Solution | ct.composite.Quantity
 """ Input type for Cantera solution objects. """
 
 class StateType(NamedTuple):
@@ -433,9 +433,16 @@ def report_title(title: str, report: str) -> str:
     return dedent(f"""\n{title}\n{len(title) * "-"}\n""") + report
 
 
-def safe_remove(target_list: list, to_remove: list, inplace: bool = False) -> list:
+def safe_remove(target_list: list[Any], to_remove: list[Any] | None, 
+                inplace: bool = False) -> list:
     """ Safely remove elements from a list and return it. """
+    if not isinstance(target_list, list):
+        raise TypeError("`target_list` must be a list")
+
     the_clist = target_list if inplace else target_list.copy()
+
+    # XXX not really necessary but avoids some checks later.
+    to_remove = to_remove if to_remove is not None else []
 
     # Support an empty/None to_remove list.
     if not to_remove:
