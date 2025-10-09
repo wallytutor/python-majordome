@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from IPython.core.getipython import get_ipython
 import os
 
 LOOKUP_STR2BOOL = {"true": True,   "1": True,  "yes": True,
@@ -23,7 +24,9 @@ def skipper(flag: str, cell: str | None = None) -> None:
     if (value := _get_environment_flag(flag)):
         print(f"Skipping cell: {flag}={value}")
         return
-    get_ipython().run_cell(cell)
+
+    if (ip := get_ipython()) is not None:
+        ip.run_cell(cell)
 
 
 def load_ipython_extension(shell) -> None:
