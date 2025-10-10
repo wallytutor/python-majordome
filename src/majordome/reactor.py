@@ -520,6 +520,7 @@ class PlugFlowChainCantera:
 
         try:
             self._net.reinitialize()
+            self._net.initial_time = 0.0
 
             # TODO maybe consider this stepping instead?
             # t_now = 0
@@ -539,6 +540,7 @@ class PlugFlowChainCantera:
 
         # Reinitialize reactor network and advance to steady state:
         self._net.reinitialize()
+        self._net.initial_time = 0.0
         self._net.advance_to_steady_state(
             max_steps          = opts.get("max_step", 10000),
             residual_threshold = opts.get("residual_threshold", 0),
