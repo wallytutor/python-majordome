@@ -183,6 +183,8 @@ model = WSGGRadlibBordbar2020()
 model(L=1, T=1000, P=101325, x_h2o=0.18, x_co2=0.08, fvsoot=0.0)
 
 
+# ### Validation of Bordbar WSGG implementation
+
 # Evaluation of the model against original source of Bordbar (2014) is satisfactory, as follows:
 
 @standard_plot(shape=(1, 2))
@@ -238,3 +240,29 @@ model.absorption_coefs[1:]
 
 model(L=1, T=300, P=101325, x_h2o=1, x_co2=0)
 model.absorption_coefs[1:]
+
+# ### Application to radiative combustion
+
+# Below we illustrate the application of `WSGGRadlibBordbar2020` to predict the emissivity of  $x\mathrm{H_2O}-(1-x)\mathrm{CO_2}$ mixtures over a broad temperature range applicable to the analysis of combustion processes. One observes an important participation of flue gases, especially at lower temperatures.
+
+# +
+wsgg = WSGGRadlibBordbar2020()
+
+@np.vectorize
+def emissivity(T, X, L=1, P=101325):
+    return wsgg(L=L, T=T, P=P, x_h2o=X, x_co2=1-X, fvsoot=0.0)
+
+T = np.linspace(800, 2400, 100)
+X = np.linspace(0, 1, 100)
+
+xy = np.meshgrid(T, X)
+eps = emissivity(*xy)
+
+plt.close("all")
+fig, ax = plt.subplots(figsize=(6, 5), facecolor="white")
+cf = ax.contourf(T, X, eps, cmap="inferno")
+cbar = ax.figure.colorbar(cf, ax=ax, shrink=0.9)
+ax.set_title(r"Emissivity on $x\mathrm{H_2O}-(1-x)\mathrm{CO_2}$ mixtures")
+ax.set_xlabel("Temperature [K]")
+ax.set_ylabel("Water content [-]")
+fig.tight_layout()
