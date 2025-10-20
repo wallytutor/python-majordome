@@ -444,7 +444,7 @@ def plot_step(df, fig, ax):
     ax[1].plot(bcc_stable['W(N)'], bcc_stable['W(BCC_A2,N)'], label='BCC')
     ax[1].plot(fcc_stable['W(N)'], fcc_stable['W(FCC_A1,N)'], label='FCC')
     ax[1].set_xlabel('Total nitrogen mass fraction [-]')
-    ax[1].set_ylabel('Nitrogen phase fraction in phase [-]')
+    ax[1].set_ylabel('Nitrogen mass fraction in phase [-]')
     ax[1].grid(linestyle=':')
     ax[1].legend(loc='best')
 
