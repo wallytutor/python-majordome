@@ -8,5 +8,6 @@ Majordome
     examples/index
     advanced/index
     modules/index
+    teaching/index
     developers/index
     references

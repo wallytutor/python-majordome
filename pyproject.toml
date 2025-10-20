@@ -8,6 +8,7 @@ name = "majordome"
 version = "0.5.0"
 dependencies = [
     "cantera>=3",
+    "casadi>=3.7.2",
     "ipython>=9.4.0",
     "matplotlib>=3",
     "numpy>2",
@@ -24,7 +25,7 @@ authors = [
 ]
 description = "General utilities for scientific Python and numerical simulation."
 readme = "README.md"
-license = "MIT" 
+license = "MIT"
 license-files = ["LICENSE"]
 keywords = ["scientific", "simulation", "utilities", "python"]
 classifiers = [
