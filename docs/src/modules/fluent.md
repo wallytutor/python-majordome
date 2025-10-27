@@ -1,8 +1,11 @@
 # majordome.fluent
 
-## Handling of interpolation files
+## Handling of exported data files
 
 ```{eval-rst}
+.. autoclass:: majordome.fluent.FluentFvParticlesParser
+    :members:
+
 .. autoclass:: majordome.fluent.FluentInterpolationParser
     :members:
 ```
