@@ -1,14 +1,108 @@
 # -*- coding: utf-8 -*-
-from io import StringIO
+from io import StringIO, TextIOWrapper
 from pathlib import Path
+from typing import Iterator
 from numpy.typing import NDArray
-from pyparsing import OneOrMore
-from pyparsing import Word
-from pyparsing import Suppress
+from pyparsing import OneOrMore, Word, Suppress
 import mmap
 import numpy as np
 import pandas as pd
 import pyparsing as pp
+
+
+class FluentFvParticlesParser:
+    """ Provides parsing of exported Fluent FVPARTICLES files.
+
+    Parameters
+    ----------
+    fname: str | Path
+        Path to `.<fvp>` file to be parsed; file must be stored in plain
+        text format, by default in UTF-8 encoding.
+    encoding: str = "utf-8"
+        Encoding type for reading the file.
+    max_tracks: int = 100_000
+        Maximum number of tracks to be parsed from file.
+    """
+    __slots__ = ("_names", "_tracks", "_size")
+
+    def __init__(self, fname: str | Path, encoding: str = "utf-8",
+                 max_tracks: int = 100_000) -> None:
+        if not Path(fname).exists():
+            raise FileNotFoundError(f"Fluent IP file not found {fname}")
+
+        with open(fname, "r", encoding=encoding) as fp:
+            self._parse_manager(fp, max_tracks)
+
+    def _parse_manager(self, fp: TextIOWrapper, max_tracks: int):
+        """ Handle memory mapping with read-only access for parsing. """
+        with mmap.mmap(fp.fileno(), 0, access=mmap.ACCESS_READ) as mm:
+            parser = iter(mm.readline, b"")
+            self._parse_header(parser)
+
+            n_tracks = 0
+            self._tracks = []
+
+            while n_tracks < max_tracks:
+                try:
+                    current = self._parse_track(parser)
+                    self._tracks.append(current)
+                    n_tracks += 1
+                except StopIteration:
+                    break
+
+            self._size = n_tracks
+
+    def _parse_header(self, parser: Iterator):
+        """ Manage parsing of header information. """
+        def variable_name(text):
+            return "_".join(text.decode().split()[1:]).lower()
+
+        # FVPARTICLES n m
+        _n, _m = next(parser).decode().split()[1:]
+
+        # Tag Names
+        next(parser).decode()
+        _tags = next(parser).decode()
+
+        # Variable Names
+        next(parser).decode()
+        n_vars = int(next(parser).decode())
+        names = [variable_name(next(parser)) for _ in range(n_vars)]
+        self._names = ["x", "y", "z", *names]
+
+    def _parse_track(self, parser: Iterator):
+        """ Manage parsing of a single track data. """
+        n_cols = len(self._names)
+        n_rows = int(next(parser).decode())
+        current = np.empty((n_rows, n_cols), float)
+
+        for i in range(n_rows):
+            data = map(float, next(parser).decode().split())
+            current[i, :] = list(data)
+
+        return current
+
+    def __getitem__(self, i: int) -> pd.DataFrame:
+        """ Retrieve track data as a data frame. """
+        if i >= self._size:
+            raise IndexError(f"Track index {i} out of range [0:{self._size})")
+
+        return pd.DataFrame(self._tracks[i], columns=self._names)
+
+    @property
+    def n_tracks(self) -> int:
+        """ Provides access to number of tracks parsed. """
+        return self._size
+
+    @property
+    def variable_names(self) -> list[str]:
+        """ Provides access to list of variables names. """
+        return self._names
+
+    @property
+    def data(self) -> list[NDArray[np.float64]]:
+        """ Provides access to list of tracks data. """
+        return self._tracks
 
 
 class FluentInterpolationParser:

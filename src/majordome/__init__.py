@@ -81,6 +81,7 @@ __all__ += [
 # ---------------------------------------------------------------------
 
 from .fluent import (
+    FluentFvParticlesParser,
     FluentInterpolationParser,
     FluentInputRow,
     FluentInputFile,
@@ -89,6 +90,7 @@ from .fluent import (
 )
 
 __all__ += [
+    "FluentFvParticlesParser",
     "FluentInterpolationParser",
     "FluentInputRow",
     "FluentInputFile",

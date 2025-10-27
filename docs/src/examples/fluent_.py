@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.17.3
+#       jupytext_version: 1.18.0
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -18,7 +18,24 @@
 # %load_ext autoreload
 # %autoreload 2
 
-from majordome import FluentInterpolationParser
+from majordome import (
+    FluentFvParticlesParser,
+    FluentInterpolationParser
+)
+
+# ## Parsing particle track files
+
+# Fluent export DPM results in several formats; `majordome` supports *fieldview* particle tracks through `FluentFvParticlesParser`. Loading a file is as simple as:
+
+dpm = FluentFvParticlesParser("data/sample.fvp")
+
+# You can retrieve the names of columns and number of individual tracks with the following properties:
+
+dpm.variable_names, dpm.n_tracks
+
+# For convenience, tracks can be recovered as data frames through object indexing:
+
+dpm[0]
 
 # ## Parsing interpolation files
 
