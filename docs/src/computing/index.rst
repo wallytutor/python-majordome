@@ -14,6 +14,7 @@ Computing
     system-linux
     programming/introduction
     programming/julia
+    programming/racket
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
