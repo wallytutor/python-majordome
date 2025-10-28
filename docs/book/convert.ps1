@@ -17,6 +17,7 @@ $files = @(
     "$bookDir\programming\introduction.md"
     "$bookDir\programming\julia.md"
     "$bookDir\programming\racket.md"
+    "$bookDir\programming\haskell.md"
     "$bookDir\ansys-fluent\tui.md"
     "$bookDir\elmer-csc\elmer.md"
     "$bookDir\general-tips.md"
