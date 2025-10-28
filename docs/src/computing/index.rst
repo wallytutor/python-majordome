@@ -9,3 +9,4 @@ Computing
     tools-containers
     ansys-fluent/tui
     elmer-csc/elmer
+    general-tips
