@@ -31,7 +31,7 @@ function Invoke-ConfigurePython() {
     if (!(Test-Path $pythonLock)) {
         Piperish install --upgrade pip
         Piperish install -r "$env:KOMPANION_SRC\data\requirements.txt"
-        Piperish install -e "$env:KOMPANION_DIR\."
+        Piperish install -e "$env:KOMPANION_DIR"
         New-Item -ItemType File -Path $pythonLock -Force | Out-Null
     }
 }
