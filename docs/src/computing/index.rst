@@ -5,6 +5,7 @@ Computing
     :maxdepth: 2
     :caption: Computing
 
+    introduction
     tools-git
     tools-ssh
     tools-containers
