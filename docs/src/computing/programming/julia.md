@@ -1,4 +1,4 @@
-## Julia
+## Julia language
 
 Julia from zero to hero (for Scientific Computing)!
 
