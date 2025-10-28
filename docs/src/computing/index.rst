@@ -13,6 +13,7 @@ Computing
     system-windows
     system-linux
     programming/introduction
+    programming/julia
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
