@@ -1,0 +1,232 @@
+{
+    //////////////////////////////////////////////////////////////////////////
+    // GENERAL
+    //////////////////////////////////////////////////////////////////////////
+
+    // No update: we wish to keep Kompanion portable and self-contained.
+    "update.mode": "none",
+
+    //////////////////////////////////////////////////////////////////////////
+    // EXPLORER
+    //////////////////////////////////////////////////////////////////////////
+
+    // Do not expand file tree for the current file path
+    "explorer.autoReveal": false,
+
+    // Do not ask about reordering projects:
+    "explorer.confirmDragAndDrop": false,
+
+    //////////////////////////////////////////////////////////////////////////
+    // EXTENSIONS
+    //////////////////////////////////////////////////////////////////////////
+
+    // Ignore all extension proposals; also block auto-update so that
+    // personal/local extensions are not deleted on start-up.
+    "extensions.ignoreRecommendations": true,
+    "extensions.autoUpdate": false,
+
+    //////////////////////////////////////////////////////////////////////////
+    // WORKBENCH
+    //////////////////////////////////////////////////////////////////////////
+
+    // On startup do not show anything:
+    "workbench.startupEditor": "none",
+
+    // Do hide label, show icons:
+    "workbench.panel.showLabels": false,
+
+    // Make tree levels more readable when expanded:
+    "workbench.tree.indent": 12,
+
+    // Use the Julia theme:
+    // "workbench.colorTheme": "Julia (Monokai Vibrant)",
+    "workbench.iconTheme": "vscode-icons",
+
+    // Add a clearly visible ruler (language dependent position):
+    "workbench.colorCustomizations": {
+        "editorRuler.foreground": "#ff4081"
+    },
+
+    // Place elements on top of side bar:
+    "workbench.activityBar.location": "top",
+
+    //////////////////////////////////////////////////////////////////////////
+    // EDITOR / DIFFEDITOR
+    //////////////////////////////////////////////////////////////////////////
+
+    // Do not ignore white space:
+    "diffEditor.ignoreTrimWhitespace": false,
+
+    // Do not display minimap on side of document:
+    "editor.minimap.enabled": false,
+
+    // Do not show pop-ups all the time:
+    "editor.parameterHints.enabled": false,
+
+    // Use Ctrl to multi-selection:
+    "editor.multiCursorModifier": "ctrlCmd",
+
+    // Folding parameters:
+    "editor.foldingStrategy": "indentation",
+    "editor.showFoldingControls": "always",
+
+    // Rulers at specific character counts:
+    "editor.rulers": [72, 79, 90, 100],
+
+    // Indentation and font size settings:
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
+    "editor.fontSize": 13,
+    "editor.lineHeight": 15,
+
+    // Specific settings for JSONC files (mainly this file):
+    "[jsonc]": {
+        "editor.tabSize": 4,
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+
+    //////////////////////////////////////////////////////////////////////////
+    // FILES
+    //////////////////////////////////////////////////////////////////////////
+
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.trimFinalNewlines": true,
+
+    "files.associations": {
+        ".jou": "lisp",
+        ".scm": "lisp",
+        "*.matc": "FortranFreeForm",
+        "*Dict": "OpenFOAM",
+        "*Properties": "OpenFOAM",
+        "fvSchemes": "OpenFOAM",
+        "fvSolution": "OpenFOAM",
+        "**/constant/g": "OpenFOAM",
+        "**/0/*": "OpenFOAM",
+    },
+
+    "files.exclude": {
+        "**/__pycache__/*": true,
+        "**/.ipynb_checkpoints/*": true,
+        "**/*.mod": true
+    },
+
+    //////////////////////////////////////////////////////////////////////////
+    // GIT
+    //////////////////////////////////////////////////////////////////////////
+
+    "git.enabled": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.openRepositoryInParentFolders": "never",
+    "git.ignoreMissingGitWarning": true,
+
+    //////////////////////////////////////////////////////////////////////////
+    // PYTHON
+    //////////////////////////////////////////////////////////////////////////
+
+    "python-envs.pythonProjects": [
+        {
+            "path": "",
+            "envManager": "ms-python.python:system",
+            "packageManager": "ms-python.python:pip"
+        }
+    ],
+
+    "[python]": {
+        "editor.tabSize": 4
+    },
+
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.stubPath": "./typings",
+    "python.analysis.typeCheckingMode": "standard",
+    "python.createEnvironment.trigger": "off",
+    "python.defaultInterpreterPath": "${env:PYTHON_HOME}\\python\\python.exe",
+    "python.useEnvironmentsExtension": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+
+    //////////////////////////////////////////////////////////////////////////
+    // JULIA
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // HASKELL
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // RACKET
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // FORTRAN
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // LATEX
+    //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // GITHUB COPILOT
+    //////////////////////////////////////////////////////////////////////////
+
+    "github.copilot.nextEditSuggestions.enabled": true,
+
+
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false,
+        "python": true
+    },
+
+    // XXX: use Copilot behing a proxy!
+    "win-ca.inject": "append",
+
+    //////////////////////////////////////////////////////////////////////////
+    // TERMINAL
+    //////////////////////////////////////////////////////////////////////////
+
+    // Do not ask for confirmation when pasting multiple lines:
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+
+    // Do not show sticky scroll:
+    "terminal.integrated.stickyScroll.enabled": false,
+
+    // Use a bit smaller font in terminal:
+    "terminal.integrated.fontSize": 12,
+
+    "terminal.integrated.profiles.windows": {
+        "Git Bash": null,
+        "JavaScript Debug Terminal": null,
+        "MATLAB": null,
+
+        "Kompanion PowerShell": {
+            "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "args": [
+                "-NoProfile",
+                "-NoExit",
+                "-Command",
+                ". ${env:KOMPANION_SRC}\\main.ps1"
+            ]
+        },
+    },
+
+    "terminal.integrated.defaultProfile.windows": "Kompanion PowerShell",
+
+    //////////////////////////////////////////////////////////////////////////
+    // OTHER
+    //////////////////////////////////////////////////////////////////////////
+
+    "vsicons.dontShowNewVersionMessage": true,
+
+    "security.allowedUNCHosts": [
+        "10.13.52.2"
+    ],
+
+    "remote.SSH.remotePlatform": {
+        "10.13.52.2": "linux",
+        "frontal": "linux"
+    },
+}
