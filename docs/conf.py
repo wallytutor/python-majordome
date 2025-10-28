@@ -103,7 +103,7 @@ myst_enable_extensions = [
 ]
 
 # Include references
-bibtex_bibfiles = ["references.bib"]
+bibtex_bibfiles = ["book/references.bib"]
 
 ##############################################################################
 # Notebook samples support
@@ -113,7 +113,7 @@ bibtex_bibfiles = ["references.bib"]
 # nbsphinx_allow_errors = True
 
 # When to execute notebooks (always, never, or auto):
-nbsphinx_execute = "always" 
+nbsphinx_execute = "always"
 
 # XXX: notebooks need to be stored with a special extension .nbmd because
 # otherwise myst and nbsphinx parsers will conflict... because jupytext
