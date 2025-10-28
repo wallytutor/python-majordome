@@ -1,10 +1,10 @@
-## Julia language
+# Julia language
 
 Julia from zero to hero (for Scientific Computing)!
 
 **Important:** the following course may assume you are using a redistributable version of Julia packaged as described [here](https://github.com/wallytutor/julia101/tree/main). This might be useful for instructors willing to work without internet access.
 
-### Julia 101
+## Julia 101
 
 Welcome to Julia 101!
 
@@ -20,7 +20,7 @@ Our goal in this course is not to master Julia or even pretend you have learned 
 
 This is probably your first time learning Julia. If you got here by other means than the main index, please consider reading the introduction of this document. Next, you can launch a terminal and try running Julia by simply typing `julia` and pressing return. For this introductory course I assume you are using [VS Code](https://code.visualstudio.com/) for which you might also wish to install the recommended extensions.
 
-#### REPL basics
+### REPL basics
 
 Julia's REPL (read-eval-print loop) is an interactive environment where you execute code as you write. It's main goal is to manage Julia, test code snippets, get help, and launch larger chunks of code.
 
@@ -59,7 +59,7 @@ search: methods Method methodswith hasmethod
 
 Try by yourself and run `add Polynomials` from package manager mode (we will need it later); what do you get if you check the `status` again?
 
-#### Julia as a calculator
+### Julia as a calculator
 
 The following example should speak by itself:
 
@@ -215,7 +215,7 @@ julia> 1 + eps()
 1.0000000000000002
 ```
 
-#### Vectors and matrices
+### Vectors and matrices
 
 Let's start once again with no words:
 
@@ -278,7 +278,7 @@ julia> LinRange(0, 100, 101)
  0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, …, 93.0, 94.0, 95.0, 96.0, 97.0, 98.0, 99.0, 100.0
 ```
 
-#### Representing text
+### Representing text
 
 The uninformed think the numerical people need not to know how to manipulate text; that is completely wrong. An important amount of time in the conception of a simulation code or data analysis is simply *string* manipulation.
 
@@ -315,7 +315,7 @@ julia> @info("""
 └ You can also display the value of x = 2.3
 ```
 
-#### Tuples and dictionaries
+### Tuples and dictionaries
 
 Tuples are immutable data containers; they consist *their own type*.
 
@@ -358,7 +358,7 @@ Dict{String, Float64} with 3 entries:
   "N2"  => 0.02
 ```
 
-#### A first function
+### A first function
 
 A function can be created in a single line:
 
@@ -426,7 +426,7 @@ normal(x; mu, sigma)
      @ Main REPL[108]:1
 ```
 
-#### Using modules
+### Using modules
 
 One can import all functionalities from a given module with `using ModuleName`; that is generally not what we want in complex programs (because of name clashes). If only a few functionalities of a given module will be used, then proceed as follows:
 
@@ -454,7 +454,7 @@ julia> ST.mean(rand(1000))
 
 By the way, we used built-in random number generation in the above example.
 
-#### Calling Python
+### Calling Python
 
 ```julia-repl
 julia> using PythonCall
@@ -518,7 +518,7 @@ julia> println(gas.report())
      [  +33 minor]        3.0931e-14        1.9711e-14
 ```
 
-#### Things to learn
+### Things to learn
 
 - Regular expressions and text parsing
 - Annotating types in functions
@@ -529,7 +529,7 @@ julia> println(gas.report())
     - [For Loop (for...end)](https://www.youtube.com/watch?v=4cg9UuG2G4g&list=PLhQ2JMBcfAsiu2BjeDuj0OXxD1Or_FjID&index=20)
     - [For Loop over collection](https://www.youtube.com/watch?v=2ixUMtFttsI&list=PLhQ2JMBcfAsiu2BjeDuj0OXxD1Or_FjID&index=21)
 
-#### Pluto environment
+### Pluto environment
 
 Before going further, learn some Markdown! Please notice that Markdown has no standard and not all of GitHub's markdown works in Pluto (although most of it will be just fine). Here you find some recommendations:
 
@@ -570,7 +570,7 @@ Your goal:
 
 ![Newton cooling](media/newton_cooling.png)
 
-#### Going further
+### Going further
 
 - [Julia Documentation](https://docs.julialang.org/en/v1/): in this page you find the whole documentation of Julia.
 
@@ -596,7 +596,7 @@ Your goal:
 
 - [JuliaHub](https://juliahub.com/): this company proposes a cloud platform (non-free) for performing computations with Julia. In its page you find a few useful and good quality learning materials.
 
-#### A few Julia organizations
+### A few Julia organizations
 
 - [SciML](https://sciml.ai/): don't be tricked by its name, its field of application goes way beyond what we understand by Machine Learning. SciML is probably the best curated set of open source scientific tools out there. Take a look at the list of available packages [here](https://docs.sciml.ai/Overview/stable/overview/). This last link is probably the best place to search for a generic package for Scientific Computing.
 
@@ -608,13 +608,13 @@ Your goal:
 
 - [JuliaMolsim](https://juliamolsim.github.io/): molecular simulation in Julia, from DFT to Molecular dynamics.
 
-#### Getting help in the wild
+### Getting help in the wild
 
 - [Julialang Discourse](https://discourse.julialang.org/): instead of Stackoverflow, most Julia discussion threads are hosted in this page.
 
 - [Zulipchat Julialang](https://julialang.zulipchat.com/): some discussion (specially regarding development) is hold at Zulipchat.
 
-### Julia 102
+## Julia 102
 
 Hello again! Hope you have enjoyed *Julia 101*!
 
@@ -625,15 +625,15 @@ This second course of the series will extend your Julia skills to the next level
 - Wrapping up code in modules
 - Creating a package
 
-#### User-defined types
+### User-defined types
 
-#### Writing your own functions
+### Writing your own functions
 
-#### Creating reusable modules
+### Creating reusable modules
 
-#### Packaging code
+### Packaging code
 
-### Julia 201
+## Julia 201
 
 Hello again! Hope you have enjoyed *Julia 102*!
 
@@ -643,7 +643,7 @@ Let's go straight to what matters, the topics discussed here:
 - Linear algebra and vectorization
 - Interoperability with C and Fortran
 
-### Julia 202
+## Julia 202
 
 Hello again! Hope you have enjoyed *Julia 201*!
 
@@ -654,19 +654,19 @@ Let's go straight to what matters, the topics discussed here:
 - Metaprogramming
 
 
-#### Multi-threading
+### Multi-threading
 
 ```python
 versioninfo()
 ```
 
-#### Multi-processing
+### Multi-processing
 
 
-#### Metaprogramming
+### Metaprogramming
 
 
-#### Recommended contents
+### Recommended contents
 
 - [(08x03) Intro to Julia Multi-Threading | How to use the Threads.@threads macro](https://www.youtube.com/watch?v=kX6_iY_BtG8&list=PLhQ2JMBcfAsjQzwp2j97uZjNOMi7Ed4CG&index=3)
 - [(08x04) Intro to Julia Multi-Processing (It's not the same as Multi-Threading!)](https://www.youtube.com/watch?v=uKdpY6Je6Oc&list=PLhQ2JMBcfAsjQzwp2j97uZjNOMi7Ed4CG&index=4)
@@ -674,9 +674,9 @@ versioninfo()
 - [(06x11) How to Write CUDA Kernels and Use CUDA Libraries using CUDA.jl (CUDA.jl 101 Part 2 of 3)](https://www.youtube.com/watch?v=YwHGnHI5UxA&list=PLhQ2JMBcfAshxbsVbBDY6pj3K41XzdJDy&index=4)
 - [(06x12) How to use your GPU for Machine Learning using CUDA.jl and Flux.jl (CUDA.jl 101 Part 3 of 3)](https://www.youtube.com/watch?v=4PmcxUKSRww&list=PLhQ2JMBcfAshxbsVbBDY6pj3K41XzdJDy&index=5)
 
-### Selected Julia packages
+## Selected Julia packages
 
-#### General
+### General
 
 - [Julia Programming](https://docs.julialang.org/en/v1/)
 - [Graphs.jl](https://juliagraphs.org/Graphs.jl/dev/)
@@ -684,14 +684,14 @@ versioninfo()
 - [PackageCompiler.jl](https://julialang.github.io/PackageCompiler.jl/stable/index.html)
 - [Revise.jl](https://timholy.github.io/Revise.jl/stable/)
 
-#### Plotting and graphics
+### Plotting and graphics
 
 - [Makie.jl](https://docs.makie.org/stable/)
 - [Plots.jl](https://docs.juliaplots.org/stable/)
 - [Winston.jl](https://winston.readthedocs.io/en/latest/)
 - [Luxor.jl](https://juliagraphics.github.io/Luxor.jl/stable/)
 
-#### Numerical methods
+### Numerical methods
 
 - [Ferrite.jl](https://ferrite-fem.github.io/Ferrite.jl/stable/)
 - [Kinetic.jl](https://xiaotianbai.com/Kinetic.jl/dev/)
@@ -700,25 +700,25 @@ versioninfo()
 - [Symbolics.jl](https://symbolics.juliasymbolics.org/stable/)
 - [VoronoiFVM.jl](https://j-fu.github.io/VoronoiFVM.jl/dev/)
 
-#### Kinetics and Thermodynamics
+### Kinetics and Thermodynamics
 
 - [Catalyst.jl](https://docs.sciml.ai/Catalyst/stable/)
 - [Clapeyron.jl](https://clapeyronthermo.github.io/Clapeyron.jl/dev/)
 - [DFTK.jl](https://docs.dftk.org/stable/)
 - [SteamTables.jl](https://github.com/braamvandyk/SteamTables.jl)
 
-#### Machine learning
+### Machine learning
 
 - [Flux.jl](https://fluxml.ai/Flux.jl/stable/)
 - [Lux.jl](https://lux.csail.mit.edu/)
 - [NeuralPDE.jl](https://docs.sciml.ai/NeuralPDE/stable/)
 - [Zygote.jl](https://fluxml.ai/Zygote.jl/stable/)
 
-#### GPU Programming
+### GPU Programming
 
 - [CUDA.jl](https://cuda.juliagpu.org/stable/)
 - [Adapt.jl](https://github.com/JuliaGPU/Adapt.jl)
 
-### Plotting in Julia
+## Plotting in Julia
 
 *Upcoming...*
