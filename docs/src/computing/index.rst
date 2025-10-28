@@ -15,6 +15,7 @@ Computing
     programming/introduction
     programming/julia
     programming/racket
+    programming/haskell
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
