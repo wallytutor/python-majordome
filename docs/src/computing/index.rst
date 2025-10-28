@@ -12,6 +12,7 @@ Computing
     tools-selection
     system-windows
     system-linux
+    programming/introduction
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
