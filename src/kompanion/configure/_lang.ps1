@@ -7,6 +7,7 @@ function Start-KompanionLangConfigure() {
 
     Invoke-ConfigurePython
     Invoke-ConfigureJulia
+    Invoke-ConfigureErlang
 }
 
 # ---------------------------------------------------------------------------
@@ -36,6 +37,11 @@ function Invoke-ConfigurePython() {
 }
 
 function Invoke-ConfigureJulia() {
+}
+
+function Invoke-ConfigureErlang() {
+    $env:ERLANG_HOME = "$env:KOMPANION_BIN\erlang\bin"
+    Initialize-AddToPath -Directory "$env:ERLANG_HOME"
 }
 
 # ---------------------------------------------------------------------------
