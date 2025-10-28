@@ -6,3 +6,4 @@ Computing
     :caption: Computing
 
     tools-git
+    ansys-fluent/tui
