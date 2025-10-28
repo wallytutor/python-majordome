@@ -8,6 +8,7 @@ Computing
     tools-git
     tools-containers
     tools-selection
+    system-windows
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
