@@ -7,6 +7,7 @@ Computing
 
     tools-git
     tools-containers
+    tools-selection
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
