@@ -6,7 +6,7 @@ The goal of this page is not to supersede the [documentation](https://www.resear
 
 ## Quick answers
 
-- [Is Elmer the adequate tool for my projects?](https://www.nic.funet.fi/pub/sci/physics/elmer/doc/ElmerOverview.pdf) In this document you find a short introduction to what Elmer can do and the main executables. 
+- [Is Elmer the adequate tool for my projects?](https://www.nic.funet.fi/pub/sci/physics/elmer/doc/ElmerOverview.pdf) In this document you find a short introduction to what Elmer can do and the main executables.
 
 - [How do I start learning Elmer?](https://www.nic.funet.fi/pub/sci/physics/elmer/doc/GetStartedElmer.pdf) Simply put, Elmer does not require basic users to master all the fundamentals of FEM, so following the *getting started* guide seems a good starting point. There you learn how to install, configure, and run the software.
 
@@ -141,14 +141,14 @@ FUNCTION conductivity(model, n, time) RESULT(k)
     !**************************************************************
     ! Load Elmer library.
     !**************************************************************
-    
+
     USE DefUtils
     IMPLICIT None
 
     !**************************************************************
     ! Function interface.
     !**************************************************************
-    
+
     TYPE(Model_t) :: model
     INTEGER       :: n
     REAL(KIND=dp) :: time, k
@@ -156,7 +156,7 @@ FUNCTION conductivity(model, n, time) RESULT(k)
     !**************************************************************
     ! Function internals.
     !**************************************************************
-    
+
     TYPE(Variable_t), POINTER :: varptr
     REAL(KIND=dp) :: T
     INTEGER :: idx
@@ -222,7 +222,7 @@ Another situation that can be frequently found is unit conversion for temperatur
 
 Once you get serious with Elmer it is a natural evolution to prefer to work with *SIF* files instead of the GUI most of the time; the GUI remains useful for raw case generation, avoiding writing boilerplate setups and to get default values right. This is also true in a majority of scientific computing software. The documentation of *SIF* is spread over the whole documentation of Elmer and this page tries to summarize it. For the beginner, this [video](https://www.youtube.com/watch?v=iXVEqKTq5TE) is a good starting point, this page being more of a reference manual.
 
-Because syntax highlighting is important for productivity, I am continuously developing a minimalistic extension for VS Code. Its partial development can be found [here](https://github.com/wallytutor/WallyToolbox.jl/tree/main/helpers/syntax-highlighters/sif). You can clone that repository and copy the `sif/` directory under `%USERPROFILE%/.vscode/extensions`  or in the equivalent directory documented [here](https://code.visualstudio.com/docs/editor/extension-marketplace#_where-are-extensions-installed); later it will probably be packaged as a standard VS Code extension.
+Because syntax highlighting is important for productivity, I am continuously developing a minimalistic extension for VS Code. Its partial development can be found [here](https://github.com/wallytutor/elmer-sif-vscode). You can clone that repository and copy the `sif/` directory under `%USERPROFILE%/.vscode/extensions`  or in the equivalent directory documented [here](https://code.visualstudio.com/docs/editor/extension-marketplace#_where-are-extensions-installed); later it will probably be packaged as a standard VS Code extension.
 
 ### Sections
 
@@ -266,7 +266,7 @@ So far nothing weird; when declaring a string as `k` below we are actually creat
 k = "hello"
 ```
 
-Matrix indexing is zero-based, as in C or Python. Matrix slicing is done as in many scripting languages, such as Python, Julia, Octave, ..., and we can reverse the order of the first *six* elements of an array `y` as follows: 
+Matrix indexing is zero-based, as in C or Python. Matrix slicing is done as in many scripting languages, such as Python, Julia, Octave, ..., and we can reverse the order of the first *six* elements of an array `y` as follows:
 
 ```C
 y(0, 0:5) = y(0, 5:0)
@@ -337,9 +337,9 @@ while( expr )
 
 Assume the following definitions:
 
-- `a`, `b` and `c` ordinary matrices  
-- `l`, `t` and `r` logical matrices 
-- `s`, `n` and `m` scalars 
+- `a`, `b` and `c` ordinary matrices
+- `l`, `t` and `r` logical matrices
+- `s`, `n` and `m` scalars
 
 |                                      |                                                                                                                                                                               |
 | ------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -385,9 +385,9 @@ export var3, var4
 }
 ```
 
-Functions have their own list of variables. Global variables are not seen in this function unless imported by `import` or given as arguments. Local variables can be made global by the `export` statement. 
+Functions have their own list of variables. Global variables are not seen in this function unless imported by `import` or given as arguments. Local variables can be made global by the `export` statement.
 
-Functions, if returning matrices, behave in many ways as variables do. So if you have defined function `mult` as follows 
+Functions, if returning matrices, behave in many ways as variables do. So if you have defined function `mult` as follows
 
 ```Fortran
 function mult(a, b)
@@ -437,7 +437,7 @@ r = floor(x)
 
 r = abs(x)
 
-r = pow(x,y) 
+r = pow(x,y)
 ```
 
 - General utilities
@@ -542,7 +542,7 @@ You can even use multiple variables, *e.g.*
 ```
 
  PS: *I managed to use a single `source` in SIF, although the documentation does not state that many sources are forbidden; for some reason multiple sources work when sourcing from a file.*
-	
+
 For more complex cases such as [this one](https://github.com/wallytutor/WallyToolbox.jl/tree/main/apps/Elmer/diffusion_solids/carburizing_slycke_gui) it is worth writing actual MATC function modules; since there is no syntax highlighter available for MATC in VS Code, the `.ini` extension seems to provide better readability to the code. The problem was split in two parts: the [models](https://github.com/wallytutor/WallyToolbox.jl/blob/main/apps/Elmer/diffusion_solids/carburizing_slycke_gui/models.ini) which take care of sourcing the [conditions](https://github.com/wallytutor/WallyToolbox.jl/blob/main/apps/Elmer/diffusion_solids/carburizing_slycke_gui/conditions.ini), so that basic users could only edit the latter and run their variant calculations with no coding skills. Notice that the symbols that are used in [SIF](https://github.com/wallytutor/WallyToolbox.jl/blob/main/apps/Elmer/diffusion_solids/carburizing_slycke_gui/case.sif) are exported from [this line](https://github.com/wallytutor/WallyToolbox.jl/blob/main/apps/Elmer/diffusion_solids/carburizing_slycke_gui/models.ini#L72) instead of being set as global variables.
 
 ## User-defined functions
@@ -555,7 +555,7 @@ For more complex cases such as [this one](https://github.com/wallytutor/WallyToo
 
 - FluxSolver
 
-#elmer/models/flux-solver 
+#elmer/models/flux-solver
 
 - VorticitySolver
 
@@ -593,7 +593,7 @@ For more complex cases such as [this one](https://github.com/wallytutor/WallyToo
 
 - SaveLine
 
-#elmer/models/save-line 
+#elmer/models/save-line
 
 - SaveMaterials
 
@@ -603,7 +603,7 @@ For more complex cases such as [this one](https://github.com/wallytutor/WallyToo
 
 - ResultOutputSolver
 
-#elmer/models/result-output-solver 
+#elmer/models/result-output-solver
 
 - SaveGridData
 

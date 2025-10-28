@@ -6,5 +6,6 @@ Computing
     :caption: Computing
 
     tools-git
+    tools-containers
     ansys-fluent/tui
     elmer-csc/elmer
