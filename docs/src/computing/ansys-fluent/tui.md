@@ -23,7 +23,7 @@
 /file/write-case "tunnel-model.cas.h5" ()
 ```
 
-### Defining and saving named expressions
+### Handling named expressions
 
 ```scheme
 /define/named-expressions/add "diam"  definition "0.01 [m]"       parameter yes ()
