@@ -39,7 +39,7 @@ git push origin gh-pages
 Generally speaking adding a submodule to a repository should be a simple matter of
 
 ```bash
-git submodule add https://<path>/<to>/<repository>
+git submodule add 'https://<path>/<to>/<repository>.git'
 ```
 
 Nonetheless this might fail, especially for large sized repositories; I faced [this issue](https://stackoverflow.com/questions/66366582) which I tried to fix by increasing buffer size as reported in the link. This solved the issue but led me to [another problem](https://stackoverflow.com/questions/59282476) which could be solved by degrading HTTP protocol.
@@ -47,15 +47,15 @@ Nonetheless this might fail, especially for large sized repositories; I faced [t
 The reverse operation cannot be fully automated as discussed [here](https://stackoverflow.com/questions/1260748). In general you start with
 
 ```bash
-git rm <path-to-submodule>
+git rm '<path-to-submodule>'
 ```
 
 and then manually remove the history with
 
 ```bash
-rm -rf .git/modules/<path-to-submodule>
+rm -rf '.git/modules/<path-to-submodule>'
 
-git config remove-section submodule.<path-to-submodule>
+git config remove-section 'submodule.<path-to-submodule>'
 ```
 
 ## Line ending normalization
