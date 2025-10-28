@@ -7,6 +7,9 @@ Upon connecting for the first time in a computer, remmeber to configure:
 ```bash
 git config --global user.email "walter.dalmazsilva@gmail.com"
 git config --global user.name "Walter Dal'Maz Silva"
+
+# (GitHub CLI for Linux optional)
+gh auth login
 ```
 
 ## Daily life reminders
