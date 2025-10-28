@@ -12,6 +12,7 @@ $files = @(
     "$bookDir\tools-ssh.md"
     "$bookDir\tools-containers.md"
     "$bookDir\tools-selection.md"
+    "$bookDir\tools-portable.md"
     "$bookDir\system-windows.md"
     "$bookDir\system-linux.md"
     "$bookDir\programming\introduction.md"

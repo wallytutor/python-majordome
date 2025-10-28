@@ -10,6 +10,7 @@ Computing
     tools-ssh
     tools-containers
     tools-selection
+    tools-portable
     system-windows
     system-linux
     programming/introduction

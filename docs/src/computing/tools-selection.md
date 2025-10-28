@@ -1,5 +1,13 @@
 # Selection of tools
 
+## Graphics
+
+- [Fiji](https://imagej.net/software/fiji/downloads)
+
+- [gnuplot](https://sourceforge.net/projects/gnuplot/files/gnuplot/6.0.0/)
+
+- [Graphviz](https://graphviz.org/download/)
+
 ## Geometry
 
 - [blender](https://www.blender.org/): the most powerful 3D (in the general sense) open source modeling tool; allows geometries to be exported to STL, which is compatible with most meshing software.
@@ -7,6 +15,8 @@
 - [FreeCAD](https://www.freecad.org/?lang=fr_FR): contrarily to [blender](https://www.blender.org/), this is the most mature open source modeling tool in the technical sense. It supports both 3D conception and detailed drawing, among other features.
 
 - [cadquery](https://github.com/CadQuery/cadquery?tab=readme-ov-file): a simple parametric geometry tool.
+
+- [Salome](https://www.salome-platform.org/): not just grometry, but also a large meshing toolbox provided by EDF.
 
 ## Meshing
 
@@ -22,9 +32,29 @@
 
 ## Simulation
 
-- [Elmer](https://docs.csc.fi/apps/elmer/): multiphysics FEM toolkit (see dedicated topic).
+- [Cantera](https://github.com/Cantera/cantera/releases/tag/v3.0.0)
+
+- [CasADi](https://web.casadi.org/get/)
+
+- [DualSPHysics](https://dual.sphysics.org/downloads/)
+
+- [DWSIM](https://dwsim.org/index.php/download/)
+
+- [Elmer](https://docs.csc.fi/apps/elmer/): multiphysics FEM toolkit (see dedicated topic); download it [here](https://www.nic.funet.fi/pub/sci/physics/elmer/bin/windows/)
+
+- [FreeFem++](https://github.com/FreeFem/FreeFem-sources/releases)
+
+- [LAMMPS](https://packages.lammps.org/windows.html)
+
+- [MFiX](https://mfix.netl.doe.gov/products/mfix/download/)
 
 - [OpenFOAM](https://openfoam.org/): general purpose FVM CFD toolkit (see dedicated topic).
+
+- [OpenModelica](https://openmodelica.org/download/download-windows/)
+
+- [RadCal](https://github.com/firemodels/radcal)
+
+- [SU2](https://su2code.github.io/download.html)
 
 - [TRUST Platform](https://cea-trust-platform.github.io/):  the basis for [TrioCFD](https://github.com/cea-trust-platform/TrioCFD-code) code by CEA.
 
@@ -42,3 +72,30 @@
 ## Other
 
 - [protobuf](https://protobuf.dev/getting-started/pythontutorial/): for parsing #OpenFOAM dictionaries from Python.
+
+The following are known to be installable in a portable fashion (but some of them might require some ingenious ways of preparing portable versions from official distributions).
+
+- 7-zip
+- Dyssol
+- FileZilla
+- [iperf](https://iperf.fr/)
+- Ipopt
+- Jamovi
+- JASP
+- lazarus
+- [lite-xl](https://github.com/lite-xl/lite-xl)
+- MSYS2
+- MUSEN
+- [Notepad++](https://notepad-plus-plus.org/downloads/)
+- nteract
+- OpenCALPHAD
+- Orange3
+- puTTy
+- Rufus
+- Scilab
+- strawberry-perl
+- Tabby
+- VMD
+- [ZeroBraneStudio](https://studio.zerobrane.com/)
+- [Zettlr](https://www.zettlr.com/)
+- [Xpra](https://xpra.org/index.html)
