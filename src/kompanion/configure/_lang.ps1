@@ -31,12 +31,28 @@ function Invoke-ConfigurePython() {
     if (!(Test-Path $pythonLock)) {
         Piperish install --upgrade pip
         Piperish install -r "$env:KOMPANION_SRC\data\requirements.txt"
-        Piperish install -e "$env:KOMPANION_DIR"
+        Piperish install -e "$env:KOMPANION_DIR\."
         New-Item -ItemType File -Path $pythonLock -Force | Out-Null
     }
 }
 
 function Invoke-ConfigureJulia() {
+    # XXX: check if JULIA_HOME has any special meaning, otherwise add
+    # \bin directly to its definition (I think I cannot do that...).
+    $env:JULIA_HOME = "$env:KOMPANION_BIN\julia\julia-1.12.1"
+    Initialize-AddToPath -Directory "$env:JULIA_HOME\bin"
+
+    $env:JULIA_DEPOT_PATH   = "$env:KOMPANION_DATA\julia"
+    $env:JULIA_CONDAPKG_ENV = "$env:KOMPANION_DATA\CondaPkg"
+
+    # Install minimal requirements:
+    $juliaLock = "$env:KOMPANION_DATA\julia.lock"
+
+    if (!(Test-Path $pythonLock)) {
+        # This will invode setup.jl which may take a long time...
+        Invoke-CapturedCommand "$env:JULIA_HOME\bin\julia.exe" @("-e", "exit()")
+        New-Item -ItemType File -Path $juliaLock -Force | Out-Null
+    }
 }
 
 function Invoke-ConfigureErlang() {
