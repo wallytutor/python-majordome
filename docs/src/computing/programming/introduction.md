@@ -60,12 +60,42 @@ Notice that `Ctrl+M` will toggle the visibility of the integrated terminal; if y
 
 VS Code supports a number of extensions to facilitate coding and data analysis, among other tasks. Local (user-created) extensions can be manually installed by placing their folder under `%USERPROFILE%/.vscode/extensions` or in the equivalent directory documented [here](https://code.visualstudio.com/docs/editor/extension-marketplace#_where-are-extensions-installed). Below you find my recommended extensions for different purposes and languages.
 
-#### Julia
+## VS Code extensions
 
-- [Julia](https://github.com/julia-vscode/julia-vscode)
-- [Julia Color Themes](https://github.com/CameronBieganek/julia-color-themes)
+### Languages support
 
-#### Personal
+- [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+- [Even Better TOML](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
+- [Gmsh](https://marketplace.visualstudio.com/items?itemName=Bertrand-Thierry.vscode-gmsh)
+- [Julia](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia)
+- [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
+- [LaTeX Workshop](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop)
+- [Matlab](https://marketplace.visualstudio.com/items?itemName=MathWorks.language-matlab)
+- [Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
+- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- [Quarto](https://marketplace.visualstudio.com/items?itemName=quarto.quarto)
+- [Ruby](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-extensions-pack)
+
+### Data inspection
+
+- [Data Wrangler](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.datawrangler)
+- [Excel Viewer](https://marketplace.visualstudio.com/items?itemName=GrapeCity.gc-excelviewer)
+- [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv)
+
+### General utilities
+
+- [Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
+- [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
+- [Rewrap Revived](https://marketplace.visualstudio.com/items?itemName=dnut.rewrap-revived)
+- [Remote SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+
+### Themes
+
+- [Ayu Monokai](https://marketplace.visualstudio.com/items?itemName=lakshits11.ayu-monokai)
+- [Julia Color Themes](https://marketplace.visualstudio.com/items?itemName=cameronbieganek.julia-color-themes)
+
+
+### Personal
 
 I have also developed a few (drag-and-drop) extensions; in the future I plan to provided them through the extension manager.
 
