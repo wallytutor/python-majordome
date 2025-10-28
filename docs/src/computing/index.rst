@@ -7,3 +7,4 @@ Computing
 
     tools-git
     ansys-fluent/tui
+    elmer-csc/elmer
