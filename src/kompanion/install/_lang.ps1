@@ -20,6 +20,12 @@ function Invoke-InstallPython() {
 }
 
 function Invoke-InstallJulia() {
+    $output = "$env:KOMPANION_TEMP\julia.zip"
+    $path   = "$env:KOMPANION_BIN\julia"
+    $url    = "https://julialang-s3.julialang.org/bin/winnt/x64/1.12/julia-1.12.1-win64.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
 }
 
 function Invoke-InstallErlang() {

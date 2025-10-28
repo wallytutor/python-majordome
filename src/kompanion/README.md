@@ -10,6 +10,7 @@
 ### Languages
 
 - [Python](https://github.com/winpython/winpython)
+- [Julia](https://julialang.org/)
 - [Erlang](https://github.com/erlang/otp/)
 
 ## Extensions
