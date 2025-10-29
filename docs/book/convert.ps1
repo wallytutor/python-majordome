@@ -18,10 +18,12 @@ $files = @(
     "$bookDir\computing\ansys-fluent\tui.md"
     "$bookDir\computing\elmer-csc\elmer.md"
     "$bookDir\computing\general-tips.md"
+    "$bookDir\computing\services.md"
     "$bookDir\programming\introduction.md"
     "$bookDir\programming\julia.md"
     "$bookDir\programming\racket.md"
     "$bookDir\programming\haskell.md"
+    "$bookDir\programming\other.md"
 )
 
     # README.md                 `
