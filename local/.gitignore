@@ -2,6 +2,7 @@
 /bin/*
 /data/julia/*
 /data/jupyter/*
+/data/miktex/*
 /data/vscode/extensions/*
 /data/vscode/user-data/*
 /data/*.lock

@@ -3,7 +3,11 @@
 # ---------------------------------------------------------------------------
 
 function Start-KompanionMain() {
-    param ()
+    param (
+        [switch]$RebuildOnStart
+    )
+
+    Write-Output "Starting Kompanion from $PSScriptRoot!"
 
     # Path to the root directory:
     $env:KOMPANION_DIR = (Get-Item $PSScriptRoot).Parent.Parent.FullName
@@ -25,10 +29,27 @@ function Start-KompanionMain() {
     Initialize-EnsureDirectory $env:KOMPANION_TEMP
 
     # Install components if needed
-    Start-KompanionInstall
+    if ($RebuildOnStart) {
+        Start-KompanionInstall
+    }
 
     # Configure components if needed
     Start-KompanionConfigure
+
+    Write-Output "`nEnvironment"
+    Write-Output "-----------"
+    Write-Output "KOMPANION           $env:KOMPANION"
+    Write-Output "KOMPANION_BIN       $env:KOMPANION_BIN"
+    Write-Output "KOMPANION_DATA      $env:KOMPANION_DATA"
+    Write-Output "KOMPANION_LOGS      $env:KOMPANION_LOGS"
+    Write-Output "KOMPANION_TEMP      $env:KOMPANION_TEMP"
+
+    Write-Output "`nOther paths"
+    Write-Output "-----------"
+    Write-Output "VSCODE_HOME         $env:VSCODE_HOME"
+    Write-Output "VSCODE_EXTENSIONS   $env:VSCODE_EXTENSIONS"
+    Write-Output "VSCODE_SETTINGS     $env:VSCODE_SETTINGS"
+    Write-Output "GIT_HOME            $env:GIT_HOME"
 
     # Run Kompanion VS Code instance
     Code.exe --extensions-dir $env:VSCODE_EXTENSIONS `
@@ -40,7 +61,7 @@ function Start-KompanionMain() {
 # ---------------------------------------------------------------------------
 
 function Start-KompanionInstall() {
-    Write-Host "`nStarting Kompanion installation!"
+    Write-Host "`nStarting Kompanion installation..."
 
     . "$PSScriptRoot\install\_base.ps1"
     . "$PSScriptRoot\install\_lang.ps1"
@@ -70,7 +91,7 @@ function Start-KompanionConfigure() {
 . "$PSScriptRoot/aliases.ps1"
 . "$PSScriptRoot/helpers.ps1"
 
-Start-KompanionMain
+Start-KompanionMain -RebuildOnStart
 
 # ---------------------------------------------------------------------------
 # EOF
