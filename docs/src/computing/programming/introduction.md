@@ -62,40 +62,46 @@ VS Code supports a number of extensions to facilitate coding and data analysis, 
 
 ## VS Code extensions
 
-### Languages support
+The following extensions are recommended.
 
-- [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
-- [Even Better TOML](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
-- [Gmsh](https://marketplace.visualstudio.com/items?itemName=Bertrand-Thierry.vscode-gmsh)
-- [Julia](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia)
-- [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
-- [LaTeX Workshop](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop)
-- [Matlab](https://marketplace.visualstudio.com/items?itemName=MathWorks.language-matlab)
-- [Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
-- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-- [Quarto](https://marketplace.visualstudio.com/items?itemName=quarto.quarto)
-- [Ruby](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-extensions-pack)
+- General purpose:
 
-### Data inspection
+    - [ms-vscode.PowerShell](https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell)
+    - [ms-vscode-remote.remote-ssh](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+    - [GitHub.copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
+    - [ukoloff.win-ca](https://marketplace.visualstudio.com/items?itemName=ukoloff.win-ca)
+    - [vscode-icons-team.vscode-icons](https://marketplace.visualstudio.com/items?itemName=vscode-icons-team.vscode-icons)
+    - [ritwickdey.LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
+    - [dnut.rewrap-revived](https://marketplace.visualstudio.com/items?itemName=dnut.rewrap-revived)
 
-- [Data Wrangler](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.datawrangler)
-- [Excel Viewer](https://marketplace.visualstudio.com/items?itemName=GrapeCity.gc-excelviewer)
-- [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv)
+- Python development:
 
-### General utilities
+    - [ms-python.python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+    - [ms-toolsai.jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
+    - [tamasfe.even-better-toml](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
 
-- [Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
-- [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
-- [Rewrap Revived](https://marketplace.visualstudio.com/items?itemName=dnut.rewrap-revived)
-- [Remote SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+- Other languages support
 
-### Themes
+    - [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+    - [Erlang](https://marketplace.visualstudio.com/items?itemName=pgourlain.erlang)
+    - [Gmsh](https://marketplace.visualstudio.com/items?itemName=Bertrand-Thierry.vscode-gmsh)
+    - [Julia](https://marketplace.visualstudio.com/items?itemName=julialang.language-julia)
+    - [LaTeX Workshop](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop)
+    - [Matlab](https://marketplace.visualstudio.com/items?itemName=MathWorks.language-matlab)
+    - [Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
+    - [Quarto](https://marketplace.visualstudio.com/items?itemName=quarto.quarto)
+    - [Ruby](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-extensions-pack)
 
-- [Ayu Monokai](https://marketplace.visualstudio.com/items?itemName=lakshits11.ayu-monokai)
-- [Julia Color Themes](https://marketplace.visualstudio.com/items?itemName=cameronbieganek.julia-color-themes)
+- Data inspection:
 
+    - [Data Wrangler](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.datawrangler)
+    - [Excel Viewer](https://marketplace.visualstudio.com/items?itemName=GrapeCity.gc-excelviewer)
+    - [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv)
 
-### Personal
+- VS Code themes:
+
+    - [Ayu Monokai](https://marketplace.visualstudio.com/items?itemName=lakshits11.ayu-monokai)
+    - [Julia Color Themes](https://marketplace.visualstudio.com/items?itemName=cameronbieganek.julia-color-themes)
 
 I have also developed a few (drag-and-drop) extensions; in the future I plan to provided them through the extension manager.
 
