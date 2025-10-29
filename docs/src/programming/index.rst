@@ -9,3 +9,4 @@ Programming
     julia
     racket
     haskell
+    other

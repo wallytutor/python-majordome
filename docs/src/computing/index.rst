@@ -16,3 +16,4 @@ Computing
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
+    services
