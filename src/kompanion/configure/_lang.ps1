@@ -26,13 +26,13 @@ function Invoke-ConfigurePython() {
     $env:JUPYTER_DATA_DIR = "$env:KOMPANION_DATA\jupyter"
 
     # Install minimal requirements:
-    $pythonLock = "$env:KOMPANION_DATA\python.lock"
+    $lockFile = "$env:KOMPANION_DATA\python.lock"
 
-    if (!(Test-Path $pythonLock)) {
+    if (!(Test-Path $lockFile)) {
         Piperish install --upgrade pip
         Piperish install -r "$env:KOMPANION_SRC\data\requirements.txt"
         Piperish install -e "$env:KOMPANION_DIR"
-        New-Item -ItemType File -Path $pythonLock -Force | Out-Null
+        New-Item -ItemType File -Path $lockFile -Force | Out-Null
     }
 }
 
@@ -46,12 +46,12 @@ function Invoke-ConfigureJulia() {
     $env:JULIA_CONDAPKG_ENV = "$env:KOMPANION_DATA\CondaPkg"
 
     # Install minimal requirements:
-    $juliaLock = "$env:KOMPANION_DATA\julia.lock"
+    $lockFile = "$env:KOMPANION_DATA\julia.lock"
 
-    if (!(Test-Path $pythonLock)) {
+    if (!(Test-Path $lockFile)) {
         # This will invode setup.jl which may take a long time...
         Invoke-CapturedCommand "$env:JULIA_HOME\bin\julia.exe" @("-e", "exit()")
-        New-Item -ItemType File -Path $juliaLock -Force | Out-Null
+        New-Item -ItemType File -Path $lockFile -Force | Out-Null
     }
 }
 
