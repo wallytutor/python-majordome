@@ -23,6 +23,10 @@ function is_project(path)
     return isfile(joinpath(path, "Project.toml"))
 end
 
+function package_list(fname)
+    return joinpath(abspath(ENV["KOMPANION_SRC"]), "data", fname)
+end
+
 function maybe_package(path)
     return isdir(path) && endswith(path, ".jl") && is_project(path)
 end
@@ -34,10 +38,8 @@ function package_name(path)
     return String(split(splitdir(path)[end], ".")[1])
 end
 
-function ensure_minimal_requirements()
-    data = abspath(ENV["KOMPANION_SRC"])
-
-    open(joinpath(data, "data/julia-packages.txt")) do file
+function setup_loadpath()
+    open(package_list("julia-packages.txt")) do file
         for package in eachline(file)
             startswith(package, "#") && continue
 
@@ -48,10 +50,6 @@ function ensure_minimal_requirements()
             end
         end
     end
-end
-
-function setup_loadpath()
-    ensure_minimal_requirements()
 
     update = parse(Int64, get(ENV, "KOMPANION_UPDATE", "0")) >= 1
     pkgs = abspath(get(ENV, "KOMPANION_PKG", Main.KOMPANION_PKG))
