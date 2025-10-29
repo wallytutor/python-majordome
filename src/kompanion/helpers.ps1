@@ -39,7 +39,7 @@ function Initialize-AddToPath() {
 function Invoke-CapturedCommand() {
     param (
         [string]$FilePath,
-        [string[]]$ArgumentList 
+        [string[]]$ArgumentList
     )
 
     Start-Process -FilePath $FilePath -ArgumentList $ArgumentList `
@@ -67,7 +67,7 @@ function Invoke-DownloadIfNeeded() {
 }
 
 function Invoke-UncompressZipIfNeeded() {
-    param ( 
+    param (
         [string]$Source,
         [string]$Destination
     )
@@ -77,6 +77,48 @@ function Invoke-UncompressZipIfNeeded() {
         Expand-Archive -Path $Source -DestinationPath $Destination
     }
 }
+
+function Invoke-Uncompress7zIfNeeded() {
+    param (
+        [string]$Source,
+        [string]$Destination
+    )
+
+    if (!(Test-Path -Path $Destination)) {
+        Write-Host "Expanding $Source into $Destination"
+        Invoke-CapturedCommand "7zr.exe" @("x", $Source , "-o$Destination")
+    }
+}
+
+# function Invoke-ExpandGzipFile {
+#     param(
+#         [string]$inFile,
+#         [string]$outFile
+#     )
+
+#     $inputf  = [IO.File]::OpenRead($inFile)
+#     $output = [IO.File]::Create($outFile)
+
+#     $what   = [IO.Compression.CompressionMode]::Decompress
+#     $gzip   = New-Object IO.Compression.GzipStream($inputf, $what)
+
+#     $buffer = New-Object byte[] 4096
+#     while (($read = $gzip.Read($buffer, 0, $buffer.Length)) -gt 0) {
+#         $output.Write($buffer, 0, $read)
+#     }
+
+#     $gzip.Dispose()
+#     $output.Dispose()
+#     $inputf.Dispose()
+# }
+# elseif ($Method -eq "GZ") {
+#     Invoke-ExpandGzipFile -inFile $Source -outFile $Destination
+# elseif ($Method -eq "TAR") {
+#     New-Item -Path "$Destination" -ItemType Directory
+#     tar -xzf $Source -C $Destination
+# elseif ($Method -eq "MSI") {
+#     Write-Host "Installing MSI package $Source ... $Destination"
+#     Invoke-CapturedCommand "lessmsi.exe" @("x", $Source , "$Destination\")
 
 function Piperish() {
     $pythonPath = "$env:PYTHON_HOME\python.exe"
