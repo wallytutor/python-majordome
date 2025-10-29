@@ -8,6 +8,8 @@ function Start-KompanionLangConfigure() {
     Invoke-ConfigurePython
     Invoke-ConfigureJulia
     Invoke-ConfigureErlang
+    Invoke-ConfigureHaskell
+    Invoke-ConfigureElm
 }
 
 # ---------------------------------------------------------------------------
@@ -58,6 +60,32 @@ function Invoke-ConfigureJulia() {
 function Invoke-ConfigureErlang() {
     $env:ERLANG_HOME = "$env:KOMPANION_BIN\erlang\bin"
     Initialize-AddToPath -Directory "$env:ERLANG_HOME"
+}
+
+function Invoke-ConfigureHaskell() {
+    $env:STACK_HOME = "$env:KOMPANION_BIN\stack"
+    $env:STACK_ROOT = "$env:KOMPANION_DATA\stack"
+    Initialize-AddToPath -Directory "$env:KOMPANION_BIN\stack"
+
+    # Install minimal requirements:
+    $lockFile = "$env:KOMPANION_DATA\haskell.lock"
+
+    if (!(Test-Path $lockFile)) {
+        $stackPath = "$env:STACK_HOME\stack.exe"
+        Invoke-CapturedCommand $stackPath @("setup")
+
+        $content = Get-Content -Raw -Path "$env:KOMPANION_SRC\data\stack-config.yaml"
+        $content = $content -replace '__STACK_ROOT__', $env:STACK_ROOT
+        Set-Content -Path "$env:STACK_ROOT\config.yaml" -Value $content
+
+        # TODO test if this automates install:
+        # Invoke-CapturedCommand "stack ghci"
+        New-Item -ItemType File -Path $lockFile -Force | Out-Null
+    }
+}
+
+function Invoke-ConfigureElm() {
+
 }
 
 # ---------------------------------------------------------------------------

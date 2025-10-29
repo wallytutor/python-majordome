@@ -8,6 +8,8 @@ function Start-KompanionLangInstall() {
     Invoke-InstallPython
     Invoke-InstallJulia
     Invoke-InstallErlang
+    Invoke-InstallHaskell
+    Invoke-InstallElm
 }
 
 # ---------------------------------------------------------------------------
@@ -39,6 +41,24 @@ function Invoke-InstallErlang() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallHaskell() {
+    $output = "$env:KOMPANION_TEMP\stack.zip"
+    $path   = "$env:KOMPANION_BIN\stack"
+    $url    = "https://github.com/commercialhaskell/stack/releases/download/v3.7.1/stack-3.7.1-windows-x86_64.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallElm() {
+    $output = "$env:KOMPANION_TEMP\elm.gz"
+    $path   = "$env:KOMPANION_BIN\elm.exe"
+    $url    = "https://github.com/elm/compiler/releases/download/0.19.1/binary-for-windows-64-bit.gz"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressGzipIfNeeded -Source $output -Destination $path
 }
 
 # ---------------------------------------------------------------------------
