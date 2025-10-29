@@ -54,28 +54,30 @@ function setup_loadpath()
     update = parse(Int64, get(ENV, "KOMPANION_UPDATE", "0")) >= 1
     pkgs = abspath(get(ENV, "KOMPANION_PKG", Main.KOMPANION_PKG))
 
-    Main.KOMPANION_VERBOSE && @info("""
-    Loading local environment...
+    if isdir(pkgs)
+        Main.KOMPANION_VERBOSE && @info("""
+        Loading local environment...
 
-    - Update status (KOMPANION_UPDATE) ... $(update)
-    - Local packages repository .......... $(pkgs)
+        - Update status (KOMPANION_UPDATE) ... $(update)
+        - Local packages repository .......... $(pkgs)
 
-    """)
+        """)
 
-    for candidate in readdir(pkgs)
-        path = joinpath(pkgs, candidate)
+        for candidate in readdir(pkgs)
+            path = joinpath(pkgs, candidate)
 
-        if maybe_package(path)
-            name = package_name(path)
+            if maybe_package(path)
+                name = package_name(path)
 
-            if is_installed(name) && !update
-                Main.KOMPANION_VERBOSE && let
-                    @info("Package `$(name)` already installed...")
+                if is_installed(name) && !update
+                    Main.KOMPANION_VERBOSE && let
+                        @info("Package `$(name)` already installed...")
+                    end
+                    continue
                 end
-                continue
-            end
 
-            Pkg.develop(; path=path)
+                Pkg.develop(; path=path)
+            end
         end
     end
 
@@ -84,7 +86,7 @@ end
 
 function jupyterlab(; port=nothing)
     jpt(; dir=pwd(), detached=true, port)
-    run(`jupyter notebook list`)
+    run(`jupyter lab list`)
     return nothing
 end
 
