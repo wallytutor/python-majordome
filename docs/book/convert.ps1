@@ -4,24 +4,24 @@ param ([int]$CleanLevel = 2)
 
 ### CONVERT
 
-$bookDir = "$(Split-Path -Path $PSScriptRoot -Parent)\src\computing"
+$bookDir = "$(Split-Path -Path $PSScriptRoot -Parent)\src"
 
 $files = @(
-    "$bookDir\introduction.md"
-    "$bookDir\tools-git.md"
-    "$bookDir\tools-ssh.md"
-    "$bookDir\tools-containers.md"
-    "$bookDir\tools-selection.md"
-    "$bookDir\tools-portable.md"
-    "$bookDir\system-windows.md"
-    "$bookDir\system-linux.md"
+    "$bookDir\computing\introduction.md"
+    "$bookDir\computing\tools-git.md"
+    "$bookDir\computing\tools-ssh.md"
+    "$bookDir\computing\tools-containers.md"
+    "$bookDir\computing\tools-selection.md"
+    "$bookDir\computing\tools-portable.md"
+    "$bookDir\computing\system-windows.md"
+    "$bookDir\computing\system-linux.md"
+    "$bookDir\computing\ansys-fluent\tui.md"
+    "$bookDir\computing\elmer-csc\elmer.md"
+    "$bookDir\computing\general-tips.md"
     "$bookDir\programming\introduction.md"
     "$bookDir\programming\julia.md"
     "$bookDir\programming\racket.md"
     "$bookDir\programming\haskell.md"
-    "$bookDir\ansys-fluent\tui.md"
-    "$bookDir\elmer-csc\elmer.md"
-    "$bookDir\general-tips.md"
 )
 
     # README.md                 `
