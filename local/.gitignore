@@ -3,6 +3,7 @@
 /data/julia/*
 /data/jupyter/*
 /data/miktex/*
+/data/stack/*
 /data/vscode/extensions/*
 /data/vscode/user-data/*
 /data/*.lock

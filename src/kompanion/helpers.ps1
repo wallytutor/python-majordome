@@ -90,29 +90,28 @@ function Invoke-Uncompress7zIfNeeded() {
     }
 }
 
-# function Invoke-ExpandGzipFile {
-#     param(
-#         [string]$inFile,
-#         [string]$outFile
-#     )
+function Invoke-UncompressGzipIfNeeded() {
+    param(
+        [string]$Source,
+        [string]$Destination
+    )
 
-#     $inputf  = [IO.File]::OpenRead($inFile)
-#     $output = [IO.File]::Create($outFile)
+    $inputf  = [IO.File]::OpenRead($Source)
+    $output = [IO.File]::Create($Destination)
 
-#     $what   = [IO.Compression.CompressionMode]::Decompress
-#     $gzip   = New-Object IO.Compression.GzipStream($inputf, $what)
+    $what   = [IO.Compression.CompressionMode]::Decompress
+    $gzip   = New-Object IO.Compression.GzipStream($inputf, $what)
 
-#     $buffer = New-Object byte[] 4096
-#     while (($read = $gzip.Read($buffer, 0, $buffer.Length)) -gt 0) {
-#         $output.Write($buffer, 0, $read)
-#     }
+    $buffer = New-Object byte[] 4096
+    while (($read = $gzip.Read($buffer, 0, $buffer.Length)) -gt 0) {
+        $output.Write($buffer, 0, $read)
+    }
 
-#     $gzip.Dispose()
-#     $output.Dispose()
-#     $inputf.Dispose()
-# }
-# elseif ($Method -eq "GZ") {
-#     Invoke-ExpandGzipFile -inFile $Source -outFile $Destination
+    $gzip.Dispose()
+    $output.Dispose()
+    $inputf.Dispose()
+}
+
 # elseif ($Method -eq "TAR") {
 #     New-Item -Path "$Destination" -ItemType Directory
 #     tar -xzf $Source -C $Destination
