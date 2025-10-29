@@ -13,10 +13,6 @@ Computing
     tools-portable
     system-windows
     system-linux
-    programming/introduction
-    programming/julia
-    programming/racket
-    programming/haskell
     ansys-fluent/tui
     elmer-csc/elmer
     general-tips
