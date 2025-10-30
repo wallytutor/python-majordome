@@ -1,0 +1,80 @@
+% ----------------------------------------------------------------------
+% beamer-minimal.tex
+% ----------------------------------------------------------------------
+
+\documentclass[aspectratio=1610]{beamer}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{chemformula}
+\usepackage{graphicx}
+\usepackage{siunitx}
+
+% ----------------------------------------------------------------------
+% Beamer overrides
+% ----------------------------------------------------------------------
+
+\setbeamertemplate{section page}
+{%
+  \begin{centering}%
+    \vfill%
+    \begin{beamercolorbox}[sep=12pt,center]{section title}%
+      \usebeamerfont{section title}\insertsection%
+    \end{beamercolorbox}%
+    \vfill%
+  \end{centering}%
+}
+
+\AtBeginSection{\frame{\sectionpage}}
+\AtBeginSubsection{\frame{\subsectionpage}}
+
+\makeatletter
+\renewcommand\footnotesize{\scriptsize}
+\makeatother
+
+% ----------------------------------------------------------------------
+% Additional units
+% ----------------------------------------------------------------------
+
+\DeclareSIPrefix{\normal}{N}{1}
+
+% ----------------------------------------------------------------------
+% User commands
+% ----------------------------------------------------------------------
+
+$userpreamble
+
+% ----------------------------------------------------------------------
+% graphicspath customization
+% ----------------------------------------------------------------------
+
+\graphicspath{$graphicspath}
+
+% ----------------------------------------------------------------------
+% titlepage customization
+% ----------------------------------------------------------------------
+
+\title{$title}
+\author{$author}
+\date{$date}
+
+% ----------------------------------------------------------------------
+% Start document
+% ----------------------------------------------------------------------
+
+\begin{document}
+\frame{\titlepage}
+\frame{\tableofcontents}
+
+% ----------------------------------------------------------------------
+% User provided contents
+% ----------------------------------------------------------------------
+
+$contents
+
+% ----------------------------------------------------------------------
+% Close document
+% ----------------------------------------------------------------------
+
+\frame{\centering{EOF}}
+\end{document}%
+\endinput%
