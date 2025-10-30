@@ -47,6 +47,9 @@ function Invoke-ConfigureJulia() {
     $env:JULIA_DEPOT_PATH   = "$env:KOMPANION_DATA\julia"
     $env:JULIA_CONDAPKG_ENV = "$env:KOMPANION_DATA\CondaPkg"
 
+    # Path to local julia modules
+    $env:AUCHIMISTE_PATH = "$env:KOMPANION_DIR\src\auchimiste"
+
     # Install minimal requirements:
     $lockFile = "$env:KOMPANION_DATA\julia.lock"
 
@@ -85,7 +88,14 @@ function Invoke-ConfigureHaskell() {
 }
 
 function Invoke-ConfigureElm() {
+    # Elm is at root, no special configuration needed.
+}
 
+function Invoke-ConfigureRacket() {
+    # $env:RACKET_HOME = "$env:KOMPANION_BIN\racket"
+    # Initialize-AddToPath -Directory "$env:RACKET_HOME\bin"
+    # $env:PLTUSERHOME     = "$env:KOMPANION_DATA\racket"
+    # $env:PLT_PKGDIR      = "$env:PLTUSERHOME\Racket\8.18\pkgs"
 }
 
 # ---------------------------------------------------------------------------
