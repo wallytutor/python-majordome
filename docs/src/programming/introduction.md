@@ -1,4 +1,4 @@
-# Programming
+# Introduction
 
 This page provides access to programming learning materials and related links. If this subject is new to you, to be able to successfully follow the contents you might learn a bit about the environment we will use, [VS Code](https://code.visualstudio.com/) and the minimum about [command prompt](../system-windows.md). If you are planning to start a career in scientific computing, there is also a short introduction [here](../introduction.md) that might help you find your way through this broad field.
 
@@ -100,8 +100,9 @@ The following extensions are recommended.
 
 - VS Code themes:
 
-    - [Ayu Monokai](https://marketplace.visualstudio.com/items?itemName=lakshits11.ayu-monokai)
-    - [Julia Color Themes](https://marketplace.visualstudio.com/items?itemName=cameronbieganek.julia-color-themes)
+    - [lakshits11.ayu-monokai](https://marketplace.visualstudio.com/items?itemName=lakshits11.ayu-monokai)
+    - [cameronbieganek.julia-color-themes](https://marketplace.visualstudio.com/items?itemName=cameronbieganek.julia-color-themes)
+    - [GitHub.github-vscode-theme](https://marketplace.visualstudio.com/items?itemName=GitHub.github-vscode-theme)
 
 I have also developed a few (drag-and-drop) extensions; in the future I plan to provided them through the extension manager.
 

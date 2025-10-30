@@ -39,12 +39,12 @@
     "workbench.tree.indent": 12,
 
     // Use the Julia theme:
-    // "workbench.colorTheme": "Julia (Monokai Vibrant)",
+    "workbench.colorTheme": "GitHub Dark Default",
     "workbench.iconTheme": "vscode-icons",
 
     // Add a clearly visible ruler (language dependent position):
     "workbench.colorCustomizations": {
-        "editorRuler.foreground": "#ff4081"
+        "editorRuler.foreground": "#3d17e4"
     },
 
     // Place elements on top of side bar:
@@ -67,7 +67,7 @@
     "editor.multiCursorModifier": "ctrlCmd",
 
     // Folding parameters:
-    "editor.foldingStrategy": "indentation",
+    "editor.foldingStrategy": "auto",
     "editor.showFoldingControls": "always",
 
     // Rulers at specific character counts:
@@ -107,8 +107,8 @@
     },
 
     "files.exclude": {
-        "**/__pycache__/*": true,
-        "**/.ipynb_checkpoints/*": true,
+        "**/__pycache__/": true,
+        "**/.ipynb_checkpoints/": true,
         "**/*.mod": true
     },
 
@@ -228,5 +228,5 @@
     "remote.SSH.remotePlatform": {
         "10.13.52.2": "linux",
         "frontal": "linux"
-    },
+    }
 }

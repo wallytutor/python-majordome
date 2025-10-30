@@ -1,9 +1,5 @@
 {
-  // No update and ignore all extension proposals; also block auto-update
-  // so that personal/local extensions are not deleted on start-up.
-  "update.mode": "none",
-  "extensions.ignoreRecommendations": true,
-  "extensions.autoUpdate": false,
+
 
   // Do not open the previous sessions by default:
   // These are not working yet, waiting for solution!
@@ -11,36 +7,7 @@
   "window.restoreWindows": "none",
   "files.hotExit": "off",
 
-  // On startup do not show anything:
-  "workbench.startupEditor": "none",
-
-  // Do hide label, show icons:
-  "workbench.panel.showLabels": false,
-
-  // Do not expand file tree for the current file path and make tree
-  // levels more readable when expanded:
-  "explorer.autoReveal": false,
-  "workbench.tree.indent": 12,
-
-  // Use the Julia theme:
-  // "workbench.colorTheme": "Julia (Monokai Vibrant)",
-  "workbench.colorTheme": "Julia (Monokai Vibrant)",
-  "workbench.iconTheme": "vscode-icons",
-
-  // Do not ask about reordering projects:
-  "explorer.confirmDragAndDrop": false,
   "vsicons.dontShowNewVersionMessage": true,
-
-  // Add a clearly visible ruler (language dependent position):
-  "workbench.colorCustomizations": {
-    "editorRuler.foreground": "#ff4081"
-  },
-
-  // Place elements on top of side bar:
-  "workbench.activityBar.location": "top",
-
-  // Do not ignore white space:
-  "diffEditor.ignoreTrimWhitespace": false,
 
   //-------------------------------------------------------------------------
   // OTHER EXTENSIONS
@@ -53,68 +20,8 @@
   "win-ca.inject": "append",
 
   //-------------------------------------------------------------------------
-  // EDITOR
-  //-------------------------------------------------------------------------
-
-  // Do not display minimap on side of document:
-  "editor.minimap.enabled": false,
-
-  // Do not show pop-ups all the time:
-  "editor.parameterHints.enabled": false,
-
-  // Use Ctrl to multi-selection:
-  "editor.multiCursorModifier": "ctrlCmd",
-
-  // Folding parameters:
-  "editor.foldingStrategy": "auto",
-  "editor.showFoldingControls": "always",
-
-  "editor.rulers": [72, 79, 100],
-  "editor.detectIndentation": false,
-  "editor.insertSpaces": true,
-  "editor.tabSize": 4,
-  "editor.fontSize": 13,
-  "editor.lineHeight": 15,
-
-  //-------------------------------------------------------------------------
-  // FILES
-  //-------------------------------------------------------------------------
-
-  "files.eol": "\n",
-  "files.trimTrailingWhitespace": true,
-  "files.trimFinalNewlines": true,
-
-  "files.associations": {
-    ".jou": "lisp",
-    ".scm": "lisp",
-    "*.matc": "FortranFreeForm",
-    "*Dict": "OpenFOAM",
-    "*Properties": "OpenFOAM",
-    "fvSchemes": "OpenFOAM",
-    "fvSolution": "OpenFOAM",
-    "**/constant/g": "OpenFOAM",
-    "**/0/*": "OpenFOAM",
-  },
-
-  "files.exclude": {
-    "**/*.mod": true
-  },
-
-  //-------------------------------------------------------------------------
-  // GIT
-  //-------------------------------------------------------------------------
-
-  "git.enabled": true,
-  "git.autofetch": true,
-  "git.confirmSync": false,
-  "git.openRepositoryInParentFolders": "never",
-  "git.ignoreMissingGitWarning": true,
-
-  //-------------------------------------------------------------------------
   // LANGUAGE SPECIFIC
   //-------------------------------------------------------------------------
-
-  "[octave]": {},
 
   "[latex]": {
     "editor.tabSize": 2,
@@ -129,10 +36,6 @@
     "rewrap.autoWrap.enabled": false
   },
 
-  "[jsonc]": {
-    "editor.tabSize": 2,
-    "editor.defaultFormatter": "vscode.json-language-features"
-  },
 
   "jupyter.askForKernelRestart": false,
   "jupyter.interactiveWindow.creationMode": "perFile",
@@ -161,30 +64,6 @@
     "docs",
     "test"
   ],
-
-  //-------------------------------------------------------------------------
-  // PYTHON
-  //-------------------------------------------------------------------------
-
-  "[python]": {
-    "editor.tabSize": 4
-  },
-
-  "python-envs.pythonProjects": [
-    {
-      "path": "",
-      "envManager": "ms-python.python:system",
-      "packageManager": "ms-python.python:pip"
-    }
-  ],
-
-  "python.analysis.autoSearchPaths": true,
-  "python.analysis.stubPath": "./typings",
-  "python.analysis.typeCheckingMode": "standard",
-  "python.createEnvironment.trigger": "off",
-  "python.defaultInterpreterPath": "c:\\Users\\wdalmazs\\Repositories\\Kompanion\\bin\\inkscape\\inkscape\\bin\\python.exe",
-  "python.useEnvironmentsExtension": true,
-  "python.terminal.activateEnvInCurrentTerminal": true,
 
   //-------------------------------------------------------------------------
   // FORTRAN
@@ -315,20 +194,11 @@
   // TERMINAL PROFILES
   //-------------------------------------------------------------------------
 
-  // Do not ask for confirmation when pasting multiple lines:
-  "terminal.integrated.enableMultiLinePasteWarning": "never",
-
-  // Do not show sticky scroll:
-  "terminal.integrated.stickyScroll.enabled": false,
-
   // XXX: I don't remember why I added this!
   "terminal.integrated.commandsToSkipShell": [
     "language-julia.interrupt",
     "matlab.interrupt"
   ],
-
-  // Use a bit smaller font in terminal:
-  "terminal.integrated.fontSize": 12,
 
   "terminal.integrated.profiles.windows": {
     "Kompanion PowerShell": {
@@ -378,12 +248,7 @@
     //   "path": "${env:KOMPANION_APPS}\\scilab-2025.1.0\\bin\\WScilex-cli.exe",
     //   "args": [""],
     // },
-    "Git Bash": null,
-    "JavaScript Debug Terminal": null,
-    "MATLAB": null
   },
-
-  "terminal.integrated.defaultProfile.windows": "Kompanion PowerShell",
 
   //-------------------------------------------------------------------------
   // CONTAINERS
@@ -392,29 +257,4 @@
   "containers.containerClient": "com.microsoft.visualstudio.containers.podman",
   "containers.enableComposeLanguageService": false,
 
-  //-------------------------------------------------------------------------
-  // REMOTE
-  //-------------------------------------------------------------------------
-
-  "security.allowedUNCHosts": [
-    "10.13.52.2"
-  ],
-
-  "remote.SSH.remotePlatform": {
-    "10.13.52.2": "linux",
-    "frontal": "linux"
-  },
-
-  //-------------------------------------------------------------------------
-  // COPILOT
-  //-------------------------------------------------------------------------
-
-  "github.copilot.nextEditSuggestions.enabled": true,
-  "github.copilot.enable": {
-    "*": true,
-    "plaintext": false,
-    "markdown": false,
-    "scminput": false,
-    "python": true
-  }
 }
