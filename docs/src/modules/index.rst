@@ -8,5 +8,7 @@ API Docs
     common
     energy
     fluent
+    latex
+    plotting
     reactor
     transport

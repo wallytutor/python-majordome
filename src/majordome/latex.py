@@ -10,12 +10,12 @@ def is_tex(path: Path) -> bool:
     return path.is_file() and path.suffix == ".tex"
 
 
-def list_templates() -> list[str]:
+def list_tex_templates() -> list[str]:
     """ List available LaTeX templates in the data directory. """
     return [f.name for f in (DATA / "latex").iterdir() if is_tex(f)]
 
 
-def load_template(name: str) -> Template:
+def load_tex_template(name: str) -> Template:
     """ Load a LaTeX template from the data directory. """
     if not (path := DATA / "latex" / f"{name}.tex").exists():
         raise FileNotFoundError(f"Template '{name}' not found in data/latex.")
@@ -31,7 +31,7 @@ def graphics_path(items: list[str]) -> str:
     return ",".join(f"{{{item}}}" for item in items)
 
 
-def fill_template(template: Template, **kw) -> str:
+def fill_tex_template(template: Template, **kw) -> str:
     """ Fill a LaTeX template with the given parameters. """
     required = template.get_identifiers()
     ignoring = []

@@ -44,9 +44,6 @@
 .. autoclass:: majordome.common.ReadTextData
     :members:
 
-.. autoclass:: majordome.common.StandardPlot
-    :members:
-
 .. autoclass:: majordome.common.InteractiveSession
     :members:
 
@@ -63,7 +60,6 @@
     :members:
 
 .. autofunction:: majordome.common.safe_remove
-.. autofunction:: majordome.common.standard_plot
 .. autofunction:: majordome.common.bounds
 .. autofunction:: majordome.common.within
 .. autofunction:: majordome.common.apply

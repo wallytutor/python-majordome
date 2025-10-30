@@ -18,9 +18,7 @@ from .common import (
     RelaxUpdate,
     StabilizeNvarsConvergenceCheck,
     ComposedStabilizedConvergence,
-    StandardPlot,
     safe_remove,
-    standard_plot,
     bounds,
     within,
     apply,
@@ -37,9 +35,7 @@ __all__ += [
     "RelaxUpdate",
     "StabilizeNvarsConvergenceCheck",
     "ComposedStabilizedConvergence",
-    "StandardPlot",
     "safe_remove",
-    "standard_plot",
     "bounds",
     "within",
     "apply",
@@ -96,6 +92,38 @@ __all__ += [
     "FluentInputFile",
     "convert_xy_to_dict",
     "load_dpm_table",
+]
+
+# ---------------------------------------------------------------------
+# majordome.latex
+# ---------------------------------------------------------------------
+
+from .latex import (
+    list_tex_templates,
+    load_tex_template,
+    fill_tex_template,
+)
+
+__all__ += [
+    "list_tex_templates",
+    "load_tex_template",
+    "fill_tex_template",
+]
+
+# ---------------------------------------------------------------------
+# majordome.plotting
+# ---------------------------------------------------------------------
+
+from .plotting import (
+    StandardPlot,
+    standard_plot,
+    centered_colormap
+)
+
+__all__ += [
+    "StandardPlot",
+    "standard_plot",
+    "centered_colormap"
 ]
 
 # ---------------------------------------------------------------------

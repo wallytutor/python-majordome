@@ -141,6 +141,7 @@ CompositionType = str | dict[str, float]
 SolutionLikeType = ct.composite.Solution | ct.composite.Quantity
 """ Input type for Cantera solution objects. """
 
+
 class StateType(NamedTuple):
     """ Input type for Cantera TPX state dictionaries. """
     X: CompositionType
@@ -187,32 +188,6 @@ class ReadTextData:
         text = StringIO(ReadTextData.read_data(fname, nlines=nlines))
         data = pd.read_csv(text, sep=sep, **kwargs)
         return data
-
-
-class StandardPlot:
-    """ Wraps a matplotlib figure and axis. """
-    def __init__(self, fig, ax):
-        self._fig = fig
-        self._ax = ax
-
-    def resize(self, w, h):
-        """ Resize a plot with width and height in inches. """
-        self._fig.set_size_inches(w, h)
-        self._fig.tight_layout()
-
-    def savefig(self, filename: str, **kwargs):
-        """ Save figure to file. """
-        self._fig.savefig(filename, **kwargs)
-
-    @property
-    def figure(self):
-        """ Provides access to undelining figure. """
-        return self._fig
-
-    @property
-    def axes(self):
-        """ Provides access to undelining figure. """
-        return self._ax
 
 
 class InteractiveSession:
@@ -433,7 +408,7 @@ def report_title(title: str, report: str) -> str:
     return dedent(f"""\n{title}\n{len(title) * "-"}\n""") + report
 
 
-def safe_remove(target_list: list[Any], to_remove: list[Any] | None, 
+def safe_remove(target_list: list[Any], to_remove: list[Any] | None,
                 inplace: bool = False) -> list:
     """ Safely remove elements from a list and return it. """
     if not isinstance(target_list, list):
@@ -452,46 +427,6 @@ def safe_remove(target_list: list[Any], to_remove: list[Any] | None,
         the_clist.remove(remove)
 
     return the_clist
-
-
-def standard_plot(shape: tuple[int, int] = (1, 1), sharex: bool = True,
-                  grid: bool = True, style: str = "classic",
-                  resized: tuple[float, float] = None,
-                  xlabel: str = None, ylabel: str = None
-                  ) -> StandardPlot:
-    """ Wraps a function for ensuring a standardized plot. """
-    opts = dict(sharex=sharex, facecolor="white")
-
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(self, *args, **kwargs):
-            plt.close("all")
-            plt.style.use(style)
-            fig, ax = plt.subplots(*shape, **opts)
-            ax = np.ravel(ax)
-
-            if grid:
-                for ax_k in ax:
-                    ax_k.grid(linestyle=":")
-
-            if xlabel:
-                for ax_k in ax:
-                    ax_k.set_xlabel(xlabel)
-
-            if ylabel:
-                for ax_k in ax:
-                    ax_k.set_ylabel(ylabel)
-
-            func(self, fig, ax, *args, **kwargs)
-            fig.tight_layout()
-
-            plot = StandardPlot(fig, ax)
-            if resized is not None:
-                plot.resize(*resized)
-
-            return plot
-        return wrapper
-    return decorator
 
 
 def bounds(arr):
