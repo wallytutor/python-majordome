@@ -10,6 +10,7 @@ function Start-KompanionBaseInstall() {
     Invoke-InstallNvim
     Invoke-InstallSevenZip
     Invoke-InstallLessMsi
+    Invoke-InstallCurl
     Invoke-InstallMsys2
     Invoke-InstallPandoc
     Invoke-InstallJabRef
@@ -70,6 +71,15 @@ function Invoke-InstallLessMsi() {
     $output = "$env:KOMPANION_TEMP/lessmsi.zip"
     $path   = "$env:KOMPANION_BIN/lessmsi"
     $url    = "https://github.com/activescott/lessmsi/releases/download/v2.10.3/lessmsi-v2.10.3.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallCurl() {
+    $output = "$env:KOMPANION_TEMP/curl.zip"
+    $path   = "$env:KOMPANION_BIN/curl"
+    $url    = "https://curl.se/windows/dl-8.16.0_13/curl-8.16.0_13-win64-mingw.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path

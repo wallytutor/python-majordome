@@ -5,6 +5,7 @@
         "nvim": true,
         "sevenzip": true,
         "lessmsi": true,
+        "curl": true,
         "msys2": true,
         "pandoc": true,
         "jabref": true,

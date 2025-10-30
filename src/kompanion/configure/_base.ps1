@@ -48,6 +48,11 @@ function Invoke-ConfigureLessMsi() {
     Initialize-AddToPath -Directory "$env:LESSMSI_HOME"
 }
 
+function Invoke-ConfigureCurl() {
+    $env:CURl_HOME = "$env:KOMPANION_BIN\curl\curl-8.16.0_13-win64-mingw\bin"
+    Initialize-AddToPath -Directory "$env:CURl_HOME"
+}
+
 function Invoke-ConfigureMsys2() {
     # TODO once MSYS2 is installed!
 }
