@@ -1,0 +1,29 @@
+{
+    "base": {
+        "vscode": true,
+        "git": true,
+        "nvim": true,
+        "sevenzip": true,
+        "lessmsi": true,
+        "msys2": true,
+        "pandoc": true,
+        "jabref": true,
+        "inkscape": true,
+        "miktex": true
+    },
+    "lang": {
+        "python": true,
+        "julia": true,
+        "erlang": true,
+        "haskell": true,
+        "elm": true,
+        "racket": false
+    },
+    "simu": {
+        "paraview": true,
+        "freecad": true,
+        "blender": true,
+        "elmer": true,
+        "gmsh": true
+    }
+}
