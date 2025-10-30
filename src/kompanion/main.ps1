@@ -1,12 +1,17 @@
 # ---------------------------------------------------------------------------
+# Parameters
+# ---------------------------------------------------------------------------
+
+param (
+    [switch]$RebuildOnStart,
+    [switch]$RunVsCode
+)
+
+# ---------------------------------------------------------------------------
 # Caller
 # ---------------------------------------------------------------------------
 
 function Start-KompanionMain() {
-    param (
-        [switch]$RebuildOnStart
-    )
-
     Write-Output "Starting Kompanion from $PSScriptRoot!"
 
     # Path to the root directory:
@@ -52,8 +57,10 @@ function Start-KompanionMain() {
     Write-Output "GIT_HOME            $env:GIT_HOME"
 
     # Run Kompanion VS Code instance
-    Code.exe --extensions-dir $env:VSCODE_EXTENSIONS `
-             --user-data-dir  $env:VSCODE_SETTINGS  .
+    if ($RunVsCode) {
+        Code.exe --extensions-dir $env:VSCODE_EXTENSIONS `
+                 --user-data-dir  $env:VSCODE_SETTINGS  .
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -95,7 +102,7 @@ function Start-KompanionConfigure() {
 . "$PSScriptRoot/aliases.ps1"
 . "$PSScriptRoot/helpers.ps1"
 
-Start-KompanionMain -RebuildOnStart
+Start-KompanionMain
 
 # ---------------------------------------------------------------------------
 # EOF
