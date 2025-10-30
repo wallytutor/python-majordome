@@ -4,6 +4,7 @@
 const KOMPANION_VERBOSE = false
 
 const KOMPANION_PKG = abspath(ENV["KOMPANION_PKG"])
+const AUCHIMISTE_PATH = abspath(ENV["AUCHIMISTE_PATH"])
 
 #######################################################################
 # module Kompanion
@@ -79,6 +80,13 @@ function setup_loadpath()
                 Pkg.develop(; path=path)
             end
         end
+    end
+
+    mods = abspath(get(ENV, "AUCHIMISTE_PATH", Main.AUCHIMISTE_PATH))
+
+    if isdir(mods)
+        @info("Loading local modules from $(mods)...")
+        push!(LOAD_PATH, mods)
     end
 
     return nothing
