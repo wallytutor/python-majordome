@@ -14,9 +14,9 @@ function Start-KompanionSimuConfigure() {
 # ---------------------------------------------------------------------------
 
 function Invoke-ConfigureElmer() {
-    # XXX: check if ELMER_HOME has any special meaning, otherwise add
-    # \bin directly to its definition (I think I cannot do that...).
     $env:ELMER_HOME = "$env:KOMPANION_BIN\elmer\ElmerFEM-gui-mpi-Windows-AMD64"
+    $env:ELMER_GUI_HOME = "$env:ELMER_HOME\share\ElmerGUI"
+    Initialize-AddToPath -Directory "$env:ELMER_HOME\lib"
     Initialize-AddToPath -Directory "$env:ELMER_HOME\bin"
 }
 
