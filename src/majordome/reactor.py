@@ -11,7 +11,8 @@ import warnings
 
 from .common import T_NORMAL, P_NORMAL
 from .common import CompositionType, SolutionLikeType
-from .common import safe_remove, standard_plot
+from .common import safe_remove
+from .plotting import standard_plot
 
 
 WARN_CANTERA_NON_KEY_VALUE = True
@@ -32,7 +33,7 @@ def toggle_reactor_warnings(*,
     ) -> None:
     """ Reverse truth value of warning flags. """
     if toggle_non_key_value:
-        global WARN_CANTERA_NON_KEY_VALUE 
+        global WARN_CANTERA_NON_KEY_VALUE
         WARN_CANTERA_NON_KEY_VALUE = not WARN_CANTERA_NON_KEY_VALUE
 
     if toggle_missing_species_name:
@@ -272,7 +273,7 @@ class NormalFlowRate:
                 ("Volume flow rate", "Nm³/h", qdot),
                 ("Mass flow rate", "kg/s", self(qdot))
             ])
- 
+
         return tabulate(data, tablefmt="github")
 
     @classmethod
