@@ -11,7 +11,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from .common import DATA, GRAVITY, standard_plot
+from .common import DATA, GRAVITY
+from .plotting import standard_plot
 
 
 class EffectiveThermalConductivity:
