@@ -62,7 +62,12 @@ function Invoke-DownloadIfNeeded() {
 
     if (!(Test-Path -Path $Output)) {
         Write-Host "Downloading $URL as $Output"
-        Start-BitsTransfer -Source $URL -Destination $Output
+        try {
+            # XXX: -ErrorAction Stop is required to catch errors
+            Start-BitsTransfer -Source $URL -Destination $Output -ErrorAction Stop
+        } catch {
+            Invoke-WebRequest -Uri $URL -OutFile $Output
+        }
     }
 }
 
