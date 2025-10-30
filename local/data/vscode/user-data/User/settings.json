@@ -47,6 +47,9 @@
         "editorRuler.foreground": "#3d17e4"
     },
 
+    // Just the icon for pinned tabs:
+    "workbench.editor.pinnedTabSizing": "compact",
+
     // Place elements on top of side bar:
     "workbench.activityBar.location": "top",
 
