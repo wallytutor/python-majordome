@@ -7,3 +7,4 @@ Advanced
 
     plug_
     plug_phd_
+    pyvista_tips_
