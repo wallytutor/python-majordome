@@ -126,6 +126,32 @@ function Invoke-UncompressGzipIfNeeded() {
 #     Write-Host "Installing MSI package $Source ... $Destination"
 #     Invoke-CapturedCommand "lessmsi.exe" @("x", $Source , "$Destination\")
 
+function Invoke-DirectoryBackupNoAdmin() {
+    param (
+        [string]$Source,
+        [string]$Destination,
+        [switch]$TestOnly
+    )
+
+    $LogFile = "$Destination.log"
+
+    $RoboArgs = @(
+        $Source
+        $Destination
+        "/MIR"          # Mirror (copy + delete)
+        "/R:3"          # Retry 3 times
+        "/W:5"          # Wait 5 seconds between retries
+        "/COPY:DAT"     # Copy file info (data, attributes, timestamps)
+        "/DCOPY:DAT"    # Copy directory data, attributes, timestamps
+        "/MT:16"        # Multi-threaded copy (16 threads)
+        "/LOG:$LogFile" # Log output
+    )
+
+    if ($TestOnly) { $RoboArgs += @("/L") }
+
+    robocopy @RoboArgs
+}
+
 function Piperish() {
     $pythonPath = "$env:PYTHON_HOME\python.exe"
 
@@ -136,6 +162,30 @@ function Piperish() {
     } else {
         Write-Host "Python executable not found!"
     }
+}
+
+# ---------------------------------------------------------------------------
+# Module management
+# ---------------------------------------------------------------------------
+
+function Get-ModulesConfig() {
+    $path = "$env:KOMPANION_DATA\kompanion.json"
+
+    if (!(Test-Path -Path $path)) {
+        Write-Host "Using default modules configuration..."
+        $path = "$env:KOMPANION_SRC\data\kompanion.json"
+    }
+
+    return Get-Content -Path $path -Raw | ConvertFrom-Json
+}
+
+function Enable-Module() {
+    # Change key in kompanion.json
+    Write-Host "Sorry, WIP..."
+}
+
+function Show-ModuleList() {
+    Write-Host "Sorry, WIP..."
 }
 
 # ---------------------------------------------------------------------------

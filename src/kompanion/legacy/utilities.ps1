@@ -44,37 +44,6 @@ function Add-ToPath() {
     }
 }
 
-function Enable-Module() {
-    Write-Host "Sorry, WIP..."
-}
-
-function Show-ModuleList() {
-    Write-Host "Sorry, WIP..."
-}
-
-function Piperish() {
-    $pythonPath = "$env:PYTHON_HOME\python\python.exe"
-
-    if (Test-Path -Path $pythonPath) {
-        $argList = @("-m", "pip", "--trusted-host", "pypi.org",
-                     "--trusted-host", "files.pythonhosted.org") + $args
-        Invoke-CapturedCommand $pythonPath $argList
-    } else {
-        Write-Host "Python executable not found!"
-    }
-}
-
-function Get-KompanionConfig() {
-    $raw = Get-Content -Path "$env:KOMPANION_DATA\kompanion.json" -Raw
-    return $raw | ConvertFrom-Json
-}
-
-function Start-Kompanion() {
-    Code.exe `
-        --extensions-dir $env:VSCODE_EXTENSIONS `
-        --user-data-dir  $env:VSCODE_SETTINGS  .
-}
-
 # -*- powershell -*-
 
 function Invoke-CapturedCommand() {
