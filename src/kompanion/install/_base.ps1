@@ -55,8 +55,8 @@ function Invoke-InstallNvim() {
 
 function Invoke-InstallSevenZip() {
     # TODO use full 7zip instead of 7zr ASAP!
-    $output = "$env:KOMPANION_TEMP/7zr.exe"
-    $path   = "$env:KOMPANION_BIN/7zr.exe"
+    $output = "$env:KOMPANION_TEMP\7zr.exe"
+    $path   = "$env:KOMPANION_BIN\7zr.exe"
     $url    = "https://github.com/ip7z/7zip/releases/download/25.01/7zr.exe"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
@@ -68,8 +68,8 @@ function Invoke-InstallSevenZip() {
 }
 
 function Invoke-InstallLessMsi() {
-    $output = "$env:KOMPANION_TEMP/lessmsi.zip"
-    $path   = "$env:KOMPANION_BIN/lessmsi"
+    $output = "$env:KOMPANION_TEMP\lessmsi.zip"
+    $path   = "$env:KOMPANION_BIN\lessmsi"
     $url    = "https://github.com/activescott/lessmsi/releases/download/v2.10.3/lessmsi-v2.10.3.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
@@ -77,8 +77,8 @@ function Invoke-InstallLessMsi() {
 }
 
 function Invoke-InstallCurl() {
-    $output = "$env:KOMPANION_TEMP/curl.zip"
-    $path   = "$env:KOMPANION_BIN/curl"
+    $output = "$env:KOMPANION_TEMP\curl.zip"
+    $path   = "$env:KOMPANION_BIN\curl"
     $url    = "https://curl.se/windows/dl-8.16.0_13/curl-8.16.0_13-win64-mingw.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
@@ -111,8 +111,8 @@ function Invoke-InstallMsys2() {
 }
 
 function Invoke-InstallPandoc() {
-    $output = "$env:KOMPANION_TEMP/pandoc.zip"
-    $path   = "$env:KOMPANION_BIN/pandoc"
+    $output = "$env:KOMPANION_TEMP\pandoc.zip"
+    $path   = "$env:KOMPANION_BIN\pandoc"
     $url    =  "https://github.com/jgm/pandoc/releases/download/3.8/pandoc-3.8-windows-x86_64.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
@@ -121,8 +121,8 @@ function Invoke-InstallPandoc() {
 }
 
 function Invoke-InstallJabRef() {
-    $output = "$env:KOMPANION_TEMP/jabref.zip"
-    $path   = "$env:KOMPANION_BIN/jabref"
+    $output = "$env:KOMPANION_TEMP\jabref.zip"
+    $path   = "$env:KOMPANION_BIN\jabref"
     $url    = "https://github.com/JabRef/jabref/releases/download/v5.15/JabRef-5.15-portable_windows.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
@@ -130,8 +130,8 @@ function Invoke-InstallJabRef() {
 }
 
 function Invoke-InstallInkscape() {
-    $output = "$env:KOMPANION_TEMP/inkscape.7z"
-    $path   = "$env:KOMPANION_BIN/inkscape"
+    $output = "$env:KOMPANION_TEMP\inkscape.7z"
+    $path   = "$env:KOMPANION_BIN\inkscape"
     $url    = "https://inkscape.org/gallery/item/53695/inkscape-1.4_2024-10-11_86a8ad7-x64.7z"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
@@ -139,8 +139,8 @@ function Invoke-InstallInkscape() {
 }
 
 function Invoke-InstallMikTex() {
-    $output  = "$env:KOMPANION_TEMP/miktexsetup.zip"
-    $path    = "$env:KOMPANION_BIN/miktexsetup"
+    $output  = "$env:KOMPANION_TEMP\miktexsetup.zip"
+    $path    = "$env:KOMPANION_BIN\miktexsetup"
     $url     = "https://miktex.org/download/ctan/systems/win32/miktex/setup/windows-x64/miktexsetup-5.5.0+1763023-x64.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
@@ -153,7 +153,7 @@ function Invoke-InstallMikTex() {
     if (!(Test-Path -Path $pkgData)) {
         Write-Host "Downloading MikTex data to $pkgData"
         $argList = @("download", "--package-set", "basic",
-                    "--local-package-repository", $pkgData)
+                     "--local-package-repository", $pkgData)
         Invoke-CapturedCommand $path $argList
     }
 
