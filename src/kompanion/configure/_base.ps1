@@ -3,18 +3,23 @@
 # ---------------------------------------------------------------------------
 
 function Start-KompanionBaseConfigure() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "- starting Kompanion base configuration..."
 
-    Invoke-ConfigureVsCode
-    Invoke-ConfigureGit
-    Invoke-ConfigureNvim
-    Invoke-ConfigureSevenZip
-    Invoke-ConfigureLessMsi
-    Invoke-ConfigureMsys2
-    Invoke-ConfigurePandoc
-    Invoke-ConfigureJabRef
-    Invoke-ConfigureInkscape
-    Invoke-ConfigureMikTex
+    if ($Config.vscode)   { Invoke-ConfigureVsCode }
+    if ($Config.git)      { Invoke-ConfigureGit }
+    if ($Config.nvim)     { Invoke-ConfigureNvim }
+    if ($Config.sevenzip) { Invoke-ConfigureSevenZip }
+    if ($Config.lessmsi)  { Invoke-ConfigureLessMsi }
+    if ($Config.curl)     { Invoke-ConfigureCurl }
+    if ($Config.msys2)    { Invoke-ConfigureMsys2 }
+    if ($Config.pandoc)   { Invoke-ConfigurePandoc }
+    if ($Config.jabref)   { Invoke-ConfigureJabRef }
+    if ($Config.inkscape) { Invoke-ConfigureInkscape }
+    if ($Config.miktex)   { Invoke-ConfigureMikTex }
 }
 
 # ---------------------------------------------------------------------------

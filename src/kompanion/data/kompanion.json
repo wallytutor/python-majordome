@@ -18,7 +18,8 @@
         "erlang": true,
         "haskell": true,
         "elm": true,
-        "racket": false
+        "racket": false,
+        "rust": false
     },
     "simu": {
         "paraview": true,

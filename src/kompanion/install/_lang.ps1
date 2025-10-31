@@ -3,13 +3,19 @@
 # ---------------------------------------------------------------------------
 
 function Start-KompanionLangInstall() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "- starting Kompanion languages installation..."
 
-    Invoke-InstallPython
-    Invoke-InstallJulia
-    Invoke-InstallErlang
-    Invoke-InstallHaskell
-    Invoke-InstallElm
+    if ($Config.python)  { Invoke-InstallPython }
+    if ($Config.julia)   { Invoke-InstallJulia }
+    if ($Config.erlang)  { Invoke-InstallErlang }
+    if ($Config.haskell) { Invoke-InstallHaskell }
+    if ($Config.elm)     { Invoke-InstallElm }
+    if ($Config.racket)  { Invoke-InstallRacket }
+    if ($Config.rust)    { Invoke-InstallRust }
 }
 
 # ---------------------------------------------------------------------------
@@ -59,6 +65,14 @@ function Invoke-InstallElm() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressGzipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallRacket() {
+    Write-Host "- Racket installation not yet implemented."
+}
+
+function Invoke-InstallRust() {
+    Write-Host "- Rust installation not yet implemented."
 }
 
 # ---------------------------------------------------------------------------

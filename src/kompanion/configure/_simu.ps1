@@ -3,10 +3,14 @@
 # ---------------------------------------------------------------------------
 
 function Start-KompanionSimuConfigure() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "- starting Kompanion simulation tools configuration..."
 
-    Invoke-ConfigureElmer
-    Invoke-ConfigureGmsh
+    if ($Config.elmer) { Invoke-ConfigureElmer }
+    if ($Config.gmsh)  { Invoke-ConfigureGmsh }
 }
 
 # ---------------------------------------------------------------------------

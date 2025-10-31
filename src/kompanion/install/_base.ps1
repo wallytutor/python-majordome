@@ -3,19 +3,23 @@
 # ---------------------------------------------------------------------------
 
 function Start-KompanionBaseInstall() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "- starting Kompanion base installation..."
 
-    Invoke-InstallVsCode
-    Invoke-InstallGit
-    Invoke-InstallNvim
-    Invoke-InstallSevenZip
-    Invoke-InstallLessMsi
-    Invoke-InstallCurl
-    Invoke-InstallMsys2
-    Invoke-InstallPandoc
-    Invoke-InstallJabRef
-    Invoke-InstallInkscape
-    Invoke-InstallMikTex
+    if ($Config.vscode)   { Invoke-InstallVsCode }
+    if ($Config.git)      { Invoke-InstallGit }
+    if ($Config.nvim)     { Invoke-InstallNvim }
+    if ($Config.sevenzip) { Invoke-InstallSevenZip }
+    if ($Config.lessmsi)  { Invoke-InstallLessMsi }
+    if ($Config.curl)     { Invoke-InstallCurl }
+    if ($Config.msys2)    { Invoke-InstallMsys2 }
+    if ($Config.pandoc)   { Invoke-InstallPandoc }
+    if ($Config.jabref)   { Invoke-InstallJabRef }
+    if ($Config.inkscape) { Invoke-InstallInkscape }
+    if ($Config.miktex)   { Invoke-InstallMikTex }
 }
 
 # ---------------------------------------------------------------------------

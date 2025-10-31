@@ -3,16 +3,20 @@
 # ---------------------------------------------------------------------------
 
 function Start-KompanionSimuInstall() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "- starting Kompanion simulation tools installation..."
 
     # No configure (not in path):
-    Invoke-InstallParaView
-    Invoke-InstallFreeCAD
-    Invoke-InstallBlender
+    if ($Config.paraview) { Invoke-InstallParaView }
+    if ($Config.freecad)  { Invoke-InstallFreeCAD }
+    if ($Config.blender)  { Invoke-InstallBlender }
 
     # With configure:
-    Invoke-InstallElmer
-    Invoke-InstallGmsh
+    if ($Config.elmer)    { Invoke-InstallElmer }
+    if ($Config.gmsh)     { Invoke-InstallGmsh }
 }
 
 # ---------------------------------------------------------------------------

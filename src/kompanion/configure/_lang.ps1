@@ -3,13 +3,19 @@
 # ---------------------------------------------------------------------------
 
 function Start-KompanionLangConfigure() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "- starting Kompanion languages configuration..."
 
-    Invoke-ConfigurePython
-    Invoke-ConfigureJulia
-    Invoke-ConfigureErlang
-    Invoke-ConfigureHaskell
-    Invoke-ConfigureElm
+    if ($Config.python)  { Invoke-ConfigurePython }
+    if ($Config.julia)   { Invoke-ConfigureJulia }
+    if ($Config.erlang)  { Invoke-ConfigureErlang }
+    if ($Config.haskell) { Invoke-ConfigureHaskell }
+    if ($Config.elm)     { Invoke-ConfigureElm }
+    if ($Config.racket)  { Invoke-ConfigureRacket }
+    if ($Config.rust)    { Invoke-ConfigureRust }
 }
 
 # ---------------------------------------------------------------------------
@@ -96,6 +102,12 @@ function Invoke-ConfigureRacket() {
     # Initialize-AddToPath -Directory "$env:RACKET_HOME\bin"
     # $env:PLTUSERHOME     = "$env:KOMPANION_DATA\racket"
     # $env:PLT_PKGDIR      = "$env:PLTUSERHOME\Racket\8.18\pkgs"
+}
+
+function Invoke-ConfigureRust() {
+    # $env:RUST_HOME = "$env:KOMPANION_BIN\rust"
+    # Initialize-AddToPath -Directory "$env:RUST_HOME\bin"
+    # $env:CARGO_HOME = "$env:KOMPANION_DATA\rust"
 }
 
 # ---------------------------------------------------------------------------
