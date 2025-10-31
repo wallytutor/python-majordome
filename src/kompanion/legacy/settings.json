@@ -1,6 +1,4 @@
 {
-
-
   // Do not open the previous sessions by default:
   // These are not working yet, waiting for solution!
   // https://github.com/Microsoft/vscode/issues/22613
@@ -16,26 +14,9 @@
   "rewrap.doubleSentenceSpacing": true,
   "liveServer.settings.donotShowInfoMsg": true,
 
-  // XXX: use Copilot behing a proxy!
-  "win-ca.inject": "append",
-
   //-------------------------------------------------------------------------
   // LANGUAGE SPECIFIC
   //-------------------------------------------------------------------------
-
-  "[latex]": {
-    "editor.tabSize": 2,
-    "editor.wordWrap": "wordWrapColumn",
-    "editor.wordWrapColumn": 80,
-    "rewrap.autoWrap.enabled": false
-  },
-
-  "[markdown]": {
-    "editor.wordWrap": "wordWrapColumn",
-    "editor.wordWrapColumn": 100,
-    "rewrap.autoWrap.enabled": false
-  },
-
 
   "jupyter.askForKernelRestart": false,
   "jupyter.interactiveWindow.creationMode": "perFile",
