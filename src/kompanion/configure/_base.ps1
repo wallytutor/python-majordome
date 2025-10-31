@@ -20,6 +20,7 @@ function Start-KompanionBaseConfigure() {
     if ($Config.jabref)   { Invoke-ConfigureJabRef }
     if ($Config.inkscape) { Invoke-ConfigureInkscape }
     if ($Config.miktex)   { Invoke-ConfigureMikTex }
+    if ($Config.nteract)  { Invoke-ConfigureNteract }
 }
 
 # ---------------------------------------------------------------------------
@@ -86,6 +87,11 @@ function Invoke-ConfigureMikTex() {
 
     Initialize-AddToPath -Directory "$env:MIKTEX_HOME\texmfs\install\miktex\bin\x64\internal"
     Initialize-AddToPath -Directory "$env:MIKTEX_HOME\texmfs\install\miktex\bin\x64"
+}
+
+function Invoke-ConfigureNteract() {
+    $env:NTERACT_HOME = "$env:KOMPANION_BIN\nteract\"
+    Initialize-AddToPath -Directory "$env:NTERACT_HOME"
 }
 
 # ---------------------------------------------------------------------------
