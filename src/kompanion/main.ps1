@@ -33,13 +33,16 @@ function Start-KompanionMain() {
     Initialize-EnsureDirectory $env:KOMPANION_LOGS
     Initialize-EnsureDirectory $env:KOMPANION_TEMP
 
+    # Get configuration of modules:
+    $config = Get-ModulesConfig
+
     # Install components if needed
     if ($RebuildOnStart) {
-        Start-KompanionInstall
+        Start-KompanionInstall $config
     }
 
     # Configure components if needed
-    Start-KompanionConfigure
+    Start-KompanionConfigure $config
 
     Write-Output "`nEnvironment"
     Write-Output "-----------"
@@ -68,6 +71,10 @@ function Start-KompanionMain() {
 # ---------------------------------------------------------------------------
 
 function Start-KompanionInstall() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "`nStarting Kompanion installation..."
 
     . "$PSScriptRoot\install\_base.ps1"
@@ -76,12 +83,16 @@ function Start-KompanionInstall() {
 
     # XXX: languages come last because some packages might override
     # them (especially Python that is used everywhere).
-    Start-KompanionBaseInstall
-    Start-KompanionLangInstall
-    Start-KompanionSimuInstall
+    Start-KompanionBaseInstall $Config.base
+    Start-KompanionLangInstall $Config.lang
+    Start-KompanionSimuInstall $Config.simu
 }
 
 function Start-KompanionConfigure() {
+    param (
+        [pscustomobject]$Config
+    )
+
     Write-Host "`nStarting Kompanion configuration..."
 
     . "$PSScriptRoot\configure\_base.ps1"
@@ -90,9 +101,9 @@ function Start-KompanionConfigure() {
 
     # XXX: languages come last because some packages might override
     # them (especially Python that is used everywhere).
-    Start-KompanionBaseConfigure
-    Start-KompanionLangConfigure
-    Start-KompanionSimuConfigure
+    Start-KompanionBaseConfigure $Config.base
+    Start-KompanionLangConfigure $Config.lang
+    Start-KompanionSimuConfigure $Config.simu
 }
 
 # ---------------------------------------------------------------------------
