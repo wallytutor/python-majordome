@@ -10,7 +10,8 @@
         "pandoc": true,
         "jabref": true,
         "inkscape": true,
-        "miktex": true
+        "miktex": true,
+        "nteract": true
     },
     "lang": {
         "python": true,

@@ -20,6 +20,7 @@ function Start-KompanionBaseInstall() {
     if ($Config.jabref)   { Invoke-InstallJabRef }
     if ($Config.inkscape) { Invoke-InstallInkscape }
     if ($Config.miktex)   { Invoke-InstallMikTex }
+    if ($Config.nteract)  { Invoke-InstallNteract }
 }
 
 # ---------------------------------------------------------------------------
@@ -168,6 +169,15 @@ function Invoke-InstallMikTex() {
                     "--portable", $miktex)
         Invoke-CapturedCommand $path $argList
     }
+}
+
+function Invoke-InstallNteract() {
+    $output = "$env:KOMPANION_TEMP\nteract.zip"
+    $path   = "$env:KOMPANION_BIN\nteract"
+    $url    = "https://github.com/nteract/nteract/releases/download/v0.28.0/nteract-0.28.0-win.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
 }
 
 # ---------------------------------------------------------------------------
