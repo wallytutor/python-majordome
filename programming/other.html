@@ -1,0 +1,647 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Other languages &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'programming/other';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Development" href="../developers/index.html" />
+    <link rel="prev" title="Minimal Haskell" href="haskell.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/common_.html">Common utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/energy_.html">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/transport_.html">Transport properties</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/plug_.html">Plug flow coupling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/plug_phd_.html">Acetylene pyrolysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/pyvista_tips_.html">PyVista recipes</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/index.html">API Docs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../modules/common.html">majordome.common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/energy.html">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/reactor.html">majordome.reactor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/transport.html">majordome.transport</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../teaching/index.html">Teaching</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../teaching/calphad_iron_nitrogen_.html">Equilibrium in Fe-N system</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../computing/index.html">Computing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../computing/introduction.html">Scientific computing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-git.html">Git version control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-ssh.html">SSH key generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-containers.html">Using containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-selection.html">Selection of tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-portable.html">Portable toolbox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/system-windows.html">Working on Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/system-linux.html">Working on Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/ansys-fluent/tui.html">Text user interface (TUI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/elmer-csc/elmer.html">Elmer Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/general-tips.html">General Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/services.html">Deploying services</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Programming</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="julia-tips.html">Julia tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="racket.html">Programming in Racket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haskell.html">Minimal Haskell</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Other languages</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../developers/index.html">Development</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developers/devel.html">Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developers/onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/programming/other.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Other languages</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#erlang">Erlang</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fortran">Fortran</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheat-sheet">Cheat-sheet</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lisp">LISP</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rust">Rust</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#beginner-cheat-sheet">Beginner cheat-sheet</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="other-languages">
+<h1>Other languages<a class="headerlink" href="#other-languages" title="Link to this heading">#</a></h1>
+<section id="erlang">
+<h2>Erlang<a class="headerlink" href="#erlang" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.erlang.org/doc/system/getting_started.html">Getting started</a></p></li>
+</ul>
+</section>
+<section id="fortran">
+<h2>Fortran<a class="headerlink" href="#fortran" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://fortran-lang.org/learn/quickstart/">Quick-start</a>.</p></li>
+</ul>
+<section id="cheat-sheet">
+<h3>Cheat-sheet<a class="headerlink" href="#cheat-sheet" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Subroutines can be declared directly inside a program</p></li>
+</ul>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">program_name</span>
+<span class="w">    </span><span class="k">implicit none</span>
+
+<span class="k">    </span><span class="n">some_subroutine</span><span class="p">()</span>
+
+<span class="w">    </span><span class="k">contains</span>
+
+<span class="k">    subroutine </span><span class="n">some_subroutine</span><span class="p">()</span>
+<span class="w">        </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Hello, world!&quot;</span>
+<span class="w">    </span><span class="k">end subroutine </span><span class="n">some_subroutine</span>
+
+<span class="k">end program </span><span class="n">program_name</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Flow control</p>
+<ul>
+<li><p>Both single branch <code class="docutils literal notranslate"><span class="pre">if</span></code> and <code class="docutils literal notranslate"><span class="pre">if-else</span></code> conditionals are supported</p></li>
+<li><p>Multi-branch is obtained by chaining <code class="docutils literal notranslate"><span class="pre">if-else</span></code> conditionals</p></li>
+</ul>
+</li>
+<li><p>Strings</p>
+<ul>
+<li><p>Constant size allocation with <code class="docutils literal notranslate"><span class="pre">character(len=&lt;n&gt;)</span></code> for <code class="docutils literal notranslate"><span class="pre">n</span></code> characters</p></li>
+<li><p>Runtime allocation declared with <code class="docutils literal notranslate"><span class="pre">character(:),</span> <span class="pre">allocatable</span></code></p></li>
+<li><p>Allocation can be done explicitly <code class="docutils literal notranslate"><span class="pre">allocate(character(&lt;n&gt;)</span> <span class="pre">::</span> <span class="pre">&lt;var-name&gt;)</span></code> or implicitly on assignment</p></li>
+<li><p>Concatenation is performed with <code class="docutils literal notranslate"><span class="pre">//</span></code></p></li>
+<li><p>An array of strings keeps strings of a single size (which can be trimmed for display)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="lisp">
+<h2>LISP<a class="headerlink" href="#lisp" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://portacle.github.io/">Recommended environment Portacle</a></p></li>
+<li><p><a class="reference external" href="https://lisp-lang.org/learn/getting-started/">Common LISP resources</a></p></li>
+<li><p><a class="reference external" href="https://www.tutorialspoint.com/lisp/index.htm">Tutorialspoint tutorial</a></p></li>
+</ul>
+<section id="tips">
+<h3>Tips<a class="headerlink" href="#tips" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Who do I produce an executable from within the REPL?</p></li>
+</ul>
+<div class="highlight-lisp notranslate"><div class="highlight"><pre><span></span><span class="c1">; For Windows use the `.exe` otherwise it won&#39;t execute!</span>
+<span class="p">(</span><span class="nv">save-lisp-and-die</span><span class="w"> </span><span class="s">&quot;myapp.exe&quot;</span><span class="w"> </span><span class="ss">:executable</span><span class="w"> </span><span class="no">t</span><span class="w"> </span><span class="ss">:toplevel</span><span class="w"> </span><span class="nf">#&#39;</span><span class="nv">main</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="rust">
+<h2>Rust<a class="headerlink" href="#rust" title="Link to this heading">#</a></h2>
+<p>Standard resources:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.rust-lang.org/">Rust Programming Language</a></p></li>
+<li><p><a class="reference external" href="https://github.com/rust-lang/rustlings/">Rustlings hands on course</a></p></li>
+<li><p><a class="reference external" href="https://doc.rust-lang.org/std/index.html">Rust Standard Library</a></p></li>
+</ul>
+<p>A full set of documentation and web-books is available at <a class="reference external" href="https://www.rust-lang.org/learn">Learn Rust</a> ; the main resources in the form of <em>books</em> are listed below following their order of importance in the beginner learning path:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://doc.rust-lang.org/book/">Rust Book</a></p></li>
+<li><p><a class="reference external" href="https://doc.rust-lang.org/rust-by-example/">Rust By Example</a></p></li>
+<li><p><a class="reference external" href="https://doc.rust-lang.org/cargo/index.html">The Cargo Book</a></p></li>
+</ul>
+<p>For learning and reviewing the basics of Rust I recommend the following videos; start with the first for a crash course and then take more time to repeat everything and learn in more depth with the second.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=rQ_J9WH6CGk">Rust Programming (3h)</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=BpPEoZW5IiY">Learn Rust Programming (13h)</a></p></li>
+</ul>
+<p>Not yet reviewed:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=lzKeecy4OmQ">Rust 101 Crash Course (6h)</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=zQgN75kdR9M">Parallel Programming in Rust (1h)</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/playlist?list=PLVbq-Dh4_0uyfA7FDduMjKp3L60WoQZgX">Clean Rust (playlist)</a></p></li>
+</ul>
+<section id="beginner-cheat-sheet">
+<h3>Beginner cheat-sheet<a class="headerlink" href="#beginner-cheat-sheet" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Compilation and Cargo</p></li>
+</ul>
+<p>Create <code class="docutils literal notranslate"><span class="pre">hello.rs</span></code> with the following and compile with <code class="docutils literal notranslate"><span class="pre">rustc</span> <span class="pre">hello.rs</span></code>:</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="c1">// Comments are just like in C!</span>
+<span class="cm">/*</span>
+<span class="cm">    Multiline also work, but I don&#39;t like it!</span>
+<span class="cm">*/</span>
+<span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Hello, world!&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Create a new project with <code class="docutils literal notranslate"><span class="pre">cargo</span> <span class="pre">new</span> <span class="pre">hello-cargo</span></code>; enter the folder and <code class="docutils literal notranslate"><span class="pre">cargo</span> <span class="pre">run</span></code>. Alternatively create the folder manually, enter it and <code class="docutils literal notranslate"><span class="pre">cargo</span> <span class="pre">init</span></code>.</p>
+<ul class="simple">
+<li><p>Data types</p>
+<ul>
+<li><p>Primitives</p></li>
+<li><p>Compounds</p></li>
+<li><p>Collections</p></li>
+</ul>
+</li>
+<li><p>Functions and ownership</p>
+<ul>
+<li><p>Definition</p></li>
+<li><p>Ownership</p></li>
+<li><p>Borrowing</p></li>
+<li><p>References</p></li>
+</ul>
+</li>
+<li><p>Variables and mutability</p>
+<ul>
+<li><p>Declaration</p></li>
+<li><p>Mutability</p></li>
+<li><p>Constants</p></li>
+<li><p>Shadowing</p></li>
+</ul>
+</li>
+<li><p>Control flow</p>
+<ul>
+<li><p>Conditionals</p></li>
+<li><p>Loops</p></li>
+</ul>
+</li>
+<li><p>Structures and enumerations</p></li>
+<li><p>Error handling</p>
+<ul>
+<li><p>Results</p></li>
+<li><p>Options</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="haskell.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Minimal Haskell</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../developers/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Development</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#erlang">Erlang</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fortran">Fortran</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cheat-sheet">Cheat-sheet</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lisp">LISP</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rust">Rust</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#beginner-cheat-sheet">Beginner cheat-sheet</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1154 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Acetylene pyrolysis &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'advanced/plug_phd_';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PyVista recipes" href="pyvista_tips_.html" />
+    <link rel="prev" title="Plug flow coupling" href="plug_.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/common_.html">Common utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/energy_.html">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/transport_.html">Transport properties</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Advanced</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plug_.html">Plug flow coupling</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Acetylene pyrolysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyvista_tips_.html">PyVista recipes</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/index.html">API Docs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../modules/common.html">majordome.common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/energy.html">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/reactor.html">majordome.reactor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/transport.html">majordome.transport</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../teaching/index.html">Teaching</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../teaching/calphad_iron_nitrogen_.html">Equilibrium in Fe-N system</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../computing/index.html">Computing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../computing/introduction.html">Scientific computing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-git.html">Git version control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-ssh.html">SSH key generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-containers.html">Using containers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-selection.html">Selection of tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/tools-portable.html">Portable toolbox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/system-windows.html">Working on Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/system-linux.html">Working on Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/ansys-fluent/tui.html">Text user interface (TUI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/elmer-csc/elmer.html">Elmer Multiphysics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/general-tips.html">General Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../computing/services.html">Deploying services</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../programming/index.html">Programming</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../programming/introduction.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming/julia-tips.html">Julia tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming/racket.html">Programming in Racket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming/haskell.html">Minimal Haskell</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming/other.html">Other languages</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../developers/index.html">Development</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developers/devel.html">Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developers/onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/advanced/plug_phd_.py" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.py</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Acetylene pyrolysis</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Toolbox">Toolbox</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Reference-case">Reference case</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Scan-table">Scan table</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Acetylene-pyrolysis">
+<h1>Acetylene pyrolysis<a class="headerlink" href="#Acetylene-pyrolysis" title="Link to this heading">#</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> majordome.skipper
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">majordome</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NormalFlowRate</span><span class="p">,</span>
+    <span class="n">PlugFlowChainCantera</span><span class="p">,</span>
+    <span class="n">get_reactor_data</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">CubicSpline</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cantera</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ct</span><span class="o">.</span><span class="n">suppress_thermo_warnings</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MJ_SOLVE_FINEST&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+</pre></div>
+</div>
+</div>
+<section id="Toolbox">
+<h2>Toolbox<a class="headerlink" href="#Toolbox" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TubularReactor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Provides the discretization of a tubular reactor. &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">L</span><span class="o">=</span><span class="mf">0.52</span><span class="p">,</span> <span class="n">D</span><span class="o">=</span><span class="mf">0.028</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">D</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A_cell</span> <span class="o">=</span> <span class="n">d</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">D</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">V_cell</span> <span class="o">=</span> <span class="n">d</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">D</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">L</span><span class="o">-</span><span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mf">0.1</span><span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V_cell</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">mass_flow_rate</span><span class="p">(</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">qdot</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Evaluate mass flow rate from mechanism [kg/s]. &quot;&quot;&quot;</span>
+    <span class="n">nfr</span> <span class="o">=</span> <span class="n">NormalFlowRate</span><span class="p">(</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">nfr</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">qdot</span><span class="o">=</span><span class="n">qdot</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">nfr</span><span class="p">(</span><span class="n">qdot</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">initial_mixture</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">fraction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute mixture accounting for imputiries. &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;CH3COCH3&quot;</span> <span class="ow">in</span> <span class="n">sol</span><span class="o">.</span><span class="n">species_names</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;C2H2&quot;</span>     <span class="p">:</span> <span class="mf">0.980</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">,</span>
+             <span class="s2">&quot;CH4&quot;</span>      <span class="p">:</span> <span class="mf">0.002</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">,</span>
+             <span class="s2">&quot;CH3COCH3&quot;</span> <span class="p">:</span> <span class="mf">0.018</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;C2H2&quot;</span>     <span class="p">:</span> <span class="mf">0.998</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">,</span>
+             <span class="s2">&quot;CH4&quot;</span>      <span class="p">:</span> <span class="mf">0.002</span> <span class="o">*</span> <span class="n">fraction</span><span class="p">}</span>
+
+    <span class="n">X</span><span class="p">[</span><span class="s2">&quot;N2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">X</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">global_htc</span><span class="p">(</span><span class="n">reactor</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">Nu</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Evaluate global heat transfer coefficient. &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">thermal_conductivity</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="mf">0.025</span> <span class="c1"># Norinaga lacks transport!</span>
+    <span class="k">return</span> <span class="n">reactor</span><span class="o">.</span><span class="n">A_cell</span> <span class="o">*</span> <span class="n">Nu</span> <span class="o">*</span> <span class="n">k</span> <span class="o">/</span> <span class="n">reactor</span><span class="o">.</span><span class="n">D</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">fraction</span><span class="p">,</span> <span class="n">qdot</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">T_wall</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">T_env</span><span class="o">=</span><span class="mf">298.15</span><span class="p">,</span>
+          <span class="n">K</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">Nu</span><span class="o">=</span><span class="mf">3.66</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Integrate reactor model with given operating conditions. &quot;&quot;&quot;</span>
+    <span class="c1"># -- HANDLE UNITS</span>
+    <span class="n">P</span>    <span class="o">*=</span> <span class="mi">100</span>           <span class="c1"># hPa to Pa</span>
+    <span class="n">qdot</span> <span class="o">*=</span> <span class="mf">1.0e-06</span> <span class="o">*</span> <span class="mi">60</span>  <span class="c1"># SCCM to Nm³/h</span>
+
+    <span class="c1"># -- CREATE PROBLEM</span>
+    <span class="n">reactor</span> <span class="o">=</span> <span class="n">TubularReactor</span><span class="p">()</span>
+
+    <span class="n">sol</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">Solution</span><span class="p">(</span><span class="n">mechanism</span><span class="p">)</span>
+    <span class="n">sol</span><span class="o">.</span><span class="n">TPX</span> <span class="o">=</span> <span class="n">T_env</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">initial_mixture</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="n">fraction</span><span class="p">)</span>
+
+    <span class="n">mdot</span> <span class="o">=</span> <span class="n">mass_flow_rate</span><span class="p">(</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">sol</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">qdot</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="n">apfr</span> <span class="o">=</span> <span class="n">PlugFlowChainCantera</span><span class="p">(</span><span class="n">sol</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">sol</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">reactor</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+                                <span class="n">reactor</span><span class="o">.</span><span class="n">V</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="n">sol</span><span class="o">.</span><span class="n">P</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
+
+    <span class="c1">## -- SETUP CONDITIONS</span>
+    <span class="n">sources</span> <span class="o">=</span> <span class="n">get_reactor_data</span><span class="p">(</span><span class="n">apfr</span><span class="p">)</span>
+    <span class="n">sources</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mdot</span>
+    <span class="n">sources</span><span class="o">.</span><span class="n">h</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">h</span>
+    <span class="n">sources</span><span class="o">.</span><span class="n">Y</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">sol</span><span class="o">.</span><span class="n">Y</span>
+    <span class="n">sources</span><span class="o">.</span><span class="n">Q</span><span class="p">[:]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1">## -- REGISTER HEAT TRASNFER</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">heat_flow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="n">global_htc</span><span class="p">(</span><span class="n">reactor</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">Nu</span><span class="p">)</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="o">-</span><span class="n">U</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="n">T_wall</span><span class="p">(</span><span class="n">reactor</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">Q</span>
+
+    <span class="n">apfr</span><span class="o">.</span><span class="n">register_heat_flow</span><span class="p">(</span><span class="n">heat_flow</span><span class="p">)</span>
+
+    <span class="c1">## -- SOLVE AND PROCESS</span>
+    <span class="n">apfr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cols&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;z_cell&quot;</span><span class="p">,</span> <span class="s2">&quot;Q_cell&quot;</span><span class="p">,</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">])</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apfr</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">(</span><span class="n">cols</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">apfr</span><span class="p">,</span> <span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_reactor</span><span class="p">(</span><span class="n">apfr</span><span class="p">):</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">selected</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;C2H2&quot;</span><span class="p">],</span> <span class="n">y_label</span><span class="o">=</span><span class="s2">&quot;Mole fraction&quot;</span><span class="p">,</span>
+                  <span class="n">composition_variable</span><span class="o">=</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
+
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">apfr</span><span class="o">.</span><span class="n">quick_plot</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">MECHS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;c2h2/dalmazsi-2017.yaml&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;c2h2/graf-2007.yaml&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;c2h2/norinaga-2009.yaml&quot;</span><span class="p">]</span>
+
+<span class="n">PROFILES</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;z&quot;</span><span class="p">:</span>    <span class="p">[</span> <span class="mf">0.00</span><span class="p">,</span>   <span class="mf">0.05</span><span class="p">,</span>   <span class="mf">0.10</span><span class="p">,</span>   <span class="mf">0.12</span><span class="p">,</span>   <span class="mf">0.15</span><span class="p">,</span>   <span class="mf">0.20</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span>
+              <span class="mf">0.30</span><span class="p">,</span>   <span class="mf">0.35</span><span class="p">,</span>   <span class="mf">0.40</span><span class="p">,</span>   <span class="mf">0.45</span><span class="p">,</span>   <span class="mf">0.50</span><span class="p">,</span>   <span class="mf">0.52</span>  <span class="p">],</span>
+    <span class="s2">&quot;773&quot;</span><span class="p">:</span>  <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">303.0</span><span class="p">,</span>  <span class="mf">330.0</span><span class="p">,</span>  <span class="mf">400.0</span><span class="p">,</span>  <span class="mf">650.0</span><span class="p">,</span>  <span class="mf">750.0</span><span class="p">,</span> <span class="mf">762.0</span><span class="p">,</span>
+              <span class="mf">763.0</span><span class="p">,</span>  <span class="mf">763.0</span><span class="p">,</span>  <span class="mf">763.0</span><span class="p">,</span>  <span class="mf">582.0</span><span class="p">,</span>  <span class="mf">440.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;873&quot;</span><span class="p">:</span>  <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">360.0</span><span class="p">,</span>  <span class="mf">503.0</span><span class="p">,</span>  <span class="mf">757.0</span><span class="p">,</span>  <span class="mf">834.0</span><span class="p">,</span> <span class="mf">850.0</span><span class="p">,</span>
+              <span class="mf">869.0</span><span class="p">,</span>  <span class="mf">859.0</span><span class="p">,</span>  <span class="mf">849.0</span><span class="p">,</span>  <span class="mf">698.0</span><span class="p">,</span>  <span class="mf">546.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;973&quot;</span><span class="p">:</span>  <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">420.0</span><span class="p">,</span>  <span class="mf">653.0</span><span class="p">,</span>  <span class="mf">873.0</span><span class="p">,</span>  <span class="mf">918.0</span><span class="p">,</span> <span class="mf">949.0</span><span class="p">,</span>
+              <span class="mf">971.0</span><span class="p">,</span>  <span class="mf">954.0</span><span class="p">,</span>  <span class="mf">937.0</span><span class="p">,</span>  <span class="mf">780.0</span><span class="p">,</span>  <span class="mf">623.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;1023&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">550.0</span><span class="p">,</span>  <span class="mf">689.0</span><span class="p">,</span>  <span class="mf">896.0</span><span class="p">,</span>  <span class="mf">965.0</span><span class="p">,</span> <span class="mf">1001.0</span><span class="p">,</span>
+             <span class="mf">1018.0</span><span class="p">,</span> <span class="mf">1001.0</span><span class="p">,</span>  <span class="mf">984.0</span><span class="p">,</span>  <span class="mf">837.0</span><span class="p">,</span>  <span class="mf">690.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;1073&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">550.0</span><span class="p">,</span>  <span class="mf">726.0</span><span class="p">,</span>  <span class="mf">919.0</span><span class="p">,</span> <span class="mf">1013.0</span><span class="p">,</span> <span class="mf">1052.0</span><span class="p">,</span>
+             <span class="mf">1064.0</span><span class="p">,</span> <span class="mf">1048.0</span><span class="p">,</span> <span class="mf">1031.0</span><span class="p">,</span>  <span class="mf">894.0</span><span class="p">,</span>  <span class="mf">757.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;1123&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">550.0</span><span class="p">,</span>  <span class="mf">755.0</span><span class="p">,</span>  <span class="mf">959.0</span><span class="p">,</span> <span class="mf">1057.0</span><span class="p">,</span> <span class="mf">1098.0</span><span class="p">,</span>
+             <span class="mf">1110.0</span><span class="p">,</span> <span class="mf">1095.0</span><span class="p">,</span> <span class="mf">1080.0</span><span class="p">,</span>  <span class="mf">931.0</span><span class="p">,</span>  <span class="mf">782.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;1173&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">550.0</span><span class="p">,</span>  <span class="mf">783.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="mf">1101.0</span><span class="p">,</span> <span class="mf">1143.0</span><span class="p">,</span>
+             <span class="mf">1156.0</span><span class="p">,</span> <span class="mf">1143.0</span><span class="p">,</span> <span class="mf">1129.0</span><span class="p">,</span>  <span class="mf">968.0</span><span class="p">,</span>  <span class="mf">806.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;1223&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">550.0</span><span class="p">,</span>  <span class="mf">793.0</span><span class="p">,</span> <span class="mf">1048.0</span><span class="p">,</span> <span class="mf">1151.0</span><span class="p">,</span> <span class="mf">1189.0</span><span class="p">,</span>
+             <span class="mf">1205.0</span><span class="p">,</span> <span class="mf">1189.0</span><span class="p">,</span> <span class="mf">1172.0</span><span class="p">,</span>  <span class="mf">991.0</span><span class="p">,</span>  <span class="mf">809.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+    <span class="s2">&quot;1273&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="mf">298.0</span><span class="p">,</span>  <span class="mf">299.0</span><span class="p">,</span>  <span class="mf">550.0</span><span class="p">,</span>  <span class="mf">803.0</span><span class="p">,</span> <span class="mf">1095.0</span><span class="p">,</span> <span class="mf">1200.0</span><span class="p">,</span> <span class="mf">1235.0</span><span class="p">,</span>
+             <span class="mf">1253.0</span><span class="p">,</span> <span class="mf">1234.0</span><span class="p">,</span> <span class="mf">1214.0</span><span class="p">,</span> <span class="mf">1013.0</span><span class="p">,</span>  <span class="mf">811.0</span><span class="p">,</span>  <span class="mf">400.0</span> <span class="p">],</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Reference-case">
+<h2>Reference case<a class="headerlink" href="#Reference-case" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">skipper</span> MJ_SOLVE_FINEST
+%%time
+results, df = solve(MECHS[2], fraction=0.36, qdot=222, P=50,
+                    T_wall=CubicSpline(PROFILES[&quot;z&quot;], PROFILES[&quot;1173&quot;]))
+plot_reactor(results)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Skipping cell: MJ_SOLVE_FINEST=True
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="n">results</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">MECHS</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.36</span><span class="p">,</span> <span class="n">qdot</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                    <span class="n">T_wall</span><span class="o">=</span><span class="n">CubicSpline</span><span class="p">(</span><span class="n">PROFILES</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">],</span> <span class="n">PROFILES</span><span class="p">[</span><span class="s2">&quot;1173&quot;</span><span class="p">]))</span>
+<span class="n">plot_reactor</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CPU times: user 710 ms, sys: 17.6 ms, total: 728 ms
+Wall time: 709 ms
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/advanced_plug_phd__15_1.png" src="../_images/advanced_plug_phd__15_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="n">results</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">MECHS</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.36</span><span class="p">,</span> <span class="n">qdot</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                    <span class="n">T_wall</span><span class="o">=</span><span class="n">CubicSpline</span><span class="p">(</span><span class="n">PROFILES</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">],</span> <span class="n">PROFILES</span><span class="p">[</span><span class="s2">&quot;1173&quot;</span><span class="p">]))</span>
+<span class="n">plot_reactor</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CPU times: user 1.67 s, sys: 20.8 ms, total: 1.69 s
+Wall time: 1.68 s
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/advanced_plug_phd__16_1.png" src="../_images/advanced_plug_phd__16_1.png" />
+</div>
+</div>
+</section>
+<section id="Scan-table">
+<h2>Scan table<a class="headerlink" href="#Scan-table" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">TABLE5_9</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span> <span class="mi">773</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.352</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span> <span class="mi">873</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.364</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span> <span class="mi">973</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.364</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1073</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.346</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1123</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.312</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1173</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.307</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1273</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.288</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1173</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.323</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span> <span class="mi">9</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1223</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.314</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1173</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.249</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1223</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.226</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">222</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1273</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.201</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">378</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1023</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.343</span><span class="p">),</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">P</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="mi">378</span><span class="p">,</span> <span class="n">T</span><span class="o">=</span><span class="mi">1123</span><span class="p">,</span> <span class="n">X_meas</span><span class="o">=</span><span class="mf">0.298</span><span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">scan_with_mech</span><span class="p">(</span><span class="n">mech</span><span class="p">):</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">TABLE5_9</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">TABLE5_9</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Working on case no. </span><span class="si">{</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">T_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;T&quot;</span><span class="p">]))</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">df</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">mech</span><span class="p">,</span> <span class="n">fraction</span><span class="o">=</span><span class="mf">0.36</span><span class="p">,</span> <span class="n">qdot</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">],</span> <span class="n">P</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">],</span>
+                      <span class="n">T_wall</span><span class="o">=</span><span class="n">CubicSpline</span><span class="p">(</span><span class="n">PROFILES</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">],</span> <span class="n">PROFILES</span><span class="p">[</span><span class="n">T_name</span><span class="p">]))</span>
+
+        <span class="n">table</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;X_calc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;X_C2H2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">run_mech</span><span class="p">(</span><span class="n">mech</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">mech</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="n">x_name</span><span class="p">,</span> <span class="n">e_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;X_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;err_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="n">scan</span> <span class="o">=</span> <span class="n">scan_with_mech</span><span class="p">(</span><span class="n">mech</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X_calc&quot;</span><span class="p">:</span> <span class="n">x_name</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">scan</span>
+
+    <span class="n">df</span><span class="p">[</span><span class="n">e_name</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">scan</span><span class="p">[</span><span class="n">x_name</span><span class="p">]</span> <span class="o">/</span> <span class="n">scan</span><span class="p">[</span><span class="s2">&quot;X_meas&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">run_mech</span><span class="p">(</span><span class="n">MECHS</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">df</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Working on case no. 1
+Working on case no. 2
+Working on case no. 3
+Working on case no. 4
+Working on case no. 5
+Working on case no. 6
+Working on case no. 7
+Working on case no. 8
+Working on case no. 9
+Working on case no. 10
+Working on case no. 11
+Working on case no. 12
+Working on case no. 13
+Working on case no. 14
+CPU times: user 22.3 s, sys: 125 ms, total: 22.4 s
+Wall time: 22.3 s
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">run_mech</span><span class="p">(</span><span class="n">MECHS</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Working on case no. 1
+Working on case no. 2
+Working on case no. 3
+Working on case no. 4
+Working on case no. 5
+Working on case no. 6
+Working on case no. 7
+Working on case no. 8
+Working on case no. 9
+Working on case no. 10
+Working on case no. 11
+Working on case no. 12
+Working on case no. 13
+Working on case no. 14
+CPU times: user 8.48 s, sys: 220 ms, total: 8.7 s
+Wall time: 8.5 s
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">skipper</span> MJ_SOLVE_FINEST
+%%time
+df = run_mech(MECHS[2], df=df)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Skipping cell: MJ_SOLVE_FINEST=True
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>N</th>
+      <th>P</th>
+      <th>Q</th>
+      <th>T</th>
+      <th>X_meas</th>
+      <th>X_dalmazsi_2017</th>
+      <th>err_dalmazsi_2017</th>
+      <th>err_graf_2007</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>50</td>
+      <td>222</td>
+      <td>773</td>
+      <td>0.352</td>
+      <td>0.352786</td>
+      <td>0.223212</td>
+      <td>2.032933</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>50</td>
+      <td>222</td>
+      <td>873</td>
+      <td>0.364</td>
+      <td>0.352540</td>
+      <td>-3.148330</td>
+      <td>-1.550413</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>50</td>
+      <td>222</td>
+      <td>973</td>
+      <td>0.364</td>
+      <td>0.350258</td>
+      <td>-3.775208</td>
+      <td>-2.602299</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>50</td>
+      <td>222</td>
+      <td>1073</td>
+      <td>0.346</td>
+      <td>0.339812</td>
+      <td>-1.788298</td>
+      <td>-1.188026</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>50</td>
+      <td>222</td>
+      <td>1123</td>
+      <td>0.312</td>
+      <td>0.326556</td>
+      <td>4.665512</td>
+      <td>6.179187</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>6</td>
+      <td>50</td>
+      <td>222</td>
+      <td>1173</td>
+      <td>0.307</td>
+      <td>0.307034</td>
+      <td>0.010994</td>
+      <td>4.120820</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>7</td>
+      <td>50</td>
+      <td>222</td>
+      <td>1273</td>
+      <td>0.288</td>
+      <td>0.290866</td>
+      <td>0.995060</td>
+      <td>6.743916</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>8</td>
+      <td>30</td>
+      <td>222</td>
+      <td>1173</td>
+      <td>0.323</td>
+      <td>0.329143</td>
+      <td>1.901911</td>
+      <td>5.859843</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>9</td>
+      <td>30</td>
+      <td>222</td>
+      <td>1223</td>
+      <td>0.314</td>
+      <td>0.318436</td>
+      <td>1.412680</td>
+      <td>7.828360</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>10</td>
+      <td>100</td>
+      <td>222</td>
+      <td>1173</td>
+      <td>0.249</td>
+      <td>0.242491</td>
+      <td>-2.613868</td>
+      <td>4.125649</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>11</td>
+      <td>100</td>
+      <td>222</td>
+      <td>1223</td>
+      <td>0.226</td>
+      <td>0.230372</td>
+      <td>1.934472</td>
+      <td>5.944962</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>12</td>
+      <td>100</td>
+      <td>222</td>
+      <td>1273</td>
+      <td>0.201</td>
+      <td>0.221251</td>
+      <td>10.075293</td>
+      <td>12.714431</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>13</td>
+      <td>100</td>
+      <td>378</td>
+      <td>1023</td>
+      <td>0.343</td>
+      <td>0.342777</td>
+      <td>-0.065090</td>
+      <td>0.254930</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>14</td>
+      <td>100</td>
+      <td>378</td>
+      <td>1123</td>
+      <td>0.298</td>
+      <td>0.305793</td>
+      <td>2.615003</td>
+      <td>6.255879</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">error_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;err&quot;</span><span class="p">)]</span>
+<span class="n">rmse_frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="n">error_cols</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rmse_frame</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>err_dalmazsi_2017</th>
+      <th>err_graf_2007</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3.53261</td>
+      <td>5.758262</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plug_.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Plug flow coupling</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pyvista_tips_.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">PyVista recipes</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Toolbox">Toolbox</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Reference-case">Reference case</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Scan-table">Scan table</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
