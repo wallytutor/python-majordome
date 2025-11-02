@@ -6,7 +6,6 @@ Programming
     :caption: Programming
 
     introduction
-    julia-tips
     racket
     haskell
     other
