@@ -51,7 +51,8 @@ namespaces = false
 [tool.setuptools.package-data]
 "majordome" = [
     "data/*.yaml",
-    "data/*/*.yaml"
+    "data/*/*.yaml",
+    "data/latex/*.tex"
 ]
 
 # PEP621
