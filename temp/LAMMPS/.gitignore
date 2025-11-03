@@ -1,0 +1,13 @@
+# LAMMPS standard log file.
+log.*
+
+# Dumped trajectories.
+*.lammpstrj
+
+# LAMMPS data file.
+*.dat
+*.data
+
+# Generated frames.
+*.bmp
+*.gif
