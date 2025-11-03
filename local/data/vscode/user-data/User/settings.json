@@ -164,9 +164,10 @@
     // JULIA
     //////////////////////////////////////////////////////////////////////////
 
-    "terminal.integrated.commandsToSkipShell": [
-        "language-julia.interrupt"
-    ],
+    "[julia]": {
+        "editor.tabSize": 4
+    },
+
     "julia.symbolCacheDownload": true,
     "julia.enableCrashReporter": false,
     "julia.enableTelemetry": false,
@@ -242,6 +243,10 @@
     },
 
     "terminal.integrated.defaultProfile.windows": "Kompanion PowerShell",
+
+    "terminal.integrated.commandsToSkipShell": [
+        "language-julia.interrupt"
+    ],
 
     //////////////////////////////////////////////////////////////////////////
     // OTHER
