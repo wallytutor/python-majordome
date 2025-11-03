@@ -1,0 +1,152 @@
+# https://webbook.nist.gov/cgi/cbook.cgi?Mask=2&ID=<id>
+# https://www.mindat.org/
+
+phases:
+
+  - name: aszo
+    elements: [Al, Si, Zr, O]
+    species:
+      - AL2O3_CORUNDUM
+      - SIO2_QUARTZ
+      - ZRO2_MONOCLINIC
+      - ZRO2_TETRAGONAL
+      - AL2SIO5_ANDALUSITE
+      - AL6SI2O13_MULLITE
+      - ZRSIO4
+    thermo: ideal-condensed
+    state:
+      T: 300.0
+      P: 101325.0
+      X: {AL2O3_CORUNDUM: 1.0}
+
+
+species:
+
+  - name: AL2O3_CORUNDUM
+    composition: {Al: 2, O: 3}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 2327.0]
+      data:
+      - [ 1.024290e+02,  3.874980e+01, -1.591090e+01,  2.628181e+00,
+         -3.007551e+00, -1.717930e+03,  1.469970e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 3.98 g/cm^3
+    meta:
+      id: C1344281
+      note: Density from Barsoum, 2003 (for alpha).
+
+  - name: SIO2_QUARTZ
+    composition: {Si: 1, O: 2}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 847.0, 1996.0]
+      data:
+      - [-6.076591e+00,  2.516755e+02, -3.247964e+02,  1.685604e+02,
+          2.548000e-03, -9.176893e+02, -2.796962e+01]
+      - [ 5.875340e+01,  1.027925e+01, -1.313840e-01,  2.521000e-02,
+          2.560100e-02, -9.293292e+02,  1.058092e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 2.65 g/cm^3
+    meta:
+      id: C14808607
+      note: Density from Barsoum, 2003 (for low quartz).
+
+  - name: ZRO2_MONOCLINIC
+    composition: {Zr: 1, O: 2}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 1478.0]
+      data:
+      - [ 6.920001e+01,  8.548290e+00, -8.629210e-01,  2.46374e-01,
+         -1.382767e+00, -1.123115e+03,  1.237954e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 5.83 g/cm^3
+    meta:
+      id: C1314234
+      note: Density from Barsoum, 2003.
+
+  - name: ZRO2_TETRAGONAL
+    composition: {Zr: 1, O: 2}
+    thermo:
+      model: Shomate
+      temperature-ranges: [1478.0, 2950.0]
+      data:
+      - [ 7.447520e+01,  0.000000e+00,  0.000000e+00,  0.000000e+00,
+          0.000000e+00, -1.115333e+03,  1.380247e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 6.10 g/cm^3
+    meta:
+      id: C1314234
+      note: Density from Barsoum, 2003.
+
+  - name: AL2SIO5_ANDALUSITE
+    composition: {Al: 2, Si: 1, O: 5}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 3000.0]
+      data:
+      - [ 1.707746e+02,  3.150565e+01, -3.817662e+00,  5.72677e-01,
+         -5.106321e+00, -2.661639e+03,  2.614762e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 3.149 g/cm^3
+    meta:
+      id: C12183801
+      note: Density from https://www.mindat.org/min-217.html
+
+  - name: AL6SI2O13_MULLITE
+    composition: {Al: 6, Si: 2, O: 13}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 1700.0, 3000.0]
+      data:
+      - [ 3.298565e+02,  3.861485e+02, -2.545751e+02,  6.134539e+01,
+         -8.782468e+00, -6.962302e+03,  5.196737e+02]
+      - [ 6.917784e+02, -1.252518e+02,  4.419434e+01, -3.971086e+00,
+         -1.136717e+02, -7.253173e+03,  8.540423e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 3.2 g/cm^3
+    meta:
+      id: C1302938
+      note: Density from Barsoum, 2003.
+
+  - name: ZRSIO4
+    composition: {Zr: 1, Si: 1, O: 4}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 1700.0, 3000.0]
+      data:
+      - [ 8.517160e+01,  1.369892e+02, -9.457221e+01,  2.171923e+01,
+         -1.742368e+00, -2.060541e+03,  1.403125e+02]
+      - [ 1.506240e+02,  9.000000e-06, -3.000000e-06,  3.454475e-07,
+          5.000000e-06, -2.082356e+03,  2.376625e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 4.2 g/cm^3
+    meta:
+      id: C10101527
+      note: Density from Barsoum, 2003.
+
+  - name: AL2O3_LIQUID
+    composition: {Al: 2, O: 3}
+    thermo:
+      model: Shomate
+      temperature-ranges: [2327.0, 4000.0]
+      data:
+      - [ 1.924640e+02,  9.519856e-08, -2.858928e-08,  2.929147e-09,
+          5.599405e-08, -1.757711e+03,  1.771008e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 999 g/cm^3
+    meta:
+      id: C1344281
+      compound: Al2O3 (Liquid)
+
+
+reactions:
