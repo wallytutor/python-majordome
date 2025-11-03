@@ -11,6 +11,7 @@ function Start-KompanionLangConfigure() {
 
     if ($Config.python)  { Invoke-ConfigurePython }
     if ($Config.julia)   { Invoke-ConfigureJulia }
+    if ($Config.node)    { Invoke-ConfigureNode }
     if ($Config.erlang)  { Invoke-ConfigureErlang }
     if ($Config.haskell) { Invoke-ConfigureHaskell }
     if ($Config.elm)     { Invoke-ConfigureElm }
@@ -64,6 +65,11 @@ function Invoke-ConfigureJulia() {
         Invoke-CapturedCommand "$env:JULIA_HOME\bin\julia.exe" @("-e", "exit()")
         New-Item -ItemType File -Path $lockFile -Force | Out-Null
     }
+}
+
+function Invoke-ConfigureNode() {
+    $env:NODE_HOME = "$env:KOMPANION_BIN\node\node-v24.11.0-win-x64"
+    Initialize-AddToPath -Directory "$env:NODE_HOME"
 }
 
 function Invoke-ConfigureErlang() {
