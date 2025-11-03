@@ -11,6 +11,7 @@ function Start-KompanionLangInstall() {
 
     if ($Config.python)  { Invoke-InstallPython }
     if ($Config.julia)   { Invoke-InstallJulia }
+    if ($Config.node)    { Invoke-InstallNode }
     if ($Config.erlang)  { Invoke-InstallErlang }
     if ($Config.haskell) { Invoke-InstallHaskell }
     if ($Config.elm)     { Invoke-InstallElm }
@@ -35,6 +36,15 @@ function Invoke-InstallJulia() {
     $output = "$env:KOMPANION_TEMP\julia.zip"
     $path   = "$env:KOMPANION_BIN\julia"
     $url    = "https://julialang-s3.julialang.org/bin/winnt/x64/1.12/julia-1.12.1-win64.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallNode() {
+    $output = "$env:KOMPANION_TEMP\node.zip"
+    $path   = "$env:KOMPANION_BIN\node"
+    $url    = "https://nodejs.org/dist/v24.11.0/node-v24.11.0-win-x64.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path

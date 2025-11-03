@@ -16,6 +16,7 @@
     "lang": {
         "python": true,
         "julia": true,
+        "node": true,
         "erlang": true,
         "haskell": true,
         "elm": true,
