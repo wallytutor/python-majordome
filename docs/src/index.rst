@@ -9,7 +9,5 @@ Majordome
     advanced/index
     modules/index
     teaching/index
-    computing/index
-    programming/index
     developers/index
     references
