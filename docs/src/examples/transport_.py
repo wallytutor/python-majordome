@@ -18,10 +18,14 @@
 # %load_ext autoreload
 # %autoreload 2
 
-from majordome import bounds, standard_plot
-from majordome import (EffectiveThermalConductivity,         
-                       SolutionDimless, SutherlandFitting,
-                       WSGGRadlibBordbar2020)
+from majordome import (
+    MajordomePlot,
+    EffectiveThermalConductivity,
+    SolutionDimless,
+    SutherlandFitting,
+    WSGGRadlibBordbar2020,
+    bounds
+)
 from matplotlib import pyplot as plt
 import cantera as ct
 import numpy as np
@@ -49,13 +53,14 @@ etc.maxwell_garnett(phi, k_g, k_s)
 # Please notice that these models compute different things; while Maxwell approximation computes the medium properties (to approximate matrix-inclusion as a single domain), Singh's model accounts only for solids properties. One might wish to combine them (warning: unverified validity!) to evaluate overall medium thermal conductivity. See the references in the class documentation for further discussion, specially the extension proposed by Kiradjiev (2019), which leads to a result similar to the assymptotic behavior displayed below.
 
 # +
-@standard_plot(shape=(1, 2))
-def plot_etc(data, fig, ax):
+@MajordomePlot.new(shape=(1, 2))
+def plot_etc(data, plot=None):
+    fig, ax = plot.subplots()
     T, k_s, k_m =  data
-    
+
     ax[0].plot(T, k_s)
     ax[1].plot(T, k_m)
-    
+
     ax[0].set_xlim(bounds(T))
     ax[1].set_xlim(bounds(T))
 
@@ -82,13 +87,14 @@ plot_etc((T, k_eff_s, k_eff_m)).resize(10, 5)
 # Due to kinetic theory implications, gas thermal conductivity tend to have a positive slope in temperature; the following illustrates how this can be accounted for and the roughly linear behaviour introduced when computing medium properties within air.
 
 # +
-@standard_plot(shape=(1, 2))
-def plot_etc(data, fig, ax):
+@MajordomePlot.new(shape=(1, 2))
+def plot_etc(data, plot=None):
+    fig, ax = plot.subplots()
     T, k_g, k_m =  data
-    
+
     ax[0].plot(T, k_g)
     ax[1].plot(T, k_m)
-    
+
     ax[0].set_xlim(bounds(T))
     ax[1].set_xlim(bounds(T))
 
@@ -98,7 +104,7 @@ def plot_etc(data, fig, ax):
     ax[1].set_xlabel("Temperature [K]")
     ax[0].set_ylabel("Thermal conductivity [W/(m.K)]")
     ax[1].set_ylabel("Thermal conductivity [W/(m.K)]")
-    
+
 
 gas = ct.Solution("airish.yaml")
 sol = ct.SolutionArray(gas, (T.shape[0],))
@@ -187,9 +193,11 @@ model(L=1, T=1000, P=101325, x_h2o=0.18, x_co2=0.08, fvsoot=0.0)
 
 # Evaluation of the model against original source of Bordbar (2014) is satisfactory, as follows:
 
-@standard_plot(shape=(1, 2))
-def plot_bordbar2014(_obj, fig, ax):
+@MajordomePlot.new(shape=(1, 2))
+def plot_bordbar2014(_obj, plot=None):
     """ Reproduce plots of Bordbar (2014), Fig. 2. """
+    fig, ax = plot.subplots()
+
     def scan_flue(T, L, *, M):
         x_co2 = 1 / (1 + M)
         return model(L, T, 101325, M*x_co2, x_co2)

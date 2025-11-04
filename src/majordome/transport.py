@@ -12,7 +12,7 @@ import pandas as pd
 import yaml
 
 from .common import DATA, GRAVITY
-from .plotting import standard_plot
+from .plotting import MajordomePlot
 
 
 class EffectiveThermalConductivity:
@@ -403,9 +403,11 @@ class SutherlandFitting:
         """
         return As * np.sqrt(T) / (1 + Ts / T)
 
-    @standard_plot(shape=(1, 2), resized=(10, 5))
-    def plot_species(self, fig, ax, name, loc=2):
+    @MajordomePlot.new(shape=(1, 2), size=(10, 5))
+    def plot_species(self, plot=None, name=None, loc=2, **kwargs):
         """ Generate verification plot for a given species. """
+        fig, ax = plot.subplots()
+
         where = (self._data["species"] == name)
         As, Ts = self._data.loc[where].iloc[0, 1:-1].to_numpy()
 

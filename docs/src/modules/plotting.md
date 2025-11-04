@@ -1,9 +1,8 @@
 # majordome.plotting
 
 ```{eval-rst}
-.. autoclass:: majordome.plotting.StandardPlot
+.. autoclass:: majordome.plotting.MajordomePlot
     :members:
 
-.. autofunction:: majordome.plotting.standard_plot
 .. autofunction:: majordome.plotting.centered_colormap
 ```
