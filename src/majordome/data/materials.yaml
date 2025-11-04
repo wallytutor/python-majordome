@@ -3,6 +3,7 @@
 
 phases:
 
+
   - name: aszo
     elements: [Al, Si, Zr, O]
     species:
@@ -146,7 +147,35 @@ species:
       density: 999 g/cm^3
     meta:
       id: C1344281
-      compound: Al2O3 (Liquid)
+
+  - name: H2O_LIQUID
+    composition: {H: 2, O: 1}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 500.0]
+      data:
+      - [-2.036060e+02,  1.523290e+03, -3.196413e+03,  2.474455e+03,
+          3.855326e+00, -2.565478e+02, -4.887163e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 1.0 g/cm^3
+    meta:
+      id: C7732185
+
+  - name: H2O_GAS
+    composition: {H: 2, O: 1}
+    thermo:
+      model: Shomate
+      temperature-ranges: [500.0, 1700.0, 6000.0]
+      data:
+      - [ 3.009200e+01,  6.832514e+00,  6.793435e+00, -2.534480e+00,
+          8.213900e-02, -2.508810e+02,  2.233967e+02]
+      - [ 4.196426e+01,  8.622053e+00, -1.499780e+00,  9.811900e-02,
+         -1.115764e+01, -2.721797e+02,  2.197809e+02]
+    equation-of-state:
+      model: ideal-gas
+    meta:
+      id: C7732185
 
 
 reactions:
