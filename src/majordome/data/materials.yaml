@@ -45,6 +45,20 @@ phases:
       X: {H2O_GAS: 1.0}
 
 
+# - name:
+#   composition: {}
+#   thermo:
+#     model: Shomate
+#     temperature-ranges: [200.0, 6000.0]
+#     data:
+#     - []
+#   equation-of-state:
+#     model: constant-volume
+#     density: 9999 g/cm^3
+#   meta:
+#     id: if relevant...
+#     note: notes...
+
 species_minerals:
 
   #####################################################################
@@ -149,21 +163,6 @@ species_minerals:
       id: C1302938
       note: Density from Barsoum, 2003.
 
-  - name: AL6SI2O13_MULLITE_TEMP
-    composition: {Al: 6, Si: 2, O: 13}
-    thermo:
-      model: Shomate
-      temperature-ranges: [200.0, 3000.0]
-      data:
-      - [ 3.298565e+02,  3.861485e+02, -2.545751e+02,  6.134539e+01,
-         -8.782468e+00, -6.962302e+03,  5.196737e+02]
-    equation-of-state:
-      model: constant-volume
-      density: 3.2 g/cm^3
-    meta:
-      id: C1302938
-      note: Density from Barsoum, 2003.
-
   - name: ZRSIO4
     composition: {Zr: 1, Si: 1, O: 4}
     thermo:
@@ -229,6 +228,5 @@ species_water:
       model: ideal-gas
     meta:
       id: C7732185
-
 
 reactions:
