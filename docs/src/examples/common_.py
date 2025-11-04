@@ -97,7 +97,7 @@ for n in range(niter):
         history = history[:n+2]
         break
 
-@MajordomePlot.new(resized=(8, 5))
+@MajordomePlot.new(size=(8, 5))
 def plot_history(history, plot=None):
     """ Plot relaxation history. """
     fig, ax = plot.subplots()
