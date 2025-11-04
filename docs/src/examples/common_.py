@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.17.3
+#       jupytext_version: 1.18.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -44,6 +44,7 @@ Constants() is Constants()
 # %%
 print(Constants.report())
 
+
 # %% [markdown]
 # ## *ReadTextData*
 #
@@ -51,8 +52,27 @@ print(Constants.report())
 
 # %% [markdown]
 # ## *MajordomePlot*
+
+# %% [markdown]
+# Class `MajordomePlot` aims at simplifying the plotting of publication-quality figures across Majordome (and beyond!). Below we illustrate how to use this functionality to ensure all the plots in a project look the same. Here we create a function that will be used below in the examples. To get it working, you need to:
 #
-# WIP, sorry for the inconvenience...
+# - Have a function with signature `func(*args, plot=None, **kwargs) -> None`, where it is recommended (for linter) to provide explictly keyword `plot=None`.
+# - Unpack `fig, ax = plot.subplots()` or just `_, ax = plot.subplots()`, as needed, inside the figure; these contain standard `matplotlib` figure and axes.
+# - Use decorator `@MajordomePlot.new` with all its configurable attributes; for details, please refer to its API documentation.
+#
+# The decorator will modify your function so that it returns an instance of `MajordomePlot`, which can be used for further customization. Please notice that the axes object has been row-wise flattened so that it has a single dimension; in a figure with `shape=(2, 3)`, subplot `(1, 2)` is found at `ax[1]` and `(2, 1)` is found at `ax[3]`.
+
+# %%
+@MajordomePlot.new(size=(8, 5))
+def plot_history(history, *, plot=None):
+    """ Plot relaxation history. """
+    fig, ax = plot.subplots()
+
+    ax[0].plot(history)
+    ax[0].set_title("Verification of relaxation progress")
+    ax[0].set_xlabel("Update iteration")
+    ax[0].set_ylabel("Updated value")
+
 
 # %% [markdown]
 # ## *InteractiveSession*
@@ -96,15 +116,5 @@ for n in range(niter):
     if converged(single[0]):
         history = history[:n+2]
         break
-
-@MajordomePlot.new(size=(8, 5))
-def plot_history(history, plot=None):
-    """ Plot relaxation history. """
-    fig, ax = plot.subplots()
-
-    ax[0].plot(history)
-    ax[0].set_title("Verification of relaxation progress")
-    ax[0].set_xlabel("Update iteration")
-    ax[0].set_ylabel("Updated value")
 
 _ = plot_history(history)

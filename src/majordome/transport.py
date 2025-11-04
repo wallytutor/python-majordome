@@ -404,7 +404,7 @@ class SutherlandFitting:
         return As * np.sqrt(T) / (1 + Ts / T)
 
     @MajordomePlot.new(shape=(1, 2), size=(10, 5))
-    def plot_species(self, plot=None, name=None, loc=2, **kwargs):
+    def plot_species(self, name=None, loc=2, *, plot=None, **kwargs):
         """ Generate verification plot for a given species. """
         fig, ax = plot.subplots()
 
