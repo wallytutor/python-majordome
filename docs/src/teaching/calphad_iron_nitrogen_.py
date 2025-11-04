@@ -267,7 +267,7 @@ def mole_to_mass_fraction(x):
 
 
 # +
-@MajordomePlot.new(resized=(6, 5))
+@MajordomePlot.new(size=(6, 5))
 def plot_gibbs(_placeholder, plot=None):
     fig, ax = plot.subplots()
 
@@ -431,7 +431,7 @@ df.head().T
 
 
 # +
-@MajordomePlot.new(shape=(1, 2), resized=(12, 5))
+@MajordomePlot.new(shape=(1, 2), size=(12, 5))
 def plot_step(df, plot=None):
     fig, ax = plot.subplots()
 

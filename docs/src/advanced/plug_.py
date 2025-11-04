@@ -310,7 +310,7 @@ def solve_pair(model, method="alternate", *, max_alternate=np.inf,
 # A simple standard ploting function is provided for the counter-current reactor pair:
 
 # %%
-@MajordomePlot.new(shape=(3, 1), resized=(10, 8))
+@MajordomePlot.new(shape=(3, 1), size=(10, 8))
 def plot_pair(pair, plot=None):
     """ Plot pair of reactors in counter-current. """
     fig, ax = plot.subplots()
@@ -563,7 +563,7 @@ class FullCounterCurrentReactors:
             T2 = self.r2.reactor.states.T
             Tw = self.Tw
 
-    @MajordomePlot.new(shape=(2, 1), resized=(10, 8))
+    @MajordomePlot.new(shape=(2, 1), size=(10, 8))
     def plot(self, plot=None):
         """ Plot fully integrated system. """
         fig, ax = plot.subplots()
@@ -938,7 +938,7 @@ class FullCounterCurrentReactorsWithRegister:
 
         return Q1 + Q2 + Qw
 
-    @MajordomePlot.new(shape=(1, 1), resized=(10, 5))
+    @MajordomePlot.new(shape=(1, 1), size=(10, 5))
     def plot_residual(self, plot=None):
         """ Display residual of energy balance over length. """
         fig, ax = plot.subplots()
@@ -948,7 +948,7 @@ class FullCounterCurrentReactorsWithRegister:
         ax[0].set_xlabel("z [m]")
         ax[0].set_ylabel("Balance [W]")
 
-    @MajordomePlot.new(shape=(2, 1), resized=(10, 8))
+    @MajordomePlot.new(shape=(2, 1), size=(10, 8))
     def plot(self, plot=None):
         """ Plot fully integrated system. """
         fig, ax = plot.subplots()
