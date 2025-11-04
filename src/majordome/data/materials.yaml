@@ -1,12 +1,16 @@
 # https://webbook.nist.gov/cgi/cbook.cgi?Mask=2&ID=<id>
 # https://www.mindat.org/
+extensions:
+- type: python
+  name: majordome.cantera
+
 
 phases:
-
 
   - name: aszo
     elements: [Al, Si, Zr, O]
     species:
+    - species_minerals:
       - AL2O3_CORUNDUM
       - SIO2_QUARTZ
       - ZRO2_MONOCLINIC
@@ -20,8 +24,28 @@ phases:
       P: 101325.0
       X: {AL2O3_CORUNDUM: 1.0}
 
+  - name: water_liq
+    elements: [H, O]
+    species:
+    - species_water: [H2O_LIQUID]
+    thermo: ideal-condensed
+    state:
+      T: 300.0
+      P: 101325.0
+      X: {H2O_LIQUID: 1.0}
 
-species:
+  - name: water_gas
+    elements: [H, O]
+    species:
+    - species_water: [H2O_GAS]
+    thermo: ideal-gas
+    state:
+      T: 300.0
+      P: 101325.0
+      X: {H2O_GAS: 1.0}
+
+
+species_minerals:
 
   - name: AL2O3_CORUNDUM
     composition: {Al: 2, O: 3}
@@ -147,6 +171,8 @@ species:
       density: 999 g/cm^3
     meta:
       id: C1344281
+
+species_water:
 
   - name: H2O_LIQUID
     composition: {H: 2, O: 1}
