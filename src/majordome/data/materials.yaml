@@ -47,6 +47,10 @@ phases:
 
 species_minerals:
 
+  #####################################################################
+  # Unary oxides
+  #####################################################################
+
   - name: AL2O3_CORUNDUM
     composition: {Al: 2, O: 3}
     thermo:
@@ -109,6 +113,10 @@ species_minerals:
       id: C1314234
       note: Density from Barsoum, 2003.
 
+  #####################################################################
+  # Binary oxides
+  #####################################################################
+
   - name: AL2SIO5_ANDALUSITE
     composition: {Al: 2, Si: 1, O: 5}
     thermo:
@@ -141,6 +149,21 @@ species_minerals:
       id: C1302938
       note: Density from Barsoum, 2003.
 
+  - name: AL6SI2O13_MULLITE_TEMP
+    composition: {Al: 6, Si: 2, O: 13}
+    thermo:
+      model: Shomate
+      temperature-ranges: [200.0, 3000.0]
+      data:
+      - [ 3.298565e+02,  3.861485e+02, -2.545751e+02,  6.134539e+01,
+         -8.782468e+00, -6.962302e+03,  5.196737e+02]
+    equation-of-state:
+      model: constant-volume
+      density: 3.2 g/cm^3
+    meta:
+      id: C1302938
+      note: Density from Barsoum, 2003.
+
   - name: ZRSIO4
     composition: {Zr: 1, Si: 1, O: 4}
     thermo:
@@ -157,6 +180,10 @@ species_minerals:
     meta:
       id: C10101527
       note: Density from Barsoum, 2003.
+
+  #####################################################################
+  # Liquid oxides
+  #####################################################################
 
   - name: AL2O3_LIQUID
     composition: {Al: 2, O: 3}
