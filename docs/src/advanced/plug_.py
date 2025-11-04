@@ -47,7 +47,7 @@
 from majordome import (PlugFlowChainCantera, RelaxUpdate,
                        StabilizeNvarsConvergenceCheck,
                        ComposedStabilizedConvergence,
-                       standard_plot, get_reactor_data)
+                       MajordomePlot, get_reactor_data)
 
 from numpy.typing import NDArray
 from tabulate import tabulate
@@ -310,9 +310,11 @@ def solve_pair(model, method="alternate", *, max_alternate=np.inf,
 # A simple standard ploting function is provided for the counter-current reactor pair:
 
 # %%
-@standard_plot(shape=(3, 1), resized=(10, 8))
-def plot_pair(pair, fig, ax):
+@MajordomePlot.new(shape=(3, 1), resized=(10, 8))
+def plot_pair(pair, plot=None):
     """ Plot pair of reactors in counter-current. """
+    fig, ax = plot.subplots()
+
     T1 = pair.r1.reactor.states.T
     T2 = pair.r2.reactor.states.T[::-1]
 
@@ -561,9 +563,11 @@ class FullCounterCurrentReactors:
             T2 = self.r2.reactor.states.T
             Tw = self.Tw
 
-    @standard_plot(shape=(2, 1), resized=(10, 8))
-    def plot(self, fig, ax):
+    @MajordomePlot.new(shape=(2, 1), resized=(10, 8))
+    def plot(self, plot=None):
         """ Plot fully integrated system. """
+        fig, ax = plot.subplots()
+
         T1 = self.r1.reactor.states.T
         T2 = self.r2.reactor.states.T[::-1]
 
@@ -797,7 +801,7 @@ class FullCounterCurrentReactorsWithRegister:
     # -----------------------------------------------------------------
     # STEPWISE
     # -----------------------------------------------------------------
-    
+
     def _compute_balances(self, T1, T2):
         """ Evaluate balances of all phases in system. """
         # Compute all heat fluxes between system components.
@@ -834,22 +838,22 @@ class FullCounterCurrentReactorsWithRegister:
     # -----------------------------------------------------------------
     # CORE STEPS
     # -----------------------------------------------------------------
-    
+
     def _heat_flow_1(self, k, T1, T2):
         q12, q1w, _ = self._get_cell_flows(k, T1, T2[self._N-k])
         return +1 * q12 + q1w
-        
+
     def _heat_flow_2(self, k, T1, T2):
         q12, _, q2w = self._get_cell_flows(self._N-k, T1[self._N-k], T2)
         return -1 * q12 + q2w
-    
+
     def _solve_r1(self, T2):
         def heat_flow(i, T): return self._heat_flow_1(i, T, T2)
-    
+
         self.r1.source.Q[:] = 0.0
         self.r1.reactor.register_heat_flow(heat_flow)
         solve_reactor(self.r1, report=False)
-        
+
     def _solve_r2(self, T1):
         def heat_flow(i, T): return self._heat_flow_2(i, T1, T)
 
@@ -860,37 +864,37 @@ class FullCounterCurrentReactorsWithRegister:
     # -----------------------------------------------------------------
     # ALGORITHM SELECTION
     # -----------------------------------------------------------------
-    
+
     def _iterate(self, N, method):
         """ Perform a single iteration of solution. """
         self._solve_wall = method.startswith("weak")
-    
+
         match method:
             case "step_alt":
                 self._solve_r1(self.r2.reactor.states.T)
                 self._update_wall()
-                
+
                 self._solve_r2(self.r1.reactor.states.T)
                 self._update_wall()
-                
+
             case "step_seq":
                 T1_now = self.r1.reactor.states.T
                 T2_now = self.r2.reactor.states.T
-                
+
                 self._solve_r1(T2_now)
                 self._update_wall()
-                
+
                 self._solve_r2(T1_now)
                 self._update_wall()
-                
+
             case "weak_alt":
                 self._solve_r1(self.r2.reactor.states.T)
                 self._solve_r2(self.r1.reactor.states.T)
-                
+
             case "weak_seq":
                 T1_now = self.r1.reactor.states.T
                 T2_now = self.r2.reactor.states.T
-                
+
                 self._solve_r1(T2_now)
                 self._solve_r2(T1_now)
 
@@ -927,24 +931,28 @@ class FullCounterCurrentReactorsWithRegister:
         T1 = self.r1.reactor.states.T
         T2 = self.r2.reactor.states.T
         self._compute_balances(T1, T2)
-        
+
         Qw = -1 * (self.q1w + self.q2w)
         Q1 = self.r1.reactor.states.Q_cell
         Q2 = self.r2.reactor.states.Q_cell[::-1]
 
         return Q1 + Q2 + Qw
-        
-    @standard_plot(shape=(1, 1), resized=(10, 5))
-    def plot_residual(self, fig, ax):
+
+    @MajordomePlot.new(shape=(1, 1), resized=(10, 5))
+    def plot_residual(self, plot=None):
         """ Display residual of energy balance over length. """
+        fig, ax = plot.subplots()
+
         bal = self.compute_residual()
         ax[0].plot(self.z, bal)
         ax[0].set_xlabel("z [m]")
         ax[0].set_ylabel("Balance [W]")
-        
-    @standard_plot(shape=(2, 1), resized=(10, 8))
-    def plot(self, fig, ax):
+
+    @MajordomePlot.new(shape=(2, 1), resized=(10, 8))
+    def plot(self, plot=None):
         """ Plot fully integrated system. """
+        fig, ax = plot.subplots()
+
         T1 = self.r1.reactor.states.T
         T2 = self.r2.reactor.states.T[::-1]
 

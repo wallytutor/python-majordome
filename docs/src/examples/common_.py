@@ -28,7 +28,7 @@ from majordome import (
     Constants,
     RelaxUpdate,
     StabilizeNvarsConvergenceCheck,
-    standard_plot,
+    MajordomePlot,
 )
 import numpy as np
 
@@ -50,7 +50,7 @@ print(Constants.report())
 # WIP, sorry for the inconvenience...
 
 # %% [markdown]
-# ## *StandardPlot*
+# ## *MajordomePlot*
 #
 # WIP, sorry for the inconvenience...
 
@@ -97,8 +97,11 @@ for n in range(niter):
         history = history[:n+2]
         break
 
-@standard_plot(resized=(8, 5))
-def plot_history(history, fig, ax):
+@MajordomePlot.new(resized=(8, 5))
+def plot_history(history, plot=None):
+    """ Plot relaxation history. """
+    fig, ax = plot.subplots()
+
     ax[0].plot(history)
     ax[0].set_title("Verification of relaxation progress")
     ax[0].set_xlabel("Update iteration")

@@ -21,7 +21,7 @@
 
 from io import StringIO
 from pandas import DataFrame
-from majordome import Capturing, standard_plot
+from majordome import Capturing, MajordomePlot
 from matplotlib import pyplot as plt
 import sys
 
@@ -267,14 +267,16 @@ def mole_to_mass_fraction(x):
 
 
 # +
-@standard_plot(resized=(6, 5))
-def plot_gibbs(_placeholder, fig, ax):
+@MajordomePlot.new(resized=(6, 5))
+def plot_gibbs(_placeholder, plot=None):
+    fig, ax = plot.subplots()
+
     T_num = 943.0
     y_nn_rng = linspace(0.00, 0.025, 100)
     x_nn_rng = linspace(0.00, mass_to_mole_fraction(y_nn_rng[-1]), 100)
     Gm_alpha_f = Function('Gm_alpha', [T, x_nn_alpha], [Gm_alpha])
     Gm_gamma_f = Function('Gm_gamma', [T, x_nn_gamma], [Gm_gamma])
-    
+
     ax[0].plot(y_nn_rng, Gm_alpha_f(T_num, x_nn_rng), label='BCC')
     ax[0].plot(y_nn_rng, Gm_gamma_f(T_num, x_nn_rng), label='FCC')
     ax[0].set_xlabel('Nitrogen mole fraction [-]')
@@ -429,11 +431,13 @@ df.head().T
 
 
 # +
-@standard_plot(shape=(1, 2), resized=(12, 5))
-def plot_step(df, fig, ax):
+@MajordomePlot.new(shape=(1, 2), resized=(12, 5))
+def plot_step(df, plot=None):
+    fig, ax = plot.subplots()
+
     bcc_stable = df.loc[df['NP(BCC_A2)'] > 1.0e-06]
     fcc_stable = df.loc[df['NP(FCC_A1)'] > 1.0e-06]
-    
+
     ax[0].plot(df['W(N)'], df['NP(BCC_A2)'], label='BCC')
     ax[0].plot(df['W(N)'], df['NP(FCC_A1)'], label='FCC')
     ax[0].set_xlabel('Total nitrogen mass fraction [-]')

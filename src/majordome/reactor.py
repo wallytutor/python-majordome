@@ -12,7 +12,7 @@ import warnings
 from .common import T_NORMAL, P_NORMAL
 from .common import CompositionType, SolutionLikeType
 from .common import safe_remove
-from .plotting import standard_plot
+from .plotting import MajordomePlot
 
 
 WARN_CANTERA_NON_KEY_VALUE = True
@@ -684,8 +684,10 @@ class PlugFlowChainCantera:
     # API (other)
     # -----------------------------------------------------------------
 
-    @standard_plot(shape=(2, 1), sharex=True, grid=True, resized=(8, 8))
-    def quick_plot(self, fig, ax, selected=None, but=None, **kwargs):
+    @MajordomePlot.new(shape=(2, 1), sharex=True, grid=True, size=(8, 8))
+    def quick_plot(self, plot=None, selected=None, but=None, **kwargs):
+        fig, ax = plot.subplots()
+
         if selected and but:
             but = []
             warnings.warn(("Keywords `selected` and `but` are mutually "

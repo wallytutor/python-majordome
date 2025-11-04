@@ -115,15 +115,17 @@ __all__ += [
 # ---------------------------------------------------------------------
 
 from .plotting import (
+    MajordomePlot,
+    centered_colormap,
     StandardPlot,
     standard_plot,
-    centered_colormap
 )
 
 __all__ += [
+    "MajordomePlot",
+    "centered_colormap",
     "StandardPlot",
     "standard_plot",
-    "centered_colormap"
 ]
 
 # ---------------------------------------------------------------------
