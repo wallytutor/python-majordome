@@ -24,6 +24,17 @@ phases:
       P: 101325.0
       X: {AL2O3_CORUNDUM: 1.0}
 
+  - name: alumina_water
+    elements: [Al, Si, Zr, O, H]
+    species:
+    - species_minerals: [ AL2O3_CORUNDUM ]
+    - species_water: [ H2O_LIQUID ]
+    thermo: ideal-condensed
+    state:
+      T: 300.0
+      P: 101325.0
+      X: {AL2O3_CORUNDUM: 0.95, H2O_LIQUID: 0.05}
+
   - name: water_liq
     elements: [H, O]
     species:
@@ -43,7 +54,6 @@ phases:
       T: 300.0
       P: 101325.0
       X: {H2O_GAS: 1.0}
-
 
 # - name:
 #   composition: {}
