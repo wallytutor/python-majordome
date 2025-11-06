@@ -11,6 +11,7 @@ function Start-KompanionSimuConfigure() {
 
     if ($Config.elmer) { Invoke-ConfigureElmer }
     if ($Config.gmsh)  { Invoke-ConfigureGmsh }
+    if ($Config.su2)   { Invoke-ConfigureSu2 }
 }
 
 # ---------------------------------------------------------------------------
@@ -28,6 +29,12 @@ function Invoke-ConfigureGmsh() {
     $env:GMSH_HOME = "$env:KOMPANION_BIN\gmsh\gmsh-4.14.1-Windows64-sdk"
     Initialize-AddToPath -Directory "$env:GMSH_HOME\lib"
     Initialize-AddToPath -Directory "$env:GMSH_HOME\bin"
+    # TODO add to PYTHONPATH;JULIA_LOAD_PATH
+}
+
+function Invoke-ConfigureSu2() {
+    $env:SU2_HOME = "$env:KOMPANION_BIN\su2"
+    Initialize-AddToPath -Directory "$env:SU2_HOME\bin"
     # TODO add to PYTHONPATH;JULIA_LOAD_PATH
 }
 
