@@ -1,16 +1,24 @@
-# https://webbook.nist.gov/cgi/cbook.cgi?Mask=2&ID=<id>
-# https://www.mindat.org/
+
+
+
+#######################################################################
+# Extensions
+#######################################################################
+
 extensions:
 - type: python
   name: majordome.cantera
 
+#######################################################################
+# Phases
+#######################################################################
 
 phases:
 
   - name: aszo
     elements: [Al, Si, Zr, O]
     species:
-    - species_minerals:
+    - species:
       - AL2O3_CORUNDUM
       - SIO2_QUARTZ
       - ZRO2_MONOCLINIC
@@ -18,6 +26,8 @@ phases:
       - AL2SIO5_ANDALUSITE
       - AL6SI2O13_MULLITE
       - ZRSIO4
+    reactions_aszo:
+    - reactions_aszo: all
     thermo: ideal-condensed
     state:
       T: 300.0
@@ -27,8 +37,9 @@ phases:
   - name: alumina_water
     elements: [Al, Si, Zr, O, H]
     species:
-    - species_minerals: [ AL2O3_CORUNDUM ]
-    - species_water: [ H2O_LIQUID ]
+    - species:
+      - AL2O3_CORUNDUM
+      - H2O_LIQUID
     thermo: ideal-condensed
     state:
       T: 300.0
@@ -38,7 +49,7 @@ phases:
   - name: water_liq
     elements: [H, O]
     species:
-    - species_water: [H2O_LIQUID]
+    - species: [H2O_LIQUID]
     thermo: ideal-condensed
     state:
       T: 300.0
@@ -48,12 +59,16 @@ phases:
   - name: water_gas
     elements: [H, O]
     species:
-    - species_water: [H2O_GAS]
+    - species: [H2O_GAS]
     thermo: ideal-gas
     state:
       T: 300.0
       P: 101325.0
       X: {H2O_GAS: 1.0}
+
+#######################################################################
+# Species
+#######################################################################
 
 # - name:
 #   composition: {}
@@ -69,7 +84,7 @@ phases:
 #     id: if relevant...
 #     note: notes...
 
-species_minerals:
+species:
 
   #####################################################################
   # Unary oxides
@@ -208,7 +223,9 @@ species_minerals:
     meta:
       id: C1344281
 
-species_water:
+  #####################################################################
+  # WATER
+  #####################################################################
 
   - name: H2O_LIQUID
     composition: {H: 2, O: 1}
@@ -239,4 +256,46 @@ species_water:
     meta:
       id: C7732185
 
-reactions:
+#######################################################################
+# Reactions
+#######################################################################
+
+reactions_aszo:
+
+  - equation: "3 AL2SIO5_ANDALUSITE => AL6SI2O13_MULLITE + SIO2_QUARTZ"
+    orders: {AL2SIO5_ANDALUSITE: 1}
+    rate-constant:
+      A: 1.000e+07 1/s
+      b: 0.0
+      Ea: 100 kJ/mol
+
+  - equation: "3 AL2O3_CORUNDUM + 2 SIO2_QUARTZ => AL6SI2O13_MULLITE"
+    orders: {AL2SIO5_CORUNDUM: 1, SIO2_QUARTZ: 1}
+    rate-constant:
+      A: 1.000e+07 m^3/mol/s
+      b: 0.0
+      Ea: 100 kJ/mol
+
+  - equation: "ZRSIO4 => ZRO2_MONOCLINIC + SIO2_QUARTZ"
+    rate-constant:
+      A: 1.000e+07 1/s
+      b: 0.0
+      Ea: 100 kJ/mol
+
+  - equation: "ZRO2_MONOCLINIC <=> ZRO2_TETRAGONAL"
+    rate-constant:
+      A: 1.000e+07 1/s
+      b: 0.0
+      Ea: 100 kJ/mol
+
+#######################################################################
+# References
+#######################################################################
+
+references:
+  - https://webbook.nist.gov/cgi/cbook.cgi?Mask=2&ID=<id>
+  - https://www.mindat.org/
+
+#######################################################################
+# EOF
+#######################################################################
