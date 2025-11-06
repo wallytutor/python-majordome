@@ -14,7 +14,7 @@ export get_convergence_history
 export plot_nonlinear_convergence
 export load_saveline_table
 
-function get_convergence_history(project; fname = "convergence.dat")  
+function get_convergence_history(project; fname = "convergence.dat")
     fname = joinpath(project, fname)
     data = readdlm(fname; skipstart=1)
     header = get_convergence_header(fname)
@@ -49,7 +49,7 @@ function plot_nonlinear_convergence(table, solver_no;
         if full_plot
             x, y = df[!, "pseudotime"], df[!, "change"]
             lines!(ax, x, y; color = :black)
-            
+
             x, y = last_iter[!, "pseudotime"], last_iter[!, "change"]
             scatter!(ax, x, y; color = :red)
         else
@@ -70,7 +70,7 @@ function plot_nonlinear_convergence(table, solver_no;
 		ax.yminorticksvisible = true
 		ax.yminorgridvisible = true
         ax.yminorticks = IntervalsBetween(9)
-        
+
         f, ax
     end
 end
@@ -95,7 +95,7 @@ function get_convergence_header(fname)
                 `!` indicating a comment: got $(line[1])
                 """)
         end
-        
+
         line = Common.uncomment(line)
         line = split(line, " ")
         line = Common.remove_spaces(line)
@@ -112,10 +112,10 @@ end
 function find_last_iter!(df)
 	grouped_df = groupby(df, "timestep")
 	max_values = combine(grouped_df, "nonlin" => maximum => "idx")
-	
+
 	last_iter = innerjoin(df, max_values, on = ["timestep", "nonlin" => "idx"])
 	create_pseudotime!(df, last_iter)
-    
+
     # Repeat to get with `pseudotime` column.
 	last_iter = innerjoin(df, max_values, on = ["timestep", "nonlin" => "idx"])
 	return last_iter
@@ -123,9 +123,9 @@ end
 
 function create_pseudotime!(df, last_iter)
 	time_dict = Dict(zip(last_iter[!, "timestep"], last_iter[!, "nonlin"]))
-	
+
 	func(timestep, nonlin) = timestep + (nonlin - 2) / time_dict[timestep]
-	
+
 	transform!(df, ["timestep", "nonlin"] => ByRow(func) => "pseudotime")
 	return nothing
 end
@@ -144,3 +144,96 @@ function get_saveline_columns(filename; verbose = false, newline = nothing)
 end
 
 end # (Elmer)
+
+module Fluent
+
+using DataFrames
+using DelimitedFiles: readdlm
+using Statistics: mean
+
+import ..Common
+
+#######################################################################
+# API
+#######################################################################
+
+function read_report(filename; n_last::Int = -1, header_number::Int = 3)
+    header = get_report_header(filename, header_number)
+    data = get_report_data(filename, header_number, n_last)
+    return DataFrame(data, header)
+end
+
+#######################################################################
+# INTERNALS
+#######################################################################
+
+function get_report_header(filename::String, header_number::Int)
+    line = Common.read_specific_row(filename, header_number)
+    matches = eachmatch(r"\"([^\"]*)\"", line)
+    return String.(map(m->first(m.captures), matches))
+end
+
+function get_report_data(filename::String, header_number::Int, n_last::Int)
+    n_last <= 0 && return readdlm(filename; skipstart=header_number)
+
+    n_lines = Common.count_lines(filename)
+    n = min(n_lines-header_number, n_last)
+    return Common.get_last_lines(filename, n)
+end
+
+end
+
+module Common
+
+using DataFrames
+using DelimitedFiles
+using CairoMakie
+
+function remove_spaces(list)
+    return filter(x -> x != "", list)
+end
+
+function uncomment(line; comment_char = "!")
+    !startswith(line, comment_char) && return line
+    return line[length(comment_char)+1:end]
+end
+
+function set_type!(df, column, totype)
+	!(column in names(df)) && return
+	transform!(df, column => ByRow(x -> convert(totype, x)) => column)
+	return nothing
+end
+
+function read_specific_row(filename::String, row_number::Int)
+    line = open(filename) do file
+        current_row = 1
+
+        for line in eachline(file)
+            current_row == row_number && return line
+            current_row += 1
+        end
+    end
+
+    isnothing(line) && error("Row number out of range")
+    return line
+end
+
+function count_lines(filename::String)
+    return open(filename) do fp
+        sum(_->1, eachline(fp))
+    end
+end
+
+function get_last_lines(filename::String, n::Int)
+    last_n_lines = open(filename) do file
+        all_lines = readlines(file)
+        return all_lines[end-n+1:end]
+    end
+
+    combined_lines = join(last_n_lines, "\n")
+    data = readdlm(IOBuffer(combined_lines))
+
+    return data
+end
+
+end # (Common)
