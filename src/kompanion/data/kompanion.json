@@ -28,6 +28,7 @@
         "paraview": true,
         "freecad": true,
         "blender": true,
+        "dwsim": true,
         "elmer": true,
         "gmsh": true,
         "su2": true
