@@ -13,6 +13,7 @@ function Start-KompanionSimuInstall() {
     if ($Config.paraview) { Invoke-InstallParaView }
     if ($Config.freecad)  { Invoke-InstallFreeCAD }
     if ($Config.blender)  { Invoke-InstallBlender }
+    if ($Config.meshlab)  { Invoke-InstallMeshLab }
     if ($Config.dwsim)    { Invoke-InstallDwsim }
 
     # With configure:
@@ -47,6 +48,15 @@ function Invoke-InstallBlender() {
     $output = "$env:KOMPANION_TEMP\blender.zip"
     $path   = "$env:KOMPANION_BIN\blender"
     $url    = "https://ftp.halifax.rwth-aachen.de/blender/release/Blender4.5/blender-4.5.4-windows-x64.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallMeshLab() {
+    $output = "$env:KOMPANION_TEMP\meshlab.zip"
+    $path   = "$env:KOMPANION_BIN\meshlab"
+    $url    = "https://github.com/cnr-isti-vclab/meshlab/releases/download/MeshLab-2025.07/MeshLab2025.07-windows_x86_64.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path

@@ -9,7 +9,6 @@
         "https://github.com/firemodels/fds/releases/download/FDS-6.10.1/FDS-6.10.1_SMV-6.10.1_win.exe",
         "https://github.com/firemodels/radcal/releases/download/v2.0/radcal_win_64.exe",
         "http://ss009322.stars.ne.jp/gnuplot_files/gp610-20250910-win64-mingw.zip",
-        "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/13.1.2/windows_10_cmake_Release_Graphviz-13.1.2-win64.zip",
-        "https://github.com/cnr-isti-vclab/meshlab/releases/download/MeshLab-2025.07/MeshLab2025.07-windows_x86_64.zip"
+        "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/13.1.2/windows_10_cmake_Release_Graphviz-13.1.2-win64.zip"
     ]
 }
