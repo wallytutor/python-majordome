@@ -11,7 +11,8 @@
         "jabref": true,
         "inkscape": true,
         "miktex": true,
-        "nteract": true
+        "nteract": true,
+        "ffmpeg": true
     },
     "lang": {
         "python": true,
@@ -28,6 +29,7 @@
         "freecad": true,
         "blender": true,
         "elmer": true,
-        "gmsh": true
+        "gmsh": true,
+        "su2": true
     }
 }

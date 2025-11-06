@@ -21,6 +21,7 @@ function Start-KompanionBaseConfigure() {
     if ($Config.inkscape) { Invoke-ConfigureInkscape }
     if ($Config.miktex)   { Invoke-ConfigureMikTex }
     if ($Config.nteract)  { Invoke-ConfigureNteract }
+    if ($Config.ffmpeg)   { Invoke-ConfigureFfmpeg }
 }
 
 # ---------------------------------------------------------------------------
@@ -92,6 +93,11 @@ function Invoke-ConfigureMikTex() {
 function Invoke-ConfigureNteract() {
     $env:NTERACT_HOME = "$env:KOMPANION_BIN\nteract\"
     Initialize-AddToPath -Directory "$env:NTERACT_HOME"
+}
+
+function Invoke-ConfigureFfmpeg() {
+    $env:FFMPEG_HOME = "$env:KOMPANION_BIN\ffmpeg\ffmpeg-2025-11-02-git-f5eb11a71d-full_build\bin"
+    Initialize-AddToPath -Directory "$env:FFMPEG_HOME"
 }
 
 # ---------------------------------------------------------------------------

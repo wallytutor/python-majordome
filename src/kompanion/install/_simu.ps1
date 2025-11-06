@@ -17,6 +17,7 @@ function Start-KompanionSimuInstall() {
     # With configure:
     if ($Config.elmer)    { Invoke-InstallElmer }
     if ($Config.gmsh)     { Invoke-InstallGmsh }
+    if ($Config.su2)      { Invoke-InstallSu2 }
 }
 
 # ---------------------------------------------------------------------------
@@ -66,6 +67,16 @@ function Invoke-InstallGmsh() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallSu2() {
+    $output = "$env:KOMPANION_TEMP\su2.zip"
+    $path   = "$env:KOMPANION_BIN\su2"
+    $url    = "https://github.com/su2code/SU2/releases/download/v8.3.0/SU2-v8.3.0-win64-mpi.zip"
+
+    # TODO: there is a second file inside it! Check!
+    # Invoke-DownloadIfNeeded -URL $url -Output $output
+    # Invoke-UncompressZipIfNeeded -Source $output -Destination $path
 }
 
 # ---------------------------------------------------------------------------
