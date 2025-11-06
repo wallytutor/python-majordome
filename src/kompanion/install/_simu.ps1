@@ -13,6 +13,7 @@ function Start-KompanionSimuInstall() {
     if ($Config.paraview) { Invoke-InstallParaView }
     if ($Config.freecad)  { Invoke-InstallFreeCAD }
     if ($Config.blender)  { Invoke-InstallBlender }
+    if ($Config.dwsim)    { Invoke-InstallDwsim }
 
     # With configure:
     if ($Config.elmer)    { Invoke-InstallElmer }
@@ -49,6 +50,15 @@ function Invoke-InstallBlender() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallDwsim() {
+    $output = "$env:KOMPANION_TEMP\dwsim.zip"
+    $path   = "$env:KOMPANION_BIN\dwsim"
+    $url    = "https://github.com/DanWBR/dwsim/releases/download/v9.0.4/DWSIM_v904_win64_portable.7z"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
 }
 
 function Invoke-InstallElmer() {
