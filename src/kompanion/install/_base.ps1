@@ -21,6 +21,7 @@ function Start-KompanionBaseInstall() {
     if ($Config.inkscape) { Invoke-InstallInkscape }
     if ($Config.miktex)   { Invoke-InstallMikTex }
     if ($Config.nteract)  { Invoke-InstallNteract }
+    if ($Config.ffmpeg)   { Invoke-InstallFfmpeg }
 }
 
 # ---------------------------------------------------------------------------
@@ -178,6 +179,15 @@ function Invoke-InstallNteract() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallFfmpeg() {
+    $output = "$env:KOMPANION_TEMP\ffmpeg.7z"
+    $path   = "$env:KOMPANION_BIN\ffmpeg"
+    $url    = "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-2025-11-02-git-f5eb11a71d-full_build.7z"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
 }
 
 # ---------------------------------------------------------------------------
