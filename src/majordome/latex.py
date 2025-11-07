@@ -101,6 +101,14 @@ def split_line() -> str:
     """ Generate a horizontal line in LaTeX. """
     return f"% {70 * '-'}\n"
 
+
+def section(title: str, separator: bool = True) -> str:
+    """ Generate a LaTeX section command. """
+    text = ""
+    if separator:
+        text += split_line()
+    return text + f"\n\\section{{{title}}}\n"
+
 ##############################################################################
 # BEAMER
 ##############################################################################
