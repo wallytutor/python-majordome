@@ -29,8 +29,11 @@ def load_tex_template(name: str) -> Template:
     return Template(content)
 
 
-def fill_tex_template(template: Template, **kw) -> str:
+def fill_tex_template(template: str | Template, **kw) -> str:
     """ Fill a LaTeX template with the given parameters. """
+    if isinstance(template, str):
+        template = load_tex_template(template)
+
     required = template.get_identifiers()
     ignoring = []
 
@@ -58,10 +61,11 @@ def fill_tex_template(template: Template, **kw) -> str:
 # HELPERS
 ##############################################################################
 
-def itemize(items: list[str]) -> str:
+def itemize(items: list[str], itemsep: str = "6pt") -> str:
     """ Generate LaTeX itemize environment from a list of items. """
     contents = [
         f"\\begin{{itemize}}",
+        f"  \\setlength{{\\itemsep}}{{{itemsep}}}",
         "\n".join(f"  \\item{{}}{item}" for item in items),
         f"\\end{{itemize}}"
     ]
