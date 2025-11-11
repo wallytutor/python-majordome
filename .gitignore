@@ -2,6 +2,9 @@
 # LOCAL
 ##############################################################################
 
+# Editor directories
+.vscode/
+
 # Ignore obsidian
 .obsidian
 

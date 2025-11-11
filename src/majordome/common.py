@@ -16,6 +16,7 @@ import functools
 import logging
 import re
 import sys
+import unicodedata
 import warnings
 import cantera as ct
 import numpy as np
@@ -401,6 +402,26 @@ class ComposedStabilizedConvergence:
     def n_iterations(self) -> int:
         """ Provides access to number of iterations performed. """
         return self._niter
+
+
+def first_in_path(path_list: list[str | Path]) -> Path | None:
+    """ Find first existing path in `path_list`. """
+    for p in path_list:
+        if (candidate := Path(p)).exists():
+            return candidate
+    return None
+
+
+def normalize_string(s: str) -> str:
+    """ Normalize strings to be used as valid Python code. """
+    # Normalize accented characters (e.g. é → e):
+    s = unicodedata.normalize("NFKD", s).encode("ASCII", "ignore").decode("ASCII")
+
+    # Replace non-alphanumeric characters with underscores:
+    s = re.sub(r"[^a-zA-Z0-9]+", "_", s)
+
+    # Remove final underscore and make lowercase:
+    return s.strip("_").lower()
 
 
 def report_title(title: str, report: str) -> str:
