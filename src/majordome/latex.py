@@ -130,7 +130,7 @@ def itemize(items: list[str], itemsep: str = "6pt") -> str:
 
 class Itemize:
     """ Context manager to create LaTeX itemize environments. """
-    __slots__ = ("_itemsep", "_items",)
+    __slots__ = ("_itemsep", "_items", "_itemintro")
 
     def __init__(self, itemsep: str = "6pt") -> None:
         self._itemsep = itemsep
@@ -144,6 +144,10 @@ class Itemize:
             "\n".join(self._items),
             f"\\end{{itemize}}"
         ]
+
+        if hasattr(self, "_itemintro"):
+            contents.insert(0, self._itemintro)
+
         return "\n".join(contents)
 
     def __enter__(self):
@@ -154,10 +158,16 @@ class Itemize:
             print(f"Exception: {exc_type}, {exc_value}")
         return False
 
+    def intro(self, text: str, space: str = "6pt") -> None:
+        """ Add introductory text before the itemize environment. """
+        self._itemintro = f"{text}\n\\par\\vspace{{{space}}}\\par\n"
+
     def add(self, item: str) -> None:
+        """ Add an item to the itemize list. """
         self._items.append(f"  \\item{{}}{item}")
 
     def collect(self) -> str:
+        """ Collect the LaTeX code for the itemize environment. """
         return repr(self)
 
 ##############################################################################
@@ -292,7 +302,7 @@ class SlideContentWriter:
         self._lines = []
 
     def __repr__(self) -> str:
-        """ Provides the LaTeX code for the itemize environment. """
+        """ Provides the LaTeX code for the slide content. """
         return "\n".join(self._lines)
 
     def __enter__(self):
@@ -304,10 +314,13 @@ class SlideContentWriter:
         return False
 
     def vspace(self, space: str) -> None:
+        """ Add vertical space in the slide content. """
         self._lines.append(f"\\par\\vspace{{{space}}}\\par\n")
 
     def add(self, line: str) -> None:
+        """ Add a line to the slide content. """
         self._lines.append(line + "\n")
 
     def collect(self) -> str:
+        """ Collect the LaTeX code for the slide content. """
         return repr(self)
