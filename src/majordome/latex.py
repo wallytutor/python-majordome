@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from pathlib import Path
 from string import Template
+from typing import Any
+import subprocess
+import warnings
+import yaml
 
-from .common import DATA
+from .common import DATA, first_in_path
 
 ##############################################################################
 # TEMPLATING
@@ -20,7 +25,9 @@ def list_tex_templates() -> list[str]:
 
 def load_tex_template(name: str) -> Template:
     """ Load a LaTeX template from the data directory. """
-    if not (path := DATA / "latex" / f"{name}.tex").exists():
+    possible = [f"{name}.tex", DATA / "latex" / f"{name}.tex"]
+
+    if not (path := first_in_path(possible)):
         raise FileNotFoundError(f"Template '{name}' not found in data/latex.")
 
     with open(path, "r", encoding="utf-8") as f:
@@ -61,17 +68,6 @@ def fill_tex_template(template: str | Template, **kw) -> str:
 # HELPERS
 ##############################################################################
 
-def itemize(items: list[str], itemsep: str = "6pt") -> str:
-    """ Generate LaTeX itemize environment from a list of items. """
-    contents = [
-        f"\\begin{{itemize}}",
-        f"  \\setlength{{\\itemsep}}{{{itemsep}}}",
-        "\n".join(f"  \\item{{}}{item}" for item in items),
-        f"\\end{{itemize}}"
-    ]
-    return "\n".join(contents) + "\n"
-
-
 def graphics_path(items: list[str]) -> str:
     """ Generate LaTeX graphics path command from a list of directories. """
     return ",".join(f"{{{item}}}" for item in items)
@@ -97,6 +93,11 @@ def include_figure(path: str | Path, **kw):
     return f"\\includegraphics[{options}]{{{Path(path).as_posix()}}}"
 
 
+def url_link(*, url: str, text: str | None = None) -> str:
+    """ Generate a LaTeX hyperlink. """
+    return f"\\href{{{url}}}{{{text or url}}}"
+
+
 def split_line() -> str:
     """ Generate a horizontal line in LaTeX. """
     return f"% {70 * '-'}\n"
@@ -108,6 +109,56 @@ def section(title: str, separator: bool = True) -> str:
     if separator:
         text += split_line()
     return text + f"\n\\section{{{title}}}\n"
+
+##############################################################################
+# LISTS
+##############################################################################
+
+def itemize(items: list[str], itemsep: str = "6pt") -> str:
+    """ Generate LaTeX itemize environment from a list of items. """
+    warnings.warn("LEGACY FUNCTION: replace in new code with Itemize class",
+                  DeprecationWarning)
+
+    contents = [
+        f"\\begin{{itemize}}",
+        f"  \\setlength{{\\itemsep}}{{{itemsep}}}",
+        "\n".join(f"  \\item{{}}{item}" for item in items),
+        f"\\end{{itemize}}"
+    ]
+    return "\n".join(contents) + "\n"
+
+
+class Itemize:
+    """ Context manager to create LaTeX itemize environments. """
+    __slots__ = ("_itemsep", "_items",)
+
+    def __init__(self, itemsep: str = "6pt") -> None:
+        self._itemsep = itemsep
+        self._items = []
+
+    def __repr__(self) -> str:
+        """ Provides the LaTeX code for the itemize environment. """
+        contents = [
+            f"\\begin{{itemize}}",
+            f"  \\setlength{{\\itemsep}}{{{self._itemsep}}}",
+            "\n".join(self._items),
+            f"\\end{{itemize}}"
+        ]
+        return "\n".join(contents)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            print(f"Exception: {exc_type}, {exc_value}")
+        return False
+
+    def add(self, item: str) -> None:
+        self._items.append(f"  \\item{{}}{item}")
+
+    def collect(self) -> str:
+        return repr(self)
 
 ##############################################################################
 # BEAMER
@@ -157,3 +208,106 @@ def beamer_two_columns(*, title: str = "", subtitle: str = "",
                          contents=contents, align=align)
 
     return slide
+
+
+class BeamerSlides:
+    """ Class to manage multiple Beamer slides. """
+    __slots__ = ("_config", "_verbose", "_slides", "_section")
+
+    def __init__(self, *, config: dict[str, Any], verbose: bool = True) -> None:
+        self._config = config
+        self._verbose = verbose
+        self._slides = OrderedDict()
+        self._section = 1
+
+    def add_section(self, title: str, separator: bool = True) -> None:
+        """ Add a section slide with the given title. """
+        content = section(title, separator=separator)
+        key = f"section_{self._section}"
+
+        if key not in self._slides:
+            self._section += 1
+
+        if self._verbose and key in self._slides:
+            warnings.warn(f"Warning: Section with key '{key}' already "
+                           "exists. Overwriting with new content.")
+
+        self._slides[key] = content
+
+    def add_slide(self, key, **kw) -> None:
+        """ Add a Beamer slide with provided arguments. """
+        # XXX: if contents is provided, it is a single column slide:
+        f = beamer_slide if "contents" in kw else beamer_two_columns
+
+        # Slide is added to the dictionary, warn if key exists:
+        if self._verbose and key in self._slides:
+            warnings.warn(f"Warning: Slide with key '{key}' already "
+                           "exists. Overwriting with new content.")
+
+        self._slides[key] = f(**kw)
+
+    def _generate(self) -> str:
+        """ Generate the complete LaTeX code for all Beamer slides. """
+        return "\n".join(self._slides.values()) + "\n"
+
+    def generate(self) -> str:
+        """ Public method to generate LaTeX code for slides. """
+        contents = self._generate()
+
+        tmp = self._config.copy()
+        template = load_tex_template(tmp.pop("template"))
+        text = fill_tex_template(template, contents=contents, **tmp)
+
+        return text
+
+    def build(self, saveas: str, bib: bool = False) -> None:
+        """ Build the Beamer slides using pdflatex. """
+        name = Path(saveas).stem
+
+        cmd = [
+            "pdflatex",
+            "--shell-escape",
+            "-interaction=nonstopmode",
+            saveas
+        ]
+
+        with open(saveas, "w", encoding="utf-8") as fp:
+            fp.write(self.generate())
+
+        with open(f"log.{name}", "w") as log:
+            subprocess.run(cmd, stdout=log, stderr=log)
+            subprocess.run(cmd, stdout=log, stderr=log)
+
+            if bib:
+                subprocess.run(["bibtex", name], stdout=log, stderr=log)
+                subprocess.run(cmd, stdout=log, stderr=log)
+                subprocess.run(cmd, stdout=log, stderr=log)
+
+
+class SlideContentWriter:
+    """ Context manager to write Beamer LaTeX contents. """
+    __slots__ = ("_lines",)
+
+    def __init__(self) -> None:
+        self._lines = []
+
+    def __repr__(self) -> str:
+        """ Provides the LaTeX code for the itemize environment. """
+        return "\n".join(self._lines)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            print(f"Exception: {exc_type}, {exc_value}")
+        return False
+
+    def vspace(self, space: str) -> None:
+        self._lines.append(f"\\par\\vspace{{{space}}}\\par\n")
+
+    def add(self, line: str) -> None:
+        self._lines.append(line + "\n")
+
+    def collect(self) -> str:
+        return repr(self)
