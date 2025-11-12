@@ -6,6 +6,9 @@ References:
 - [Beautiful Soup: Build a Web Scraper With Python](https://realpython.com/beautiful-soup-web-scraper-python/)
 - [Beautiful Soup Documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
 
+
+## Toolbox
+
 ```python
 from pathlib import Path
 from time import perf_counter
@@ -17,6 +20,8 @@ from tinydb.database import TinyDB
 import re
 import requests
 ```
+
+## Path finding
 
 ```python
 URL   = "https://thermoddem.brgm.fr"
@@ -91,6 +96,8 @@ def retrieve_all_paths(verbose: bool = False) -> list[str]:
     return paths
 ```
 
+## Data recovery
+
 ```python
 def get_thermo_row(tag: Tag) -> list[str]:
     """ Extract text data from first row of table. """
@@ -163,13 +170,49 @@ def create_raw_database(*, dbname: str) -> TinyDB:
     return db
 ```
 
+## Processing
+
+```python
+def process_title(title: str) -> str:
+    """ Remove page formatting data from title. """
+    return re.sub(r"(?i)^formula\s*:\s*", "", title)
+```
+
+```python
+# def process_entry(text: str)
+```
+
+```python
+
+```
+
+## Application
+
 ```python
 db = create_raw_database(dbname="sandbox.json")
 
-raw = db.table("species-raw")
+raw  = db.table("species-raw")
+refs = db.table("references")
+
 data = raw.all()
 ```
 
 ```python
-data[0]
+row = {**data[15]}
+row
+```
+
+```python
+entry = {}
+entry["path"] = row["path"]
+entry["title"] = process_title(row["title"])
+entry
+```
+
+```python
+
+```
+
+```python
+
 ```
