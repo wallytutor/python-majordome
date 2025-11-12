@@ -17,6 +17,8 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, ResultSet
 from requests.models import Response
 from tinydb.database import TinyDB
+from tinydb.queries import Query
+from tinydb.table import Table
 import re
 import requests
 ```
@@ -157,7 +159,7 @@ def create_raw_database(*, dbname: str) -> TinyDB:
     paths = retrieve_all_paths()
     db = TinyDB(dbname)
     
-    species = db.table("species-raw", cache_size=len(paths))
+    species = db.table("species", cache_size=len(paths))
 
     for i, species_path in enumerate(paths):
         try:
@@ -167,7 +169,7 @@ def create_raw_database(*, dbname: str) -> TinyDB:
             print(f"While parsing row {i}: {err}")
 
     print(f"Extraction took {perf_counter()-t0:.0f} s")
-    return db
+    return db.table("species")
 ```
 
 ## Processing
@@ -179,40 +181,87 @@ def process_title(title: str) -> str:
 ```
 
 ```python
-# def process_entry(text: str)
+def process_entry(refs: Table, track: list[str], text: str) -> float | str:
+    """ Capture fields and extract numerical data for creating entry. """
+    pattern = r"""
+        ^\s*                             # Optional leading whitespace
+        (?P<number>[-+]?\d+(?:\.\d+)?)?  # Optional signed number (int or float)
+        \s*                              # Optional whitespace
+        (?:                              # Non-capturing group for optional reference
+            \(Ref\.\:\s*                 # Literal "(Ref.: " with optional space
+            (?P<code>[^)]+)              # Reference code (anything until closing parenthesis)
+            \)                           # Closing parenthesis
+        )?                               # Entire reference group is optional
+        \s*                              # Optional whitespace
+        (?P<detail>.*)?                  # Remaining bibliographic detail (optional)
+        $                                # End of line
+        """
+    matches = re.match(pattern, text, re.VERBOSE)
+    
+    if matches:
+        if (code := matches.group("code")) is not None:
+            code = code.replace(",", "|") # WIP
+
+        if code and not refs.contains(Query().code == code):
+            refs.insert({"code": code, "detail": matches.group("detail")})
+
+        if code and code not in track:
+            track.append(code)
+
+        if (number := matches.group("number")) is None:
+            return "nan"
+
+        return float(number)
+
+    return "nan"
 ```
 
 ```python
-
+def process_species(refs: Table, row: dict[str, Any]) -> dict[str, float | str]:
+    """ Prepare tabular data for a given species. """
+    entry = {}
+    track = []
+    
+    entry["path"] = row["path"]
+    entry["title"] = process_title(row["title"])
+    
+    group = row["individual_props"]
+    entry["molar_mass"]          = process_entry(refs, track, group[0])
+    entry["molar_volume"]        = process_entry(refs, track, group[1])
+    entry["formation_gibbs"]     = process_entry(refs, track, group[2])
+    entry["formation_enthalpy"]  = process_entry(refs, track, group[3])
+    entry["reference_entropy"]   = process_entry(refs, track, group[4])
+    entry["reference_spec_heat"] = process_entry(refs, track, group[5])
+    
+    group = row["maierkelley_props"]
+    entry["coef_a"] = process_entry(refs, track, group[0])
+    entry["coef_b"] = process_entry(refs, track, group[1])
+    entry["coef_c"] = process_entry(refs, track, group[2])
+    _ = process_entry(refs, track, group[3])
+    
+    entry["track"] = ",".join(track)
+    return entry
 ```
 
 ## Application
 
 ```python
-db = create_raw_database(dbname="sandbox.json")
+def main():
+    """ Main application workflow. """
+    raw = create_raw_database(dbname="sandbox.json")
+    
+    db = TinyDB("minerals.json")
+    data = db.table("data")
+    refs = db.table("references")
 
-raw  = db.table("species-raw")
-refs = db.table("references")
-
-data = raw.all()
+    for i, row in enumerate(raw.all()):
+        try:
+            entry = process_species(refs, row)
+            data.insert(entry)
+        except Exception as err:
+            print(f"While parsing row {i}: {err}")
 ```
 
 ```python
-row = {**data[15]}
-row
-```
-
-```python
-entry = {}
-entry["path"] = row["path"]
-entry["title"] = process_title(row["title"])
-entry
-```
-
-```python
-
-```
-
-```python
-
+main()
 ```
