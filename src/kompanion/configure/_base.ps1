@@ -23,6 +23,7 @@ function Start-KompanionBaseConfigure() {
     if ($Config.nteract)     { Invoke-ConfigureNteract }
     if ($Config.ffmpeg)      { Invoke-ConfigureFfmpeg }
     if ($Config.imagemagick) { Invoke-ConfigureImageMagick }
+    if ($Config.poppler)     { Invoke-ConfigurePoppler }
 }
 
 # ---------------------------------------------------------------------------
@@ -112,6 +113,12 @@ function Invoke-ConfigureFfmpeg() {
 function Invoke-ConfigureImageMagick() {
     $env:IMAGEMAGICK_HOME = "$env:KOMPANION_BIN\imagemagick"
     Initialize-AddToPath -Directory "$env:IMAGEMAGICK_HOME"
+}
+
+function Invoke-ConfigurePoppler() {
+    $env:POPLER_HOME = "$env:KOMPANION_BIN\poppler\poppler-25.11.0\Library"
+    Initialize-AddToPath -Directory "$env:POPLER_HOME\bin"
+    Initialize-AddToManPath -Directory "$env:POPLER_HOME\share\man"
 }
 
 # ---------------------------------------------------------------------------
