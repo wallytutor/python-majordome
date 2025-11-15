@@ -16,6 +16,9 @@ from .enums import (
     SpalartAllmarasModel,
     TransitionModel,
     LmTransitionModelOptions,
+    FSInitOption,
+    FSOption,
+    FSRefDimensionalization,
     InletType,
     ConvectiveScheme,
     LinearSolver,
@@ -37,6 +40,9 @@ __all__ += [
     "SpalartAllmarasModel",
     "TransitionModel",
     "LmTransitionModelOptions",
+    "FSInitOption",
+    "FSOption",
+    "FSRefDimensionalization",
     "InletType",
     "ConvectiveScheme",
     "LinearSolver",
@@ -56,10 +62,12 @@ __all__ += [
 
 from .groups import (
     ProblemDefinition,
+    CompressibleFreeStreamDefinition
 )
 
 __all__ += [
     "ProblemDefinition",
+    "CompressibleFreeStreamDefinition",
 ]
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

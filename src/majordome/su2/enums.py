@@ -86,6 +86,29 @@ class LmTransitionModelOptions(Enum):
     MEDIDA_BAEDER  = "MEDIDA_BAEDER"
     MENTER_LANGTRY = "MENTER_LANGTRY"
 
+
+class FSInitOption(Enum):
+    """ Free-stream option to choose initializing the solution. """
+    NONE          = "NONE"
+    REYNOLDS      = "REYNOLDS"
+    TD_CONDITIONS = "TD_CONDITIONS"
+
+
+class FSOption(Enum):
+    """ Free-stream option to choose between density and temperature. """
+    NONE           = "NONE"
+    TEMPERATURE_FS = "TEMPERATURE_FS"
+    DENSITY_FS     = "DENSITY_FS"
+
+
+class FSRefDimensionalization(Enum):
+    """ Free-stream reference dimensionalization options. """
+    NONE                    = "NONE"
+    DIMENSIONAL             = "DIMENSIONAL"
+    FREESTREAM_PRESS_EQ_ONE = "FREESTREAM_PRESS_EQ_ONE"
+    FREESTREAM_VEL_EQ_MACH  = "FREESTREAM_VEL_EQ_MACH"
+    FREESTREAM_VEL_EQ_ONE   = "FREESTREAM_VEL_EQ_ONE"
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # https://su2code.github.io/docs_v7/Markers-and-BC/
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
