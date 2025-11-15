@@ -93,7 +93,14 @@ function Invoke-Uncompress7zIfNeeded() {
 
     if (!(Test-Path -Path $Destination)) {
         Write-Host "Expanding $Source into $Destination"
-        Invoke-CapturedCommand "7zr.exe" @("x", $Source , "-o$Destination")
+
+        if (Test-Path "$env:SEVENZIP_HOME\7z.exe") {
+            $sevenZipPath = "$env:SEVENZIP_HOME\7z.exe"
+        } else {
+            $sevenZipPath = "7zr.exe"
+        }
+
+        Invoke-CapturedCommand $sevenZipPath @("x", $Source , "-o$Destination")
     }
 }
 
