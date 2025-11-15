@@ -9,19 +9,20 @@ function Start-KompanionBaseConfigure() {
 
     Write-Host "- starting Kompanion base configuration..."
 
-    if ($Config.vscode)   { Invoke-ConfigureVsCode }
-    if ($Config.git)      { Invoke-ConfigureGit }
-    if ($Config.nvim)     { Invoke-ConfigureNvim }
-    if ($Config.sevenzip) { Invoke-ConfigureSevenZip }
-    if ($Config.lessmsi)  { Invoke-ConfigureLessMsi }
-    if ($Config.curl)     { Invoke-ConfigureCurl }
-    if ($Config.msys2)    { Invoke-ConfigureMsys2 }
-    if ($Config.pandoc)   { Invoke-ConfigurePandoc }
-    if ($Config.jabref)   { Invoke-ConfigureJabRef }
-    if ($Config.inkscape) { Invoke-ConfigureInkscape }
-    if ($Config.miktex)   { Invoke-ConfigureMikTex }
-    if ($Config.nteract)  { Invoke-ConfigureNteract }
-    if ($Config.ffmpeg)   { Invoke-ConfigureFfmpeg }
+    if ($Config.vscode)      { Invoke-ConfigureVsCode }
+    if ($Config.git)         { Invoke-ConfigureGit }
+    if ($Config.nvim)        { Invoke-ConfigureNvim }
+    if ($Config.sevenzip)    { Invoke-ConfigureSevenZip }
+    if ($Config.lessmsi)     { Invoke-ConfigureLessMsi }
+    if ($Config.curl)        { Invoke-ConfigureCurl }
+    if ($Config.msys2)       { Invoke-ConfigureMsys2 }
+    if ($Config.pandoc)      { Invoke-ConfigurePandoc }
+    if ($Config.jabref)      { Invoke-ConfigureJabRef }
+    if ($Config.inkscape)    { Invoke-ConfigureInkscape }
+    if ($Config.miktex)      { Invoke-ConfigureMikTex }
+    if ($Config.nteract)     { Invoke-ConfigureNteract }
+    if ($Config.ffmpeg)      { Invoke-ConfigureFfmpeg }
+    if ($Config.imagemagick) { Invoke-ConfigureImageMagick }
 }
 
 # ---------------------------------------------------------------------------
@@ -106,6 +107,11 @@ function Invoke-ConfigureNteract() {
 function Invoke-ConfigureFfmpeg() {
     $env:FFMPEG_HOME = "$env:KOMPANION_BIN\ffmpeg\ffmpeg-2025-11-02-git-f5eb11a71d-full_build\bin"
     Initialize-AddToPath -Directory "$env:FFMPEG_HOME"
+}
+
+function Invoke-ConfigureImageMagick() {
+    $env:IMAGEMAGICK_HOME = "$env:KOMPANION_BIN\imagemagick"
+    Initialize-AddToPath -Directory "$env:IMAGEMAGICK_HOME"
 }
 
 # ---------------------------------------------------------------------------

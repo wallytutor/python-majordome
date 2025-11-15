@@ -9,19 +9,20 @@ function Start-KompanionBaseInstall() {
 
     Write-Host "- starting Kompanion base installation..."
 
-    if ($Config.vscode)   { Invoke-InstallVsCode }
-    if ($Config.git)      { Invoke-InstallGit }
-    if ($Config.nvim)     { Invoke-InstallNvim }
-    if ($Config.sevenzip) { Invoke-InstallSevenZip }
-    if ($Config.lessmsi)  { Invoke-InstallLessMsi }
-    if ($Config.curl)     { Invoke-InstallCurl }
-    if ($Config.msys2)    { Invoke-InstallMsys2 }
-    if ($Config.pandoc)   { Invoke-InstallPandoc }
-    if ($Config.jabref)   { Invoke-InstallJabRef }
-    if ($Config.inkscape) { Invoke-InstallInkscape }
-    if ($Config.miktex)   { Invoke-InstallMikTex }
-    if ($Config.nteract)  { Invoke-InstallNteract }
-    if ($Config.ffmpeg)   { Invoke-InstallFfmpeg }
+    if ($Config.vscode)      { Invoke-InstallVsCode }
+    if ($Config.git)         { Invoke-InstallGit }
+    if ($Config.nvim)        { Invoke-InstallNvim }
+    if ($Config.sevenzip)    { Invoke-InstallSevenZip }
+    if ($Config.lessmsi)     { Invoke-InstallLessMsi }
+    if ($Config.curl)        { Invoke-InstallCurl }
+    if ($Config.msys2)       { Invoke-InstallMsys2 }
+    if ($Config.pandoc)      { Invoke-InstallPandoc }
+    if ($Config.jabref)      { Invoke-InstallJabRef }
+    if ($Config.inkscape)    { Invoke-InstallInkscape }
+    if ($Config.miktex)      { Invoke-InstallMikTex }
+    if ($Config.nteract)     { Invoke-InstallNteract }
+    if ($Config.ffmpeg)      { Invoke-InstallFfmpeg }
+    if ($Config.imagemagick) { Invoke-InstallImageMagick }
 }
 
 # ---------------------------------------------------------------------------
@@ -185,6 +186,15 @@ function Invoke-InstallFfmpeg() {
     $output = "$env:KOMPANION_TEMP\ffmpeg.7z"
     $path   = "$env:KOMPANION_BIN\ffmpeg"
     $url    = "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-2025-11-02-git-f5eb11a71d-full_build.7z"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallImageMagick() {
+    $output = "$env:KOMPANION_TEMP\imagemagick.zip"
+    $path   = "$env:KOMPANION_BIN\imagemagick"
+    $url    = "https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-8/ImageMagick-7.1.2-8-portable-Q16-HDRI-x64.7z"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
