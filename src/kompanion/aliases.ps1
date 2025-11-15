@@ -12,6 +12,7 @@ Set-Alias -Name gmsh  -Value gmsh.exe
 
 # Function wrapped
 function Print-Path() { return $env:Path -split ';' }
+function mj { cd $env:KOMPANION_DIR }
 
 # ---------------------------------------------------------------------------
 # EOF
