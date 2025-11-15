@@ -23,6 +23,7 @@ function Start-KompanionBaseInstall() {
     if ($Config.nteract)     { Invoke-InstallNteract }
     if ($Config.ffmpeg)      { Invoke-InstallFfmpeg }
     if ($Config.imagemagick) { Invoke-InstallImageMagick }
+    if ($Config.poppler)     { Invoke-InstallPoppler }
 }
 
 # ---------------------------------------------------------------------------
@@ -198,6 +199,15 @@ function Invoke-InstallImageMagick() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallPoppler() {
+    $output = "$env:KOMPANION_TEMP\poppler.zip"
+    $path   = "$env:KOMPANION_BIN\poppler"
+    $url    = "https://github.com/oschwartz10612/poppler-windows/releases/download/v25.11.0-0/Release-25.11.0-0.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
 }
 
 # ---------------------------------------------------------------------------

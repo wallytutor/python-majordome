@@ -13,7 +13,8 @@
         "miktex": true,
         "nteract": true,
         "ffmpeg": true,
-        "imagemagick": true
+        "imagemagick": true,
+        "poppler": true
     },
     "lang": {
         "python": true,
