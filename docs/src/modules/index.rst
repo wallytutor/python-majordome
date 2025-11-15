@@ -9,6 +9,7 @@ API Docs
     energy
     fluent
     latex
+    pdftools
     plotting
     reactor
     transport
