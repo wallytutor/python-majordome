@@ -111,6 +111,12 @@ function Invoke-InstallTesseract() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+
+    $path = "$env:KOMPANION_BIN\tessdata"
+
+    if (-not (Test-Path "$path")) {
+        git clone "https://github.com/tesseract-ocr/tessdata_best.git" "$path"
+    }
 }
 
 # ---------------------------------------------------------------------------
