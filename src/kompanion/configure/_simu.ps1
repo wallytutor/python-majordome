@@ -41,6 +41,7 @@ function Invoke-ConfigureSu2() {
 
 function Invoke-ConfigureTesseract() {
     $env:TESSERACT_HOME = "$env:KOMPANION_BIN\tesseract"
+    $env:TESSDATA_PREFIX = "$env:KOMPANION_BIN\tessdata"
     Initialize-AddToPath -Directory "$env:TESSERACT_HOME"
 }
 
