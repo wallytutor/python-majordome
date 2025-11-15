@@ -18,10 +18,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc
-          sudo apt-get install -y
+          sudo apt-get install -y pandoc poppler-utils
+          sudo apt-get install -y tesseract-ocr imagemagick
           python -m pip install --upgrade pip
-          pip install .[docs]
+          pip install .[docs,pdftools]
 
       - name: Sphinx build
         run: |
