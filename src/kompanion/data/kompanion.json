@@ -32,6 +32,7 @@
         "dwsim": true,
         "elmer": true,
         "gmsh": true,
-        "su2": true
+        "su2": true,
+        "tesseract": true
     }
 }

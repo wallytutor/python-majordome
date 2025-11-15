@@ -9,9 +9,10 @@ function Start-KompanionSimuConfigure() {
 
     Write-Host "- starting Kompanion simulation tools configuration..."
 
-    if ($Config.elmer) { Invoke-ConfigureElmer }
-    if ($Config.gmsh)  { Invoke-ConfigureGmsh }
-    if ($Config.su2)   { Invoke-ConfigureSu2 }
+    if ($Config.elmer)     { Invoke-ConfigureElmer }
+    if ($Config.gmsh)      { Invoke-ConfigureGmsh }
+    if ($Config.su2)       { Invoke-ConfigureSu2 }
+    if ($Config.tesseract) { Invoke-ConfigureTesseract }
 }
 
 # ---------------------------------------------------------------------------
@@ -36,6 +37,11 @@ function Invoke-ConfigureSu2() {
     $env:SU2_HOME = "$env:KOMPANION_BIN\su2"
     Initialize-AddToPath -Directory "$env:SU2_HOME\bin"
     # TODO add to PYTHONPATH;JULIA_LOAD_PATH
+}
+
+function Invoke-ConfigureTesseract() {
+    $env:TESSERACT_HOME = "$env:KOMPANION_BIN\tesseract"
+    Initialize-AddToPath -Directory "$env:TESSERACT_HOME"
 }
 
 # ---------------------------------------------------------------------------
