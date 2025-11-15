@@ -8,5 +8,6 @@ Examples
     common_
     energy_
     fluent_
+    pdftools_
     reactor_
     transport_
