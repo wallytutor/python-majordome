@@ -12,7 +12,8 @@
         "inkscape": true,
         "miktex": true,
         "nteract": true,
-        "ffmpeg": true
+        "ffmpeg": true,
+        "imagemagick": true
     },
     "lang": {
         "python": true,
