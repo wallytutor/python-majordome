@@ -15,6 +15,7 @@ from tabulate import tabulate
 import functools
 import logging
 import re
+import shutil
 import sys
 import unicodedata
 import warnings
@@ -141,6 +142,12 @@ CompositionType = str | dict[str, float]
 
 SolutionLikeType = ct.composite.Solution | ct.composite.Quantity
 """ Input type for Cantera solution objects. """
+
+PathLike = str | Path
+""" Input type for file system paths. """
+
+MaybePath = PathLike | None
+""" Input type for optional file system paths. """
 
 
 class StateType(NamedTuple):
@@ -402,6 +409,20 @@ class ComposedStabilizedConvergence:
     def n_iterations(self) -> int:
         """ Provides access to number of iterations performed. """
         return self._niter
+
+
+def has_program(name: str) -> bool:
+    """ Test if a program is available in system path. """
+    return True if shutil.which(name) else False
+
+
+def program_path(name: str, throw: bool = True) -> MaybePath:
+    """ Returns a program path if it exists. """
+    if not has_program(name):
+        if throw:
+            raise FileNotFoundError(name)
+        return None
+    return Path(str(shutil.which(name)))
 
 
 def first_in_path(path_list: list[str | Path]) -> Path | None:
