@@ -31,6 +31,12 @@
 .. autodata:: majordome.common.SolutionLikeType
     :annotation:
 
+.. autodata:: majordome.common.PathLike
+    :annotation:
+
+.. autodata:: majordome.common.MaybePath
+    :annotation:
+
 .. autoclass:: majordome.common.StateType
     :members:
 ```
@@ -59,6 +65,8 @@
 .. autoclass:: majordome.common.ComposedStabilizedConvergence
     :members:
 
+.. autofunction:: majordome.common.has_program
+.. autofunction:: majordome.common.program_path
 .. autofunction:: majordome.common.first_in_path
 .. autofunction:: majordome.common.normalize_string
 .. autofunction:: majordome.common.safe_remove

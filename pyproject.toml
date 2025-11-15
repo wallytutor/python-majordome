@@ -73,3 +73,9 @@ extras = [
     "jupyterlab>=4.4.6",
     "jupytext>=1.17.3",
 ]
+pdftools = [
+    "pdfly>=0.5.1",
+    "pdf2image>=1.17.0",
+    "pypdf>=6.2.0",
+    "pytesseract>=0.3.13",
+]
