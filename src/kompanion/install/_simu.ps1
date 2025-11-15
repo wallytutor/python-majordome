@@ -10,16 +10,17 @@ function Start-KompanionSimuInstall() {
     Write-Host "- starting Kompanion simulation tools installation..."
 
     # No configure (not in path):
-    if ($Config.paraview) { Invoke-InstallParaView }
-    if ($Config.freecad)  { Invoke-InstallFreeCAD }
-    if ($Config.blender)  { Invoke-InstallBlender }
-    if ($Config.meshlab)  { Invoke-InstallMeshLab }
-    if ($Config.dwsim)    { Invoke-InstallDwsim }
+    if ($Config.paraview)  { Invoke-InstallParaView }
+    if ($Config.freecad)   { Invoke-InstallFreeCAD }
+    if ($Config.blender)   { Invoke-InstallBlender }
+    if ($Config.meshlab)   { Invoke-InstallMeshLab }
+    if ($Config.dwsim)     { Invoke-InstallDwsim }
 
     # With configure:
-    if ($Config.elmer)    { Invoke-InstallElmer }
-    if ($Config.gmsh)     { Invoke-InstallGmsh }
-    if ($Config.su2)      { Invoke-InstallSu2 }
+    if ($Config.elmer)     { Invoke-InstallElmer }
+    if ($Config.gmsh)      { Invoke-InstallGmsh }
+    if ($Config.su2)       { Invoke-InstallSu2 }
+    if ($Config.tesseract) { Invoke-InstallTesseract }
 }
 
 # ---------------------------------------------------------------------------
@@ -101,6 +102,15 @@ function Invoke-InstallSu2() {
     $innerOutput = "$env:KOMPANION_TEMP\su2\win64-mpi.zip"
     $finalPath   = "$env:KOMPANION_BIN\su2"
     Invoke-UncompressZipIfNeeded -Source $innerOutput -Destination $finalPath
+}
+
+function Invoke-InstallTesseract() {
+    $output = "$env:KOMPANION_TEMP\tesseract.exe"
+    $path   = "$env:KOMPANION_BIN\tesseract"
+    $url    = "https://github.com/tesseract-ocr/tesseract/releases/download/5.5.0/tesseract-ocr-w64-setup-5.5.0.20241111.exe"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
 }
 
 # ---------------------------------------------------------------------------
