@@ -43,7 +43,7 @@ class GroupEntriesMixin:
         self.cfg.append(f"{key}= {value}")
 
     def stringify(self) -> str:
-        return "\n\n".join(self.cfg) + "\n\n"
+        return "\n\n".join(self.cfg)
 
 
 @dataclass
@@ -319,5 +319,36 @@ class CompressibleFreeStreamDefinition(GroupEntriesMixin):
 
         if self.ref_dimensionalization != FSRefDimensionalization.NONE:
             self.entry("FS_REF_DIMENSIONALIZATION", self.ref_dimensionalization.value)
+
+        return self.stringify()
+
+
+@dataclass
+class SU2Configuration(GroupEntriesMixin):
+    """ SU2 configuration file generator.
+
+    Attributes
+    ----------
+    problem_definition : ProblemDefinition
+        Problem definition group.
+    compressible_freestream_definition : CompressibleFreeStreamDefinition
+        Compressible free-stream conditions definition group.
+    """
+    problem: ProblemDefinition
+    compressible_freestream: CompressibleFreeStreamDefinition | None = None
+
+    def to_cfg(self) -> str:
+        """ Generate full SU2 configuration file.
+
+        Returns
+        -------
+        str
+            Full SU2 configuration file.
+        """
+        self.start()
+        self.cfg.append(self.problem.to_cfg())
+
+        if self.compressible_freestream is not None:
+            self.cfg.append(self.compressible_freestream.to_cfg())
 
         return self.stringify()
