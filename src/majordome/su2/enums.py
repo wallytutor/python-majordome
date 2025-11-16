@@ -7,8 +7,13 @@ from enum import Enum
 
 class YesNoEnum(Enum):
     """ Yes/No options. """
-    YES = "YES"
-    NO  = "NO"
+    NONE = "NONE"
+    YES  = "YES"
+    NO   = "NO"
+
+    def __bool__(self) -> bool:
+        """ Convert to boolean. """
+        return self == YesNoEnum.YES
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # https://su2code.github.io/docs_v7/Solver-Setup/
@@ -139,6 +144,85 @@ class InletType(Enum):
                     SolverType.INC_NAVIER_STOKES,
                     SolverType.INC_RANS
                 }
+
+
+class InletInterpolationFunction(Enum):
+    """ Type of spanwise interpolation to use for the inlet face. """
+    NONE      = "NONE"
+    LINEAR_1D = "LINEAR_1D"
+    AKIMA_1D  = "AKIMA_1D"
+    CUBIC_1D  = "CUBIC_1D"
+
+
+class InletInterpolationDataType(Enum):
+    """ Type of radial spanwise interpolation type for the inlet face. """
+    NONE     = "NONE"
+    VR_VTHETA = "VR_VTHETA"
+    ALPHA_PHI = "ALPHA_PHI"
+
+
+class ActuatorDiskType(Enum):
+    """ Actuator disk boundary type options. """
+    NONE              = "NONE"
+    VARIABLE_LOAD     = "VARIABLE_LOAD"
+    VARIABLES_JUMP    = "VARIABLES_JUMP"
+    BC_THRUST         = "BC_THRUST"
+    DRAG_MINUS_THRUST = "DRAG_MINUS_THRUST"
+    BLADE_ELEMENT     = "BLADE_ELEMENT"
+
+
+class EngineInflowType(Enum):
+    """ Engine inflow boundary type options."""
+    NONE              = "NONE"
+    FAN_FACE_MACH     = "FAN_FACE_MACH"
+    FAN_FACE_PRESSURE = "FAN_FACE_PRESSURE"
+    FAN_FACE_MDOT     = "FAN_FACE_MDOT"
+
+
+class KindInterpolation(Enum):
+    """ Kind of interface interpolation among different zones. """
+    NONE                  = "NONE"
+    NEAREST_NEIGHBOR      = "NEAREST_NEIGHBOR"
+    WEIGHTED_AVERAGE      = "WEIGHTED_AVERAGE"
+    ISOPARAMETRIC         = "ISOPARAMETRIC"
+    RADIAL_BASIS_FUNCTION = "RADIAL_BASIS_FUNCTION"
+
+
+class KindRadialBasisFunction(Enum):
+    """ Type of radial basis function to use for RBF interpolation. """
+    NONE              = "NONE"
+    WENDLAND_C2       = "WENDLAND_C2"
+    INV_MULTI_QUADRIC = "INV_MULTI_QUADRIC"
+    GAUSSIAN          = "GAUSSIAN"
+    THIN_PLATE_SPLINE = "THIN_PLATE_SPLINE"
+    MULTI_QUADRIC     = "MULTI_QUADRIC"
+
+
+class GilesCondition(Enum):
+    """ Giles boundary condition types for turbomachinery. """
+    NONE                = "NONE"
+    TOTAL_CONDITIONS_PT = "TOTAL_CONDITIONS_PT"
+    STATIC_PRESSURE     = "STATIC_PRESSURE"
+    MIXING_IN           = "MIXING_IN"
+    MIXING_OUT          = "MIXING_OUT"
+
+
+class BGSRelaxation(Enum):
+    """ Kind of relaxation for Block Gauss-Seidel coupling. """
+    NONE   = "NONE"
+    FIXED  = "FIXED"
+    AITKEN = "AITKEN"
+
+
+class DynamicLoadTransfer(Enum):
+    """ Transfer method used for multiphysics problems. """
+    NONE          = "NONE"
+    INSTANTANEOUS = "INSTANTANEOUS"
+    POL_ORDER_1   = "POL_ORDER_1"
+    POL_ORDER_3   = "POL_ORDER_3"
+    POL_ORDER_5   = "POL_ORDER_5"
+    SIGMOID_10    = "SIGMOID_10"
+    SIGMOID_20    = "SIGMOID_20"
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # https://su2code.github.io/docs_v7/Convective-Schemes/
