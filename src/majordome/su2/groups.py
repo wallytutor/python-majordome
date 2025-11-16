@@ -40,7 +40,8 @@ class GroupEntriesMixin:
 
     def entry(self, key: str, value: Any) -> None:
         """ Add configuration entry. """
-        self.cfg.append(f"{key}= {value}")
+        if value is not None:
+            self.cfg.append(f"{key}= {value}")
 
     def stringify(self) -> str:
         return "\n\n".join(self.cfg)
@@ -262,14 +263,9 @@ class CompressibleFreeStreamDefinition(GroupEntriesMixin):
         """
         self.header("COMPRESSIBLE FREE-STREAM CONDITIONS DEFINITION")
 
-        if self.mach is not None:
-            self.entry("MACH_NUMBER", self.mach)
-
-        if self.angle_of_attack is not None:
-            self.entry("AOA", self.angle_of_attack)
-
-        if self.sideslip_angle is not None:
-            self.entry("SIDESLIP_ANGLE", self.sideslip_angle)
+        self.entry("MACH_NUMBER", self.mach)
+        self.entry("AOA", self.angle_of_attack)
+        self.entry("SIDESLIP_ANGLE", self.sideslip_angle)
 
         if self.init_option != FSInitOption.NONE:
             self.entry("INIT_OPTION", self.init_option.value)
@@ -277,48 +273,85 @@ class CompressibleFreeStreamDefinition(GroupEntriesMixin):
         if self.freestream_option != FSOption.NONE:
             self.entry("FREESTREAM_OPTION", self.freestream_option.value)
 
-        if self.pressure is not None:
-            self.entry("FREESTREAM_PRESSURE", self.pressure)
-
-        if self.temperature is not None:
-            self.entry("FREESTREAM_TEMPERATURE", self.temperature)
-
-        if self.temperature_ve is not None:
-            self.entry("FREESTREAM_TEMPERATURE_VE", self.temperature_ve)
-
-        if self.reynolds_number is not None:
-            self.entry("REYNOLDS_NUMBER", self.reynolds_number)
-
-        if self.reynolds_length is not None:
-            self.entry("REYNOLDS_LENGTH", self.reynolds_length)
-
-        if self.density is not None:
-            self.entry("FREESTREAM_DENSITY", self.density)
+        self.entry("FREESTREAM_PRESSURE", self.pressure)
+        self.entry("FREESTREAM_TEMPERATURE", self.temperature)
+        self.entry("FREESTREAM_TEMPERATURE_VE", self.temperature_ve)
+        self.entry("REYNOLDS_NUMBER", self.reynolds_number)
+        self.entry("REYNOLDS_LENGTH", self.reynolds_length)
+        self.entry("FREESTREAM_DENSITY", self.density)
 
         if self.velocity is not None:
             vel_str = ", ".join(str(v) for v in self.velocity)
             self.entry("FREESTREAM_VELOCITY", f"( {vel_str} )")
 
-        if self.viscosity is not None:
-            self.entry("FREESTREAM_VISCOSITY", self.viscosity)
-
-        if self.turbulence_intensity is not None:
-            self.entry("FREESTREAM_TURBULENCEINTENSITY", self.turbulence_intensity)
-
-        if self.intermittency is not None:
-            self.entry("FREESTREAM_INTERMITTENCY", self.intermittency)
+        self.entry("FREESTREAM_VISCOSITY", self.viscosity)
+        self.entry("FREESTREAM_TURBULENCEINTENSITY", self.turbulence_intensity)
+        self.entry("FREESTREAM_INTERMITTENCY", self.intermittency)
 
         if self.turb_fixed_values != YesNoEnum.NO:
             self.entry("TURB_FIXED_VALUES", self.turb_fixed_values.value)
 
-        if self.turb_fixed_values_domain is not None:
-            self.entry("TURB_FIXED_VALUES_DOMAIN", self.turb_fixed_values_domain)
-
-        if self.freestream_turb2lamviscratio is not None:
-            self.entry("FREESTREAM_TURB2LAMVISCRATIO", self.freestream_turb2lamviscratio)
+        self.entry("TURB_FIXED_VALUES_DOMAIN", self.turb_fixed_values_domain)
+        self.entry("FREESTREAM_TURB2LAMVISCRATIO", self.freestream_turb2lamviscratio)
 
         if self.ref_dimensionalization != FSRefDimensionalization.NONE:
             self.entry("FS_REF_DIMENSIONALIZATION", self.ref_dimensionalization.value)
+
+        return self.stringify()
+
+
+@dataclass
+class ReferenceValues(GroupEntriesMixin):
+    """ Reference values definition for internal normalization.
+
+    Attributes
+    ----------
+    ref_origin_moment_x : float
+        Reference origin X-coordinate for moment computation (m or in).
+    ref_origin_moment_y : float
+        Reference origin Y-coordinate for moment computation (m or in).
+    ref_origin_moment_z : float
+        Reference origin Z-coordinate for moment computation (m or in).
+    ref_length : float
+        Reference length for moment non-dimensional coefficients (m or in).
+    ref_velocity : float
+        Reference velocity (incompressible only).
+    ref_viscosity : float
+        Reference viscosity (incompressible only).
+    ref_area : float
+        Reference area for non-dimensional force coefficients (m² or in²).
+        Set to 0 to enable automatic calculation.
+    semi_span : float
+        Aircraft semi-span (m or in).
+        Set to 0 to enable automatic calculation.
+    """
+    ref_origin_moment_x: MaybeFloat = None
+    ref_origin_moment_y: MaybeFloat = None
+    ref_origin_moment_z: MaybeFloat = None
+    ref_length: MaybeFloat          = None
+    ref_velocity: MaybeFloat        = None
+    ref_viscosity: MaybeFloat       = None
+    ref_area: MaybeFloat            = None
+    semi_span: MaybeFloat           = None
+
+    def to_cfg(self) -> str:
+        """ Generate configuration file entries for reference values.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("REFERENCE VALUES DEFINITION")
+
+        self.entry("REF_ORIGIN_MOMENT_X", self.ref_origin_moment_x)
+        self.entry("REF_ORIGIN_MOMENT_Y", self.ref_origin_moment_y)
+        self.entry("REF_ORIGIN_MOMENT_Z", self.ref_origin_moment_z)
+        self.entry("REF_LENGTH", self.ref_length)
+        self.entry("REF_VELOCITY", self.ref_velocity)
+        self.entry("REF_VISCOSITY", self.ref_viscosity)
+        self.entry("REF_AREA", self.ref_area)
+        self.entry("SEMI_SPAN", self.semi_span)
 
         return self.stringify()
 
@@ -336,6 +369,7 @@ class SU2Configuration(GroupEntriesMixin):
     """
     problem: ProblemDefinition
     compressible_freestream: CompressibleFreeStreamDefinition | None = None
+    reference_values: ReferenceValues | None = None
 
     def to_cfg(self) -> str:
         """ Generate full SU2 configuration file.
@@ -350,5 +384,8 @@ class SU2Configuration(GroupEntriesMixin):
 
         if self.compressible_freestream is not None:
             self.cfg.append(self.compressible_freestream.to_cfg())
+
+        if self.reference_values is not None:
+            self.cfg.append(self.reference_values.to_cfg())
 
         return self.stringify()
