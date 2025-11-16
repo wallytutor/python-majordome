@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 from .enums import (
     YesNoEnum,
@@ -12,17 +13,46 @@ from .enums import (
     FSInitOption,
     FSOption,
     FSRefDimensionalization,
+    InletType,
+    InletInterpolationFunction,
+    InletInterpolationDataType,
+    ActuatorDiskType,
+    EngineInflowType,
+    KindInterpolation,
+    KindRadialBasisFunction,
+    GilesCondition,
+    BGSRelaxation,
+    DynamicLoadTransfer,
+    ConvectiveScheme,
+    LinearSolver,
+    Preconditioner,
+    MathProblem,
+    NumMethodGrad,
+    MgCycle,
+    TimeDiscretization,
     SgsModel,
     Verification,
-    MathProblem,
     UnitSystem,
 )
 
+MaybeStr = str | None
+
+MaybeInt = int | None
+
 MaybeFloat = float | None
 
-VelocityType = tuple[float, float, float]
+MarkerList = list[Any]
 
-MaybeVelocity = VelocityType | None
+DupleFloat = tuple[float, float]
+
+TrupleFloat = tuple[float, float, float]
+
+MaybeVelocity = TrupleFloat | None
+
+
+def empty_list_field():
+    """ Return an empty list with a default value of ['NONE']. """
+    return field(default_factory=lambda: ["NONE"])
 
 
 class GroupEntriesMixin:
@@ -38,10 +68,38 @@ class GroupEntriesMixin:
         self.start()
         self.cfg.append(f"{80 * '%'}\n%% {title}\n{80 * '%'}")
 
-    def entry(self, key: str, value: Any) -> None:
+    def entry(self, key: str, value: Any, force: bool = False) -> None:
         """ Add configuration entry. """
-        if value is not None:
+        if force:
             self.cfg.append(f"{key}= {value}")
+            return
+
+        ##
+        # Handle 'NONE' enum and None values
+        ##
+
+        if isinstance(value, Enum) and value.name == "NONE":
+            return
+
+        if isinstance(value, (list, tuple)):
+            # TODO: check if this should really be this way!
+            if not value or (len(value) == 1 and value[0] == "NONE"):
+                return
+
+        if value is None:
+            return
+
+        ##
+        # Convert values
+        ##
+
+        if isinstance(value, Enum):
+            value = value.value
+
+        if isinstance(value, (list, tuple)):
+            value = "( " + ", ".join(str(v) for v in value) + " )"
+
+        self.cfg.append(f"{key}= {value}")
 
     def stringify(self) -> str:
         return "\n\n".join(self.cfg)
@@ -98,37 +156,37 @@ class ProblemDefinition(GroupEntriesMixin):
     sgs_model: SgsModel                    = SgsModel.NONE
     solution_verification: Verification    = Verification.NO_VERIFICATION_SOLUTION
     math_problem: MathProblem              = MathProblem.NONE
-    axisymmetric: YesNoEnum                = YesNoEnum.NO
-    gravity_force: YesNoEnum               = YesNoEnum.NO
-    restart_sol: YesNoEnum                 = YesNoEnum.NO
-    wrt_restart_compact: YesNoEnum         = YesNoEnum.NO
-    discard_infiles: YesNoEnum             = YesNoEnum.NO
+    axisymmetric: YesNoEnum                = YesNoEnum.NONE
+    gravity_force: YesNoEnum               = YesNoEnum.NONE
+    restart_sol: YesNoEnum                 = YesNoEnum.NONE
+    wrt_restart_compact: YesNoEnum         = YesNoEnum.NONE
+    discard_infiles: YesNoEnum             = YesNoEnum.NONE
     system_measurements: UnitSystem        = UnitSystem.NONE
     config_list: list[str]                 = field(default_factory=lambda: [])
 
     def _handle_turbulence_model(self) -> None:
         """ Handle turbulence model related settings. """
-        self.entry("KIND_TURB_MODEL", self.turbulence_model.value)
+        self.entry("KIND_TURB_MODEL", self.turbulence_model)
 
         match self.turbulence_model:
             case TurbulenceModel.SST:
-                if self.sst_options != ShearStressTransportModel.NONE:
-                    self.entry("SST_OPTIONS", self.sst_options.value)
+                self.entry("SST_OPTIONS", self.sst_options)
+
             case TurbulenceModel.SA:
-                if self.sa_options != SpalartAllmarasModel.NONE:
-                    self.entry("SA_OPTIONS", self.sa_options.value)
+                self.entry("SA_OPTIONS", self.sa_options)
+
             case _:
                 pass
 
     def _handle_transition_model(self) -> None:
         """ Handle transition model related settings. """
-        self.entry("KIND_TRANS_MODEL", self.transition_model.value)
+        self.entry("KIND_TRANS_MODEL", self.transition_model)
         self.entry("HROUGHNESS", self.hroughness)
 
         match self.transition_model:
             case TransitionModel.LM:
-                if self.lm_options != LmTransitionModelOptions.NONE:
-                    self.entry("LM_OPTIONS", self.lm_options.value)
+                self.entry("LM_OPTIONS", self.lm_options)
+
             case _:
                 pass
 
@@ -142,7 +200,7 @@ class ProblemDefinition(GroupEntriesMixin):
         """
         self.header("DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION")
 
-        self.entry("SOLVER", self.solver.value)
+        self.entry("SOLVER", self.solver)
 
         if self.turbulence_model != TurbulenceModel.NONE:
             self._handle_turbulence_model()
@@ -150,32 +208,18 @@ class ProblemDefinition(GroupEntriesMixin):
         if self.transition_model != TransitionModel.NONE:
             self._handle_transition_model()
 
-        if self.sgs_model != SgsModel.NONE:
-            self.entry("KIND_SGS_MODEL", self.sgs_model.value)
+        self.entry("KIND_SGS_MODEL", self.sgs_model)
 
         if self.solution_verification != Verification.NO_VERIFICATION_SOLUTION:
-            self.entry("KIND_VERIFICATION_SOLUTION", self.solution_verification.value)
+            self.entry("KIND_VERIFICATION_SOLUTION", self.solution_verification)
 
-        if self.math_problem != MathProblem.NONE:
-            self.entry("MATH_PROBLEM", self.math_problem.value)
-
-        if self.axisymmetric != YesNoEnum.NO:
-            self.entry("AXISYMMETRIC", self.axisymmetric.value)
-
-        if self.gravity_force != YesNoEnum.NO:
-            self.entry("GRAVITY_FORCE", self.gravity_force.value)
-
-        if self.restart_sol != YesNoEnum.NO:
-            self.entry("RESTART_SOL", self.restart_sol.value)
-
-        if self.wrt_restart_compact != YesNoEnum.NO:
-            self.entry("WRT_RESTART_COMPACT", self.wrt_restart_compact.value)
-
-        if self.discard_infiles != YesNoEnum.NO:
-            self.entry("DISCARD_INFILES", self.discard_infiles.value)
-
-        if self.system_measurements != UnitSystem.NONE:
-            self.entry("SYSTEM_MEASUREMENTS", self.system_measurements.value)
+        self.entry("MATH_PROBLEM", self.math_problem)
+        self.entry("AXISYMMETRIC", self.axisymmetric)
+        self.entry("GRAVITY_FORCE", self.gravity_force)
+        self.entry("RESTART_SOL", self.restart_sol)
+        self.entry("WRT_RESTART_COMPACT", self.wrt_restart_compact)
+        self.entry("DISCARD_INFILES", self.discard_infiles)
+        self.entry("SYSTEM_MEASUREMENTS", self.system_measurements)
 
         if self.config_list:
             self.entry("CONFIG_LIST", ','.join(self.config_list))
@@ -266,36 +310,25 @@ class CompressibleFreeStreamDefinition(GroupEntriesMixin):
         self.entry("MACH_NUMBER", self.mach)
         self.entry("AOA", self.angle_of_attack)
         self.entry("SIDESLIP_ANGLE", self.sideslip_angle)
-
-        if self.init_option != FSInitOption.NONE:
-            self.entry("INIT_OPTION", self.init_option.value)
-
-        if self.freestream_option != FSOption.NONE:
-            self.entry("FREESTREAM_OPTION", self.freestream_option.value)
-
+        self.entry("INIT_OPTION", self.init_option)
+        self.entry("FREESTREAM_OPTION", self.freestream_option)
         self.entry("FREESTREAM_PRESSURE", self.pressure)
         self.entry("FREESTREAM_TEMPERATURE", self.temperature)
         self.entry("FREESTREAM_TEMPERATURE_VE", self.temperature_ve)
         self.entry("REYNOLDS_NUMBER", self.reynolds_number)
         self.entry("REYNOLDS_LENGTH", self.reynolds_length)
         self.entry("FREESTREAM_DENSITY", self.density)
-
-        if self.velocity is not None:
-            vel_str = ", ".join(str(v) for v in self.velocity)
-            self.entry("FREESTREAM_VELOCITY", f"( {vel_str} )")
-
+        self.entry("FREESTREAM_VELOCITY", self.velocity)
         self.entry("FREESTREAM_VISCOSITY", self.viscosity)
         self.entry("FREESTREAM_TURBULENCEINTENSITY", self.turbulence_intensity)
         self.entry("FREESTREAM_INTERMITTENCY", self.intermittency)
 
         if self.turb_fixed_values != YesNoEnum.NO:
-            self.entry("TURB_FIXED_VALUES", self.turb_fixed_values.value)
+            self.entry("TURB_FIXED_VALUES", self.turb_fixed_values)
 
         self.entry("TURB_FIXED_VALUES_DOMAIN", self.turb_fixed_values_domain)
         self.entry("FREESTREAM_TURB2LAMVISCRATIO", self.freestream_turb2lamviscratio)
-
-        if self.ref_dimensionalization != FSRefDimensionalization.NONE:
-            self.entry("FS_REF_DIMENSIONALIZATION", self.ref_dimensionalization.value)
+        self.entry("FS_REF_DIMENSIONALIZATION", self.ref_dimensionalization)
 
         return self.stringify()
 
@@ -357,6 +390,401 @@ class ReferenceValues(GroupEntriesMixin):
 
 
 @dataclass
+class BoundaryConditions(GroupEntriesMixin):
+    """ Boundary condition definitions.
+
+    Attributes
+    ----------
+    marker_euler : MarkerList
+        Euler wall boundary markers (inviscid walls).
+    marker_heatflux : MarkerList
+        Navier-Stokes (no-slip), constant heat flux wall markers.
+    marker_heattransfer : MarkerList
+        Navier-Stokes (no-slip), heat-transfer/convection wall markers.
+    marker_isothermal : MarkerList
+        Navier-Stokes (no-slip), isothermal wall markers.
+
+    marker_far : MarkerList
+        Far-field boundary markers.
+    marker_sym : MarkerList
+        Symmetry boundary markers (identical to MARKER_EULER).
+    marker_internal : MarkerList
+        Internal boundary markers (no boundary condition).
+    marker_nearfield : MarkerList
+        Near-field boundary markers.
+    marker_periodic : MarkerList
+        Periodic boundary markers.
+
+    marker_inlet : MarkerList
+        Inlet boundary markers with conditions.
+    marker_outlet : MarkerList
+        Outlet boundary markers.
+    marker_inlet_turbulent : MarkerList
+        Inlet turbulent boundary markers with parameters.
+    marker_supersonic_inlet : MarkerList
+        Supersonic inlet boundary markers.
+    marker_supersonic_outlet : MarkerList
+        Supersonic outlet boundary markers.
+
+    marker_actdisk : MarkerList
+        Actuator disk boundary markers.
+    marker_actdisk_bem_cg : MarkerList
+        Blade element CG markers.
+    marker_actdisk_bem_axis : MarkerList
+        Blade element axis markers.
+
+    marker_engine_inflow : MarkerList
+        Engine inflow boundary markers.
+    marker_engine_exhaust : MarkerList
+        Engine exhaust boundary markers.
+
+    marker_normal_displ : MarkerList
+        Displacement boundary markers.
+    marker_pressure : MarkerList
+        Pressure boundary markers.
+    marker_riemann : MarkerList
+        Riemann boundary markers.
+    marker_shroud : MarkerList
+        Shroud boundary markers.
+
+    marker_zone_interface : MarkerList
+        Zone interface markers.
+    marker_cht_interface : MarkerList
+        CHT (Conjugate Heat Transfer) interface markers.
+    marker_fluid_interface : MarkerList
+        Fluid interface markers.
+    marker_fluid_load : MarkerList
+        Markers where flow load is computed/applied.
+
+    marker_smoluchowski_maxwell : MarkerList
+        Smoluchowski/Maxwell slip wall boundary markers.
+    marker_clamped : MarkerList
+        Clamped boundary markers (structural).
+    marker_damper : MarkerList
+        Damper boundary markers (structural).
+    marker_load : MarkerList
+        Load boundary markers (structural).
+
+    marker_turbomachinery : MarkerList
+        Inflow and outflow markers for turbomachinery.
+    marker_mixingplane_interface : MarkerList
+        Mixing-plane interface markers.
+    marker_giles : MarkerList
+        Giles boundary condition markers for turbomachinery.
+
+    catalytic_wall : MarkerList
+        Catalytic wall markers.
+    marker_displacement : MarkerList
+        Displacement boundary markers.
+    marker_custom : MarkerList
+        Custom boundary markers (user-implemented).
+
+    inlet_type : InletType
+        Inlet boundary type.
+    specified_inlet_profile : YesNoEnum
+        Read inlet profile from a file.
+    inlet_filename : str
+        File specifying inlet profile.
+    inlet_matching_tolerance : float
+        Tolerance for matching coordinates in inlet profile file.
+    inlet_interpolation_function : InletInterpolationFunction
+        Type of spanwise interpolation for inlet face.
+    inlet_interpolation_data_type : InletInterpolationDataType
+        Type of radial spanwise interpolation for inlet face.
+    print_inlet_interpolated_data : YesNoEnum
+        Write interpolated inlet vertex data to file.
+    actdisk_double_surface : YesNoEnum
+        Propeller blade element actuator disk double surface.
+    actdisk_type : ActuatorDiskType
+        Actuator disk boundary type.
+    actdisk_filename : MaybeStr
+        Actuator disk data input file name.
+    bem_prop_filename : MaybeStr
+        Propeller blade element section data file name.
+    bem_prop_blade_angle : MaybeFloat
+        Propeller blade angle (degrees) at (0.75 * radius).
+    bem_freq : MaybeInt
+        BEM calculation frequency.
+    engine_inflow_type : EngineInflowType
+        Engine inflow boundary type.
+    kind_interpolation : KindInterpolation
+        Interface interpolation method among zones.
+    conservative_interpolation : YesNoEnum
+        Use conservative approach for interpolating between meshes.
+    kind_radial_basis_function : KindRadialBasisFunction
+        Type of radial basis function for RBF interpolation.
+    radial_basis_function_parameter : MaybeFloat
+        Radius for radial basis function.
+    radial_basis_function_polynomial_term : YesNoEnum
+        Use polynomial term in RBF interpolation.
+    radial_basis_function_prune_tolerance : MaybeFloat
+        Tolerance to prune small coefficients from RBF matrix.
+    num_spanwise_sections : MaybeInt
+        Number of spanwise sections for 3D turbo BC.
+    spanwise_kind : MaybeInt
+        Algorithm to identify span-wise sections (1 = automatic).
+    giles_extra_relaxfactor : DupleFloat
+        Extra under-relaxation factor for Giles BC at hub/shroud.
+    spatial_fourier : YesNoEnum
+        Non-reflectivity activation for Giles BC.
+    supercatalytic_wall : YesNoEnum
+        Specify if catalytic wall is supercatalytic.
+    supercatalytic_wall_composition : TrupleFloat
+        Species composition at supercatalytic wall.
+    catalytic_efficiency : MaybeFloat
+        Catalytic efficiency.
+    sine_load : YesNoEnum
+        Apply load as a sine wave.
+    sine_load_coeff : TrupleFloat
+        Sine load coefficients (amplitude, frequency, phase).
+    ramp_and_release_load : YesNoEnum
+        Ramp and release load option.
+    ramp_loading : YesNoEnum
+        Apply load as a ramp.
+    ramp_time : MaybeFloat
+        Time for linear load increase.
+    ramp_fsi_iter : MaybeInt
+        Number of FSI iterations with ramp applied.
+    stat_relax_parameter : MaybeFloat
+        Aitken static relaxation factor.
+    aitken_dyn_max_initial : MaybeFloat
+        Aitken dynamic maximum relaxation factor (first iteration).
+    aitken_dyn_min_initial : MaybeFloat
+        Aitken dynamic minimum relaxation factor (first iteration).
+    bgs_relaxation : BGSRelaxation
+        Kind of relaxation for BGS coupling.
+    relaxation : YesNoEnum
+        Relaxation required.
+    dynamic_load_transfer : DynamicLoadTransfer
+        Transfer method for multiphysics problems.
+    """
+    marker_euler: MarkerList                 = empty_list_field()
+    marker_heatflux: MarkerList              = empty_list_field()
+    marker_heattransfer: MarkerList          = empty_list_field()
+    marker_isothermal: MarkerList            = empty_list_field()
+
+    marker_far: MarkerList                   = empty_list_field()
+    marker_sym: MarkerList                   = empty_list_field()
+    marker_internal: MarkerList              = empty_list_field()
+    marker_nearfield: MarkerList             = empty_list_field()
+    marker_periodic: MarkerList              = empty_list_field()
+
+    marker_inlet: MarkerList                 = empty_list_field()
+    marker_outlet: MarkerList                = empty_list_field()
+    marker_inlet_turbulent: MarkerList       = empty_list_field()
+    marker_supersonic_inlet: MarkerList      = empty_list_field()
+    marker_supersonic_outlet: MarkerList     = empty_list_field()
+
+    marker_actdisk: MarkerList               = empty_list_field()
+    marker_actdisk_bem_cg: MarkerList        = empty_list_field()
+    marker_actdisk_bem_axis: MarkerList      = empty_list_field()
+
+    marker_engine_inflow: MarkerList         = empty_list_field()
+    marker_engine_exhaust: MarkerList        = empty_list_field()
+
+    marker_normal_displ: MarkerList          = empty_list_field()
+    marker_pressure: MarkerList              = empty_list_field()
+    marker_riemann: MarkerList               = empty_list_field()
+    marker_shroud: MarkerList                = empty_list_field()
+
+    marker_zone_interface: MarkerList        = empty_list_field()
+    marker_cht_interface: MarkerList         = empty_list_field()
+    marker_fluid_interface: MarkerList       = empty_list_field()
+    marker_fluid_load: MarkerList            = empty_list_field()
+
+    marker_smoluchowski_maxwell: MarkerList  = empty_list_field()
+    marker_clamped: MarkerList               = empty_list_field()
+    marker_damper: MarkerList                = empty_list_field()
+    marker_load: MarkerList                  = empty_list_field()
+
+    marker_turbomachinery: MarkerList        = empty_list_field()
+    marker_mixingplane_interface: MarkerList = empty_list_field()
+    marker_giles: MarkerList                 = empty_list_field()
+    catalytic_wall: MarkerList               = empty_list_field()
+    marker_displacement: MarkerList          = empty_list_field()
+    marker_custom: MarkerList                = empty_list_field()
+
+    inlet_type: InletType = InletType.TOTAL_CONDITIONS
+    specified_inlet_profile: YesNoEnum = YesNoEnum.NONE
+    inlet_filename: MaybeStr = None
+    inlet_matching_tolerance: MaybeFloat = None
+    inlet_interpolation_function: InletInterpolationFunction = InletInterpolationFunction.NONE
+    inlet_interpolation_data_type: InletInterpolationDataType = InletInterpolationDataType.VR_VTHETA
+    print_inlet_interpolated_data: YesNoEnum = YesNoEnum.NONE
+    actdisk_double_surface: YesNoEnum = YesNoEnum.NONE
+    actdisk_type: ActuatorDiskType = ActuatorDiskType.VARIABLES_JUMP
+    actdisk_filename: MaybeStr = None
+    bem_prop_filename: MaybeStr = None
+    bem_prop_blade_angle: MaybeFloat = None
+    bem_freq: MaybeInt = None
+    engine_inflow_type: EngineInflowType = EngineInflowType.FAN_FACE_MACH
+    kind_interpolation: KindInterpolation = KindInterpolation.NEAREST_NEIGHBOR
+    conservative_interpolation: YesNoEnum = YesNoEnum.NONE
+    kind_radial_basis_function: KindRadialBasisFunction = KindRadialBasisFunction.WENDLAND_C2
+    radial_basis_function_parameter: MaybeFloat = None
+    radial_basis_function_polynomial_term: YesNoEnum = YesNoEnum.NONE
+    radial_basis_function_prune_tolerance: MaybeFloat = None
+    num_spanwise_sections: MaybeInt = None
+    spanwise_kind: MaybeInt = None
+    giles_extra_relaxfactor: DupleFloat | None = None
+    spatial_fourier: YesNoEnum = YesNoEnum.NONE
+    supercatalytic_wall: YesNoEnum = YesNoEnum.NONE
+    supercatalytic_wall_composition: TrupleFloat | None = None
+    catalytic_efficiency: MaybeFloat = None
+    sine_load: YesNoEnum = YesNoEnum.NONE
+    sine_load_coeff: TrupleFloat | None = None
+    ramp_and_release_load: YesNoEnum = YesNoEnum.NONE
+    ramp_loading: YesNoEnum = YesNoEnum.NONE
+    ramp_time: MaybeFloat = None
+    ramp_fsi_iter: MaybeInt = None
+    stat_relax_parameter: MaybeFloat = None
+    aitken_dyn_max_initial: MaybeFloat = None
+    aitken_dyn_min_initial: MaybeFloat = None
+    bgs_relaxation: BGSRelaxation = BGSRelaxation.NONE
+    relaxation: YesNoEnum = YesNoEnum.NONE
+    dynamic_load_transfer: DynamicLoadTransfer = DynamicLoadTransfer.NONE
+
+    def _handle_wall_markers(self) -> None:
+        """ Handle wall boundary markers. """
+        self.entry("MARKER_EULER", self.marker_euler)
+        # self.entry("MARKER_HEATFLUX", self.marker_heatflux)
+        # self.entry("MARKER_HEATTRANSFER", self.marker_heattransfer)
+        # self.entry("MARKER_ISOTHERMAL", self.marker_isothermal)
+
+    def _handle_field_markers(self) -> None:
+        """ Handle field boundary markers. """
+        # self.entry("MARKER_FAR", self.marker_far)
+        # self.entry("MARKER_SYM", self.marker_sym)
+        # self.entry("MARKER_INTERNAL", self.marker_internal)
+        # self.entry("MARKER_NEARFIELD", self.marker_nearfield)
+        # self.entry("MARKER_PERIODIC", self.marker_periodic)
+        pass
+
+    def _handle_inlet_outlet_markers(self) -> None:
+        """ Handle inlet and outlet boundary markers. """
+        if self.marker_inlet and self.marker_inlet != ["NONE"]:
+            self.entry("INLET_TYPE", self.inlet_type)
+            self.entry("MARKER_INLET", self.marker_inlet)
+
+        if self.specified_inlet_profile:
+            self.entry("SPECIFIED_INLET_PROFILE", self.specified_inlet_profile)
+            self.entry("INLET_FILENAME", self.inlet_filename)
+            self.entry("INLET_MATCHING_TOLERANCE", self.inlet_matching_tolerance)
+
+        if self.inlet_interpolation_function != InletInterpolationFunction.NONE:
+            self.entry("INLET_INTERPOLATION_FUNCTION", self.inlet_interpolation_function)
+            self.entry("INLET_INTERPOLATION_DATA_TYPE", self.inlet_interpolation_data_type)
+            self.entry("PRINT_INLET_INTERPOLATED_DATA", self.print_inlet_interpolated_data)
+
+        if self.marker_outlet and self.marker_outlet != ["NONE"]:
+            self.entry("MARKER_OUTLET", self.marker_outlet)
+
+        # self.entry("MARKER_INLET_TURBULENT", self.marker_inlet_turbulent)
+        # self.entry("MARKER_SUPERSONIC_INLET", self.marker_supersonic_inlet)
+        # self.entry("MARKER_SUPERSONIC_OUTLET", self.marker_supersonic_outlet)
+
+    def to_cfg(self) -> str:
+        """Generate configuration file entries for boundary conditions.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("BOUNDARY CONDITION DEFINITION")
+
+        self._handle_wall_markers()
+        self._handle_field_markers()
+        self._handle_inlet_outlet_markers()
+
+        # # Actuator disk
+        # self.entry("ACTDISK_DOUBLE_SURFACE", self.actdisk_double_surface)
+        # self.entry("ACTDISK_TYPE", self.actdisk_type)
+        # self.entry("MARKER_ACTDISK", self.marker_actdisk)
+        # self.entry("MARKER_ACTDISK_BEM_CG", self.marker_actdisk_bem_cg)
+        # self.entry("MARKER_ACTDISK_BEM_AXIS", self.marker_actdisk_bem_axis)
+        # self.entry("ACTDISK_FILENAME", self.actdisk_filename)
+        # self.entry("BEM_PROP_FILENAME", self.bem_prop_filename)
+        # self.entry("BEM_PROP_BLADE_ANGLE", self.bem_prop_blade_angle)
+        # self.entry("BEM_FREQ", self.bem_freq)
+
+        # # Engine
+        # self.entry("ENGINE_INFLOW_TYPE", self.engine_inflow_type)
+        # self.entry("MARKER_ENGINE_INFLOW", self.marker_engine_inflow)
+        # self.entry("MARKER_ENGINE_EXHAUST", self.marker_engine_exhaust)
+
+        # # Structural
+        # self.entry("MARKER_NORMAL_DISPL", self.marker_normal_displ)
+        # self.entry("MARKER_PRESSURE", self.marker_pressure)
+
+        # # Special
+        # self.entry("MARKER_RIEMANN", self.marker_riemann)
+        # self.entry("MARKER_SHROUD", self.marker_shroud)
+
+        # # Interfaces
+        # self.entry("MARKER_ZONE_INTERFACE", self.marker_zone_interface)
+        # self.entry("MARKER_CHT_INTERFACE", self.marker_cht_interface)
+        # self.entry("MARKER_FLUID_INTERFACE", self.marker_fluid_interface)
+        # self.entry("MARKER_FLUID_LOAD", self.marker_fluid_load)
+
+        # # Interpolation
+        # self.entry("KIND_INTERPOLATION", self.kind_interpolation)
+        # self.entry("CONSERVATIVE_INTERPOLATION", self.conservative_interpolation)
+        # self.entry("KIND_RADIAL_BASIS_FUNCTION", self.kind_radial_basis_function)
+        # self.entry("RADIAL_BASIS_FUNCTION_PARAMETER", self.radial_basis_function_parameter)
+        # self.entry("RADIAL_BASIS_FUNCTION_POLYNOMIAL_TERM",
+        #            self.radial_basis_function_polynomial_term)
+        # self.entry("RADIAL_BASIS_FUNCTION_PRUNE_TOLERANCE", self.radial_basis_function_prune_tolerance)
+
+        # # Turbomachinery
+        # self.entry("MARKER_TURBOMACHINERY", self.marker_turbomachinery)
+        # self.entry("NUM_SPANWISE_SECTIONS", self.num_spanwise_sections)
+        # self.entry("SPANWISE_KIND", self.spanwise_kind)
+        # self.entry("MARKER_MIXINGPLANE_INTERFACE", self.marker_mixingplane_interface)
+        # self.entry("MARKER_GILES", self.marker_giles)
+        # self.entry("GILES_EXTRA_RELAXFACTOR", self.giles_extra_relaxfactor)
+        # self.entry("SPATIAL_FOURIER", self.spatial_fourier)
+
+        # # Catalytic walls
+        # self.entry("CATALYTIC_WALL", self.catalytic_wall)
+        # self.entry("SUPERCATALYTIC_WALL", self.supercatalytic_wall)
+
+        # self.entry("SUPERCATALYTIC_WALL_COMPOSITION", self.supercatalytic_wall_composition)
+        # self.entry("CATALYTIC_EFFICIENCY", self.catalytic_efficiency)
+
+        # # Custom and special
+        # self.entry("MARKER_CUSTOM", self.marker_custom)
+        # self.entry("MARKER_SMOLUCHOWSKI_MAXWELL", self.marker_smoluchowski_maxwell)
+
+        # # Structural
+        # self.entry("MARKER_CLAMPED", self.marker_clamped)
+        # self.entry("MARKER_DAMPER", self.marker_damper)
+        # self.entry("MARKER_LOAD", self.marker_load)
+
+        # # Load configuration
+        # self.entry("SINE_LOAD", self.sine_load)
+        # self.entry("SINE_LOAD_COEFF", self.sine_load_coeff)
+
+        # self.entry("RAMP_AND_RELEASE_LOAD", self.ramp_and_release_load)
+        # self.entry("RAMP_LOADING", self.ramp_loading)
+        # self.entry("RAMP_TIME", self.ramp_time)
+        # self.entry("RAMP_FSI_ITER", self.ramp_fsi_iter)
+
+        # # Relaxation
+        # self.entry("STAT_RELAX_PARAMETER", self.stat_relax_parameter)
+        # self.entry("AITKEN_DYN_MAX_INITIAL", self.aitken_dyn_max_initial)
+        # self.entry("AITKEN_DYN_MIN_INITIAL", self.aitken_dyn_min_initial)
+        # self.entry("BGS_RELAXATION", self.bgs_relaxation)
+        # self.entry("RELAXATION", self.relaxation)
+        # self.entry("DYNAMIC_LOAD_TRANSFER", self.dynamic_load_transfer)
+
+        # # Displacement
+        # self.entry("MARKER_DISPLACEMENT", self.marker_displacement)
+
+        return self.stringify()
+
+
+@dataclass
 class SU2Configuration(GroupEntriesMixin):
     """ SU2 configuration file generator.
 
@@ -370,6 +798,7 @@ class SU2Configuration(GroupEntriesMixin):
     problem: ProblemDefinition
     compressible_freestream: CompressibleFreeStreamDefinition | None = None
     reference_values: ReferenceValues | None = None
+    boundary_conditions: BoundaryConditions | None = None
 
     def to_cfg(self) -> str:
         """ Generate full SU2 configuration file.
@@ -387,5 +816,8 @@ class SU2Configuration(GroupEntriesMixin):
 
         if self.reference_values is not None:
             self.cfg.append(self.reference_values.to_cfg())
+
+        if self.boundary_conditions is not None:
+            self.cfg.append(self.boundary_conditions.to_cfg())
 
         return self.stringify()
