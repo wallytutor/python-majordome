@@ -41,6 +41,7 @@ from .enums import (
     SgsModel,
     Verification,
     UnitSystem,
+    ObjectiveFunction,
 )
 
 __all__ += [
@@ -76,6 +77,7 @@ __all__ += [
     "SgsModel",
     "Verification",
     "UnitSystem",
+    "ObjectiveFunction",
 ]
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -83,20 +85,24 @@ __all__ += [
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 from .groups import (
+    ParametersCFL,
     ProblemDefinition,
     CompressibleFreeStreamDefinition,
     ReferenceValues,
     BoundaryConditions,
     SurfacesIdentification,
+    CommonParametersNumerical,
     SU2Configuration,
 )
 
 __all__ += [
+    "ParametersCFL",
     "ProblemDefinition",
     "CompressibleFreeStreamDefinition",
     "ReferenceValues",
     "BoundaryConditions",
     "SurfacesIdentification",
+    "CommonParametersNumerical",
     "SU2Configuration",
 ]
 

@@ -317,10 +317,12 @@ class MathProblem(NullableEnum):
     DISCRETE_ADJOINT   = "DISCRETE_ADJOINT"
 
 
-class NumMethodGrad(Enum):
+class NumMethodGrad(NullableEnum):
     """ Numerical method for gradient computation. """
+    NONE                   = "NONE"
     GREEN_GAUSS            = "GREEN_GAUSS"
     WEIGHTED_LEAST_SQUARES = "WEIGHTED_LEAST_SQUARES"
+    LEAST_SQUARES          = "LEAST_SQUARES"   # MUSCL only!
 
 
 class MgCycle(Enum):
@@ -382,6 +384,35 @@ class UnitSystem(NullableEnum):
     NONE = "NONE"
     SI   = "SI"
     US   = "US"
+
+
+class ObjectiveFunction(NullableEnum):
+    """ Objective function in gradient evaluation. """
+    NONE                    = "NONE"
+    DRAG                    = "DRAG"
+    LIFT                    = "LIFT"
+    SIDEFORCE               = "SIDEFORCE"
+    MOMENT_X                = "MOMENT_X"
+    MOMENT_Y                = "MOMENT_Y"
+    MOMENT_Z                = "MOMENT_Z"
+    EFFICIENCY              = "EFFICIENCY"
+    BUFFET                  = "BUFFET"
+    EQUIVALENT_AREA         = "EQUIVALENT_AREA"
+    NEARFIELD_PRESSURE      = "NEARFIELD_PRESSURE"
+    FORCE_X                 = "FORCE_X"
+    FORCE_Y                 = "FORCE_Y"
+    FORCE_Z                 = "FORCE_Z"
+    THRUST                  = "THRUST"
+    TORQUE                  = "TORQUE"
+    TOTAL_HEATFLUX          = "TOTAL_HEATFLUX"
+    CUSTOM_OBJFUNC          = "CUSTOM_OBJFUNC"
+    MAXIMUM_HEATFLUX        = "MAXIMUM_HEATFLUX"
+    INVERSE_DESIGN_PRESSURE = "INVERSE_DESIGN_PRESSURE"
+    INVERSE_DESIGN_HEATFLUX = "INVERSE_DESIGN_HEATFLUX"
+    SURFACE_TOTAL_PRESSURE  = "SURFACE_TOTAL_PRESSURE"
+    SURFACE_MASSFLOW        = "SURFACE_MASSFLOW"
+    SURFACE_STATIC_PRESSURE = "SURFACE_STATIC_PRESSURE"
+    SURFACE_MACH            = "SURFACE_MACH"
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # EOF

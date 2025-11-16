@@ -28,6 +28,54 @@ def empty_list_field():
     return field(default_factory=lambda: NONE_LIST)
 
 
+@dataclass
+class ParametersCFL:
+    """ Parameters of the adaptive CFL number.
+
+    After the starting iteration has passed, local CFL increases by
+    factor-up until max if the solution rate of change is not limited,
+    and acceptable linear convergence is achieved. It is reduced if
+    rate is limited, or if there is not enough linear convergence, or
+    if the nonlinear residuals are stagnant and oscillatory. It is
+    reset back to min when linear solvers diverge, or if nonlinear
+    residuals increase too much.
+
+    Attributes
+    ----------
+    factor_down : float
+        Factor to reduce CFL number.
+    factor_up : float
+        Factor to increase CFL number.
+    min_value : float
+        Minimum CFL number.
+    max_value : float
+        Maximum CFL number.
+    acceptable_convergence : float
+        Acceptable linear convergence.
+    starting_iteration : int
+        Starting iteration for adaptive CFL.
+    """
+    factor_down: float
+    factor_up: float
+    min_value: float
+    max_value: float
+    acceptable_convergence: MaybeFloat = None
+    starting_iteration: MaybeInt = None
+
+    @property
+    def data(self) -> tuple:
+        """ Return parameters as a tuple for formatting. """
+        data = [self.factor_down, self.factor_up, self.min_value, self.max_value]
+
+        if self.acceptable_convergence is not None:
+            data.append(self.acceptable_convergence)
+
+        if self.starting_iteration is not None:
+            data.append(self.starting_iteration)
+
+        return tuple(data)
+
+
 class GroupEntriesMixin:
     """ Mixin for handling configuration entries for SU2 groups. """
     __slots__ = ("cfg",)
@@ -812,6 +860,119 @@ class SurfacesIdentification(GroupEntriesMixin):
 
 
 @dataclass
+class CommonParametersNumerical(GroupEntriesMixin):
+    """ Common numerical parameters for flow solvers.
+
+    Attributes
+    ----------
+    num_method_grad: NumMethodGrad
+        Numerical method for spatial gradient
+    num_method_grad_recon: NumMethodGrad
+        Numerical method for spatial gradients to be used for MUSCL
+        reconstruction. If not specified, the method specified in
+        NUM_METHOD_GRAD is used.
+    cfl_number: MaybeFloat
+        CFL number (initial value for the adaptive CFL number).
+    cfl_adapt: YesNoEnum
+        Adaptive CFL number (NO, YES).
+    cfl_adapt_param: ParametersCFL | None
+        Parameters of the adaptive CFL number.
+    max_delta_time: MaybeFloat
+        Maximum time step size.
+    ext_iter_offset: MaybeInt
+        External iteration offset for time marching schemes.
+    rk_alpha_coeff: TrupleFloat | None
+        Coefficients for low-storage Runge-Kutta schemes.
+    objective_function: ObjectiveFunction
+        Objective function to be used in gradient evaluation.
+    objective_weight: MaybeFloat
+        Weighting factor for the objective function.
+    custom_objfunc: MaybeStr
+        Custom expression for objective function evaluation.
+    """
+    num_method_grad: NumMethodGrad = NumMethodGrad.GREEN_GAUSS
+    num_method_grad_recon: NumMethodGrad = NumMethodGrad.NONE
+    cfl_number: MaybeFloat = None
+    cfl_adapt: YesNoEnum = YesNoEnum.NONE
+    cfl_adapt_param: ParametersCFL | None = None
+    max_delta_time: MaybeFloat = None
+    ext_iter_offset: MaybeInt = None
+    rk_alpha_coeff: TrupleFloat | None = None
+    objective_function: ObjectiveFunction = ObjectiveFunction.NONE
+    objective_weight: MaybeFloat = None
+    custom_objfunc: MaybeStr = None
+
+    def to_cfg(self) -> str:
+        """ Generate configuration file entries for common numerical parameters.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("OMMON PARAMETERS DEFINING THE NUMERICAL METHOD")
+
+        self.entry("NUM_METHOD_GRAD", self.num_method_grad)
+        self.entry("NUM_METHOD_GRAD_RECON", self.num_method_grad_recon)
+        self.entry("CFL_NUMBER", self.cfl_number)
+        self.entry("CFL_ADAPT", self.cfl_adapt)
+
+        if self.cfl_adapt and self.cfl_adapt_param is not None:
+            self.entry("CFL_ADAPT_PARAM", self.cfl_adapt_param.data)
+
+        self.entry("MAX_DELTA_TIME", self.max_delta_time)
+        self.entry("EXT_ITER_OFFSET", self.ext_iter_offset)
+        self.entry("RK_ALPHA_COEFF", self.rk_alpha_coeff)
+        self.entry("OBJECTIVE_FUNCTION", self.objective_function)
+        self.entry("OBJECTIVE_WEIGHT", self.objective_weight)
+        self.entry("CUSTOM_OBJFUNC", self.custom_objfunc)
+
+        return self.stringify()
+
+
+@dataclass
+class LinearSolverParameters(GroupEntriesMixin):
+    def to_cfg(self) -> str:
+        return self.stringify()
+
+
+@dataclass
+class MultigridParameters(GroupEntriesMixin):
+    def to_cfg(self) -> str:
+        return self.stringify()
+
+
+@dataclass
+class FlowNumericalMethod(GroupEntriesMixin):
+    def to_cfg(self) -> str:
+        return self.stringify()
+
+
+@dataclass
+class SlopeLimiter(GroupEntriesMixin):
+    def to_cfg(self) -> str:
+        return self.stringify()
+
+
+@dataclass
+class SolverControl(GroupEntriesMixin):
+    def to_cfg(self) -> str:
+        return self.stringify()
+
+
+@dataclass
+class ScreenHistoryInfo(GroupEntriesMixin):
+    def to_cfg(self) -> str:
+        return self.stringify()
+
+
+@dataclass
+class IOFileInfo(GroupEntriesMixin):
+    def to_cfg(self) -> str:
+        return self.stringify()
+
+
+@dataclass
 class SU2Configuration(GroupEntriesMixin):
     """ SU2 configuration file generator.
 
@@ -827,6 +988,14 @@ class SU2Configuration(GroupEntriesMixin):
     reference_values: ReferenceValues | None = None
     boundary_conditions: BoundaryConditions | None = None
     surfaces_identification: SurfacesIdentification | None = None
+    common_numerical_parameters: CommonParametersNumerical | None = None
+    linear_solver_parameters: LinearSolverParameters | None = None
+    multigrid_parameters: MultigridParameters | None = None
+    flow_numerical_method: FlowNumericalMethod | None = None
+    slope_limiter: SlopeLimiter | None = None
+    solver_control: SolverControl | None = None
+    io_file_info: IOFileInfo | None = None
+    screen_history_info: ScreenHistoryInfo | None = None
 
     def to_cfg(self) -> str:
         """ Generate full SU2 configuration file.
@@ -850,6 +1019,30 @@ class SU2Configuration(GroupEntriesMixin):
 
         if self.surfaces_identification is not None:
             self.cfg.append(self.surfaces_identification.to_cfg())
+
+        if self.common_numerical_parameters is not None:
+            self.cfg.append(self.common_numerical_parameters.to_cfg())
+
+        if self.linear_solver_parameters is not None:
+            self.cfg.append(self.linear_solver_parameters.to_cfg())
+
+        if self.multigrid_parameters is not None:
+            self.cfg.append(self.multigrid_parameters.to_cfg())
+
+        if self.flow_numerical_method is not None:
+            self.cfg.append(self.flow_numerical_method.to_cfg())
+
+        if self.slope_limiter is not None:
+            self.cfg.append(self.slope_limiter.to_cfg())
+
+        if self.solver_control is not None:
+            self.cfg.append(self.solver_control.to_cfg())
+
+        if self.screen_history_info is not None:
+            self.cfg.append(self.screen_history_info.to_cfg())
+
+        if self.io_file_info is not None:
+            self.cfg.append(self.io_file_info.to_cfg())
 
         self.header("EOF")
         return self.stringify()
