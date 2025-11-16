@@ -224,6 +224,26 @@ class DynamicLoadTransfer(Enum):
     SIGMOID_10    = "SIGMOID_10"
     SIGMOID_20    = "SIGMOID_20"
 
+
+class WallFunctions(Enum):
+    """ Viscous wall function markers types. """
+    NONE                 = "NO_WALL_FUNCTION"
+    STANDARD_FUNCTION    = "STANDARD_WALL_FUNCTION"
+    ADAPTIVE_FUNCTION    = "ADAPTIVE_WALL_FUNCTION"
+    SCALABLE_FUNCTION    = "SCALABLE_WALL_FUNCTION"
+    EQUILIBRIUM_MODEL    = "EQUILIBRIUM_WALL_MODEL"
+    NONEQUILIBRIUM_MODEL = "NONEQUILIBRIUM_WALL_MODEL"
+    LOGARITHMIC_MODEL    = "LOGARITHMIC_WALL_MODEL"
+
+
+class AverageProcessMap(Enum):
+    """ Type of averaging for analyze markers. """
+    NONE       = "NONE"
+    ALGEBRAIC  = "ALGEBRAIC"
+    AREA       = "AREA"
+    MIXEDOUT   = "MIXEDOUT"
+    MASSFLUX   = "MASSFLUX"
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # https://su2code.github.io/docs_v7/Convective-Schemes/
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -316,7 +336,7 @@ class SgsModel(Enum):
 
 class Verification(Enum):
     """ Solution verification types. """
-    NO_VERIFICATION_SOLUTION = "NO_VERIFICATION_SOLUTION"
+    NONE                     = "NO_VERIFICATION_SOLUTION"
     INVISCID_VORTEX          = "INVISCID_VORTEX"
     RINGLEB                  = "RINGLEB"
     NS_UNIT_QUAD             = "NS_UNIT_QUAD"
