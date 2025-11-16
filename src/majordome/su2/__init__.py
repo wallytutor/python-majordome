@@ -63,12 +63,14 @@ __all__ += [
 from .groups import (
     ProblemDefinition,
     CompressibleFreeStreamDefinition,
+    ReferenceValues,
     SU2Configuration,
 )
 
 __all__ += [
     "ProblemDefinition",
     "CompressibleFreeStreamDefinition",
+    "ReferenceValues",
     "SU2Configuration",
 ]
 
