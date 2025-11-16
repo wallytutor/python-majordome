@@ -20,10 +20,12 @@ TrupleFloat = tuple[float, float, float]
 
 MaybeVelocity = TrupleFloat | None
 
+NONE_LIST = ["NONE"]
+
 
 def empty_list_field():
     """ Return an empty list with a default value of ['NONE']. """
-    return field(default_factory=lambda: ["NONE"])
+    return field(default_factory=lambda: NONE_LIST)
 
 
 class GroupEntriesMixin:
@@ -174,15 +176,15 @@ class ProblemDefinition(GroupEntriesMixin):
 
         self.entry("SOLVER", self.solver)
 
-        if self.turbulence_model != TurbulenceModel.NONE:
+        if self.turbulence_model:
             self._handle_turbulence_model()
 
-        if self.transition_model != TransitionModel.NONE:
+        if self.transition_model:
             self._handle_transition_model()
 
         self.entry("KIND_SGS_MODEL", self.sgs_model)
 
-        if self.solution_verification != Verification.NONE:
+        if self.solution_verification:
             self.entry("KIND_VERIFICATION_SOLUTION", self.solution_verification)
 
         self.entry("MATH_PROBLEM", self.math_problem)
@@ -295,7 +297,7 @@ class CompressibleFreeStreamDefinition(GroupEntriesMixin):
         self.entry("FREESTREAM_TURBULENCEINTENSITY", self.turbulence_intensity)
         self.entry("FREESTREAM_INTERMITTENCY", self.intermittency)
 
-        if self.turb_fixed_values != YesNoEnum.NO:
+        if self.turb_fixed_values:
             self.entry("TURB_FIXED_VALUES", self.turb_fixed_values)
 
         self.entry("TURB_FIXED_VALUES_DOMAIN", self.turb_fixed_values_domain)
@@ -634,7 +636,7 @@ class BoundaryConditions(GroupEntriesMixin):
 
     def _handle_inlet_outlet_markers(self) -> None:
         """ Handle inlet and outlet boundary markers. """
-        if self.marker_inlet and self.marker_inlet != ["NONE"]:
+        if self.marker_inlet and self.marker_inlet != NONE_LIST:
             self.entry("INLET_TYPE", self.inlet_type)
             self.entry("MARKER_INLET", self.marker_inlet)
 
@@ -643,12 +645,12 @@ class BoundaryConditions(GroupEntriesMixin):
             self.entry("INLET_FILENAME", self.inlet_filename)
             self.entry("INLET_MATCHING_TOLERANCE", self.inlet_matching_tolerance)
 
-        if self.inlet_interpolation_function != InletInterpolationFunction.NONE:
+        if self.inlet_interpolation_function:
             self.entry("INLET_INTERPOLATION_FUNCTION", self.inlet_interpolation_function)
             self.entry("INLET_INTERPOLATION_DATA_TYPE", self.inlet_interpolation_data_type)
             self.entry("PRINT_INLET_INTERPOLATED_DATA", self.print_inlet_interpolated_data)
 
-        if self.marker_outlet and self.marker_outlet != ["NONE"]:
+        if self.marker_outlet and self.marker_outlet != NONE_LIST:
             self.entry("MARKER_OUTLET", self.marker_outlet)
 
         # self.entry("MARKER_INLET_TURBULENT", self.marker_inlet_turbulent)
