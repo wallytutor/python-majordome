@@ -35,6 +35,9 @@ function Invoke-ConfigurePython() {
     # Path to Jupyter kernels, etc.:
     $env:JUPYTER_DATA_DIR = "$env:KOMPANION_DATA\jupyter"
 
+    # This is required for nteract to work:
+    $env:JUPYTER_PATH = $env:JUPYTER_DATA_DIR
+
     # Install minimal requirements:
     $lockFile = "$env:KOMPANION_DATA\python.lock"
 
