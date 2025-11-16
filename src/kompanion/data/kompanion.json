@@ -24,7 +24,8 @@
         "haskell": true,
         "elm": true,
         "racket": false,
-        "rust": false
+        "rust": false,
+        "coq": true
     },
     "simu": {
         "paraview": true,

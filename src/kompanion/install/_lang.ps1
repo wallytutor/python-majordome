@@ -17,6 +17,7 @@ function Start-KompanionLangInstall() {
     if ($Config.elm)     { Invoke-InstallElm }
     if ($Config.racket)  { Invoke-InstallRacket }
     if ($Config.rust)    { Invoke-InstallRust }
+    if ($Config.coq)     { Invoke-InstallCoq }
 }
 
 # ---------------------------------------------------------------------------
@@ -83,6 +84,21 @@ function Invoke-InstallRacket() {
 
 function Invoke-InstallRust() {
     Write-Host "- Rust installation not yet implemented."
+}
+
+function Invoke-InstallCoq() {
+    $output = "$env:KOMPANION_TEMP\coq.zip"
+    $path   = "$env:KOMPANION_BIN\coq"
+    $url    = "https://github.com/rocq-prover/platform/releases/download/2025.01.0/Coq-Platform-release-2025.01.0-version.8.20.2025.01-Windows-x86_64.exe"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+
+    $target = Join-Path $path '$PLUGINSDIR'
+    if (Test-Path $target) { Remove-Item $target -Recurse -Force }
+
+    $target = Join-Path $path 'Uninstall.exe.nsis'
+    if (Test-Path $target) { Remove-Item $target }
 }
 
 # ---------------------------------------------------------------------------
