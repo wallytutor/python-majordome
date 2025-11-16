@@ -17,6 +17,7 @@ function Start-KompanionLangConfigure() {
     if ($Config.elm)     { Invoke-ConfigureElm }
     if ($Config.racket)  { Invoke-ConfigureRacket }
     if ($Config.rust)    { Invoke-ConfigureRust }
+    if ($Config.coq)     { Invoke-ConfigureCoq }
 }
 
 # ---------------------------------------------------------------------------
@@ -114,6 +115,11 @@ function Invoke-ConfigureRust() {
     # $env:RUST_HOME = "$env:KOMPANION_BIN\rust"
     # Initialize-AddToPath -Directory "$env:RUST_HOME\bin"
     # $env:CARGO_HOME = "$env:KOMPANION_DATA\rust"
+}
+
+function Invoke-ConfigureCoq() {
+    $env:COQ_HOME = "$env:KOMPANION_BIN\coq"
+    Initialize-AddToPath -Directory "$env:COQ_HOME\bin"
 }
 
 # ---------------------------------------------------------------------------

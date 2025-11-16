@@ -112,6 +112,9 @@ function Invoke-InstallTesseract() {
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
 
+    $target = Join-Path $path '$PLUGINSDIR'
+    if (Test-Path $target) { Remove-Item $target -Recurse -Force }
+
     $path = "$env:KOMPANION_BIN\tessdata"
 
     if (-not (Test-Path "$path")) {
