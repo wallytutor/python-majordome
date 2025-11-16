@@ -2,38 +2,9 @@
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-from .enums import (
-    YesNoEnum,
-    SolverType,
-    TurbulenceModel,
-    ShearStressTransportModel,
-    SpalartAllmarasModel,
-    TransitionModel,
-    LmTransitionModelOptions,
-    FSInitOption,
-    FSOption,
-    FSRefDimensionalization,
-    InletType,
-    InletInterpolationFunction,
-    InletInterpolationDataType,
-    ActuatorDiskType,
-    EngineInflowType,
-    KindInterpolation,
-    KindRadialBasisFunction,
-    GilesCondition,
-    BGSRelaxation,
-    DynamicLoadTransfer,
-    ConvectiveScheme,
-    LinearSolver,
-    Preconditioner,
-    MathProblem,
-    NumMethodGrad,
-    MgCycle,
-    TimeDiscretization,
-    SgsModel,
-    Verification,
-    UnitSystem,
-)
+
+# XXX: for now, later organize imports properly
+from .enums import *
 
 MaybeStr = str | None
 
@@ -65,7 +36,8 @@ class GroupEntriesMixin:
 
     def header(self, title: str) -> None:
         """ Add header to configuration entries. """
-        self.start()
+        if not hasattr(self, "cfg"):
+            self.start()
         self.cfg.append(f"{80 * '%'}\n%% {title}\n{80 * '%'}")
 
     def entry(self, key: str, value: Any, force: bool = False) -> None:
@@ -154,7 +126,7 @@ class ProblemDefinition(GroupEntriesMixin):
     hroughness: float                      = 1.0e-6
     lm_options: LmTransitionModelOptions   = LmTransitionModelOptions.NONE
     sgs_model: SgsModel                    = SgsModel.NONE
-    solution_verification: Verification    = Verification.NO_VERIFICATION_SOLUTION
+    solution_verification: Verification    = Verification.NONE
     math_problem: MathProblem              = MathProblem.NONE
     axisymmetric: YesNoEnum                = YesNoEnum.NONE
     gravity_force: YesNoEnum               = YesNoEnum.NONE
@@ -210,7 +182,7 @@ class ProblemDefinition(GroupEntriesMixin):
 
         self.entry("KIND_SGS_MODEL", self.sgs_model)
 
-        if self.solution_verification != Verification.NO_VERIFICATION_SOLUTION:
+        if self.solution_verification != Verification.NONE:
             self.entry("KIND_VERIFICATION_SOLUTION", self.solution_verification)
 
         self.entry("MATH_PROBLEM", self.math_problem)
@@ -785,6 +757,59 @@ class BoundaryConditions(GroupEntriesMixin):
 
 
 @dataclass
+class SurfacesIdentification(GroupEntriesMixin):
+    """ Surfaces identification group.
+
+    Attributes
+    ----------
+    marker_plotting : MarkerList
+        Marker(s) of the surface in the surface flow solution file.
+    marker_monitoring : MarkerList
+        Marker(s) of the surface where the non-dimensional coefficients
+        are evaluated.
+    marker_wall_functions : MarkerList
+        Viscous wall markers for which wall functions must be applied.
+    marker_python_custom : MarkerList
+        Marker(s) of the surface where custom thermal BC's are defined.
+    marker_designing : MarkerList
+        Marker(s) of the surface where obj. func. (design problem) will
+        be evaluated.
+    marker_analyze : MarkerList
+        Marker(s) of the surface that is going to be analyzed in detail
+        (massflow, average pressure, distortion, etc).
+    marker_analyze_average : AverageProcessMap
+        Method to compute the average value in MARKER_ANALYZE.
+    """
+    marker_plotting: MarkerList       = empty_list_field()
+    marker_monitoring: MarkerList     = empty_list_field()
+    marker_wall_functions: MarkerList = empty_list_field()
+    marker_python_custom: MarkerList  = empty_list_field()
+    marker_designing: MarkerList      = empty_list_field()
+    marker_analyze: MarkerList        = empty_list_field()
+    marker_analyze_average: AverageProcessMap = AverageProcessMap.NONE
+
+    def to_cfg(self) -> str:
+        """ Generate configuration file entries for surfaces identification.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("SURFACES IDENTIFICATION")
+
+        self.entry("MARKER_PLOTTING", self.marker_plotting)
+        self.entry("MARKER_MONITORING", self.marker_monitoring)
+        self.entry("MARKER_WALL_FUNCTIONS", self.marker_wall_functions)
+        self.entry("MARKER_PYTHON_CUSTOM", self.marker_python_custom)
+        self.entry("MARKER_DESIGNING", self.marker_designing)
+        self.entry("MARKER_ANALYZE", self.marker_analyze)
+        self.entry("MARKER_ANALYZE_AVERAGE", self.marker_analyze_average)
+
+        return self.stringify()
+
+
+@dataclass
 class SU2Configuration(GroupEntriesMixin):
     """ SU2 configuration file generator.
 
@@ -799,6 +824,7 @@ class SU2Configuration(GroupEntriesMixin):
     compressible_freestream: CompressibleFreeStreamDefinition | None = None
     reference_values: ReferenceValues | None = None
     boundary_conditions: BoundaryConditions | None = None
+    surfaces_identification: SurfacesIdentification | None = None
 
     def to_cfg(self) -> str:
         """ Generate full SU2 configuration file.
@@ -820,4 +846,8 @@ class SU2Configuration(GroupEntriesMixin):
         if self.boundary_conditions is not None:
             self.cfg.append(self.boundary_conditions.to_cfg())
 
+        if self.surfaces_identification is not None:
+            self.cfg.append(self.surfaces_identification.to_cfg())
+
+        self.header("EOF")
         return self.stringify()

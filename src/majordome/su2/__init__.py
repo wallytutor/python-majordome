@@ -29,6 +29,8 @@ from .enums import (
     GilesCondition,
     BGSRelaxation,
     DynamicLoadTransfer,
+    WallFunctions,
+    AverageProcessMap,
     ConvectiveScheme,
     LinearSolver,
     Preconditioner,
@@ -62,6 +64,8 @@ __all__ += [
     "GilesCondition",
     "BGSRelaxation",
     "DynamicLoadTransfer",
+    "WallFunctions",
+    "AverageProcessMap",
     "ConvectiveScheme",
     "LinearSolver",
     "Preconditioner",
@@ -83,6 +87,7 @@ from .groups import (
     CompressibleFreeStreamDefinition,
     ReferenceValues,
     BoundaryConditions,
+    SurfacesIdentification,
     SU2Configuration,
 )
 
@@ -91,6 +96,7 @@ __all__ += [
     "CompressibleFreeStreamDefinition",
     "ReferenceValues",
     "BoundaryConditions",
+    "SurfacesIdentification",
     "SU2Configuration",
 ]
 
