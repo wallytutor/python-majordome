@@ -1,9 +1,21 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
+from typing import Any
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Helpers
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+class NullableEnum(Enum):
+    @property
+    def falsehood(self) -> list[Any]:
+        """ Define falsehood values for the enum. """
+        return ["NONE", None, False]
+
+    def __bool__(self) -> bool:
+        """ Evaluate as boolean. """
+        return not (self.name == "NONE" or self.value in self.falsehood)
+
 
 class YesNoEnum(Enum):
     """ Yes/No options. """
@@ -12,7 +24,7 @@ class YesNoEnum(Enum):
     NO   = "NO"
 
     def __bool__(self) -> bool:
-        """ Convert to boolean. """
+        """ Evaluate as boolean. """
         return self == YesNoEnum.YES
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -40,14 +52,14 @@ class SolverType(Enum):
 # https://su2code.github.io/docs_v7/Physical-Definition/
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-class TurbulenceModel(Enum):
+class TurbulenceModel(NullableEnum):
     """ Turbulence model options. """
     NONE = "NONE"
     SA   = "SA"
     SST  = "SST"
 
 
-class ShearStressTransportModel(Enum):
+class ShearStressTransportModel(NullableEnum):
     """ Shear Stress Transport (SST) turbulence model versions/corrections. """
     NONE                   = "NONE"
     V2003m                 = "V2003m"
@@ -61,7 +73,7 @@ class ShearStressTransportModel(Enum):
     DIMENSIONLESS_LIMIT    = "DIMENSIONLESS_LIMIT"
 
 
-class SpalartAllmarasModel(Enum):
+class SpalartAllmarasModel(NullableEnum):
     """ Spalart-Allmaras (SA) turbulence model versions/corrections. """
     NONE            = "NONE"
     NEGATIVE        = "NEGATIVE"
@@ -73,13 +85,13 @@ class SpalartAllmarasModel(Enum):
     ROTATION        = "ROTATION"
 
 
-class TransitionModel(Enum):
+class TransitionModel(NullableEnum):
     """ Transition model options. """
     NONE = "NONE"
     LM   = "LM"
 
 
-class LmTransitionModelOptions(Enum):
+class LmTransitionModelOptions(NullableEnum):
     """ Transition model versions/corrections. """
     NONE           = "NONE"
     LM2015         = "LM2015"
@@ -92,21 +104,21 @@ class LmTransitionModelOptions(Enum):
     MENTER_LANGTRY = "MENTER_LANGTRY"
 
 
-class FSInitOption(Enum):
+class FSInitOption(NullableEnum):
     """ Free-stream option to choose initializing the solution. """
     NONE          = "NONE"
     REYNOLDS      = "REYNOLDS"
     TD_CONDITIONS = "TD_CONDITIONS"
 
 
-class FSOption(Enum):
+class FSOption(NullableEnum):
     """ Free-stream option to choose between density and temperature. """
     NONE           = "NONE"
     TEMPERATURE_FS = "TEMPERATURE_FS"
     DENSITY_FS     = "DENSITY_FS"
 
 
-class FSRefDimensionalization(Enum):
+class FSRefDimensionalization(NullableEnum):
     """ Free-stream reference dimensionalization options. """
     NONE                    = "NONE"
     DIMENSIONAL             = "DIMENSIONAL"
@@ -146,7 +158,7 @@ class InletType(Enum):
                 }
 
 
-class InletInterpolationFunction(Enum):
+class InletInterpolationFunction(NullableEnum):
     """ Type of spanwise interpolation to use for the inlet face. """
     NONE      = "NONE"
     LINEAR_1D = "LINEAR_1D"
@@ -154,14 +166,14 @@ class InletInterpolationFunction(Enum):
     CUBIC_1D  = "CUBIC_1D"
 
 
-class InletInterpolationDataType(Enum):
+class InletInterpolationDataType(NullableEnum):
     """ Type of radial spanwise interpolation type for the inlet face. """
     NONE     = "NONE"
     VR_VTHETA = "VR_VTHETA"
     ALPHA_PHI = "ALPHA_PHI"
 
 
-class ActuatorDiskType(Enum):
+class ActuatorDiskType(NullableEnum):
     """ Actuator disk boundary type options. """
     NONE              = "NONE"
     VARIABLE_LOAD     = "VARIABLE_LOAD"
@@ -171,7 +183,7 @@ class ActuatorDiskType(Enum):
     BLADE_ELEMENT     = "BLADE_ELEMENT"
 
 
-class EngineInflowType(Enum):
+class EngineInflowType(NullableEnum):
     """ Engine inflow boundary type options."""
     NONE              = "NONE"
     FAN_FACE_MACH     = "FAN_FACE_MACH"
@@ -179,7 +191,7 @@ class EngineInflowType(Enum):
     FAN_FACE_MDOT     = "FAN_FACE_MDOT"
 
 
-class KindInterpolation(Enum):
+class KindInterpolation(NullableEnum):
     """ Kind of interface interpolation among different zones. """
     NONE                  = "NONE"
     NEAREST_NEIGHBOR      = "NEAREST_NEIGHBOR"
@@ -188,7 +200,7 @@ class KindInterpolation(Enum):
     RADIAL_BASIS_FUNCTION = "RADIAL_BASIS_FUNCTION"
 
 
-class KindRadialBasisFunction(Enum):
+class KindRadialBasisFunction(NullableEnum):
     """ Type of radial basis function to use for RBF interpolation. """
     NONE              = "NONE"
     WENDLAND_C2       = "WENDLAND_C2"
@@ -198,7 +210,7 @@ class KindRadialBasisFunction(Enum):
     MULTI_QUADRIC     = "MULTI_QUADRIC"
 
 
-class GilesCondition(Enum):
+class GilesCondition(NullableEnum):
     """ Giles boundary condition types for turbomachinery. """
     NONE                = "NONE"
     TOTAL_CONDITIONS_PT = "TOTAL_CONDITIONS_PT"
@@ -207,14 +219,14 @@ class GilesCondition(Enum):
     MIXING_OUT          = "MIXING_OUT"
 
 
-class BGSRelaxation(Enum):
+class BGSRelaxation(NullableEnum):
     """ Kind of relaxation for Block Gauss-Seidel coupling. """
     NONE   = "NONE"
     FIXED  = "FIXED"
     AITKEN = "AITKEN"
 
 
-class DynamicLoadTransfer(Enum):
+class DynamicLoadTransfer(NullableEnum):
     """ Transfer method used for multiphysics problems. """
     NONE          = "NONE"
     INSTANTANEOUS = "INSTANTANEOUS"
@@ -225,7 +237,7 @@ class DynamicLoadTransfer(Enum):
     SIGMOID_20    = "SIGMOID_20"
 
 
-class WallFunctions(Enum):
+class WallFunctions(NullableEnum):
     """ Viscous wall function markers types. """
     NONE                 = "NO_WALL_FUNCTION"
     STANDARD_FUNCTION    = "STANDARD_WALL_FUNCTION"
@@ -236,7 +248,7 @@ class WallFunctions(Enum):
     LOGARITHMIC_MODEL    = "LOGARITHMIC_WALL_MODEL"
 
 
-class AverageProcessMap(Enum):
+class AverageProcessMap(NullableEnum):
     """ Type of averaging for analyze markers. """
     NONE       = "NONE"
     ALGEBRAIC  = "ALGEBRAIC"
@@ -297,7 +309,7 @@ class Preconditioner(Enum):
 # TBD : not found in the documentation
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-class MathProblem(Enum):
+class MathProblem(NullableEnum):
     """ Mathematical problem types. """
     NONE               = "NONE"
     DIRECT             = "DIRECT"
@@ -325,7 +337,7 @@ class TimeDiscretization(Enum):
     EULER_EXPLICIT       = "EULER_EXPLICIT"
 
 
-class SgsModel(Enum):
+class SgsModel(NullableEnum):
     """ Subgrid scale model options. """
     NONE          = "NONE"
     IMPLICIT_LES  = "IMPLICIT_LES"
@@ -334,7 +346,7 @@ class SgsModel(Enum):
     VREMAN        = "VREMAN"
 
 
-class Verification(Enum):
+class Verification(NullableEnum):
     """ Solution verification types. """
     NONE                     = "NO_VERIFICATION_SOLUTION"
     INVISCID_VORTEX          = "INVISCID_VORTEX"
@@ -351,7 +363,7 @@ class Verification(Enum):
     USER_DEFINED_SOLUTION    = "USER_DEFINED_SOLUTION"
 
 
-class UnitSystem(Enum):
+class UnitSystem(NullableEnum):
     """ System of measurements.
 
     Attributes
