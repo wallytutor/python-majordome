@@ -285,6 +285,15 @@ class ConvectiveScheme(Enum):
         """ Validate if the convective scheme is compatible with the solver type. """
         raise NotImplementedError("Validation not implemented yet.")
 
+
+class RoeLowDissipation(NullableEnum):
+    """ Types of Roe Low Dissipation Schemes. """
+    NONE       = "NO_ROELOWDISS"
+    FD         = "FD"
+    NTS        = "NTS"
+    NTS_DUCROS = "NTS_DUCROS"
+    FD_DUCROS  = "FD_DUCROS"
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # https://su2code.github.io/docs_v7/Linear-Solvers-and-Preconditioners
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

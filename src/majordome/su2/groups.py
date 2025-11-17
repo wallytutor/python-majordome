@@ -18,6 +18,10 @@ DupleFloat = tuple[float, float]
 
 TrupleFloat = tuple[float, float, float]
 
+QuadrupleFloat = tuple[float, float, float, float]
+
+TrupleInt = tuple[int, int, int]
+
 MaybeVelocity = TrupleFloat | None
 
 NONE_LIST = ["NONE"]
@@ -1080,7 +1084,108 @@ class MultigridParameters(GroupEntriesMixin):
 
 @dataclass
 class FlowNumericalMethod(GroupEntriesMixin):
+    """ Flow numerical method definitions.
+
+    Attributes
+    ----------
+    conv_num_method_flow : ConvectiveScheme
+        Convective numerical method.
+    roe_low_dissipation : RoeLowDissipation
+        Roe Low Dissipation function for Hybrid RANS/LES simulations.
+    roe_kappa : float
+        Roe dissipation coefficient.
+    min_roe_turkel_prec : float
+        Minimum value for beta for the Roe-Turkel preconditioner.
+    max_roe_turkel_prec : float
+        Maximum value for beta for the Roe-Turkel preconditioner.
+    low_mach_corr : YesNoEnum
+        Post-reconstruction correction for low Mach number flows.
+    low_mach_prec : YesNoEnum
+        Roe-Turkel preconditioning for low Mach number flows.
+    use_accurate_flux_jacobians : YesNoEnum
+        Use numerically computed Jacobians for AUSM+up(2) and SLAU(2).
+        Slower per iteration but potentially more stable and capable of higher CFL.
+    use_vectorization : YesNoEnum
+        Use the vectorized version of the selected numerical method
+        (available for JST family and Roe). SU2 should be compiled for
+        an AVX or AVX512 architecture for best performance.
+        NOTE: Currently vectorization always used for schemes that support it.
+    entropy_fix_coeff : float
+        Entropy fix coefficient (0.0 implies no entropy fixing,
+        1.0 implies scalar artificial dissipation).
+    central_jacobian_fix_factor : float
+        Higher values than 1 (3 to 4) make the global Jacobian of central
+        schemes (compressible flow only) more diagonal dominant (but
+        mathematically incorrect) so that higher CFL can be used.
+    central_inc_jacobian_fix_factor : float
+        Control numerical properties of the global Jacobian matrix using
+        a multiplication factor for incompressible central schemes.
+    time_discre_flow : TimeDiscretization
+        Time discretization scheme.
+    newton_krylov : YesNoEnum
+        Use a Newton-Krylov method on the flow equations.
+        For multizone discrete adjoint it will use FGMRES on inner
+        iterations with restart frequency equal to QUASI_NEWTON_NUM_SAMPLES.
+    newton_krylov_iparam : TrupleInt
+        Integer parameters for Newton-Krylov method: startup iters,
+        precond iters, initial tolerance relaxation.
+        TODO: make a class as ParametersCFL.
+    newton_krylov_dparam : QuadrupleFloat
+        Double parameters for Newton-Krylov method: startup residual drop,
+        precond tolerance, full tolerance residual drop, findiff step.
+        TODO: make a class as ParametersCFL.
+    """
+    conv_num_method_flow: ConvectiveScheme = ConvectiveScheme.ROE
+    roe_low_dissipation: RoeLowDissipation = RoeLowDissipation.FD
+    roe_kappa: MaybeFloat = None
+    min_roe_turkel_prec: MaybeFloat = None
+    max_roe_turkel_prec: MaybeFloat = None
+    low_mach_corr: YesNoEnum = YesNoEnum.NONE
+    low_mach_prec: YesNoEnum = YesNoEnum.NONE
+    use_accurate_flux_jacobians: YesNoEnum = YesNoEnum.NONE
+    use_vectorization: YesNoEnum = YesNoEnum.NONE
+    entropy_fix_coeff: MaybeFloat = None
+    central_jacobian_fix_factor: MaybeFloat = None
+    central_inc_jacobian_fix_factor: MaybeFloat = None
+    time_discre_flow: TimeDiscretization = TimeDiscretization.EULER_IMPLICIT
+    newton_krylov: YesNoEnum = YesNoEnum.NONE
+    newton_krylov_iparam: TrupleInt | None = None
+    newton_krylov_dparam: QuadrupleFloat | None = None
+
     def to_cfg(self) -> str:
+        """ Generate configuration file entries for flow numerical method.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("FLOW NUMERICAL METHOD DEFINITION")
+
+        self.entry("CONV_NUM_METHOD_FLOW", self.conv_num_method_flow)
+        self.entry("ROE_LOW_DISSIPATION", self.roe_low_dissipation)
+        self.entry("ROE_KAPPA", self.roe_kappa)
+
+        self.entry("MIN_ROE_TURKEL_PREC", self.min_roe_turkel_prec)
+        self.entry("MAX_ROE_TURKEL_PREC", self.max_roe_turkel_prec)
+
+        self.entry("LOW_MACH_CORR", self.low_mach_corr)
+        self.entry("LOW_MACH_PREC", self.low_mach_prec)
+
+        self.entry("USE_ACCURATE_FLUX_JACOBIANS", self.use_accurate_flux_jacobians)
+        self.entry("USE_VECTORIZATION", self.use_vectorization)
+
+        self.entry("ENTROPY_FIX_COEFF", self.entropy_fix_coeff)
+        self.entry("CENTRAL_JACOBIAN_FIX_FACTOR", self.central_jacobian_fix_factor)
+        self.entry("CENTRAL_INC_JACOBIAN_FIX_FACTOR", self.central_inc_jacobian_fix_factor)
+
+        self.entry("TIME_DISCRE_FLOW", self.time_discre_flow)
+
+        if self.newton_krylov:
+            self.entry("NEWTON_KRYLOV", self.newton_krylov)
+            self.entry("NEWTON_KRYLOV_IPARAM", self.newton_krylov_iparam)
+            self.entry("NEWTON_KRYLOV_DPARAM", self.newton_krylov_dparam)
+
         return self.stringify()
 
 
