@@ -1189,9 +1189,148 @@ class FlowNumericalMethod(GroupEntriesMixin):
         return self.stringify()
 
 
+
 @dataclass
 class SlopeLimiter(GroupEntriesMixin):
+    """ Slope limiter and dissipation sensor definition.
+
+    Configuration for slope limiters used in higher-order spatial discretization
+    schemes. Slope limiters preserve monotonicity and prevent oscillations near
+    discontinuities in the solution. This class handles settings for flow,
+    turbulence, and adjoint equations.
+
+    Attributes
+    ----------
+    muscl_flow : YesNoEnum
+        Monotonic Upwind Scheme for Conservation Laws (TVD) in flow equations.
+        Required for 2nd order upwind schemes (default: YES).
+    slope_limiter_flow : SlopeLimiterType
+        Slope limiter for flow equations (default: VENKATAKRISHNAN).
+    muscl_turb : YesNoEnum
+        MUSCL scheme for turbulence equations (default: NO).
+    slope_limiter_turb : SlopeLimiterType
+        Slope limiter for turbulence equations (default: VENKATAKRISHNAN).
+    muscl_adjflow : YesNoEnum
+        MUSCL scheme for continuous adjoint equations (default: YES).
+    slope_limiter_adjflow : SlopeLimiterType
+        Slope limiter for adjoint flow equations. Can use SHARP_EDGES or
+        WALL_DISTANCE in addition to standard limiters (default: VENKATAKRISHNAN).
+    muscl_adjturb : YesNoEnum
+        MUSCL scheme for continuous adjoint turbulence equations (default: NO).
+    slope_limiter_adjturb : SlopeLimiterType
+        Slope limiter for adjoint turbulence equations (default: VENKATAKRISHNAN).
+    venkat_limiter_coeff : float
+        Coefficient for Venkatakrishnan-type limiters. Larger values decrease
+        the extent of limiting; values approaching zero cause lower-order
+        approximation (default: 0.05).
+    ref_sharp_edges : float
+        Reference coefficient for detecting sharp edges (default: 3.0).
+    adj_sharp_limiter_coeff : float
+        Coefficient for the adjoint sharp edges limiter (default: 3.0).
+    sens_remove_sharp : YesNoEnum
+        Remove sharp edges from sensitivity evaluation (default: NO).
+    sens_smoothing : SensSmoothing
+        Sensitivity smoothing method (default: NONE).
+    limiter_iter : int
+        Freeze limiter value after this many iterations (default: 999999).
+    lax_sensor_coeff : float
+        First-order artificial dissipation coefficient for Lax-Friedrichs
+        method (default: 0.15).
+    jst_sensor_coeff : DupleFloat
+        Second and fourth order artificial dissipation coefficients for JST
+        method (default: (0.5, 0.02)).
+    adj_lax_sensor_coeff : float
+        First-order artificial dissipation coefficient for adjoint
+        Lax-Friedrichs method (default: 0.15).
+    adj_jst_sensor_coeff : DupleFloat
+        Second and fourth order artificial dissipation coefficients for
+        adjoint JST method (default: (0.5, 0.02)).
+    """
+    muscl_flow: YesNoEnum                   = YesNoEnum.NONE
+    slope_limiter_flow: SlopeLimiterType    = SlopeLimiterType.NONE
+
+    muscl_turb: YesNoEnum                   = YesNoEnum.NONE
+    slope_limiter_turb: SlopeLimiterType    = SlopeLimiterType.NONE
+
+    muscl_adjflow: YesNoEnum                = YesNoEnum.NONE
+    slope_limiter_adjflow: SlopeLimiterType = SlopeLimiterType.NONE
+
+    muscl_adjturb: YesNoEnum                = YesNoEnum.NONE
+    slope_limiter_adjturb: SlopeLimiterType = SlopeLimiterType.NONE
+
+    venkat_limiter_coeff: MaybeFloat        = None
+    ref_sharp_edges: MaybeFloat             = None
+    adj_sharp_limiter_coeff: MaybeFloat     = None
+    sens_remove_sharp: YesNoEnum            = YesNoEnum.NONE
+    sens_smoothing: SensSmoothing           = SensSmoothing.NONE
+    limiter_iter: MaybeInt                  = None
+    lax_sensor_coeff: MaybeFloat            = None
+    jst_sensor_coeff: DupleFloat | None     = None
+    adj_lax_sensor_coeff: MaybeFloat        = None
+    adj_jst_sensor_coeff: DupleFloat | None = None
+
     def to_cfg(self) -> str:
+        """ Convert slope limiter configuration to SU2 config format.
+
+        Returns
+        -------
+        str
+            Formatted configuration string for SU2.
+        """
+        self.start()
+        self.header("SLOPE LIMITER AND DISSIPATION SENSOR DEFINITION")
+
+        # Flow equation MUSCL and slope limiter
+        if self.muscl_flow:
+            disallow = [SlopeLimiterType.SHARP_EDGES,
+                        SlopeLimiterType.WALL_DISTANCE]
+
+            if self.slope_limiter_flow in disallow:
+                raise ValueError(f"Slope limiter {self.slope_limiter_flow} "
+                                 "is not available for flow equations.")
+
+            self.entry("MUSCL_FLOW", self.muscl_flow)
+            self.entry("SLOPE_LIMITER_FLOW", self.slope_limiter_flow)
+
+        # Turbulence equation MUSCL and slope limiter
+        if self.muscl_turb:
+            disallow = [SlopeLimiterType.VAN_ALBADA_EDGE]
+
+            if self.slope_limiter_turb in disallow:
+                raise ValueError(f"Slope limiter {self.slope_limiter_turb} "
+                                 "is not available for turbulence equations.")
+
+            self.entry("MUSCL_TURB", self.muscl_turb)
+            self.entry("SLOPE_LIMITER_TURB", self.slope_limiter_turb)
+
+        # Adjoint flow equation MUSCL and slope limiter
+        if self.muscl_adjflow:
+            self.entry("MUSCL_ADJFLOW", self.muscl_adjflow)
+            self.entry("SLOPE_LIMITER_ADJFLOW", self.slope_limiter_adjflow)
+
+        # Adjoint turbulence equation MUSCL and slope limiter
+        if self.muscl_adjturb:
+            self.entry("MUSCL_ADJTURB", self.muscl_adjturb)
+            self.entry("SLOPE_LIMITER_ADJTURB", self.slope_limiter_adjturb)
+
+        # Limiter coefficients
+        self.entry("VENKAT_LIMITER_COEFF", self.venkat_limiter_coeff)
+        self.entry("REF_SHARP_EDGES", self.ref_sharp_edges)
+        self.entry("ADJ_SHARP_LIMITER_COEFF", self.adj_sharp_limiter_coeff)
+
+        # Sensitivity options
+        self.entry("SENS_REMOVE_SHARP", self.sens_remove_sharp)
+        self.entry("SENS_SMOOTHING", self.sens_smoothing)
+
+        # Limiter iteration freeze
+        self.entry("LIMITER_ITER", self.limiter_iter)
+
+        # Artificial dissipation coefficients
+        self.entry("LAX_SENSOR_COEFF", self.lax_sensor_coeff)
+        self.entry("JST_SENSOR_COEFF", self.jst_sensor_coeff)
+        self.entry("ADJ_LAX_SENSOR_COEFF", self.adj_lax_sensor_coeff)
+        self.entry("ADJ_JST_SENSOR_COEFF", self.adj_jst_sensor_coeff)
+
         return self.stringify()
 
 
