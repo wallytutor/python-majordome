@@ -932,7 +932,7 @@ class CommonParametersNumerical(GroupEntriesMixin):
 
 @dataclass
 class LinearSolverParameters(GroupEntriesMixin):
-    """ Linear solver definition for implicit formulations.
+    """ Linear solver definitions.
 
     Attributes
     ----------
@@ -1017,7 +1017,64 @@ class LinearSolverParameters(GroupEntriesMixin):
 
 @dataclass
 class MultigridParameters(GroupEntriesMixin):
+    """ Multi-grid definitions.
+
+    Attributes
+    ----------
+    mg_level: int
+        Multi-grid levels (0 = no multi-grid)
+    mg_cycle: MgCycle
+        Multi-grid cycle.
+    mg_pre_smooth: list[int] | None
+        Multi-grid pre-smoothing level.
+    mg_post_smooth: list[int] | None
+        Multi-grid post-smoothing level.
+    mg_correction_smooth: list[int] | None
+        Jacobi implicit smoothing of the correction.
+    mg_damp_restriction: MaybeFloat
+        Damping factor for the residual restriction.
+    mg_damp_prolongation: MaybeFloat
+        Damping factor for the correction prolongation.
+    """
+    mg_level: int = 0
+    mg_cycle: MgCycle = MgCycle.V_CYCLE
+    mg_pre_smooth: list[int] | None = None
+    mg_post_smooth: list[int] | None = None
+    mg_correction_smooth: list[int] | None = None
+    mg_damp_restriction: MaybeFloat = None
+    mg_damp_prolongation: MaybeFloat = None
+
     def to_cfg(self) -> str:
+        """ Generate configuration file entries for multi-grid parameters.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("MULTIGRID PARAMETERS")
+
+        if self.mg_level > 0:
+            lists_check = [self.mg_pre_smooth,
+                           self.mg_post_smooth,
+                           self.mg_correction_smooth]
+
+            for lst in lists_check:
+                if lst is None or len(lst) != self.mg_level + 1:
+                    raise ValueError("MG_PRE_SMOOTH, MG_POST_SMOOTH and "
+                                     "MG_CORRECTION_SMOOTH must be defined "
+                                     "with length equal to MGLEVEL + 1.")
+
+            self.entry("MGLEVEL", self.mg_level)
+            self.entry("MGCYCLE", self.mg_cycle)
+
+            self.entry("MG_PRE_SMOOTH", self.mg_pre_smooth)
+            self.entry("MG_POST_SMOOTH", self.mg_post_smooth)
+            self.entry("MG_CORRECTION_SMOOTH", self.mg_correction_smooth)
+
+            self.entry("MG_DAMP_RESTRICTION", self.mg_damp_restriction)
+            self.entry("MG_DAMP_PROLONGATION", self.mg_damp_prolongation)
+
         return self.stringify()
 
 
