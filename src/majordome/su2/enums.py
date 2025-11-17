@@ -289,21 +289,28 @@ class ConvectiveScheme(Enum):
 # https://su2code.github.io/docs_v7/Linear-Solvers-and-Preconditioners
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-class LinearSolver(Enum):
+class LinearSolver(NullableEnum):
     """ Linear solver options. """
+    NONE               = "NONE"
+    CONJUGATE_GRADIENT = "CONJUGATE_GRADIENT"
+    BCGSTAB            = "BCGSTAB"
     FGMRES             = "FGMRES"
     RESTARTED_FGMRES   = "RESTARTED_FGMRES"
-    BCGSTAB            = "BCGSTAB"
-    CONJUGATE_GRADIENT = "CONJUGATE_GRADIENT"
     SMOOTHER           = "SMOOTHER"
+    PASTIX_LDLT        = "PASTIX_LDLT"
+    PASTIX_LU          = "PASTIX_LU"
 
 
-class Preconditioner(Enum):
+class Preconditioner(NullableEnum):
     """ Preconditioner options. """
-    JACOBI  = "JACOBI"
-    LU_SGS  = "LU_SGS"
-    ILU     = "ILU"
-    LINELET = "LINELET"
+    NONE          = "NONE"
+    JACOBI        = "JACOBI"
+    LU_SGS        = "LU_SGS"
+    LINELET       = "LINELET"
+    ILU           = "ILU"
+    PASTIX_ILU    = "PASTIX_ILU"
+    PASTIX_LU_P   = "PASTIX_LU"
+    PASTIX_LDLT_P = "PASTIX_LDLT"
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # TBD : not found in the documentation
