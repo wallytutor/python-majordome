@@ -932,7 +932,86 @@ class CommonParametersNumerical(GroupEntriesMixin):
 
 @dataclass
 class LinearSolverParameters(GroupEntriesMixin):
+    """ Linear solver definition for implicit formulations.
+
+    Attributes
+    ----------
+    enable_cuda : YesNoEnum
+        Use CUDA GPU Acceleration for FGMRES Linear Solver only.
+    linear_solver : LinearSolver
+        Linear solver or smoother for implicit formulations.
+    linear_solver_prec : Preconditioner
+        Preconditioner of the Krylov linear solver or type of smoother.
+    discadj_lin_solver : LinearSolver
+        Linear solver for discrete adjoint (smoothers not supported).
+        Replaces LINEAR_SOLVER in SU2_*_AD codes.
+    discadj_lin_prec : Preconditioner
+        Preconditioner for discrete adjoint (JACOBI or ILU).
+        Replaces LINEAR_SOLVER_PREC in SU2_*_AD codes.
+    adjturb_lin_solver : LinearSolver
+        Linear solver for the turbulent adjoint systems.
+    adjturb_lin_prec : Preconditioner
+        Preconditioner for the turbulent adjoint Krylov linear solvers.
+    adjturb_lin_iter : int
+        Maximum number of iterations of the turbulent adjoint linear solver
+        for the implicit formulation.
+    ilu_fill_in : int
+        Linear solver ILU preconditioner fill-in level (0 by default).
+    error : float
+        Minimum error of the linear solver for implicit formulations.
+    n_iter : int
+        Max number of iterations of the linear solver for the implicit formulation.
+    restart_frequency : int
+        Restart frequency for RESTARTED_FGMRES.
+    smoother_relaxation : float
+        Relaxation factor for smoother-type solvers (LINEAR_SOLVER= SMOOTHER).
+    """
+    enable_cuda: YesNoEnum = YesNoEnum.NONE
+
+    linear_solver: LinearSolver = LinearSolver.NONE
+    linear_solver_prec: Preconditioner = Preconditioner.NONE
+
+    discadj_lin_solver: LinearSolver = LinearSolver.NONE
+    discadj_lin_prec: Preconditioner = Preconditioner.NONE
+
+    adjturb_lin_solver: LinearSolver = LinearSolver.NONE
+    adjturb_lin_prec: Preconditioner = Preconditioner.NONE
+    adjturb_lin_iter: MaybeInt = None
+
+    ilu_fill_in: MaybeInt = None
+    error: MaybeFloat = None
+    n_iter: MaybeInt = None
+    restart_frequency: MaybeInt = None
+    smoother_relaxation: MaybeFloat = None
+
     def to_cfg(self) -> str:
+        """ Generate configuration file entries for linear solver parameters.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("LINEAR SOLVER DEFINITION")
+
+        self.entry("ENABLE_CUDA", self.enable_cuda)
+
+        self.entry("LINEAR_SOLVER", self.linear_solver)
+        self.entry("LINEAR_SOLVER_PREC", self.linear_solver_prec)
+
+        self.entry("DISCADJ_LIN_SOLVER", self.discadj_lin_solver)
+        self.entry("DISCADJ_LIN_PREC", self.discadj_lin_prec)
+
+        self.entry("ADJTURB_LIN_SOLVER", self.adjturb_lin_solver)
+        self.entry("ADJTURB_LIN_PREC", self.adjturb_lin_prec)
+        self.entry("ADJTURB_LIN_ITER", self.adjturb_lin_iter)
+
+        self.entry("LINEAR_SOLVER_ILU_FILL_IN", self.ilu_fill_in)
+        self.entry("LINEAR_SOLVER_ERROR", self.error)
+        self.entry("LINEAR_SOLVER_ITER", self.n_iter)
+        self.entry("LINEAR_SOLVER_RESTART_FREQUENCY", self.restart_frequency)
+        self.entry("LINEAR_SOLVER_SMOOTHER_RELAXATION", self.smoother_relaxation)
+
         return self.stringify()
 
 
