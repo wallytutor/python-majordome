@@ -295,6 +295,34 @@ class RoeLowDissipation(NullableEnum):
     FD_DUCROS  = "FD_DUCROS"
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# https://su2code.github.io/docs_v7/Slope-Limiters-and-Shock-Resolution/
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+class SlopeLimiterType(NullableEnum):
+    """ Slope limiter types for flow/turbulence equations.
+
+    Slope limiters are used in higher-order spatial discretization schemes
+    to preserve monotonicity and prevent oscillations near discontinuities.
+    """
+    NONE                 = "NONE"
+    VENKATAKRISHNAN      = "VENKATAKRISHNAN"
+    NISHIKAWA_R3         = "NISHIKAWA_R3"
+    NISHIKAWA_R4         = "NISHIKAWA_R4"
+    NISHIKAWA_R5         = "NISHIKAWA_R5"
+    VENKATAKRISHNAN_WANG = "VENKATAKRISHNAN_WANG"
+    BARTH_JESPERSEN      = "BARTH_JESPERSEN"
+    VAN_ALBADA_EDGE      = "VAN_ALBADA_EDGE"
+    SHARP_EDGES          = "SHARP_EDGES"
+    WALL_DISTANCE        = "WALL_DISTANCE"
+
+
+class SensSmoothing(NullableEnum):
+    """ Sensitivity smoothing types. """
+    NONE    = "NONE"
+    SOBOLEV = "SOBOLEV"
+    BIGRID  = "BIGRID"
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # https://su2code.github.io/docs_v7/Linear-Solvers-and-Preconditioners
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
