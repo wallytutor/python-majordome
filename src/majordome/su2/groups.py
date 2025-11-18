@@ -914,7 +914,7 @@ class CommonParametersNumerical(GroupEntriesMixin):
         str
             Configuration file entries.
         """
-        self.header("OMMON PARAMETERS DEFINING THE NUMERICAL METHOD")
+        self.header("COMMON PARAMETERS DEFINING THE NUMERICAL METHOD")
 
         self.entry("NUM_METHOD_GRAD", self.num_method_grad)
         self.entry("NUM_METHOD_GRAD_RECON", self.num_method_grad_recon)
@@ -1189,7 +1189,6 @@ class FlowNumericalMethod(GroupEntriesMixin):
         return self.stringify()
 
 
-
 @dataclass
 class SlopeLimiter(GroupEntriesMixin):
     """ Slope limiter and dissipation sensor definition.
@@ -1336,7 +1335,119 @@ class SlopeLimiter(GroupEntriesMixin):
 
 @dataclass
 class SolverControl(GroupEntriesMixin):
+    """ Solver control parameters for iteration and convergence.
+
+    Configuration for controlling solver iterations, convergence criteria,
+    and time-dependent simulations. Includes settings for single-zone and
+    multi-zone problems, as well as time-accurate simulations.
+
+    Attributes
+    ----------
+    iter : MaybeInt
+        Number of iterations for single-zone problems.
+    inner_iter : MaybeInt
+        Maximum number of inner iterations.
+    outer_iter : MaybeInt
+        Maximum number of outer iterations for multizone problems.
+    time_iter : MaybeInt
+        Maximum number of time iterations.
+    conv_field : MaybeStr
+        Convergence field to monitor.
+    conv_residual_minval : MaybeFloat
+        Minimum value of the residual in log10 scale.
+    conv_startiter : MaybeInt
+        Iteration number to start convergence criteria.
+    conv_cauchy_elems : MaybeInt
+        Number of elements to apply the Cauchy convergence criteria.
+    conv_cauchy_eps : MaybeFloat
+        Epsilon to control the series convergence.
+    restart_iter : MaybeInt
+        Iteration number to begin unsteady restarts.
+    window_cauchy_crit : YesNoEnum
+        Enable time convergence monitoring.
+    conv_window_field : list[str] | None
+        List of time convergence fields to monitor.
+    conv_window_startiter : MaybeInt
+        Time convergence monitoring starts at WINDOW_START_ITER plus
+        this value.
+    conv_window_cauchy_eps : MaybeFloat
+        Epsilon to control the time window series convergence.
+    conv_window_cauchy_elems : MaybeInt
+        Number of elements to apply the time window criteria.
+    max_update_flow : MaybeFloat
+        Maximum ratio for updating density and energy variables by the
+        linear solver relative to the non-linear solution at previous
+        iteration. Low values ensure stability but may result in longer
+        convergence times.
+    max_update_sa : MaybeFloat
+        Maximum ratio for updating nu_tilde variable in SA model. Not
+        applicable for Neg model.
+    max_update_sst : MaybeFloat
+        Maximum ratio for updating TKE and Omega variables in SST model.
+    """
+    # TODO probably convergence fields should be strings or not the current
+    # enum ObjectiveFunction (there are options that are not in the enum).
+    # Check SU2/io/historyMap.py for possible values (maybe).
+    iter: MaybeInt                             = None
+    inner_iter: MaybeInt                       = None
+    outer_iter: MaybeInt                       = None
+    time_iter: MaybeInt                        = None
+    conv_field: MaybeStr                       = None
+    conv_residual_minval: MaybeFloat           = None
+    conv_startiter: MaybeInt                   = None
+    conv_cauchy_elems: MaybeInt                = None
+    conv_cauchy_eps: MaybeFloat                = None
+    restart_iter: MaybeInt                     = None
+    window_cauchy_crit: YesNoEnum              = YesNoEnum.NONE
+    conv_window_field: list[str] | None        = None
+    conv_window_startiter: MaybeInt            = None
+    conv_window_cauchy_eps: MaybeFloat         = None
+    conv_window_cauchy_elems: MaybeInt         = None
+    max_update_flow: MaybeFloat                = None
+    max_update_sa: MaybeFloat                  = None
+    max_update_sst: MaybeFloat                 = None
+
     def to_cfg(self) -> str:
+        """ Convert solver control configuration to SU2 config format.
+
+        Returns
+        -------
+        str
+            Formatted configuration string for SU2.
+        """
+        self.start()
+        self.header("SOLVER CONTROL")
+
+        # Iteration settings
+        self.entry("ITER", self.iter)
+        self.entry("INNER_ITER", self.inner_iter)
+        self.entry("OUTER_ITER", self.outer_iter)
+        self.entry("TIME_ITER", self.time_iter)
+
+        # Convergence criteria
+        self.entry("CONV_FIELD", self.conv_field)
+        self.entry("CONV_RESIDUAL_MINVAL", self.conv_residual_minval)
+        self.entry("CONV_STARTITER", self.conv_startiter)
+        self.entry("CONV_CAUCHY_ELEMS", self.conv_cauchy_elems)
+        self.entry("CONV_CAUCHY_EPS", self.conv_cauchy_eps)
+
+        # Restart iteration
+        self.entry("RESTART_ITER", self.restart_iter)
+
+        # Time convergence monitoring
+        self.entry("WINDOW_CAUCHY_CRIT", self.window_cauchy_crit)
+
+        if self.conv_window_field:
+            self.entry("CONV_WINDOW_FIELD", self.conv_window_field)
+            self.entry("CONV_WINDOW_STARTITER", self.conv_window_startiter)
+            self.entry("CONV_WINDOW_CAUCHY_EPS", self.conv_window_cauchy_eps)
+            self.entry("CONV_WINDOW_CAUCHY_ELEMS", self.conv_window_cauchy_elems)
+
+        # Update limits for solution variables
+        self.entry("MAX_UPDATE_FLOW", self.max_update_flow)
+        self.entry("MAX_UPDATE_SA", self.max_update_sa)
+        self.entry("MAX_UPDATE_SST", self.max_update_sst)
+
         return self.stringify()
 
 
