@@ -270,28 +270,34 @@ class BeamerSlides:
 
         return text
 
-    def build(self, saveas: str, bib: bool = False) -> None:
+    def build(self, saveas: str | Path, bib: bool = False) -> None:
         """ Build the Beamer slides using pdflatex. """
-        name = Path(saveas).stem
+        slides_tex = Path(saveas)
+        slides_dir = slides_tex.parent
+
+        if not slides_dir.exists():
+            slides_dir.mkdir(parents=True, exist_ok=True)
 
         cmd = [
             "pdflatex",
             "--shell-escape",
             "-interaction=nonstopmode",
-            saveas
+            slides_tex.stem
         ]
 
         with open(saveas, "w", encoding="utf-8") as fp:
             fp.write(self.generate())
 
-        with open(f"log.{name}", "w") as log:
-            subprocess.run(cmd, stdout=log, stderr=log)
-            subprocess.run(cmd, stdout=log, stderr=log)
+        with open(slides_dir / f"log.{slides_tex.stem}", "w") as log:
+            cnf = dict(cwd=slides_dir, stdout=log, stderr=log)
+
+            subprocess.run(cmd, **cnf)
+            subprocess.run(cmd, **cnf)
 
             if bib:
-                subprocess.run(["bibtex", name], stdout=log, stderr=log)
-                subprocess.run(cmd, stdout=log, stderr=log)
-                subprocess.run(cmd, stdout=log, stderr=log)
+                subprocess.run(["bibtex", slides_tex.stem], **cnf)
+                subprocess.run(cmd, **cnf)
+                subprocess.run(cmd, **cnf)
 
 
 class SlideContentWriter:
