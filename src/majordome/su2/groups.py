@@ -1452,7 +1452,117 @@ class SolverControl(GroupEntriesMixin):
 
 @dataclass
 class ScreenHistoryInfo(GroupEntriesMixin):
+    """ Screen and history output configuration.
+
+    Controls what information is displayed on screen during simulation,
+    what is written to history files, and the frequency of output operations.
+    Also manages volume output fields and various output file settings.
+
+    Attributes
+    ----------
+    screen_output : list[str]
+        Screen output fields to display during simulation.
+        Use 'SU2_CFD -d <config_file>' to view list of available fields.
+    history_output : list[str]
+        History output groups to write to history files.
+        Use 'SU2_CFD -d <config_file>' to view list of available fields.
+    custom_outputs : list[str]
+        User defined functions available on screen and history output.
+        See TestCases/user_defined_functions/ for examples.
+    volume_output : list[str]
+        Volume output fields/groups to write to solution files.
+        Use 'SU2_CFD -d <config_file>' to view list of available fields.
+    screen_wrt_freq_inner : MaybeInt
+        Writing frequency for screen output (inner iterations).
+    screen_wrt_freq_outer : MaybeInt
+        Writing frequency for screen output (outer iterations).
+    screen_wrt_freq_time : MaybeInt
+        Writing frequency for screen output (time iterations).
+    history_wrt_freq_inner : MaybeInt
+        Writing frequency for history output (inner iterations).
+    history_wrt_freq_outer : MaybeInt
+        Writing frequency for history output (outer iterations).
+    history_wrt_freq_time : MaybeInt
+        Writing frequency for history output (time iterations).
+    output_wrt_freq : list[int]
+        List of writing frequencies corresponding to the list in OUTPUT_FILES.
+    wrt_performance : YesNoEnum
+        Output the performance summary to the console at the end of SU2_CFD.
+    wrt_ad_statistics : YesNoEnum
+        Output the tape statistics (discrete adjoint).
+    wrt_restart_overwrite : YesNoEnum
+        Overwrite or append iteration number to the restart files when saving.
+    wrt_surface_overwrite : YesNoEnum
+        Overwrite or append iteration number to the surface files when saving.
+    wrt_volume_overwrite : YesNoEnum
+        Overwrite or append iteration number to the volume files when saving.
+    wrt_forces_breakdown : YesNoEnum
+        Determines if the forces breakdown is written out.
+    comm_level : CommLevel
+        MPI communication leve.
+    visualize_cv : MaybeInt
+        Node number for the CV to be visualized (tecplot).
+        Set to -1 to disable.
+    extra_output : YesNoEnum
+        Write extra output (EXPERIMENTAL, NOT FOR GENERAL USE).
+    extra_heat_zone_output : MaybeInt
+        Write extra heat output for a given heat solver zone.
+        Set to -1 to disable.
+    """
+    screen_output: list[str]           = empty_list_field()
+    history_output: list[str]          = empty_list_field()
+    custom_outputs: list[str]          = empty_list_field()
+    volume_output: list[str]           = empty_list_field()
+    screen_wrt_freq_inner: MaybeInt    = None
+    screen_wrt_freq_outer: MaybeInt    = None
+    screen_wrt_freq_time: MaybeInt     = None
+    history_wrt_freq_inner: MaybeInt   = None
+    history_wrt_freq_outer: MaybeInt   = None
+    history_wrt_freq_time: MaybeInt    = None
+    output_wrt_freq: list[int]         = empty_list_field()
+    wrt_performance: YesNoEnum         = YesNoEnum.NONE
+    wrt_ad_statistics: YesNoEnum       = YesNoEnum.NONE
+    wrt_restart_overwrite: YesNoEnum   = YesNoEnum.NONE
+    wrt_surface_overwrite: YesNoEnum   = YesNoEnum.NONE
+    wrt_volume_overwrite: YesNoEnum    = YesNoEnum.NONE
+    wrt_forces_breakdown: YesNoEnum    = YesNoEnum.NONE
+    comm_level: CommLevel              = CommLevel.NONE
+    visualize_cv: MaybeInt             = None
+    extra_output: YesNoEnum            = YesNoEnum.NONE
+    extra_heat_zone_output: MaybeInt   = None
+
     def to_cfg(self) -> str:
+        """ Generate configuration file entries for screen/history output.
+
+        Returns
+        -------
+        str
+            Configuration file entries.
+        """
+        self.header("SCREEN/HISTORY VOLUME OUTPUT")
+
+        self.entry("SCREEN_OUTPUT", self.screen_output)
+        self.entry("HISTORY_OUTPUT", self.history_output)
+        self.entry("CUSTOM_OUTPUTS", self.custom_outputs)
+        self.entry("VOLUME_OUTPUT", self.volume_output)
+        self.entry("SCREEN_WRT_FREQ_INNER", self.screen_wrt_freq_inner)
+        self.entry("SCREEN_WRT_FREQ_OUTER", self.screen_wrt_freq_outer)
+        self.entry("SCREEN_WRT_FREQ_TIME", self.screen_wrt_freq_time)
+        self.entry("HISTORY_WRT_FREQ_INNER", self.history_wrt_freq_inner)
+        self.entry("HISTORY_WRT_FREQ_OUTER", self.history_wrt_freq_outer)
+        self.entry("HISTORY_WRT_FREQ_TIME", self.history_wrt_freq_time)
+        self.entry("OUTPUT_WRT_FREQ", self.output_wrt_freq)
+        self.entry("WRT_PERFORMANCE", self.wrt_performance)
+        self.entry("WRT_AD_STATISTICS", self.wrt_ad_statistics)
+        self.entry("WRT_RESTART_OVERWRITE", self.wrt_restart_overwrite)
+        self.entry("WRT_SURFACE_OVERWRITE", self.wrt_surface_overwrite)
+        self.entry("WRT_VOLUME_OVERWRITE", self.wrt_volume_overwrite)
+        self.entry("WRT_FORCES_BREAKDOWN", self.wrt_forces_breakdown)
+        self.entry("COMM_LEVEL", self.comm_level)
+        self.entry("VISUALIZE_CV", self.visualize_cv)
+        self.entry("EXTRA_OUTPUT", self.extra_output)
+        self.entry("EXTRA_HEAT_ZONE_OUTPUT", self.extra_heat_zone_output)
+
         return self.stringify()
 
 

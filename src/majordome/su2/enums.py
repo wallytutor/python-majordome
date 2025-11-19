@@ -509,6 +509,13 @@ class MeshFormat(ConfigEnum):
     SU2  = "SU2"
     CGNS = "CGNS"
 
+
+class CommLevel(ConfigEnum):
+    """ MPI communication level options. """
+    NONE    = "NONE"
+    MINIMAL = "MINIMAL"
+    FULL    = "FULL"
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # EOF
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
