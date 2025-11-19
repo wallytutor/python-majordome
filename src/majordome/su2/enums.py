@@ -6,7 +6,17 @@ from typing import Any
 # Helpers
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-class NullableEnum(Enum):
+class ConfigEnum(Enum):
+    """ Enforce use of string values for enums. """
+    def __repr__(self) -> str:
+        return self.value
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class NullableEnum(ConfigEnum):
+    """ Provides control over boolean evaluation for enums. """
     @property
     def falsehood(self) -> list[Any]:
         """ Define falsehood values for the enum. """
@@ -17,7 +27,7 @@ class NullableEnum(Enum):
         return not (self.name == "NONE" or self.value in self.falsehood)
 
 
-class YesNoEnum(Enum):
+class YesNoEnum(ConfigEnum):
     """ Yes/No options. """
     NONE = "NONE"
     YES  = "YES"
@@ -31,7 +41,7 @@ class YesNoEnum(Enum):
 # https://su2code.github.io/docs_v7/Solver-Setup/
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-class SolverType(Enum):
+class SolverType(ConfigEnum):
     """ Solver type options. """
     EULER              = "EULER"
     NAVIER_STOKES      = "NAVIER_STOKES"
@@ -130,7 +140,7 @@ class FSRefDimensionalization(NullableEnum):
 # https://su2code.github.io/docs_v7/Markers-and-BC/
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-class InletType(Enum):
+class InletType(ConfigEnum):
     """ Inlet boundary condition types. """
     TOTAL_CONDITIONS = "TOTAL_CONDITIONS"
     MASS_FLOW        = "MASS_FLOW"
@@ -260,7 +270,7 @@ class AverageProcessMap(NullableEnum):
 # https://su2code.github.io/docs_v7/Convective-Schemes/
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-class ConvectiveScheme(Enum):
+class ConvectiveScheme(ConfigEnum):
     """ Convective numerical scheme. """
     JST           = "JST"
     JST_KE        = "JST_KE"
@@ -350,6 +360,41 @@ class Preconditioner(NullableEnum):
     PASTIX_LDLT_P = "PASTIX_LDLT"
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# https://su2code.github.io/docs_v7/Custom-Output/
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+class TabularFormat(ConfigEnum):
+    """ Output tabular file format options. """
+    TECPLOT = "TECPLOT"
+    CSV     = "CSV"
+
+
+class OutputFileFormat(ConfigEnum):
+    """ Output file format options.
+
+    Various output formats for solution visualization and post-processing.
+    Different formats are suitable for different visualization tools.
+    """
+    TECPLOT_ASCII           = "TECPLOT_ASCII"
+    TECPLOT                 = "TECPLOT"
+    SURFACE_TECPLOT_ASCII   = "SURFACE_TECPLOT_ASCII"
+    SURFACE_TECPLOT         = "SURFACE_TECPLOT"
+    CSV                     = "CSV"
+    SURFACE_CSV             = "SURFACE_CSV"
+    PARAVIEW_ASCII          = "PARAVIEW_ASCII"
+    PARAVIEW_LEGACY         = "PARAVIEW_LEGACY"
+    SURFACE_PARAVIEW_ASCII  = "SURFACE_PARAVIEW_ASCII"
+    SURFACE_PARAVIEW_LEGACY = "SURFACE_PARAVIEW_LEGACY"
+    PARAVIEW                = "PARAVIEW"
+    SURFACE_PARAVIEW        = "SURFACE_PARAVIEW"
+    RESTART_ASCII           = "RESTART_ASCII"
+    RESTART                 = "RESTART"
+    CGNS                    = "CGNS"
+    SURFACE_CGNS            = "SURFACE_CGNS"
+    STL_ASCII               = "STL_ASCII"
+    STL_BINARY              = "STL_BINARY"
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # TBD : not found in the documentation
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -369,14 +414,14 @@ class NumMethodGrad(NullableEnum):
     LEAST_SQUARES          = "LEAST_SQUARES"   # MUSCL only!
 
 
-class MgCycle(Enum):
+class MgCycle(ConfigEnum):
     """ Multigrid cycle types. """
     V_CYCLE      = "V_CYCLE"
     W_CYCLE      = "W_CYCLE"
     FULLMG_CYCLE = "FULLMG_CYCLE"
 
 
-class TimeDiscretization(Enum):
+class TimeDiscretization(ConfigEnum):
     """ Time discretization scheme. """
     RUNGE_KUTTA_EXPLICIT = "RUNGE-KUTTA_EXPLICIT"
     EULER_IMPLICIT       = "EULER_IMPLICIT"
@@ -457,6 +502,12 @@ class ObjectiveFunction(NullableEnum):
     SURFACE_MASSFLOW        = "SURFACE_MASSFLOW"
     SURFACE_STATIC_PRESSURE = "SURFACE_STATIC_PRESSURE"
     SURFACE_MACH            = "SURFACE_MACH"
+
+
+class MeshFormat(ConfigEnum):
+    """ Mesh file format options. """
+    SU2  = "SU2"
+    CGNS = "CGNS"
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # EOF

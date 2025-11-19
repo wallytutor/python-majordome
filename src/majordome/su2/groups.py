@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Any
+from warnings import warn
 
 # XXX: for now, later organize imports properly
 from .enums import *
@@ -118,9 +120,6 @@ class GroupEntriesMixin:
         ##
         # Convert values
         ##
-
-        if isinstance(value, Enum):
-            value = value.value
 
         if isinstance(value, (list, tuple)):
             value = "( " + ", ".join(str(v) for v in value) + " )"
@@ -1459,7 +1458,149 @@ class ScreenHistoryInfo(GroupEntriesMixin):
 
 @dataclass
 class IOFileInfo(GroupEntriesMixin):
+    """ Input/output file information and configuration.
+
+    Configuration for mesh files, solution files, output formats, and various
+    file naming conventions used by SU2. Controls input mesh format, output
+    file formats, and filenames for different solution components.
+
+    Attributes
+    ----------
+    mesh_filename : MaybeStr
+        Mesh input file name (without extension for SU2 format).
+    mesh_format : MeshFormat
+        Mesh input file format (default: SU2).
+    mesh_box_size : TrupleInt | None
+        Number of grid points in RECTANGLE or BOX grid in x,y,z directions.
+    mesh_box_length : TrupleFloat | None
+        Length of RECTANGLE or BOX grid in x,y,z directions.
+    mesh_box_offset : TrupleFloat | None
+        Offset from 0.0 of RECTANGLE or BOX grid in x,y,z directions
+    mesh_out_filename : MaybeStr
+        Mesh output file name.
+    solution_filename : MaybeStr
+        Restart flow input file name.
+    solution_adj_filename : MaybeStr
+        Restart adjoint input file name.
+    tabular_format : TabularFormat
+        Output tabular file format.
+    output_precision : MaybeInt
+        Set precision for SU2_DOT and HISTORY output. Useful for exact
+        gradient validation.
+    multizone_adapt_filename : YesNoEnum
+        For multizone problems, extend solution and restart filenames
+        automatically by zone number.
+    output_files : list[OutputFileFormat]
+        Files to output. Default: (RESTART, PARAVIEW, SURFACE_PARAVIEW).
+    conv_filename : MaybeStr
+        Output file convergence history (without extension).
+    breakdown_filename : MaybeStr
+        Output file with the forces breakdown.
+    restart_filename : MaybeStr
+        Output file restart flow.
+    restart_adj_filename : MaybeStr
+        Output file restart adjoint.
+    volume_filename : MaybeStr
+        Output file flow variables (without extension).
+    volume_adj_filename : MaybeStr
+        Output file adjoint variables (without extension).
+    value_objfunc_filename : MaybeStr
+        Output objective function (in tecplot .dat or .csv format).
+    grad_objfunc_filename : MaybeStr
+        Output objective function gradient (using continuous adjoint).
+    surface_filename : MaybeStr
+        Output file surface flow coefficient (without extension).
+    surface_adj_filename : MaybeStr
+        Output file surface adjoint coefficient (without extension).
+    surface_sens_filename : MaybeStr
+        Output file surface sensitivity for discrete adjoint (without extension).
+    volume_sens_filename : MaybeStr
+        Output file volume sensitivity for discrete adjoint.
+    read_binary_restart : YesNoEnum
+        Read binary restart files.
+    reorient_elements : YesNoEnum
+        Reorient elements based on potential negative volumes.
+    """
+    mesh_filename: MaybeStr                    = None
+    mesh_format: MeshFormat                    = MeshFormat.SU2
+    mesh_box_size: TrupleInt | None            = None
+    mesh_box_length: TrupleFloat | None        = None
+    mesh_box_offset: TrupleFloat | None        = None
+    mesh_out_filename: MaybeStr                = None
+    solution_filename: MaybeStr                = None
+    solution_adj_filename: MaybeStr            = None
+    tabular_format: TabularFormat              = TabularFormat.CSV
+    output_precision: MaybeInt                 = None
+    multizone_adapt_filename: YesNoEnum        = YesNoEnum.NONE
+    output_files: list[OutputFileFormat]       = field(
+        default_factory=lambda: [
+            OutputFileFormat.RESTART,
+            OutputFileFormat.PARAVIEW,
+            OutputFileFormat.SURFACE_PARAVIEW
+        ]
+    )
+    conv_filename: MaybeStr                    = None
+    breakdown_filename: MaybeStr               = None
+    restart_filename: MaybeStr                 = None
+    restart_adj_filename: MaybeStr             = None
+    volume_filename: MaybeStr                  = None
+    volume_adj_filename: MaybeStr              = None
+    value_objfunc_filename: MaybeStr           = None
+    grad_objfunc_filename: MaybeStr            = None
+    surface_filename: MaybeStr                 = None
+    surface_adj_filename: MaybeStr             = None
+    surface_sens_filename: MaybeStr            = None
+    volume_sens_filename: MaybeStr             = None
+    read_binary_restart: YesNoEnum             = YesNoEnum.NONE
+    reorient_elements: YesNoEnum               = YesNoEnum.NONE
+
     def to_cfg(self) -> str:
+        """ Convert IO file information to SU2 config format.
+
+        Returns
+        -------
+        str
+            Formatted configuration string for SU2.
+        """
+        self.start()
+        self.header("INPUT/OUTPUT FILE INFORMATION")
+
+        # Mesh settings
+        self.entry("MESH_FILENAME", self.mesh_filename)
+        self.entry("MESH_FORMAT", self.mesh_format)
+        self.entry("MESH_BOX_SIZE", self.mesh_box_size)
+        self.entry("MESH_BOX_LENGTH", self.mesh_box_length)
+        self.entry("MESH_BOX_OFFSET", self.mesh_box_offset)
+        self.entry("MESH_OUT_FILENAME", self.mesh_out_filename)
+
+        # Solution files
+        self.entry("SOLUTION_FILENAME", self.solution_filename)
+        self.entry("SOLUTION_ADJ_FILENAME", self.solution_adj_filename)
+
+        # Output format settings
+        self.entry("TABULAR_FORMAT", self.tabular_format)
+        self.entry("OUTPUT_PRECISION", self.output_precision)
+        self.entry("MULTIZONE_ADAPT_FILENAME", self.multizone_adapt_filename)
+        self.entry("OUTPUT_FILES", self.output_files)
+
+        # Output filenames
+        self.entry("CONV_FILENAME", self.conv_filename)
+        self.entry("BREAKDOWN_FILENAME", self.breakdown_filename)
+        self.entry("RESTART_FILENAME", self.restart_filename)
+        self.entry("RESTART_ADJ_FILENAME", self.restart_adj_filename)
+        self.entry("VOLUME_FILENAME", self.volume_filename)
+        self.entry("VOLUME_ADJ_FILENAME", self.volume_adj_filename)
+        self.entry("VALUE_OBJFUNC_FILENAME", self.value_objfunc_filename)
+        self.entry("GRAD_OBJFUNC_FILENAME", self.grad_objfunc_filename)
+        self.entry("SURFACE_FILENAME", self.surface_filename)
+        self.entry("SURFACE_ADJ_FILENAME", self.surface_adj_filename)
+        self.entry("SURFACE_SENS_FILENAME", self.surface_sens_filename)
+        self.entry("VOLUME_SENS_FILENAME", self.volume_sens_filename)
+
+        # Binary and mesh options
+        self.entry("READ_BINARY_RESTART", self.read_binary_restart)
+        self.entry("REORIENT_ELEMENTS", self.reorient_elements)
+
         return self.stringify()
 
 
@@ -1537,3 +1678,18 @@ class SU2Configuration(GroupEntriesMixin):
 
         self.header("EOF")
         return self.stringify()
+
+    def to_file(self, filename: str | Path, force: bool = False) -> None:
+        """ Write SU2 configuration file to disk.
+
+        Parameters
+        ----------
+        filename : str
+            Output configuration file name.
+        """
+        if Path(filename).exists() and not force:
+            warn(f"Not overwriting existing file: {filename}")
+            return
+
+        with open(filename, "w") as fp:
+            fp.write(self.to_cfg())
