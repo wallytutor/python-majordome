@@ -1,34 +1,13 @@
 ### A Pluto.jl notebook ###
-# v0.20.3
+# v0.20.20
 
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 4c272615-47ee-4889-bf30-2ad43e536cd9
-begin
-	@info("Loading toolbox...")
-
-    using Pkg
-    Pkg.activate(ENV["WALLYROOT"])
-    Pkg.instantiate()
-
-	using CairoMakie
-	using PlutoLinks
-    using PlutoUI: TableOfContents
-	
-	TableOfContents()
-end
-
 # ╔═╡ 3f2113e5-712d-405f-a866-8d9438fe97fa
 begin
-	@info("Importing local tools...")
-	
-    using WallyToolbox
 	@revise using PyCanteraTools
 end
-
-# ╔═╡ 6056e79b-332e-4328-9461-7053c1660316
-using PythonCall
 
 # ╔═╡ 9d15ec6c-04a7-4f5c-908b-310a774ff044
 md"""
@@ -41,18 +20,6 @@ This notebook aims at providing the minimal basis of practicing combustion and k
 
 If you are starting with Cantera, please check the [tutorial](https://cantera.org/tutorials/python-tutorial.html), but keep in mind it is provided in plain Python (and our goal here is to use Cantera from Julia!). For more, please check [the docs](https://cantera.org/)
 """
-
-# ╔═╡ 106bd29e-6cc5-430f-ad50-51f10aa1fca1
-md"""
-## Importing Cantera
-
-Importing Cantera from Julia can be made through [PythonCall](https://juliapy.github.io/PythonCall.jl/stable/) module. Generally speaking the interaction between Julia and Python works smoothly but the user is expected to know how to convert values between the two languages (especially when retrieving results from Cantera to use in Julia).
-
-Just import Cantera using the alias `ct` (as one would do from Python) as follows:
-"""
-
-# ╔═╡ 4e65f9e1-697d-4fc6-ad68-93391c89a13f
-const ct = pyimport("cantera");
 
 # ╔═╡ 50528438-c443-4248-94db-bf44ded1ab9e
 md"""
@@ -1046,11 +1013,7 @@ fig.tight_layout()
 # ╔═╡ Cell order:
 # ╟─9d15ec6c-04a7-4f5c-908b-310a774ff044
 # ╟─b31efe8b-182a-4228-9722-192d913fd8a8
-# ╟─4c272615-47ee-4889-bf30-2ad43e536cd9
 # ╟─3f2113e5-712d-405f-a866-8d9438fe97fa
-# ╟─106bd29e-6cc5-430f-ad50-51f10aa1fca1
-# ╠═6056e79b-332e-4328-9461-7053c1660316
-# ╠═4e65f9e1-697d-4fc6-ad68-93391c89a13f
 # ╟─50528438-c443-4248-94db-bf44ded1ab9e
 # ╠═9a234b75-1439-4e79-b929-008c59c79e8a
 # ╟─99810c76-73e3-4ac7-8f42-6144cde07a83
