@@ -153,6 +153,7 @@
     },
 
     "python.analysis.autoSearchPaths": true,
+    "python.analysis.indexing": false,
     "python.analysis.stubPath": "./typings",
     "python.analysis.typeCheckingMode": "standard",
     "python.createEnvironment.trigger": "off",
