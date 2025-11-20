@@ -38,7 +38,9 @@ voila
 cantera
 casadi
 FiPy
+meshio
 py-pde
+pyvista
 
 # Machine learning
 torch
