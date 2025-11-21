@@ -79,3 +79,6 @@ pdftools = [
     "pypdf>=6.2.0",
     "pytesseract>=0.3.13",
 ]
+vision = [
+    "scikit-image>=0.25.2",
+]
