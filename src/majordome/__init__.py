@@ -126,15 +126,18 @@ __all__ += [
 # majordome.pdftools
 # ---------------------------------------------------------------------
 
-from .pdftools import (
-    PdfExtracted,
-    PdfToTextConverter,
-)
+try:
+    from .pdftools import (
+        PdfExtracted,
+        PdfToTextConverter,
+    )
 
-__all__ += [
-    "PdfExtracted",
-    "PdfToTextConverter",
-]
+    __all__ += [
+        "PdfExtracted",
+        "PdfToTextConverter",
+    ]
+except ImportError:
+    pass
 
 # ---------------------------------------------------------------------
 # majordome.plotting
@@ -185,8 +188,7 @@ __all__ += [
 ]
 
 # ---------------------------------------------------------------------
-# majordome.transport: considered internals, do not expose
-# AbstractRadiationModel, ...
+# majordome.transport
 # ---------------------------------------------------------------------
 
 from .transport import (
@@ -208,3 +210,28 @@ __all__ += [
 def toggle_warnings(**kwargs):
     """ Unified caller for modules warnings. """
     toggle_reactor_warnings(**kwargs)
+
+# ---------------------------------------------------------------------
+# majordome.vision
+# ---------------------------------------------------------------------
+
+try:
+    from .vision import (
+        ImageCrop,
+        ChannelSelector,
+        ContrastEnhancement,
+        ThresholdImage,
+    )
+
+    __all__ += [
+        "ImageCrop",
+        "ChannelSelector",
+        "ContrastEnhancement",
+        "ThresholdImage",
+    ]
+except ImportError:
+    pass
+
+# ---------------------------------------------------------------------
+# EOF
+# ---------------------------------------------------------------------
