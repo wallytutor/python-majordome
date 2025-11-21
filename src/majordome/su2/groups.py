@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -33,6 +34,10 @@ def empty_list_field():
     """ Return an empty list with a default value of ['NONE']. """
     return field(default_factory=lambda: NONE_LIST)
 
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# CONFIGURATIONS
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 @dataclass
 class ParametersCFL:
@@ -81,6 +86,70 @@ class ParametersCFL:
 
         return tuple(data)
 
+
+class BCTypeAbstractWall(ABC):
+    pass
+
+class BCTypeAbstractInlet(ABC):
+    pass
+
+class BCTypeAbstractOutlet(ABC):
+    pass
+
+class BCTypeNamedMarker(str):
+    """ Wrapper type for string-like markers. """
+    pass
+
+
+class BCTypeTotalConditionsInlet(BCTypeAbstractInlet):
+    pass
+
+class BCTypeMassFlowInlet(BCTypeAbstractInlet):
+    pass
+
+class BCTypeIncVelocityInlet(BCTypeAbstractInlet):
+    pass
+
+class BCTypeIncPressureInlet(BCTypeAbstractInlet):
+    pass
+
+class BCTypeTurbulentSAInlet(BCTypeAbstractInlet):
+    pass
+
+class BCTypeTurbulentSSTInlet(BCTypeAbstractInlet):
+    pass
+
+class BCTypeSupersonicInlet(BCTypeAbstractInlet):
+    pass
+
+
+class BCTypeCompressibleOutlet(BCTypeAbstractOutlet):
+    pass
+
+class BCTypeIncPressureOutlet(BCTypeAbstractOutlet):
+    pass
+
+class BCTypeMassFlowOutlet(BCTypeAbstractOutlet):
+    pass
+
+class BCTypeSupersonicOutlet(BCTypeAbstractOutlet):
+    pass
+
+
+class BCTypeWallHeatFlux(BCTypeAbstractWall):
+    pass
+
+class BCTypeWallHeatTransfer(BCTypeAbstractWall):
+    pass
+
+class BCTypeWallIsothermal(BCTypeAbstractWall):
+    pass
+
+# TODO: add other BC types here
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# GROUPS
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 class GroupEntriesMixin:
     """ Mixin for handling configuration entries for SU2 groups. """
@@ -1713,6 +1782,9 @@ class IOFileInfo(GroupEntriesMixin):
 
         return self.stringify()
 
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# CONFIGURATION FILE
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 @dataclass
 class SU2Configuration(GroupEntriesMixin):
@@ -1803,3 +1875,7 @@ class SU2Configuration(GroupEntriesMixin):
 
         with open(filename, "w") as fp:
             fp.write(self.to_cfg())
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# EOF
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
