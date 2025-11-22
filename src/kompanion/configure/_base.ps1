@@ -25,6 +25,7 @@ function Start-KompanionBaseConfigure() {
     if ($Config.ffmpeg)      { Invoke-ConfigureFfmpeg }
     if ($Config.imagemagick) { Invoke-ConfigureImageMagick }
     if ($Config.poppler)     { Invoke-ConfigurePoppler }
+    if ($Config.quarto)      { Invoke-ConfigureQuarto }
 }
 
 # ---------------------------------------------------------------------------
@@ -126,6 +127,11 @@ function Invoke-ConfigurePoppler() {
     $env:POPLER_HOME = "$env:KOMPANION_BIN\poppler\poppler-25.11.0\Library"
     Initialize-AddToPath -Directory "$env:POPLER_HOME\bin"
     Initialize-AddToManPath -Directory "$env:POPLER_HOME\share\man"
+}
+
+function Invoke-ConfigureQuarto() {
+    $env:QUARTO_HOME = "$env:KOMPANION_BIN\quarto"
+    Initialize-AddToPath -Directory "$env:QUARTO_HOME\bin"
 }
 
 # ---------------------------------------------------------------------------

@@ -25,6 +25,7 @@ function Start-KompanionBaseInstall() {
     if ($Config.ffmpeg)      { Invoke-InstallFfmpeg }
     if ($Config.imagemagick) { Invoke-InstallImageMagick }
     if ($Config.poppler)     { Invoke-InstallPoppler }
+    if ($Config.quarto)      { Invoke-InstallQuarto }
 }
 
 # ---------------------------------------------------------------------------
@@ -222,6 +223,15 @@ function Invoke-InstallPoppler() {
     $output = "$env:KOMPANION_TEMP\poppler.zip"
     $path   = "$env:KOMPANION_BIN\poppler"
     $url    = "https://github.com/oschwartz10612/poppler-windows/releases/download/v25.11.0-0/Release-25.11.0-0.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallQuarto() {
+    $output = "$env:KOMPANION_TEMP\quarto.zip"
+    $path   = "$env:KOMPANION_BIN\quarto"
+    $url    = "https://github.com/quarto-dev/quarto-cli/releases/download/v1.8.26/quarto-1.8.26-win.zip"
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
