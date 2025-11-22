@@ -10,6 +10,7 @@ function Start-KompanionBaseConfigure() {
     Write-Host "- starting Kompanion base configuration..."
 
     if ($Config.vscode)      { Invoke-ConfigureVsCode }
+    if ($Config.zettlr)      { Invoke-ConfigureZettlr }
     if ($Config.git)         { Invoke-ConfigureGit }
     if ($Config.nvim)        { Invoke-ConfigureNvim }
     if ($Config.sevenzip)    { Invoke-ConfigureSevenZip }
@@ -35,6 +36,12 @@ function Invoke-ConfigureVsCode() {
     $env:VSCODE_EXTENSIONS = "$env:KOMPANION_DATA\vscode\extensions"
     $env:VSCODE_SETTINGS   = "$env:KOMPANION_DATA\vscode\user-data"
     Initialize-AddToPath -Directory "$env:VSCODE_HOME"
+}
+
+function Invoke-ConfigureZettlr() {
+    $env:ZETTLR_HOME = "$env:KOMPANION_BIN\zettlr"
+    $env:ZETTLR_DATA = "$env:KOMPANION_DATA\zettlr"
+    Initialize-AddToPath -Directory "$env:ZETTLR_HOME"
 }
 
 function Invoke-ConfigureGit() {
