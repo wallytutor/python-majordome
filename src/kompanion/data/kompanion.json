@@ -15,7 +15,8 @@
         "nteract": true,
         "ffmpeg": true,
         "imagemagick": true,
-        "poppler": true
+        "poppler": true,
+        "quarto": true
     },
     "lang": {
         "python": true,
