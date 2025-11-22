@@ -1,6 +1,7 @@
 {
     "base": {
         "vscode": true,
+        "zettlr": true,
         "git": true,
         "nvim": true,
         "sevenzip": true,

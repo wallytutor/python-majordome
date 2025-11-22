@@ -6,6 +6,7 @@
 /data/stack/*
 /data/vscode/extensions/*
 /data/vscode/user-data/*
+/data/Zettlr/*
 /data/*.lock
 /data/kompanion.json
 /logs/*

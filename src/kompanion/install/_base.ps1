@@ -10,6 +10,7 @@ function Start-KompanionBaseInstall() {
     Write-Host "- starting Kompanion base installation..."
 
     if ($Config.vscode)      { Invoke-InstallVsCode }
+    if ($Config.zettlr)      { Invoke-InstallZettlr }
     if ($Config.git)         { Invoke-InstallGit }
     if ($Config.nvim)        { Invoke-InstallNvim }
     if ($Config.sevenzip)    { Invoke-InstallSevenZip }
@@ -37,6 +38,22 @@ function Invoke-InstallVsCode() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallZettlr() {
+    $output = "$env:KOMPANION_TEMP\zettlr.exe"
+    $temp   = "$env:KOMPANION_TEMP\zettlr_tmp"
+    $path   = "$env:KOMPANION_BIN\zettlr"
+    $url    = "https://github.com/Zettlr/Zettlr/releases/download/v3.6.0/Zettlr-3.6.0-x64.exe"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+
+    if (!(Test-Path -Path $path)) {
+        $app = Join-Path $temp '$PLUGINSDIR\app-64.7z'
+        Invoke-Uncompress7zIfNeeded -Source $output -Destination $temp
+        Invoke-Uncompress7zIfNeeded -Source $app    -Destination $path
+        Remove-Item -Path $temp -Recurse -Force
+    }
 }
 
 function Invoke-InstallGit() {
