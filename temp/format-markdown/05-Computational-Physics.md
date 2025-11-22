@@ -1,24 +1,3 @@
-# Computational Physics
-
-# Molecular Dynamics (MD)
-
-The [Materials Project](https://next-gen.materialsproject.org/) has many interesting for those working on MD and especially DFT. Theoretical basis can be found in the work by [Hinchliffe](https://www.wiley.com/en-us/Molecular+Modelling+for+Beginners%2C+2nd+Edition-p-9781119964810) which maybe will require some refreshing on the [The Feynman Lectures on Physics](https://www.feynmanlectures.caltech.edu/) to be followed.
-
-Since molecular dynamics is a field essentially related to simulation (there is no MD without simulation!), it is worth listing the major open source projects related to the field, [LAMMPS](https://www.lammps.org), [ESPReSo](https://espressomd.org/wordpress/), and [Gromacs](https://www.gromacs.org/).  Other interesting projects include [HOOMD](http://glotzerlab.engin.umich.edu/hoomd-blue/) and the popular [NAMD](https://www.ks.uiuc.edu/Research/namd/); I have refrained from the last given its greedy licensing scheme. My studies are currently focused in [LAMMPS](../Software/LAMMPS.md) because its fields of application and system portability.
-
-# Density Functional Theory (DFT)
-
-- [Abinit webpage](https://www.abinit.org/)
-- [BigDFT](https://l_sim.gitlab.io/bigdft-doc/)
-- [CP2K](https://www.cp2k.org/)
-- [Dalton/LSDalton](https://daltonprogram.org/)
-- [DIRAC webpage](http://www.diracprogram.org/doku.php/)
-- [FLEUR webpage](https://www.flapw.de/MaX-6.0/)
-- [Quantum Espresso webpage](https://www.quantum-espresso.org/)
-- [Siesta](https://siesta-project.org/siesta/)
-- [Yambo](http://www.yambo-code.org/)
-
-
 # Finite Element Method
 
 Personal path towards mastering finite element method (FEM).
@@ -98,7 +77,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 2
 
 - [ ] Nithiarasu (2016), chapter 3 (1/2)
-- [ ] Langtangen (2016), chapter 2 (2/3) 
+- [ ] Langtangen (2016), chapter 2 (2/3)
 - [ ] FreeFEM++ guided tutorials 2.1 to 2.9
 - [ ] Engineering Statics | Lectures videos 11 to 14
 - [ ] Solid Mechanics | Theory (all at once)
@@ -108,7 +87,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 3
 
 - [ ] Nithiarasu (2016), chapter 3 (2/2)
-- [ ] Langtangen (2016), chapter 2 (3/3) 
+- [ ] Langtangen (2016), chapter 2 (3/3)
 - [ ] Barzegari's  notebook associated to Langtangens chapter 2
 - [ ] FreeFEM++ guided tutorials 2.10 to 2.13
 - [ ] Engineering Statics | Lectures videos 15 to 18
@@ -118,7 +97,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 4
 
 - [ ] Nithiarasu (2016), chapter 4
-- [ ] Langtangen (2016), chapter 3 (1/5) 
+- [ ] Langtangen (2016), chapter 3 (1/5)
 - [ ] FreeFEM++ guided tutorials 2.14 to 2.19
 - [ ] Engineering Statics | Lectures videos 19 to 22
 - [ ] Intro to Continuum Mechanics | Seminars 3
@@ -128,7 +107,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 5
 
 - [ ] Nithiarasu (2016), chapter 5
-- [ ] Langtangen (2016), chapter 3 (2/5) 
+- [ ] Langtangen (2016), chapter 3 (2/5)
 - [ ] Engineering Statics | Lectures videos 23 to 24
 - [ ] Intro to Continuum Mechanics | Seminars 4
 - [ ] Intro to the Finite Element Method | Lectures 5
@@ -137,7 +116,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 6
 
 - [ ] Nithiarasu (2016), chapter 6
-- [ ] Langtangen (2016), chapter 3 (3/5) 
+- [ ] Langtangen (2016), chapter 3 (3/5)
 - [ ] Intro to Continuum Mechanics | Seminars 5
 - [ ] Intro to the Finite Element Method | Lectures 6
 - [ ] Follow [this](https://www.youtube.com/watch?v=aVlOcc828uM) ParaView seminar.
@@ -145,7 +124,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 7
 
 - [ ] Nithiarasu (2016), chapter 7 (1/3)
-- [ ] Langtangen (2016), chapter 3 (4/5) 
+- [ ] Langtangen (2016), chapter 3 (4/5)
 - [ ] Intro to Continuum Mechanics | Seminars 6
 - [ ] Intro to the Finite Element Method | Lectures 7
 - [ ] Follow [this](https://www.youtube.com/watch?v=fGcD4dC6Pug&t=5s) ParaView seminar.
@@ -153,7 +132,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 8
 
 - [ ] Nithiarasu (2016), chapter 7 (2/3)
-- [ ] Langtangen (2016), chapter 3 (5/5) 
+- [ ] Langtangen (2016), chapter 3 (5/5)
 - [ ] Barzegari's  notebook associated to Langtangens chapter 3
 - [ ] Intro to Continuum Mechanics | Seminars 7
 - [ ] Intro to the Finite Element Method | Lectures 8
@@ -162,7 +141,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 9
 
 - [ ] Nithiarasu (2016), chapter 7 (3/3)
-- [ ] Langtangen (2016), chapter 4 (1/2) 
+- [ ] Langtangen (2016), chapter 4 (1/2)
 - [ ] Intro to Continuum Mechanics | Seminars 8
 - [ ] Intro to the Finite Element Method | Lectures 9
 - [ ] Follow [this](https://www.youtube.com/watch?v=knWz0LCSgic) ParaView seminar.
@@ -170,7 +149,7 @@ Review and in-depth studies for solidification of knowledge:
 ### Week 10
 
 - [ ] Nithiarasu (2016), chapter 8
-- [ ] Langtangen (2016), chapter 4 (2/2) 
+- [ ] Langtangen (2016), chapter 4 (2/2)
 - [ ] Barzegari's  notebook associated to Langtangens chapter 4
 - [ ] Intro to Continuum Mechanics | Seminars 9
 - [ ] Intro to the Finite Element Method | Lectures 10
@@ -180,36 +159,36 @@ Review and in-depth studies for solidification of knowledge:
 
 - [ ] Follow 7 extended tutorials provided with Gmsh (Python)
 - [ ] Nithiarasu (2016), chapter 9
-- [ ] Langtangen (2016), chapter 5 (1/3) 
+- [ ] Langtangen (2016), chapter 5 (1/3)
 - [ ] Intro to Continuum Mechanics | Seminars 10
 - [ ] Follow [this](https://www.youtube.com/watch?v=IXXDxM62tUU) ParaView seminar.
 
 ### Week 12
 
 - [ ] Nithiarasu (2016), chapter 10
-- [ ] Langtangen (2016), chapter 5 (2/3) 
+- [ ] Langtangen (2016), chapter 5 (2/3)
 
 ### Week 13
 
 - [ ] Nithiarasu (2016), chapter 11
-- [ ] Langtangen (2016), chapter 5 (3/3) 
+- [ ] Langtangen (2016), chapter 5 (3/3)
 - [ ] Barzegari's  notebook associated to Langtangens chapter 5
 
 ### Week 14
 
 - [ ] Nithiarasu (2016), chapter 12
-- [ ] Langtangen (2016), chapter 6 (1/2) 
+- [ ] Langtangen (2016), chapter 6 (1/2)
 
 ### Week 15
 
 - [ ] Nithiarasu (2016), chapter 13
-- [ ] Langtangen (2016), chapter 6 (2/2) 
+- [ ] Langtangen (2016), chapter 6 (2/2)
 - [ ] Barzegari's  notebook associated to Langtangens chapter 6
 
 ### Week 16
 
 - [ ] Nithiarasu (2016), chapter 14 and 15
-- [ ] Langtangen (2016), chapter 7 
+- [ ] Langtangen (2016), chapter 7
 - [ ] Barzegari's  notebook associated to Langtangens chapter 7
 
 ### Week 17
