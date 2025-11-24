@@ -2,7 +2,7 @@
 from enum import Enum
 from pathlib import Path
 from skimage import io as skio
-from skimage import exposure, filters
+from skimage import color, exposure, filters
 from numpy.typing import NDArray
 import numpy as np
 
@@ -79,6 +79,14 @@ class ChannelSelector(Enum):
     GREEN = 1
     BLUE  = 2
     GRAY  = -1
+
+    def select(self, img: NDArray) -> NDArray:
+        """ Select the appropriate channel from the input image. """
+        match self:
+            case ChannelSelector.GRAY:
+                return color.rgb2gray(img)
+            case _:
+                return img[:, :, self.value]
 
     def load(self, fname: str | Path) -> NDArray:
         """ Load image from file selecting the appropriate channel. """
