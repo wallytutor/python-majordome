@@ -149,7 +149,8 @@
     ],
 
     "[python]": {
-        "editor.tabSize": 4
+        "editor.tabSize": 4,
+        "editor.foldingStrategy": "indentation"
     },
 
     "python.analysis.autoSearchPaths": true,
