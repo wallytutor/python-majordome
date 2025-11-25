@@ -27,11 +27,15 @@ function Start-KompanionMain() {
     $env:KOMPANION_LOGS = "$env:KOMPANION_DIR\local\logs"
     $env:KOMPANION_TEMP = "$env:KOMPANION_DIR\local\temp"
 
+    # Fake user profile to avoid applications access:
+    $env:USERPROFILE = "$env:KOMPANION_DATA\user"
+
     # Ensure important directories exist:
     Initialize-EnsureDirectory $env:KOMPANION_BIN
     Initialize-EnsureDirectory $env:KOMPANION_DATA
     Initialize-EnsureDirectory $env:KOMPANION_LOGS
     Initialize-EnsureDirectory $env:KOMPANION_TEMP
+    Initialize-EnsureDirectory $env:USERPROFILE
 
     # Get configuration of modules:
     $config = Get-ModulesConfig
