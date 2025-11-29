@@ -27,7 +27,8 @@
         "elm": true,
         "racket": false,
         "rust": false,
-        "coq": true
+        "coq": true,
+        "rlang": true
     },
     "simu": {
         "paraview": true,

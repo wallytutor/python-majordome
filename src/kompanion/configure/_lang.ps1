@@ -18,6 +18,7 @@ function Start-KompanionLangConfigure() {
     if ($Config.racket)  { Invoke-ConfigureRacket }
     if ($Config.rust)    { Invoke-ConfigureRust }
     if ($Config.coq)     { Invoke-ConfigureCoq }
+    if ($Config.rlang)   { Invoke-ConfigureRlang }
 }
 
 # ---------------------------------------------------------------------------
@@ -123,6 +124,29 @@ function Invoke-ConfigureRust() {
 function Invoke-ConfigureCoq() {
     $env:COQ_HOME = "$env:KOMPANION_BIN\coq"
     Initialize-AddToPath -Directory "$env:COQ_HOME\bin"
+}
+
+function Invoke-ConfigureRlang() {
+    $env:RLANG_HOME = "$env:KOMPANION_BIN\rlang"
+    Initialize-AddToPath -Directory "$env:RLANG_HOME\bin\x64"
+
+    # Path to R libraries
+    $env:R_LIBS_USER = "$env:KOMPANION_DATA\R\4.5"
+
+    # Install minimal requirements:
+    $lockFile = "$env:KOMPANION_DATA\rlang.lock"
+
+    if (!(Test-Path $lockFile)) {
+        $rscriptPath = "$env:RLANG_HOME\bin\x64\Rscript.exe"
+        $installCmd = 'install.packages(c("IRkernel"), repos="https://cloud.r-project.org/")'
+        Invoke-CapturedCommand $rscriptPath @("-e", $installCmd)
+
+        # Register IRkernel
+        $registerCmd = 'IRkernel::installspec(user = FALSE)'
+        Invoke-CapturedCommand $rscriptPath @("-e", $registerCmd)
+
+        New-Item -ItemType File -Path $lockFile -Force | Out-Null
+    }
 }
 
 # ---------------------------------------------------------------------------
