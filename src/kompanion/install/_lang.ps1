@@ -18,6 +18,7 @@ function Start-KompanionLangInstall() {
     if ($Config.racket)  { Invoke-InstallRacket }
     if ($Config.rust)    { Invoke-InstallRust }
     if ($Config.coq)     { Invoke-InstallCoq }
+    if ($Config.rlang)   { Invoke-InstallRlang }
 }
 
 # ---------------------------------------------------------------------------
@@ -99,6 +100,23 @@ function Invoke-InstallCoq() {
 
     $target = Join-Path $path 'Uninstall.exe.nsis'
     if (Test-Path $target) { Remove-Item $target }
+}
+
+function Invoke-InstallRlang() {
+    $output = "$env:KOMPANION_TEMP\R-4.5.2-win.exe"
+    $path   = "$env:KOMPANION_BIN\rlang"
+    $url    = "https://cran.asnr.fr/bin/windows/base/R-4.5.2-win.exe"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+
+    $arglist = @(
+        "/VERYSILENT",
+        "/SUPPRESSMSGBOXES",
+        "/NORESTART",
+        "/DIR=$path"
+    )
+
+    Start-Process -FilePath $output -ArgumentList $arglist -Wait
 }
 
 # ---------------------------------------------------------------------------
