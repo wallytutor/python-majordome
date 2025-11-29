@@ -138,11 +138,16 @@ function Invoke-ConfigureRlang() {
 
     if (!(Test-Path $lockFile)) {
         $rscriptPath = "$env:RLANG_HOME\bin\x64\Rscript.exe"
-        $installCmd = 'install.packages(c("IRkernel"), repos="https://cloud.r-project.org/")'
+        $repos = "https://pbil.univ-lyon1.fr/CRAN/"
+
+        $installCmd = "install.packages('tidyverse', repos='$repos')"
+        Invoke-CapturedCommand $rscriptPath @("-e", $installCmd)
+
+        $installCmd = "install.packages('IRkernel', repos='$repos')"
         Invoke-CapturedCommand $rscriptPath @("-e", $installCmd)
 
         # Register IRkernel
-        $registerCmd = 'IRkernel::installspec(user = FALSE)'
+        $registerCmd = "IRkernel::installspec(user = FALSE)"
         Invoke-CapturedCommand $rscriptPath @("-e", $registerCmd)
 
         New-Item -ItemType File -Path $lockFile -Force | Out-Null
