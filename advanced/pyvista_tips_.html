@@ -1,0 +1,858 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PyVista recipes &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'advanced/pyvista_tips_';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Docs" href="../modules/index.html" />
+    <link rel="prev" title="Acetylene pyrolysis" href="plug_phd_.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/common_.html">Common utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/energy_.html">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/pdftools_.html">PDF text extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/transport_.html">Transport properties</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Advanced</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plug_.html">Plug flow coupling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plug_phd_.html">Acetylene pyrolysis</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PyVista recipes</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/index.html">API Docs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../modules/common.html">majordome.common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/energy.html">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/pdftools.html">majordome.pdftools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/reactor.html">majordome.reactor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/transport.html">majordome.transport</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../teaching/index.html">Teaching</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../teaching/calphad_iron_nitrogen_.html">Equilibrium in Fe-N system</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../developers/index.html">Development</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developers/devel.html">Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developers/onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/advanced/pyvista_tips_.py" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.py</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>PyVista recipes</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Importing-and-configuring">Importing and configuring</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#By-project-standard-viewer">By project standard viewer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#By-project-custom-loader">By project custom loader</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-formatting">Plot formatting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Loading-and-manipulating-data">Loading and manipulating data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Particle-tracking-(WIP)">Particle tracking (<em>WIP</em>)</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="PyVista-recipes">
+<h1>PyVista recipes<a class="headerlink" href="#PyVista-recipes" title="Link to this heading">#</a></h1>
+<section id="Importing-and-configuring">
+<h2>Importing and configuring<a class="headerlink" href="#Importing-and-configuring" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">majordome</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FluentFvParticlesParser</span><span class="p">,</span>
+    <span class="n">centered_colormap</span>
+<span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyvista</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># No access to X server to avoid warnings:</span>
+<span class="n">pv</span><span class="o">.</span><span class="n">OFF_SCREEN</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Static backend with image dumping support:</span>
+<span class="n">pv</span><span class="o">.</span><span class="n">set_jupyter_backend</span><span class="p">(</span><span class="s2">&quot;static&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="By-project-standard-viewer">
+<h2>By project standard viewer<a class="headerlink" href="#By-project-standard-viewer" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomViewer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Provides custom visualization of CFD results. &quot;&quot;&quot;</span>
+    <span class="n">slots</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_theme&quot;</span><span class="p">,</span> <span class="s2">&quot;_data&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_theme</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">theme</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">theme</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Default theme for rendering project CFD results. &quot;&quot;&quot;</span>
+        <span class="n">theme</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">themes</span><span class="o">.</span><span class="n">DocumentTheme</span><span class="p">()</span>
+
+        <span class="n">theme</span><span class="o">.</span><span class="n">background</span> <span class="o">=</span> <span class="s2">&quot;#EEEEEE&quot;</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">jupyter_backend</span> <span class="o">=</span> <span class="s2">&quot;static&quot;</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">window_size</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">800</span><span class="p">]</span>
+
+        <span class="n">theme</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">15</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">title_size</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">label_size</span> <span class="o">=</span> <span class="mi">15</span>
+
+        <span class="n">theme</span><span class="o">.</span><span class="n">colorbar_orientation</span> <span class="o">=</span> <span class="s2">&quot;horizontal&quot;</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">colorbar_horizontal</span><span class="o">.</span><span class="n">width</span>  <span class="o">=</span> <span class="mf">0.70</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">colorbar_horizontal</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.09</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">colorbar_horizontal</span><span class="o">.</span><span class="n">position_x</span> <span class="o">=</span> <span class="mf">0.15</span>
+        <span class="n">theme</span><span class="o">.</span><span class="n">colorbar_horizontal</span><span class="o">.</span><span class="n">position_y</span> <span class="o">=</span> <span class="mf">0.03</span>
+
+        <span class="k">return</span> <span class="n">theme</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Default axes for rendering project CFD results. &quot;&quot;&quot;</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">AxesAssembly</span><span class="p">()</span>
+
+        <span class="n">axes</span><span class="o">.</span><span class="n">x_color</span> <span class="o">=</span> <span class="s2">&quot;#FAF000&quot;</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">y_color</span> <span class="o">=</span> <span class="s2">&quot;#FAF000&quot;</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">z_color</span> <span class="o">=</span> <span class="s2">&quot;#FAF000&quot;</span>
+
+        <span class="c1"># axes.x_label = &quot;&quot;</span>
+        <span class="c1"># axes.y_label = &quot;&quot;</span>
+        <span class="c1"># axes.z_label = &quot;&quot;</span>
+
+        <span class="n">axes</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">label_color</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">label_size</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">pos</span>
+
+        <span class="n">plot</span><span class="o">.</span><span class="n">add_actor</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Manage tight view and set image scale for standard images. &quot;&quot;&quot;</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">reset_camera</span><span class="p">()</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">zoom</span><span class="p">(</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">camera</span><span class="o">.</span><span class="n">parallel_scale</span> <span class="o">*=</span> <span class="n">scale</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">opts</span><span class="p">,</span> <span class="n">camera_pos</span><span class="p">,</span> <span class="n">axes_pos</span><span class="p">,</span> <span class="n">camera_scale</span><span class="p">,</span> <span class="n">axes_scale</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Default plot for rendering CFD results over symmetry plane. &quot;&quot;&quot;</span>
+        <span class="n">plot</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="n">theme</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_theme</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="o">**</span><span class="n">opts</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">camera</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">camera_scale</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">camera_pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">axes_scale</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">axes_pos</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plot</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dump</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Dump a screenshot of current plot at given directory, if any. &quot;&quot;&quot;</span>
+        <span class="n">plot</span><span class="o">.</span><span class="n">screenshot</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">return_img</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transparent_background</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; List all available fields for visualization. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">point_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="By-project-custom-loader">
+<h2>By project custom loader<a class="headerlink" href="#By-project-custom-loader" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">custom_loader</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Provides a custom data loader for CFD results. &quot;&quot;&quot;</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">CGNSReader</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="s2">&quot;Base&quot;</span><span class="p">][</span><span class="s2">&quot;Zone&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Plot-formatting">
+<h2>Plot formatting<a class="headerlink" href="#Plot-formatting" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">options_outline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span> <span class="s2">&quot;opacity&quot;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">options_velocity</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">n_labels</span><span class="o">=</span><span class="mi">9</span><span class="p">):</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;scalars&quot;</span><span class="p">:</span> <span class="s2">&quot;VelocityMagnitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cmap&quot;</span><span class="p">:</span> <span class="s2">&quot;jet&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;clim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">),</span>
+        <span class="s2">&quot;scalar_bar_args&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Velocity Magnitude [m/s]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n_labels&quot;</span><span class="p">:</span> <span class="n">n_labels</span><span class="p">,</span>
+            <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.0f</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">opts</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">options_pressure</span><span class="p">(</span><span class="n">vmin</span><span class="o">=-</span><span class="mi">120</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">240</span><span class="p">,</span> <span class="n">vcenter</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;scalars&quot;</span><span class="p">:</span> <span class="s2">&quot;PressureStagnation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cmap&quot;</span><span class="p">:</span> <span class="n">centered_colormap</span><span class="p">(</span><span class="s2">&quot;bwr&quot;</span><span class="p">,</span> <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">,</span> <span class="n">vcenter</span><span class="p">),</span>
+        <span class="s2">&quot;clim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">),</span>
+        <span class="s2">&quot;scalar_bar_args&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Total Pressure [Pa]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;n_labels&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+            <span class="s2">&quot;fmt&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">%.0f</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">opts</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Loading-and-manipulating-data">
+<h2>Loading and manipulating data<a class="headerlink" href="#Loading-and-manipulating-data" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plane</span> <span class="o">=</span> <span class="n">custom_loader</span><span class="p">(</span><span class="s2">&quot;sample/sample.cgns&quot;</span><span class="p">)</span>
+<span class="n">plane</span> <span class="o">=</span> <span class="n">plane</span><span class="o">.</span><span class="n">rotate_z</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">plane</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<table style='width: 100%;'><tr><th>Header</th><th>Data Arrays</th></tr><tr><td>
+<table style='width: 100%;'>
+<tr><th>UnstructuredGrid</th><th>Information</th></tr>
+<tr><td>N Cells</td><td>1108</td></tr>
+<tr><td>N Points</td><td>1958</td></tr>
+<tr><td>X Bounds</td><td>-1.983e+00, 1.800e-01</td></tr>
+<tr><td>Y Bounds</td><td>0.000e+00, 9.150e-01</td></tr>
+<tr><td>Z Bounds</td><td>2.380e+01, 2.380e+01</td></tr>
+<tr><td>N Arrays</td><td>7</td></tr>
+</table>
+
+</td><td>
+<table style='width: 100%;'>
+<tr><th>Name</th><th>Field</th><th>Type</th><th>N Comp</th><th>Min</th><th>Max</th></tr>
+<tr><td>VelocityMagnitude</td><td>Points</td><td>float64</td><td>1</td><td>0.000e+00</td><td>1.510e+01</td></tr>
+<tr><td>Turbulent_Viscosity_Ratio</td><td>Points</td><td>float64</td><td>1</td><td>3.858e-03</td><td>6.949e+03</td></tr>
+<tr><td>PressureDynamic</td><td>Points</td><td>float64</td><td>1</td><td>2.997e-02</td><td>1.078e+02</td></tr>
+<tr><td>PressureStagnation</td><td>Points</td><td>float64</td><td>1</td><td>1.243e+01</td><td>1.420e+02</td></tr>
+<tr><td>Base/Zone</td><td>Fields</td><td><U9</td><td>1</td><td>nan</td><td>nan</td></tr>
+<tr><td>ispatch</td><td>Fields</td><td>int32</td><td>1</td><td>0.000e+00</td><td>0.000e+00</td></tr>
+<tr><td>issurface</td><td>Fields</td><td>int32</td><td>1</td><td>0.000e+00</td><td>0.000e+00</td></tr>
+</table>
+
+</td></tr> </table></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">conf</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;camera_pos&quot;</span><span class="p">:</span> <span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;camera_scale&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+    <span class="s2">&quot;axes_pos&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">2.7</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">23.8</span><span class="p">),</span>
+    <span class="s2">&quot;axes_scale&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">viewer</span> <span class="o">=</span> <span class="n">CustomViewer</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">fields</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;VelocityMagnitude&#39;,
+ &#39;Turbulent_Viscosity_Ratio&#39;,
+ &#39;PressureDynamic&#39;,
+ &#39;PressureStagnation&#39;]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">opts</span> <span class="o">=</span> <span class="n">options_outline</span><span class="p">()</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">opts</span><span class="o">=</span><span class="n">opts</span><span class="p">,</span> <span class="o">**</span><span class="n">conf</span><span class="p">)</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/advanced_pyvista_tips__16_0.png" src="../_images/advanced_pyvista_tips__16_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">opts</span> <span class="o">=</span> <span class="n">options_velocity</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">n_labels</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">opts</span><span class="o">=</span><span class="n">opts</span><span class="p">,</span> <span class="o">**</span><span class="n">conf</span><span class="p">)</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/advanced_pyvista_tips__17_0.png" src="../_images/advanced_pyvista_tips__17_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">opts</span> <span class="o">=</span> <span class="n">options_pressure</span><span class="p">(</span><span class="n">vmin</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">140</span><span class="p">,</span> <span class="n">vcenter</span><span class="o">=</span><span class="mf">90.0</span><span class="p">)</span>
+<span class="n">plot</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">opts</span><span class="o">=</span><span class="n">opts</span><span class="p">,</span> <span class="o">**</span><span class="n">conf</span><span class="p">)</span>
+<span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/advanced_pyvista_tips__18_0.png" src="../_images/advanced_pyvista_tips__18_0.png" />
+</div>
+</div>
+</section>
+<section id="Particle-tracking-(WIP)">
+<h2>Particle tracking (<em>WIP</em>)<a class="headerlink" href="#Particle-tracking-(WIP)" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tracks</span> <span class="o">=</span> <span class="n">FluentFvParticlesParser</span><span class="p">(</span><span class="s2">&quot;sample/sample.fvp&quot;</span><span class="p">)</span>
+<span class="n">tracks</span><span class="o">.</span><span class="n">variable_names</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;x&#39;, &#39;y&#39;, &#39;z&#39;, &#39;residence_time&#39;, &#39;time_step&#39;]
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">sample_tracks</span><span class="p">(</span><span class="n">tracks</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_tracks</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">every_pts</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Random track sampler for particle data. &quot;&quot;&quot;</span>
+    <span class="n">poly_tracks</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">n_tracks</span><span class="p">,</span> <span class="n">tracks</span><span class="o">.</span><span class="n">n_tracks</span><span class="p">)):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">tracks</span><span class="o">.</span><span class="n">n_tracks</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">tracks</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">idx</span><span class="p">][::</span><span class="n">every_pts</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">xyz</span> <span class="o">=</span> <span class="n">table</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">transform</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">xyz</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">PolyData</span><span class="p">(</span><span class="n">xyz</span><span class="p">)</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">rotate_x</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">poly_tracks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">poly_tracks</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">shift_data</span><span class="p">(</span><span class="n">xyz</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Shift data for centering in graphics. &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">xyz</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">opts</span><span class="o">=</span><span class="p">{},</span> <span class="o">**</span><span class="p">{</span>
+    <span class="s2">&quot;camera_pos&quot;</span><span class="p">:</span> <span class="s2">&quot;yz&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;camera_scale&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
+    <span class="s2">&quot;axes_pos&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="s2">&quot;axes_scale&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+<span class="p">})</span>
+
+<span class="n">plot</span><span class="o">.</span><span class="n">window_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+<span class="n">poly_tracks</span> <span class="o">=</span> <span class="n">sample_tracks</span><span class="p">(</span><span class="n">tracks</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">shift_data</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">poly_tracks</span><span class="p">:</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">point_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                  <span class="n">render_points_as_spheres</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/advanced_pyvista_tips__23_0.png" src="../_images/advanced_pyvista_tips__23_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plug_phd_.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Acetylene pyrolysis</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../modules/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API Docs</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Importing-and-configuring">Importing and configuring</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#By-project-standard-viewer">By project standard viewer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#By-project-custom-loader">By project custom loader</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Plot-formatting">Plot formatting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Loading-and-manipulating-data">Loading and manipulating data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Particle-tracking-(WIP)">Particle tracking (<em>WIP</em>)</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
