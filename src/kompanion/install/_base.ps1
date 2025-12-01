@@ -11,6 +11,7 @@ function Start-KompanionBaseInstall() {
 
     if ($Config.vscode)      { Invoke-InstallVsCode }
     if ($Config.zettlr)      { Invoke-InstallZettlr }
+    if ($Config.drawio)      { Invoke-InstallDrawio }
     if ($Config.git)         { Invoke-InstallGit }
     if ($Config.nvim)        { Invoke-InstallNvim }
     if ($Config.sevenzip)    { Invoke-InstallSevenZip }
@@ -55,6 +56,15 @@ function Invoke-InstallZettlr() {
         Invoke-Uncompress7zIfNeeded -Source $app    -Destination $path
         Remove-Item -Path $temp -Recurse -Force
     }
+}
+
+function Invoke-InstallDrawio() {
+    $output = "$env:KOMPANION_TEMP\drawio.zip"
+    $path   = "$env:KOMPANION_BIN\drawio"
+    $url    = "https://github.com/jgraph/drawio-desktop/releases/download/v29.0.3/draw.io-29.0.3-windows.zip"
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressZipIfNeeded -Source $output -Destination $path
 }
 
 function Invoke-InstallGit() {

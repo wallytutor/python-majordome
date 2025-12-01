@@ -2,6 +2,7 @@
     "base": {
         "vscode": true,
         "zettlr": true,
+        "drawio": true,
         "git": true,
         "nvim": true,
         "sevenzip": true,

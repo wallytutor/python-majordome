@@ -11,6 +11,7 @@ function Start-KompanionBaseConfigure() {
 
     if ($Config.vscode)      { Invoke-ConfigureVsCode }
     if ($Config.zettlr)      { Invoke-ConfigureZettlr }
+    if ($Config.drawio)      { Invoke-ConfigureDrawio }
     if ($Config.git)         { Invoke-ConfigureGit }
     if ($Config.nvim)        { Invoke-ConfigureNvim }
     if ($Config.sevenzip)    { Invoke-ConfigureSevenZip }
@@ -43,6 +44,11 @@ function Invoke-ConfigureZettlr() {
     $env:ZETTLR_HOME = "$env:KOMPANION_BIN\zettlr"
     $env:ZETTLR_DATA = "$env:KOMPANION_DATA\zettlr"
     Initialize-AddToPath -Directory "$env:ZETTLR_HOME"
+}
+
+function Invoke-ConfigureDrawio() {
+    $env:DRAWIO_HOME = "$env:KOMPANION_BIN\drawio"
+    Initialize-AddToPath -Directory "$env:DRAWIO_HOME"
 }
 
 function Invoke-ConfigureGit() {
