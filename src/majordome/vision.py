@@ -72,6 +72,16 @@ class ImageCrop:
         x0, y0, x1, y1 = self.get_coords(img)
         return img[y0:y1, x0:x1]
 
+    def to_dict(self) -> dict:
+        """ Convert the cropping parameters to a dictionary. """
+        return {
+            "percentages": self._percentages,
+            "left": self._left,
+            "bottom": self._bottom,
+            "right": self._right,
+            "top": self._top
+        }
+
 
 class ChannelSelector(Enum):
     """ Enumeration for selecting image channels. """
@@ -96,17 +106,21 @@ class ChannelSelector(Enum):
             case _:
                 return skio.imread(fname)[:, :, self.value]
 
+    def to_dict(self) -> dict:
+        """ Convert the channel selector to a dictionary. """
+        return {"channel": self.name, "index": self.value}
+
 
 class ContrastEnhancement(Enum):
     """ Enumeration for contrast enhancement methods. """
-    NONE      = "none"
-    ADAPTIVE  = "adatpive"
-    STRECHING = "streching"
+    NONE       = "none"
+    ADAPTIVE   = "adaptive"
+    STRETCHING = "stretching"
 
     def _adaptive(self, img, *, nbins=256, **kw):
         return exposure.equalize_adapthist(img, nbins=nbins)
 
-    def _streching(self, img, *, percentiles=(2, 98), **kw) -> NDArray:
+    def _stretching(self, img, *, percentiles=(2, 98), **kw) -> NDArray:
         in_range = tuple(np.percentile(img, percentiles))
         return exposure.rescale_intensity(img, in_range=in_range)
 
@@ -117,8 +131,8 @@ class ContrastEnhancement(Enum):
                 pass
             case ContrastEnhancement.ADAPTIVE:
                 img = self._adaptive(img, **kw)
-            case ContrastEnhancement.STRECHING:
-                img = self._streching(img, **kw)
+            case ContrastEnhancement.STRETCHING:
+                img = self._stretching(img, **kw)
 
         return img
 
