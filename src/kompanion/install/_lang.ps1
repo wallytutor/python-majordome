@@ -109,14 +109,16 @@ function Invoke-InstallRlang() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
 
-    $arglist = @(
-        "/VERYSILENT",
-        "/SUPPRESSMSGBOXES",
-        "/NORESTART",
-        "/DIR=$path"
-    )
+    if (-not (Test-Path $path)) {
+        $arglist = @(
+            "/VERYSILENT",
+            "/SUPPRESSMSGBOXES",
+            "/NORESTART",
+            "/DIR=$path"
+        )
 
-    Start-Process -FilePath $output -ArgumentList $arglist -Wait
+        Start-Process -FilePath $output -ArgumentList $arglist -Wait
+    }
 }
 
 # ---------------------------------------------------------------------------
