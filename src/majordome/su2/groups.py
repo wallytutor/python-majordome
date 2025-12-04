@@ -136,6 +136,9 @@ class BCTypeSupersonicOutlet(BCTypeAbstractOutlet):
     pass
 
 
+class BCTypeWallEuler(BCTypeNamedMarker):
+    pass
+
 class BCTypeWallHeatFlux(BCTypeAbstractWall):
     pass
 
