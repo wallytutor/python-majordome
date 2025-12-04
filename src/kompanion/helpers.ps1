@@ -143,12 +143,26 @@ function Invoke-UncompressGzipIfNeeded() {
     $inputf.Dispose()
 }
 
+function Invoke-UncompressMsiIfNeeded() {
+    param (
+        [string]$Source,
+        [string]$Destination
+    )
+
+    if (!(Test-Path -Path $Destination)) {
+        if (Test-Path "$env:LESSMSI_HOME\lessmsi.exe") {
+            $lessMsiPath = "$env:LESSMSI_HOME\lessmsi.exe"
+        } else {
+            $lessMsiPath = "lessmsi.exe"
+        }
+
+        Invoke-CapturedCommand $lessMsiPath @("x", $Source , "$Destination\")
+    }
+}
+
 # elseif ($Method -eq "TAR") {
 #     New-Item -Path "$Destination" -ItemType Directory
 #     tar -xzf $Source -C $Destination
-# elseif ($Method -eq "MSI") {
-#     Write-Host "Installing MSI package $Source ... $Destination"
-#     Invoke-CapturedCommand "lessmsi.exe" @("x", $Source , "$Destination\")
 
 function Invoke-DirectoryBackupNoAdmin() {
     param (
