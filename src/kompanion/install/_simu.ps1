@@ -43,6 +43,14 @@ function Invoke-InstallFreeCAD() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+
+    $output = "$env:KOMPANION_TEMP\odafileconverter.msi"
+    $path   = "$env:KOMPANION_BIN\odafileconverter"
+    $url    = "https://www.opendesign.com/guestfiles/get?filename=ODAFileConverter_QT6_vc16_amd64dll_26.10.msi"
+
+    # TODO: not working because of page redirection
+    # Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-UncompressMsiIfNeeded -Source $output -Destination $path
 }
 
 function Invoke-InstallBlender() {
