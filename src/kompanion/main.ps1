@@ -50,7 +50,7 @@ function Start-KompanionMain() {
 
     Write-Output "`nEnvironment"
     Write-Output "-----------"
-    Write-Output "KOMPANION           $env:KOMPANION_DIR"
+    Write-Output "KOMPANION_DIR       $env:KOMPANION_DIR"
     Write-Output "KOMPANION_BIN       $env:KOMPANION_BIN"
     Write-Output "KOMPANION_DATA      $env:KOMPANION_DATA"
     Write-Output "KOMPANION_LOGS      $env:KOMPANION_LOGS"
@@ -108,6 +108,10 @@ function Start-KompanionConfigure() {
     Start-KompanionBaseConfigure $Config.base
     Start-KompanionLangConfigure $Config.lang
     Start-KompanionSimuConfigure $Config.simu
+}
+
+function KompanionSource {
+    . "$env:KOMPANION_SRC/main.ps1"
 }
 
 # ---------------------------------------------------------------------------
