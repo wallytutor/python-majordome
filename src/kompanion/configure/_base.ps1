@@ -62,16 +62,19 @@ function Invoke-ConfigureNvim() {
 }
 
 function Invoke-ConfigureSevenZip() {
-    # Prefer the one from stack if available:
-    $stackSevenZip = "$env:STACK_ROOT\local-programs\x86_64-windows"
+    $env:SEVENZIP_HOME = "$env:KOMPANION_BIN\7z"
+    Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
 
-    if (Test-Path $stackSevenZip) {
-        $env:SEVENZIP_HOME = $stackSevenZip
-        Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
-    } else {
-        $env:SEVENZIP_HOME = "$env:KOMPANION_BIN"
-        Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
-    }
+    # Legacy: prefer the one from stack if available:
+    # $stackSevenZip = "$env:STACK_ROOT\local-programs\x86_64-windows"
+    #
+    # if (Test-Path $stackSevenZip) {
+    #     $env:SEVENZIP_HOME = $stackSevenZip
+    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+    # } else {
+    #     $env:SEVENZIP_HOME = "$env:KOMPANION_BIN"
+    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+    # }
 }
 
 function Invoke-ConfigureLessMsi() {
