@@ -123,7 +123,7 @@ function Invoke-ConfigureNteract() {
 }
 
 function Invoke-ConfigureFfmpeg() {
-    $env:FFMPEG_HOME = "$env:KOMPANION_BIN\ffmpeg\ffmpeg-2025-11-02-git-f5eb11a71d-full_build\bin"
+    $env:FFMPEG_HOME = "$env:KOMPANION_BIN\ffmpeg\bin"
     Initialize-AddToPath -Directory "$env:FFMPEG_HOME"
 }
 
