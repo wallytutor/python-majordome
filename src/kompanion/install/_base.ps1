@@ -246,13 +246,17 @@ function Invoke-InstallNteract() {
 
 function Invoke-InstallFfmpeg() {
     $output = "$env:KOMPANION_TEMP\ffmpeg.7z"
+    $temp   = "$env:KOMPANION_TEMP\ffmpeg"
     $path   = "$env:KOMPANION_BIN\ffmpeg"
-    $url    = "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-2025-11-02-git-f5eb11a71d-full_build.7z"
+    $url    = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z"
 
     if (Test-Path -Path $path) { return }
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
-    Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+    Invoke-Uncompress7zIfNeeded -Source $output -Destination $temp
+
+    Move-Item -Path (Join-Path $temp "ffmpeg-*") -Destination $path
+    Remove-Item -Path $temp -Recurse -Force
 }
 
 function Invoke-InstallImageMagick() {
