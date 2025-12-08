@@ -24,9 +24,9 @@ function Start-KompanionBaseInstall() {
     if ($Config.miktex)      { Invoke-InstallMikTex }
     if ($Config.nteract)     { Invoke-InstallNteract }
     if ($Config.ffmpeg)      { Invoke-InstallFfmpeg }
-#     if ($Config.imagemagick) { Invoke-InstallImageMagick }
-#     if ($Config.poppler)     { Invoke-InstallPoppler }
-#     if ($Config.quarto)      { Invoke-InstallQuarto }
+    if ($Config.imagemagick) { Invoke-InstallImageMagick }
+    if ($Config.poppler)     { Invoke-InstallPoppler }
+    if ($Config.quarto)      { Invoke-InstallQuarto }
 }
 
 # ---------------------------------------------------------------------------
