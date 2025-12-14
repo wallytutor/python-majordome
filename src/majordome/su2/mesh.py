@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
+from enum import Enum
 from pathlib import Path
 import re
 import warnings
 import numpy as np
 import pyvista as pv
+
+
+class SU2MeshType(Enum):
+    """ Enumeration of SU2 mesh types. """
+    NONE = "NONE"
+    SU2  = "SU2"
+    CGNS = "CGNS"
 
 
 class SU2MeshLoader:
