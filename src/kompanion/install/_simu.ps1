@@ -21,6 +21,7 @@ function Start-KompanionSimuInstall() {
     if ($Config.gmsh)      { Invoke-InstallGmsh }
     if ($Config.su2)       { Invoke-InstallSu2 }
     if ($Config.tesseract) { Invoke-InstallTesseract }
+    if ($Config.radcal)    { Invoke-InstallRadcal }
 }
 
 # ---------------------------------------------------------------------------
@@ -88,6 +89,25 @@ function Invoke-InstallDwsim() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+}
+
+function Invoke-InstallRadcal() {
+    $output = "$env:KOMPANION_TEMP\fds_smv.exe"
+    $temp   = "$env:KOMPANION_TEMP\fds_smv"
+    $path   = "$env:KOMPANION_BIN\firemodels"
+    $url    = "https://github.com/firemodels/fds/releases/download/FDS-6.10.1/FDS-6.10.1_SMV-6.10.1_win.exe"
+
+    if (Test-Path -Path $path) { return }
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+    Invoke-Uncompress7zIfNeeded -Source $output -Destination $temp
+
+    Move-Item -Path "$temp\firemodels" -Destination $path
+    Remove-Item -Path $temp -Recurse -Force
+
+    $output = "$path\radcal.exe"
+    $url    = "https://github.com/firemodels/radcal/releases/download/v2.0/radcal_win_64.exe"
+    Invoke-DownloadIfNeeded -URL $url -Output $output
 }
 
 function Invoke-InstallElmer() {

@@ -40,6 +40,7 @@
         "elmer": true,
         "gmsh": true,
         "su2": true,
-        "tesseract": true
+        "tesseract": true,
+        "radcal": true
     }
 }
