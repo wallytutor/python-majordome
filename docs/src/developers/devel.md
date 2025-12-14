@@ -2,13 +2,14 @@
 
 ## Environment
 
-For developing the package, consider doing so from within a virtual environment; that will makes things easier to check versions and pin them properly in package dependencies, as needed. Following the above snipped, install, activate, upgrade pip and make `majordome` ready for development.
+For developing the package, consider doing so from within a virtual environment; that will makes things easier to check versions and pin them properly in package dependencies, as needed. You will also need Rust to be available for compiling the main library. Following the next snippet, install, activate, upgrade pip and make `majordome` ready for development.
 
 ```bash
 python -m venv venv
 venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip
-pip install -e .
+
+maturin develop # Replaces `pip install -e .`
 ```
 
 Please notice that Linux users may need to install `python-venv`; under Debian-based distributions that is done with `sudo apt install python-venv`, which requires admin rights. Also notice that activating an environment is done with `source venv/bin/activate` instead.
@@ -18,7 +19,7 @@ Please notice that Linux users may need to install `python-venv`; under Debian-b
 During development it is highly recommended to verify documentation build succeeds; in practice it is automatically generated and deployed by a [GitHub workflow](https://github.com/wallytutor/python-majordome/blob/main/.github/workflows/documentation.yml). From within a development environment created as per the previous section (and containing the package installed at least in development mode), run the following:
 
 ```bash
-pip install .[docs]
+pip install .[docs,pdftools,vision]
 sphinx-build -E -b html -c docs/ docs/src/ docs/_build/
 ```
 
