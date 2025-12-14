@@ -7,9 +7,13 @@ __all__ = []
 # ---------------------------------------------------------------------
 
 try:
-    from ._majordome import diffusion
+    from ._majordome import (
+        calphad,
+        diffusion,
+    )
 
     __all__ += [
+        "calphad",
         "diffusion",
     ]
 except ImportError:
