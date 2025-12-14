@@ -1,4 +1,33 @@
-use pyo3::prelude::pymodule;
+use pyo3::prelude::*;
+
+// #[pyclass]
+// /// Mathematical constants available in this module.
+// pub struct Constants;
+
+// #[pymethods]
+// impl Constants {
+//     #[classattr]
+//     /// Conventional gravitational acceleration on Earth [m/s²].
+//     const GRAVITY: f64 = 9.80665;
+
+//     #[classattr]
+//     /// Thermodynamic reference temperature [K].
+//     const T_REFERENCE: f64 = 298.15;
+
+//     #[classattr]
+//     /// Normal state reference temperature [K].
+//     const T_NORMAL: f64 = 273.15;
+
+//     #[classattr]
+//     /// Normal state reference pressure [Pa].
+//     const P_NORMAL: f64 = 101325.0;
+// }
+
+// #[pymodule]
+// pub mod constants {
+//     #[pymodule_export]
+//     use super::Constants;
+// }
 
 #[pymodule]
 pub mod constants {
