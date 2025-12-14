@@ -146,6 +146,7 @@ function Invoke-InstallSu2() {
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output      -Destination $path
     Invoke-UncompressZipIfNeeded -Source $innerOutput -Destination $finalPath
+    Remove-Item -Path $path -Recurse -Force
 }
 
 function Invoke-InstallTesseract() {
