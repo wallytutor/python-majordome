@@ -4,7 +4,6 @@
 /data/jupyter/*
 /data/miktex/*
 /data/stack/*
-/data/user/*
 /data/vscode/extensions/*
 /data/vscode/user-data/*
 /data/Zettlr/*
@@ -12,6 +11,7 @@
 /data/kompanion.json
 /logs/*
 /temp/*
+/user/*
 
 # Julia startup configuration:
 !/data/julia/config/
