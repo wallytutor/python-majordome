@@ -50,6 +50,7 @@ scikit-image
 # Other
 beautifulsoup4
 graphviz
+manim
 mpmath
 networkx
 numba
