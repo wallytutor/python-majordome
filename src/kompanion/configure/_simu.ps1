@@ -13,6 +13,7 @@ function Start-KompanionSimuConfigure() {
     if ($Config.gmsh)      { Invoke-ConfigureGmsh }
     if ($Config.su2)       { Invoke-ConfigureSu2 }
     if ($Config.tesseract) { Invoke-ConfigureTesseract }
+    if ($Config.radcal)    { Invoke-ConfigureRadcal }
 }
 
 # ---------------------------------------------------------------------------
@@ -43,6 +44,13 @@ function Invoke-ConfigureTesseract() {
     $env:TESSERACT_HOME = "$env:KOMPANION_BIN\tesseract"
     $env:TESSDATA_PREFIX = "$env:KOMPANION_BIN\tessdata"
     Initialize-AddToPath -Directory "$env:TESSERACT_HOME"
+}
+
+function Invoke-ConfigureRadcal() {
+    $env:FIREMODELS_HOME = "$env:KOMPANION_BIN\firemodels"
+    Initialize-AddToPath -Directory "$env:FIREMODELS_HOME\FDS6\bin"
+    Initialize-AddToPath -Directory "$env:FIREMODELS_HOME\SMV6"
+    Initialize-AddToPath -Directory "$env:FIREMODELS_HOME"
 }
 
 # ---------------------------------------------------------------------------

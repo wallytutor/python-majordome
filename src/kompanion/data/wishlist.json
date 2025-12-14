@@ -5,8 +5,6 @@
         "https://smlnj.org/dist/working/110.99.8/smlnj-110.99.8.msi",
         "https://ftpmirror.gnu.org/octave/windows/octave-10.2.0-w64.7z",
         "https://www.scilab.org/download/2025.1.0/scilab-2025.1.0.bin.x64.exe",
-        "https://github.com/firemodels/fds/releases/download/FDS-6.10.1/FDS-6.10.1_SMV-6.10.1_win.exe",
-        "https://github.com/firemodels/radcal/releases/download/v2.0/radcal_win_64.exe",
         "http://ss009322.stars.ne.jp/gnuplot_files/gp610-20250910-win64-mingw.zip",
         "https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/13.1.2/windows_10_cmake_Release_Graphviz-13.1.2-win64.zip"
     ]
