@@ -114,6 +114,10 @@ function KompanionSource {
     . "$env:KOMPANION_SRC/main.ps1"
 }
 
+function KompanionRebuild {
+    . "$env:KOMPANION_SRC/main.ps1" -RebuildOnStart
+}
+
 # ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
