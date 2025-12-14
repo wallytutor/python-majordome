@@ -116,9 +116,8 @@ function Invoke-ConfigureRacket() {
 }
 
 function Invoke-ConfigureRust() {
-    # $env:RUST_HOME = "$env:KOMPANION_BIN\rust"
-    # Initialize-AddToPath -Directory "$env:RUST_HOME\bin"
-    # $env:CARGO_HOME = "$env:KOMPANION_DATA\rust"
+    $env:CARGO_HOME = "$env:USERPROFILE\.cargo"
+    Initialize-AddToPath -Directory "$env:CARGO_HOME\bin"
 }
 
 function Invoke-ConfigureCoq() {

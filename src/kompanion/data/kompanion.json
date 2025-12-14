@@ -27,7 +27,7 @@
         "haskell": true,
         "elm": true,
         "racket": false,
-        "rust": false,
+        "rust": true,
         "coq": true,
         "rlang": true
     },
