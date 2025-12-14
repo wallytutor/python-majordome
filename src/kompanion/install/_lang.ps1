@@ -98,7 +98,11 @@ function Invoke-InstallRacket() {
 function Invoke-InstallRust() {
     $output = "$env:KOMPANION_TEMP\rustup-init.exe"
     $path   = "$env:USERPROFILE\.cargo\bin"
-    $url    = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
+
+    # Choose one of the following URLs depending on the desired toolchain
+    # notice that MSVC requires Visual Studio Build Tools to be installed
+    # $url    = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
+    $url    = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-gnu/rustup-init.exe"
 
     if (Test-Path -Path $path) { return }
 
@@ -108,7 +112,7 @@ function Invoke-InstallRust() {
         $arglist = @(
             "--verbose",
             "-y",
-            "--default-toolchain", "stable",
+            "--default-toolchain", "stable-x86_64-pc-windows-gnu",
             "--profile", "complete",
             "--no-modify-path"
         )
