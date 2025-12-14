@@ -29,6 +29,7 @@ function Start-KompanionMain() {
 
     # Fake user profile to avoid applications access:
     $env:USERPROFILE = "$env:KOMPANION_DATA\user"
+    $env:APPDATA     = "$env:KOMPANION_DATA\user\AppData"
 
     # Ensure important directories exist:
     Initialize-EnsureDirectory $env:KOMPANION_BIN
