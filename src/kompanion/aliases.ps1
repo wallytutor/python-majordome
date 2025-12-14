@@ -18,6 +18,11 @@ function zettlr {
     & Start-Process Zettlr.exe -ArgumentList "--data-dir=$env:ZETTLR_DATA"
 }
 
+function jlab {
+    & Start-Process jupyter-lab.exe -ArgumentList "--no-browser" `
+        -NoNewWindow -Wait
+}
+
 # ---------------------------------------------------------------------------
 # EOF
 # ---------------------------------------------------------------------------
