@@ -118,6 +118,11 @@ function Invoke-ConfigureRacket() {
 function Invoke-ConfigureRust() {
     $env:CARGO_HOME = "$env:USERPROFILE\.cargo"
     Initialize-AddToPath -Directory "$env:CARGO_HOME\bin"
+
+    # XXX: disable certificate revocation check due to possible issues
+    # with certain Windows configurations (corporate networks, proxies, etc.)
+    # Avoid using this in general, as it lowers security!
+    $env:CARGO_HTTP_CHECK_REVOKE = 'false'
 }
 
 function Invoke-ConfigureCoq() {
