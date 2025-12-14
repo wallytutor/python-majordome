@@ -8,5 +8,8 @@ mod _majordome {
     use crate::majordome::calphad::calphad;
 
     #[pymodule_export]
+    use crate::majordome::constants::constants;
+
+    #[pymodule_export]
     use crate::majordome::diffusion::diffusion;
 }

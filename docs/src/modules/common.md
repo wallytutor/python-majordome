@@ -5,21 +5,6 @@
 ```{eval-rst}
 .. autodata:: majordome.common.DATA
     :annotation:
-
-.. autodata:: majordome.common.GRAVITY
-    :annotation:
-
-.. autodata:: majordome.common.T_REFERENCE
-    :annotation:
-
-.. autodata:: majordome.common.T_NORMAL
-    :annotation:
-
-.. autodata:: majordome.common.P_NORMAL
-    :annotation:
-
-.. autoclass:: majordome.common.Constants
-    :members:
 ```
 
 ## Type aliases

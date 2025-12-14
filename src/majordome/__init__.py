@@ -26,7 +26,6 @@ except ImportError:
 # ---------------------------------------------------------------------
 
 from .common import (
-    Constants,
     CompositionType,
     SolutionLikeType,
     PathLike,
@@ -49,7 +48,6 @@ from .common import (
 )
 
 __all__ += [
-    "Constants",
     "CompositionType",
     "SolutionLikeType",
     "PathLike",

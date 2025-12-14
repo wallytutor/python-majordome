@@ -1,6 +1,7 @@
 use pyo3::prelude::pymodule;
 
 pub mod calphad;
+pub mod constants;
 pub mod diffusion;
 
 #[pymodule]
