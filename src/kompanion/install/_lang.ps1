@@ -96,7 +96,25 @@ function Invoke-InstallRacket() {
 }
 
 function Invoke-InstallRust() {
-    Write-Host "- Rust installation not yet implemented."
+    $output = "$env:KOMPANION_TEMP\rustup-init.exe"
+    $path   = "$env:USERPROFILE\.cargo\bin"
+    $url    = "https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe"
+
+    if (Test-Path -Path $path) { return }
+
+    Invoke-DownloadIfNeeded -URL $url -Output $output
+
+    if (-not (Test-Path $path)) {
+        $arglist = @(
+            "--verbose",
+            "-y",
+            "--default-toolchain", "stable",
+            "--profile", "complete",
+            "--no-modify-path"
+        )
+
+        Invoke-CapturedCommand -FilePath $output -ArgumentList $arglist -Wait
+    }
 }
 
 function Invoke-InstallCoq() {
