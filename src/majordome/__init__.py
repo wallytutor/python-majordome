@@ -6,12 +6,15 @@ __all__ = []
 # majordome._majordome: Rust extension module
 # ---------------------------------------------------------------------
 
-# try:
-#     from . import _majordome as rust_ext
-#     __all__ += ["rust_ext"]
-# except ImportError:
-#     print("Warning: majordome Rust extension module not found.")
-#     pass
+try:
+    from ._majordome import diffusion
+
+    __all__ += [
+        "diffusion",
+    ]
+except ImportError:
+    print("Warning: majordome Rust extension module not found.")
+    pass
 
 # ---------------------------------------------------------------------
 # majordome.common: considered internals, do not expose:
