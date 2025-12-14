@@ -32,19 +32,6 @@ from majordome import (
 import numpy as np
 
 # %% [markdown]
-# ## *Constants*
-
-# %% [markdown]
-# Singleton class for storing real constants.
-
-# %%
-# Constants() is Constants()
-
-# %%
-# print(Constants.report())
-
-
-# %% [markdown]
 # ## *ReadTextData*
 #
 # WIP, sorry for the inconvenience...
