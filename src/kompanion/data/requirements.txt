@@ -29,7 +29,6 @@ fastjsonschema==2.21.2
 filelock==3.20.0
 FiPy==4.0.1
 fonttools==4.60.1
-fortls==3.2.2
 fqdn==1.5.1
 fsspec==2025.9.0
 graphviz==0.21
@@ -75,6 +74,7 @@ markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 matplotlib==3.10.7
 matplotlib-inline==0.2.1
+maturin==1.10.2
 mdit-py-plugins==0.5.0
 mdurl==0.1.2
 mistune==3.1.4
