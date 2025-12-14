@@ -25,7 +25,6 @@
 
 # %%
 from majordome import (
-    Constants,
     RelaxUpdate,
     StabilizeNvarsConvergenceCheck,
     MajordomePlot,
@@ -39,10 +38,10 @@ import numpy as np
 # Singleton class for storing real constants.
 
 # %%
-Constants() is Constants()
+# Constants() is Constants()
 
 # %%
-print(Constants.report())
+# print(Constants.report())
 
 
 # %% [markdown]

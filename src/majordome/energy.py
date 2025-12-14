@@ -5,8 +5,9 @@ from typing import Any, NamedTuple
 from cantera.composite import Solution
 import cantera as ct
 
+from ._majordome import constants
+from .common import AbstractReportable
 from .common import CompositionType, SolutionLikeType, StateType
-from .common import Constants, AbstractReportable
 from .reactor import NormalFlowRate, solution_report, copy_quantity
 from .parsing import FuncArguments
 
@@ -44,7 +45,7 @@ class CombustionAtmosphereCHON:
 
     def _state_standard(self, X):
         """ Set internal solution to standard state / composition. """
-        self._solution.TPX = 273.15, Constants.P_NORMAL, X
+        self._solution.TPX = 273.15, constants.P_NORMAL, X
 
     def _state_premix(self, phi, Y_c, Y_o, basis):
         """ Set internal solution to combustion premix composition. """
@@ -52,7 +53,7 @@ class CombustionAtmosphereCHON:
 
     def _state_initial(self, species, oxidizer):
         """ Before combustion: reference state, stoichiometric. """
-        self._solution.TP = 298.15, Constants.P_NORMAL
+        self._solution.TP = 298.15, constants.P_NORMAL
         self._solution.set_equivalence_ratio(1.0, species, oxidizer)
         return self._solution.enthalpy_mass, self._solution[species].Y[0]
 
@@ -267,7 +268,7 @@ class CombustionPowerSupply(AbstractReportable):
             mixer.add_quantity(self._mdot_c, self._Xc)
 
         qty = mixer.solution
-        qty.phase.TP = 298.15, Constants.P_NORMAL
+        qty.phase.TP = 298.15, constants.P_NORMAL
         qty.equilibrate("TP")
 
         Y = qty.phase.mass_fraction_dict()
@@ -405,7 +406,7 @@ class CombustionAtmosphereMixer:
             mass: float,
             X: CompositionType,
             T: float = 273.15,
-            P: float = Constants.P_NORMAL
+            P: float = constants.P_NORMAL
         ) -> ct.Quantity:
         """ Add quantity at given state to global mixture.
 
@@ -633,8 +634,8 @@ def _init_heated_gas_energy_source(cls):
     orig_init = cls.__init__
 
     parser = FuncArguments(greedy_args=False, pop_kw=True)
-    parser.add("temperature_ref", default=Constants.T_REFERENCE)
-    parser.add("pressure_ref", default=Constants.P_NORMAL)
+    parser.add("temperature_ref", default=constants.T_REFERENCE)
+    parser.add("pressure_ref", default=constants.P_NORMAL)
     parser.add("Y", default={})
 
     @wraps(orig_init)

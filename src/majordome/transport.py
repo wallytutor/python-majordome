@@ -11,7 +11,8 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from .common import DATA, GRAVITY
+from ._majordome import constants
+from .common import DATA
 from .plotting import MajordomePlot
 
 
@@ -232,7 +233,8 @@ class SolutionDimless:
         self._pe_heat_data = f"U={U}, L={L}"
         return self._pe_heat
 
-    def grashof(self, Tw: float, H: float, g: float = GRAVITY) -> float:
+    def grashof(self, Tw: float, H: float,
+                g: float = constants.GRAVITY) -> float:
         """ Evaluates the Grashof number for solution.
 
         Parameters
@@ -241,7 +243,7 @@ class SolutionDimless:
             Reactor characteristic wall temperature [K].
         H : float
             Problem characteristic (often vertical) length [m].
-        g: float = GRAVITY
+        g: float = constants.GRAVITY
             Acceleration of gravity at location [m/s²].
         """
         self._gr = self.bydef_grashof(Tw, self._sol.T, self._beta,
@@ -249,7 +251,8 @@ class SolutionDimless:
         self._gr_data = f"Tw={Tw}, H={H}, g={g}"
         return self._gr
 
-    def rayleigh(self, Tw: float, H: float, g: float = GRAVITY) -> float:
+    def rayleigh(self, Tw: float, H: float,
+                 g: float = constants.GRAVITY) -> float:
         """ Evaluates the Rayleigh number for solution.
 
         Parameters
@@ -258,7 +261,7 @@ class SolutionDimless:
             Reactor characteristic wall temperature [K].
         H : float
             Problem characteristic (often vertical) length [m].
-        g: float = GRAVITY
+        g: float = constants.GRAVITY
             Acceleration of gravity at location [m/s²].
         """
         self._ra = self.bydef_rayleigh(Tw, self._sol.T, self._alpha,

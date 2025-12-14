@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import warnings
 
-from .common import T_NORMAL, P_NORMAL
+from ._majordome import constants
 from .common import CompositionType, SolutionLikeType
 from .common import safe_remove
 from .plotting import MajordomePlot
@@ -221,11 +221,11 @@ class NormalFlowRate:
     Y: CompositionType | None = None
         Composition specification in mass fractions. Notice that both
         `X` and `Y` are mutally exclusive keyword arguments.
-    T_ref: float = T_NORMAL
+    T_ref: float = constants.T_NORMAL
         Reference temperature of the system. If your industry does not
         use the same standard as the default values, and only in that
         case, please consider updating this keyword.
-    P_ref: float = P_NORMAL
+    P_ref: float = constants.P_NORMAL
         Reference pressure of the system. If your industry does not
         use the same standard as the default values, and only in that
         case, please consider updating this keyword.
@@ -233,9 +233,13 @@ class NormalFlowRate:
         Name of phase in mechanism, if more than one are specified
         within the same Cantera YAML database file.
     """
-    def __init__(self, mech: str | Path, *, X: CompositionType | None = None,
-                 Y: CompositionType | None = None, T_ref: float = T_NORMAL,
-                 P_ref: float = P_NORMAL, name: str | None = None) -> None:
+    def __init__(self, mech: str | Path, *,
+            X: CompositionType | None = None,
+            Y: CompositionType | None = None,
+            T_ref: float = constants.T_NORMAL,
+            P_ref: float = constants.P_NORMAL,
+            name: str | None = None
+        ) -> None:
         if X is not None and Y is not None:
             raise ValueError("You can provide either X or Y, not both!")
 
