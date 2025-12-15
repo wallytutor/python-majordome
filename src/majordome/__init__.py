@@ -162,15 +162,11 @@ except ImportError:
 from .plotting import (
     MajordomePlot,
     centered_colormap,
-    StandardPlot,
-    standard_plot,
 )
 
 __all__ += [
     "MajordomePlot",
     "centered_colormap",
-    "StandardPlot",
-    "standard_plot",
 ]
 
 # ---------------------------------------------------------------------
