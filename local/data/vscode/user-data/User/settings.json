@@ -39,7 +39,7 @@
     "workbench.tree.indent": 12,
 
     // Use the Julia theme:
-    "workbench.colorTheme": "GitHub Dark Colorblind (Beta)",
+    "workbench.colorTheme": "Monokai",
     "workbench.iconTheme": "vscode-icons",
 
     // Add a clearly visible ruler (language dependent position):
@@ -173,6 +173,14 @@
     "julia.symbolCacheDownload": true,
     "julia.enableCrashReporter": false,
     "julia.enableTelemetry": false,
+    "julia.useProgressFrontend": true,
+    "julia.workspace.showModules": true,
+
+    "julia.lint.disabledDirs": [
+        "**/julia-depot/**",
+        "docs",
+        "test"
+    ],
 
     //////////////////////////////////////////////////////////////////////////
     // HASKELL
@@ -186,6 +194,25 @@
     // FORTRAN
     //////////////////////////////////////////////////////////////////////////
 
+    "fortran.preferredCase": "lowercase",
+    "fortran.fortls.directories":[
+        "**/build/*",
+        "**/src/**/*"
+    ],
+    "fortran.linter.compilerPath": "gfortran",
+    "fortran.linter.includePaths": [
+        "**/build/*",
+        "**/src/**/*"
+    ],
+    "fortran.linter.modOutput": "${workspaceFolder}/.modules/",
+    "fortran.linter.compiler": "gfortran",
+    "fortran.linter.extraArgs": [
+        "-fdefault-real-8",
+        "-fdefault-double-8",
+        "-Wunused-variable",
+        "-Wunused-dummy-argument"
+    ],
+
     //////////////////////////////////////////////////////////////////////////
     // LATEX
     //////////////////////////////////////////////////////////////////////////
@@ -196,6 +223,82 @@
         "editor.wordWrapColumn": 80,
         "rewrap.autoWrap.enabled": false
     },
+
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "kompanion-bare-pdflatex",
+            "tools": [
+                "pdflatex",
+                "pdflatex"
+            ]
+        },
+        {
+            "name": "kompanion-pdflatex-bibtex",
+            "tools": [
+                "pdflatex",
+                "bibtex",
+                "pdflatex",
+                "pdflatex"
+            ]
+        },
+        {
+            "name": "kompanion-xelatex-bibtex",
+            "tools": [
+                "xelatex",
+                "xelatex",
+                "bibtex",
+                "xelatex",
+                "bibtex",
+                "xelatex"
+            ]
+        },
+        {
+            "name": "kompanion-xelatex-biber",
+            "tools": [
+                "xelatex",
+                "xelatex",
+                "biber",
+                "xelatex",
+                "biber",
+                "xelatex"
+            ]
+        }
+    ],
+
+    "latex-workshop.latex.tools": [
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-shell-escape",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%.tex"
+            ]
+        },
+        {
+            "name": "xelatex",
+            "command": "xelatex",
+            "args": [
+                "-shell-escape",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%.tex"
+            ]
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": ["%DOC%"]
+        },
+        {
+            "name": "biber",
+            "command": "biber",
+            "args": ["%DOC%"]
+        }
+    ],
 
     //////////////////////////////////////////////////////////////////////////
     // GITHUB COPILOT
@@ -255,6 +358,10 @@
     //////////////////////////////////////////////////////////////////////////
 
     "jupyter.askForKernelRestart": false,
+    "jupyter.interactiveWindow.creationMode": "perFile",
+    "jupyter.kernels.excludePythonEnvironments": [
+        "${env:INKSCAPE_HOME}\\bin\\python.exe"
+    ],
 
     //////////////////////////////////////////////////////////////////////////
     // OTHER
