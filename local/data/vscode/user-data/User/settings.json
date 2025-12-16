@@ -369,6 +369,7 @@
 
     "vsicons.dontShowNewVersionMessage": true,
 
+    "security.workspace.trust.untrustedFiles": "open",
     "security.allowedUNCHosts": [
         "10.13.52.2"
     ],
