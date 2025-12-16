@@ -10,12 +10,14 @@ try:
     from ._majordome import (
         VERSION as __version__,
         calphad,
+        constants,
         diffusion,
     )
 
     __all__ += [
         "__version__",
         "calphad",
+        "constants",
         "diffusion",
     ]
 except ImportError:
