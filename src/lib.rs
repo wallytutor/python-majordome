@@ -5,6 +5,9 @@ mod majordome;
 mod _majordome {
 
     #[pymodule_export]
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    #[pymodule_export]
     use crate::majordome::calphad::calphad;
 
     #[pymodule_export]

@@ -7,7 +7,8 @@ build-backend = "maturin"
 
 [project]
 name = "majordome"
-version = "0.5.0"
+# version = "0.5.0" #--> for setuptools static version
+dynamic = ["version"]
 dependencies = [
     "beautifulsoup4>=4.12.2",
     "cantera>=3",
@@ -41,7 +42,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
-# dynamic = ["version"]
+
 
 [project.urls]
 Homepage = "https://github.com/wallytutor/python-majordome"

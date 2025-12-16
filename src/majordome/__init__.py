@@ -8,16 +8,19 @@ __all__ = []
 
 try:
     from ._majordome import (
+        VERSION as __version__,
         calphad,
         diffusion,
     )
 
     __all__ += [
+        "__version__",
         "calphad",
         "diffusion",
     ]
 except ImportError:
     print("Warning: majordome Rust extension module not found.")
+    __version__ = "unknown"
     pass
 
 # ---------------------------------------------------------------------
