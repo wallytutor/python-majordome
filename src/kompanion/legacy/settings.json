@@ -13,61 +13,8 @@
 
   "rewrap.doubleSentenceSpacing": true,
   "liveServer.settings.donotShowInfoMsg": true,
-
-  //-------------------------------------------------------------------------
-  // LANGUAGE SPECIFIC
-  //-------------------------------------------------------------------------
-
-  "jupyter.askForKernelRestart": false,
-  "jupyter.interactiveWindow.creationMode": "perFile",
-  "jupyter.kernels.excludePythonEnvironments": [
-    "${env:INKSCAPE_HOME}\\bin\\python.exe"
-  ],
-
   "MATLAB.showFeatureNotAvailableError": false,
   // "Scilab.SCI": "${env:KOMPANION_APPS}\\scilab-2025.1.0"
-
-  //-------------------------------------------------------------------------
-  // JULIA
-  //-------------------------------------------------------------------------
-
-  "[julia]": {
-    "editor.tabSize": 4
-  },
-
-  "julia.useProgressFrontend": true,
-  "julia.workspace.showModules": true,
-  "julia.symbolCacheDownload": true,
-  "julia.enableTelemetry": false,
-  "julia.enableCrashReporter": false,
-  "julia.lint.disabledDirs": [
-    "**/julia-depot/**",
-    "docs",
-    "test"
-  ],
-
-  //-------------------------------------------------------------------------
-  // FORTRAN
-  //-------------------------------------------------------------------------
-
-  "fortran.preferredCase": "lowercase",
-  "fortran.fortls.directories":[
-    "**/build/*",
-    "**/src/**/*"
-  ],
-  "fortran.linter.compilerPath": "gfortran",
-  "fortran.linter.includePaths": [
-    "**/build/*",
-    "**/src/**/*"
-  ],
-  "fortran.linter.modOutput": "${workspaceFolder}/.sandbox/",
-  "fortran.linter.compiler": "gfortran",
-  "fortran.linter.extraArgs": [
-    "-fdefault-real-8",
-    "-fdefault-double-8",
-    "-Wunused-variable",
-    "-Wunused-dummy-argument"
-  ],
 
   //-------------------------------------------------------------------------
   // RACKET
@@ -86,89 +33,6 @@
     "racket-langserver",
     "--",
     "--stdio"
-  ],
-
-  //-------------------------------------------------------------------------
-  // LATEX-WORKSHOP
-  //-------------------------------------------------------------------------
-
-  "latex-workshop.latex.recipes": [
-    {
-      "name": "kompanion-bare-pdflatex",
-      "tools": [
-        "pdflatex",
-        "pdflatex"
-      ]
-    },
-    {
-      "name": "kompanion-pdflatex-bibtex",
-      "tools": [
-        "pdflatex",
-        "bibtex",
-        "pdflatex",
-        "pdflatex"
-      ]
-    },
-    {
-      "name": "kompanion-xelatex-bibtex",
-      "tools": [
-        "xelatex",
-        "xelatex",
-        "bibtex",
-        "xelatex",
-        "bibtex",
-        "xelatex"
-      ]
-    },
-    {
-      "name": "kompanion-xelatex-biber",
-      "tools": [
-        "xelatex",
-        "xelatex",
-        "biber",
-        "xelatex",
-        "biber",
-        "xelatex"
-      ]
-    }
-  ],
-  "latex-workshop.latex.tools": [
-    {
-      "name": "pdflatex",
-      "command": "pdflatex",
-      "args": [
-        "-shell-escape",
-        "-synctex=1",
-        "-interaction=nonstopmode",
-        "-file-line-error",
-        "%DOC%.tex"
-      ]
-    },
-    {
-      "name": "xelatex",
-      "command": "xelatex",
-      "args": [
-        "-shell-escape",
-        "-synctex=1",
-        "-interaction=nonstopmode",
-        "-file-line-error",
-        "%DOC%.tex"
-      ]
-    },
-    {
-      "name": "bibtex",
-      "command": "bibtex",
-      "args": [
-        "%DOC%"
-      ]
-    },
-    {
-      "name": "biber",
-      "command": "biber",
-      "args": [
-        "%DOC%"
-      ]
-    }
   ],
 
   //-------------------------------------------------------------------------
