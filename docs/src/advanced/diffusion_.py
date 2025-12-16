@@ -111,6 +111,11 @@ Dn = md.ArrheniusModifiedDiffusivity(
     activation_energy_func = activation_energy_n,
 )
 
+Dc_rust = md.slycke.create_carbon_diffusivity()
+Dn_rust = md.slycke.create_nitrogen_diffusivity()
+
+# Y = [0.01, 0.01, 0.01]
+# m = [12.01, 14.01, 15.0]
 Y = [0.01, 0.01]
 m = [12.01, 14.01]
 
@@ -119,7 +124,7 @@ X = [y * M / mi for y, mi in zip(Y, m)]
 
 T = 1173
 
-print(f"D_C: {Dc(X, T):.6e} m²/s")
-print(f"D_N: {Dn(X, T):.6e} m²/s")
+print(f"D_C: {Dc(X, T):.6e} | {Dc_rust(X, T):.6e} m²/s")
+print(f"D_N: {Dn(X, T):.6e} | {Dn_rust(X, T):.6e} m²/s")
 
 # %%

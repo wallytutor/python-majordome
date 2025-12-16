@@ -8,14 +8,18 @@ type PyObject = Py<PyAny>;
 // Define structures
 //////////////////////////////////////////////////////////////////////////////
 
+pub type RustCallback = fn(&[f64], f64) -> f64;
+
 #[pyclass]
 pub struct PreExponentialFactor {
-    callback: PyObject,
+    callback: Option<PyObject>,
+    rust_callback: Option<RustCallback>,
 }
 
 #[pyclass]
 pub struct ActivationEnergy {
-    callback: PyObject,
+    callback: Option<PyObject>,
+    rust_callback: Option<RustCallback>,
 }
 
 #[pyclass]
@@ -30,26 +34,56 @@ pub struct ArrheniusModifiedDiffusivity {
 
 impl Clone for PreExponentialFactor {
     fn clone(&self) -> Self {
-        Python::attach(|py| {
-            PreExponentialFactor {
-                callback: self.callback.clone_ref(py),
-            }
-        })
+        PreExponentialFactor {
+            callback: self.callback.as_ref().map(|cb| {
+                Python::attach(|py| cb.clone_ref(py))
+            }),
+            rust_callback: self.rust_callback,
+        }
     }
 }
 
 impl Clone for ActivationEnergy {
     fn clone(&self) -> Self {
-        Python::attach(|py| {
-            ActivationEnergy {
-                callback: self.callback.clone_ref(py),
-            }
-        })
+        ActivationEnergy {
+            callback: self.callback.as_ref().map(|cb| {
+                Python::attach(|py| cb.clone_ref(py))
+            }),
+            rust_callback: self.rust_callback,
+        }
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// Structure implementations
+// Structure implementations (pure Rust)
+//////////////////////////////////////////////////////////////////////////////
+
+impl PreExponentialFactor {
+    pub fn from_rust_fn(rust_fn: RustCallback) -> Self {
+        PreExponentialFactor { callback: None, rust_callback: Some(rust_fn) }
+    }
+}
+
+impl ActivationEnergy {
+    pub fn from_rust_fn(rust_fn: RustCallback) -> Self {
+        ActivationEnergy { callback: None, rust_callback: Some(rust_fn) }
+    }
+}
+
+impl ArrheniusModifiedDiffusivity {
+    pub fn from_rust_fns(
+        pre_exp_fn: RustCallback,
+        act_eng_fn: RustCallback,
+    ) -> Self {
+        ArrheniusModifiedDiffusivity {
+            pre_exponential: PreExponentialFactor::from_rust_fn(pre_exp_fn),
+            activation_energy: ActivationEnergy::from_rust_fn(act_eng_fn),
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Structure implementations (Python callable)
 //////////////////////////////////////////////////////////////////////////////
 
 #[pymethods]
@@ -58,15 +92,32 @@ impl PreExponentialFactor {
     fn new(callback: PyObject) -> PyResult<Self> {
         Python::attach(|py| {
             super::validate_callback_xt(callback.bind(py))?;
-            Ok(PreExponentialFactor { callback })
+            Ok(PreExponentialFactor {
+                callback: Some(callback),
+                rust_callback: None,
+            })
         })
     }
 
     fn __call__(&self, array: &Bound<'_, PyAny>, temperature: f64) -> PyResult<f64> {
-        Python::attach(|py| {
-            super::validate_array_type(array)?;
-            self.callback.call1(py, (array, temperature))?.extract(py)
-        })
+        // Use Rust callback if available, otherwise use Python callback
+        if let Some(rust_fn) = self.rust_callback {
+            Python::attach(|_py| {
+                super::validate_array_type(array)?;
+                // Extract Vec<f64> from Python array
+                let x: Vec<f64> = array.extract()?;
+                Ok(rust_fn(&x, temperature))
+            })
+        } else if let Some(ref callback) = self.callback {
+            Python::attach(|py| {
+                super::validate_array_type(array)?;
+                callback.call1(py, (array, temperature))?.extract(py)
+            })
+        } else {
+            Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
+                "No callback available"
+            ))
+        }
     }
 }
 
@@ -76,15 +127,32 @@ impl ActivationEnergy {
     fn new(callback: PyObject) -> PyResult<Self> {
         Python::attach(|py| {
             super::validate_callback_xt(callback.bind(py))?;
-            Ok(ActivationEnergy { callback })
+            Ok(ActivationEnergy {
+                callback: Some(callback),
+                rust_callback: None,
+            })
         })
     }
 
     fn __call__(&self, array: &Bound<'_, PyAny>, temperature: f64) -> PyResult<f64> {
-        Python::attach(|py| {
-            super::validate_array_type(array)?;
-            self.callback.call1(py, (array, temperature))?.extract(py)
-        })
+        // Use Rust callback if available, otherwise use Python callback
+        if let Some(rust_fn) = self.rust_callback {
+            Python::attach(|_py| {
+                super::validate_array_type(array)?;
+                // Extract Vec<f64> from Python array
+                let x: Vec<f64> = array.extract()?;
+                Ok(rust_fn(&x, temperature))
+            })
+        } else if let Some(ref callback) = self.callback {
+            Python::attach(|py| {
+                super::validate_array_type(array)?;
+                callback.call1(py, (array, temperature))?.extract(py)
+            })
+        } else {
+            Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
+                "No callback available"
+            ))
+        }
     }
 }
 
@@ -97,7 +165,7 @@ impl ArrheniusModifiedDiffusivity {
         pre_exponential_func   = None,
         activation_energy_func = None
     ))]
-    fn new(
+    pub fn new(
         pre_exponential_factor: Option<&PreExponentialFactor>,
         activation_energy: Option<&ActivationEnergy>,
         pre_exponential_func: Option<PyObject>,
