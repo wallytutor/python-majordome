@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyList};
 
 mod diffusivity;
+mod slycke;
 
 //////////////////////////////////////////////////////////////////////////////
 // Helper functions
@@ -42,6 +43,9 @@ pub mod diffusion {
 
     #[pymodule_export]
     pub use super::diffusivity::ArrheniusModifiedDiffusivity;
+
+    #[pymodule_export]
+    pub use super::slycke::slycke;
 }
 
 //////////////////////////////////////////////////////////////////////////////
