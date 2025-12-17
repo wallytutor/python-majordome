@@ -1,12 +1,53 @@
-use pyo3::prelude::pymodule;
+use pyo3::prelude::*;
+use pyo3::types::{PyAny, PyList};
+
+mod diffusivity;
+mod slycke;
+
+//////////////////////////////////////////////////////////////////////////////
+// Helper functions
+//////////////////////////////////////////////////////////////////////////////
+
+fn validate_callback_xt(callback: &Bound<'_, PyAny>) -> PyResult<()> {
+    if !callback.is_callable() {
+        return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+            "callback must be callable with signature: fn(x[], T)"
+        ));
+    }
+    Ok(())
+}
+
+fn validate_array_type(array: &Bound<'_, PyAny>) -> PyResult<()> {
+    let is_valid = array.is_instance_of::<PyList>()
+        || array.hasattr("__array__").unwrap_or(false);
+
+    if !is_valid {
+        return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+            "array must be a list or numpy array"
+        ));
+    }
+    Ok(())
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Module definition
+//////////////////////////////////////////////////////////////////////////////
 
 #[pymodule]
 pub mod diffusion {
-    use pyo3::prelude::PyResult;
-    use pyo3::prelude::pyfunction;
+    #[pymodule_export]
+    pub use super::diffusivity::PreExponentialFactor;
 
-    #[pyfunction]
-    fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-        Ok((a + b).to_string())
-    }
+    #[pymodule_export]
+    pub use super::diffusivity::ActivationEnergy;
+
+    #[pymodule_export]
+    pub use super::diffusivity::ArrheniusModifiedDiffusivity;
+
+    #[pymodule_export]
+    pub use super::slycke::slycke;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+// EOF
+//////////////////////////////////////////////////////////////////////////////
