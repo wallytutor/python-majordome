@@ -9,7 +9,7 @@
 .obsidian
 
 # Any sandbox
-sandbox*
+*sandbox*
 
 # Hard notebooks
 *.ipynb
