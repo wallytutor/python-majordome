@@ -1,14 +1,11 @@
 # https://setuptools.pypa.io/en/latest/userguide/quickstart.html
 [build-system]
-# requires = ["setuptools"]
-# build-backend = "setuptools.build_meta"
-requires = ["maturin>=1.10,<2.0"]
-build-backend = "maturin"
+requires = ["setuptools>=65", "setuptools-rust>=1.5.2"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "majordome"
-# version = "0.5.0" #--> for setuptools static version
-dynamic = ["version"]
+version = "0.6.0"
 dependencies = [
     "beautifulsoup4>=4.12.2",
     "cantera>=3",
@@ -43,7 +40,6 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
 ]
 
-
 [project.urls]
 Homepage = "https://github.com/wallytutor/python-majordome"
 Documentation = "https://wallytutor.github.io/python-majordome/"
@@ -56,9 +52,9 @@ include = ["majordome*"]
 exclude = ["majordome.tests*"]
 namespaces = false
 
-[tool.maturin]
-python-source = "src"
-module-name = "majordome._majordome"
+##############################################################################
+# DATA
+##############################################################################
 
 [tool.setuptools.package-data]
 "majordome" = [
@@ -67,7 +63,10 @@ module-name = "majordome._majordome"
     "data/latex/*.tex"
 ]
 
+##############################################################################
 # PEP621
+##############################################################################
+
 [project.optional-dependencies]
 docs = [
     "jupytext>=1.17.3",
@@ -92,3 +91,31 @@ pdftools = [
 vision = [
     "scikit-image>=0.25.2",
 ]
+
+##############################################################################
+# CRATES
+##############################################################################
+
+[[tool.setuptools-rust.ext-modules]]
+target = "majordome.constants"
+path = "src/crates/constants/Cargo.toml"
+binding = "PyO3"
+
+[[tool.setuptools-rust.ext-modules]]
+target = "majordome.corelib"
+path = "src/crates/corelib/Cargo.toml"
+binding = "PyO3"
+
+[[tool.setuptools-rust.ext-modules]]
+target = "majordome.calphad"
+path = "src/crates/calphad/Cargo.toml"
+binding = "PyO3"
+
+[[tool.setuptools-rust.ext-modules]]
+target = "majordome.diffusion"
+path = "src/crates/diffusion/Cargo.toml"
+binding = "PyO3"
+
+##############################################################################
+# EOF
+##############################################################################

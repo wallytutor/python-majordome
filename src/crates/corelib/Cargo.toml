@@ -1,0 +1,15 @@
+[package]
+name = "corelib"
+version = "0.7.0"
+edition = "2024"
+
+[lib]
+name = "corelib"
+crate-type = ["cdylib"]
+
+[package.metadata.maturin]
+name = "majordome.corelib"
+bindings = "pyo3"
+
+[dependencies]
+pyo3 = "0.27.0"

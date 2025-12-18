@@ -1,17 +1,8 @@
-[package]
-name = "_majordome"
-version = "0.6.0"
-edition = "2024"
-
-# See more keys and their definitions at
-# https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-name = "_majordome"
-crate-type = ["cdylib"]
-
-[package.metadata.maturin]
-# Point maturin to the Python package directory
-python-packages = ["src/majordome"]
-
-[dependencies]
-pyo3 = "0.27.0"
+[workspace]
+members = [
+    "src/crates/calphad",
+    "src/crates/constants",
+    "src/crates/corelib",
+    "src/crates/diffusion",
+]
+# resolver = "3"
