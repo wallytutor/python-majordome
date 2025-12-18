@@ -31,6 +31,8 @@ use pyo3::prelude::*;
 
 #[pymodule]
 pub mod constants {
+    #[pymodule_export]
+    pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
     #[pymodule_export]
     pub const PI: f64 = std::f64::consts::PI;

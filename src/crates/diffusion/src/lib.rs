@@ -36,6 +36,9 @@ fn validate_array_type(array: &Bound<'_, PyAny>) -> PyResult<()> {
 #[pymodule]
 pub mod diffusion {
     #[pymodule_export]
+    pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    #[pymodule_export]
     pub use super::diffusivity::PreExponentialFactor;
 
     #[pymodule_export]
