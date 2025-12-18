@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::PyAny;
-use crate::majordome::constants::constants;
+use constants::constants::GAS_CONSTANT;
 
 type PyObject = Py<PyAny>;
 
@@ -223,7 +223,7 @@ impl ArrheniusModifiedDiffusivity {
 
             let d0 = self.pre_exponential.__call__(array, temperature)?;
             let ea = self.activation_energy.__call__(array, temperature)?;
-            let dc = d0 * (-ea / (constants::GAS_CONSTANT * temperature)).exp();
+            let dc = d0 * (-ea / (GAS_CONSTANT * temperature)).exp();
 
             Ok(dc)
         })

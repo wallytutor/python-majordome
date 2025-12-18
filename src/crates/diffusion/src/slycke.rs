@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use crate::majordome::constants::constants;
+use constants::constants::GAS_CONSTANT;
 use super::diffusivity::ArrheniusModifiedDiffusivity;
 
 fn composition_dependence(x: &[f64]) -> f64 {
@@ -11,7 +11,7 @@ fn composition_dependence(x: &[f64]) -> f64 {
 }
 
 fn pre_exponential(x: &[f64]) -> f64 {
-    let b = -320.0 / constants::GAS_CONSTANT;
+    let b = -320.0 / GAS_CONSTANT;
     (b * composition_dependence(x)).exp() / (1.0 - 5.0 * (x[0] + x[1]))
 }
 

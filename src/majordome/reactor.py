@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import warnings
 
-from ._majordome import constants
+from . import constants
 from .common import CompositionType, SolutionLikeType
 from .common import safe_remove
 from .plotting import MajordomePlot

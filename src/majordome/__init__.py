@@ -7,23 +7,9 @@ __all__ = []
 # ---------------------------------------------------------------------
 
 try:
-    from ._majordome import (
-        VERSION as __version__,
-        calphad,
-        constants,
-        diffusion,
-    )
-
-    __all__ += [
-        "__version__",
-        "calphad",
-        "constants",
-        "diffusion",
-    ]
+    from .corelib import VERSION as __version__
 except ImportError:
-    print("Warning: majordome Rust extension module not found.")
     __version__ = "unknown"
-    pass
 
 # ---------------------------------------------------------------------
 # majordome.common: considered internals, do not expose:
