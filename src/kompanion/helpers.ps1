@@ -311,5 +311,70 @@ function Show-ModuleList() {
 }
 
 # ---------------------------------------------------------------------------
+# Help
+# ---------------------------------------------------------------------------
+
+function Get-KompanionHelperFunctions() {
+    <#
+    .SYNOPSIS
+        Lists all functions available in the helpers.ps1 module.
+
+    .DESCRIPTION
+        Retrieves and displays all functions defined in the current helpers.ps1 module,
+    .DESCRIPTION
+        Retrieves and displays all functions defined in the current helpers.ps1 module.
+        By default, shows only function names for quick reference.
+
+    .PARAMETER Detailed
+        When specified, shows detailed help information for each function.
+
+    .EXAMPLE
+        Get-HelperFunctions
+        Lists all available function names.
+
+    .EXAMPLE
+        Get-HelperFunctions -Detailed
+        Shows detailed help information for each function.
+    #>
+    param(
+        [switch]$Detailed
+    )
+
+    # Get the path to the current script
+    $scriptPath = "$env:KOMPANION_SRC\helpers.ps1"
+
+    # Parse the script to find all function definitions
+    $functions = Get-Content -Path $scriptPath | Select-String -Pattern "^function\s+(\S+)" | ForEach-Object {
+        $_.Matches.Groups[1].Value
+    }
+
+    Write-Host "`nAvailable Functions in helpers.ps1:" -ForegroundColor Cyan
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+
+    if ($Detailed) {
+        foreach ($func in $functions) {
+            $help = Get-Help $func -ErrorAction SilentlyContinue
+            if ($help) {
+                Write-Host "`n$func" -ForegroundColor Green
+                Write-Host ("  " + $help.Synopsis) -ForegroundColor Yellow
+                if ($help.Description) {
+                    Write-Host "  Description: $($help.Description.Text)"
+                }
+            } else {
+                Write-Host "`n$func" -ForegroundColor Green
+                Write-Host "  (No help available)" -ForegroundColor Gray
+            }
+        }
+    } else {
+        foreach ($func in $functions) {
+            Write-Host "  $func" -ForegroundColor White
+        }
+    }
+
+    Write-Host "`nTotal Functions: $($functions.Count)" -ForegroundColor Cyan
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+}
+
+# ---------------------------------------------------------------------------
 # EOF
 # ---------------------------------------------------------------------------
