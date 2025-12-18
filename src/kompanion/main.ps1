@@ -64,6 +64,8 @@ function Start-KompanionMain() {
     Write-Output "VSCODE_SETTINGS     $env:VSCODE_SETTINGS"
     Write-Output "GIT_HOME            $env:GIT_HOME"
 
+    Get-KompanionHelperFunctions
+
     # Run Kompanion VS Code instance
     if ($RunVsCode) {
         Code.exe --extensions-dir $env:VSCODE_EXTENSIONS `
