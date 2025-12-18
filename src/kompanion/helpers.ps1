@@ -202,6 +202,90 @@ function Piperish() {
     }
 }
 
+function Rename-FilesToStandard {
+    <#
+    .SYNOPSIS
+        Renames files to use lowercase and ASCII-safe characters.
+
+    .DESCRIPTION
+        Recursively renames files in the specified path by:
+        - Normalizing accented characters to their ASCII equivalents (e.g., é → e, ñ → n)
+        - Converting filenames to lowercase
+        - Replacing all non-alphanumeric characters (except underscores) with underscores
+        - Preserving file extensions
+        This ensures filenames are ASCII-safe and follow a consistent naming convention.
+
+    .PARAMETER Path
+        The directory path to search for files. Defaults to the current directory.
+
+    .PARAMETER Filter
+        File extension filter(s) to limit which files are renamed.
+        Can be a single extension (e.g., "*.txt") or an array (e.g., "*.txt", "*.csv").
+        If not specified, all files will be processed.
+
+    .PARAMETER DryRun
+        When specified, shows what files would be renamed without actually renaming them.
+        Useful for previewing changes before executing.
+
+    .EXAMPLE
+        Rename-FilesToStandard -DryRun
+        Preview what files in the current directory would be renamed.
+
+    .EXAMPLE
+        Rename-FilesToStandard -Path "C:\Data" -DryRun
+        Preview what files in C:\Data would be renamed.
+
+    .EXAMPLE
+        Rename-FilesToStandard -Filter "*.txt" -DryRun
+        Preview what text files would be renamed.
+
+    .EXAMPLE
+        Rename-FilesToStandard -Filter "*.txt", "*.csv" -DryRun
+        Preview what text and CSV files would be renamed.
+
+    .EXAMPLE
+        Rename-FilesToStandard
+        Rename all files in the current directory.
+
+    .EXAMPLE
+        Rename-FilesToStandard -Path "C:\Data"
+        Rename all files in C:\Data and its subdirectories.
+    #>
+    param(
+        [string]$Path = ".",
+        [string[]]$Filter,
+        [switch]$DryRun
+    )
+
+    $files = if ($Filter) {
+        Get-ChildItem -Path $Path -Recurse -File -Include $Filter
+    } else {
+        Get-ChildItem -Path $Path -Recurse -File
+    }
+
+    $files | ForEach-Object {
+        $baseName = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
+        $extension = $_.Extension
+
+        # Normalize accented characters to ASCII equivalents
+        $normalizedBaseName = $baseName.Normalize([Text.NormalizationForm]::FormD)
+        $asciiBaseName = $normalizedBaseName -replace '\p{M}', ''
+
+        # Replace non-alphanumeric characters and convert to lowercase
+        $newBaseName = ($asciiBaseName -replace '[^a-zA-Z0-9_]', '_').ToLower()
+        $newName = $newBaseName + $extension.ToLower()
+
+        if ($_.Name -ne $newName) {
+            $newPath = Join-Path -Path $_.DirectoryName -ChildPath $newName
+            Write-Host "Renaming '$($_.FullName)' to '$newPath'"
+
+            if (-not $DryRun) {
+                Rename-Item -Path $_.FullName -NewName $newPath
+            }
+        }
+    }
+}
+
 # ---------------------------------------------------------------------------
 # Module management
 # ---------------------------------------------------------------------------
