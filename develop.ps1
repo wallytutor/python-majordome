@@ -66,7 +66,7 @@ function Test-RequiredTools {
 
     # Install setuptools-rust
     Write-Head "`nInstalling/upgrading setuptools-rust..."
-    $pipOutput = & python -m pip install --upgrade setuptools setuptools-rust 2>&1
+    $pipOutput = & python -m pip install --upgrade setuptools setuptools-rust build 2>&1
 
     if ($LASTEXITCODE -ne 0) {
         Write-Bad "Failed to install setuptools-rust!"
@@ -91,6 +91,10 @@ function Invoke-DevelopBuild {
         Write-Bad "Please check the error messages above."
         return $false
     }
+}
+
+function Invoke-Build {
+    & python -m build --wheel
 }
 
 # ----------------------------------------------------------------------------
