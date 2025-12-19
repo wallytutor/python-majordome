@@ -18,19 +18,16 @@
 # # Diffusion in Solids
 
 # %%
+from majordome.constants import GAS_CONSTANT
 from majordome import diffusion as md
-from majordome import constants
 import numpy as np
-
-R = constants.GAS_CONSTANT
 
 # %% [markdown]
 # ## Carburizing of steel
 
 # %%
 def pre_exponential(x, _T):
-    b = -320 / constants.GAS_CONSTANT
-    return 4.84e-05 * np.exp(b * x[0]) / (1 - 5 * x[0])
+    return 4.84e-05 * np.exp(-320 * x[0] / GAS_CONSTANT) / (1 - 5 * x[0])
 
 def activation_energy(x, _T):
     return 155_000 - 570_000 * x[0]
@@ -68,7 +65,7 @@ def f(x):
     return x[0] + 0.72 * x[1]
 
 def A(x):
-    return np.exp(-320 * f(x) / R) / (1 - 5 * sum(x))
+    return np.exp(-320 * f(x) / GAS_CONSTANT) / (1 - 5 * sum(x))
 
 def E(x):
     return 570_000 * f(x)
