@@ -8,11 +8,12 @@ For developing the package, consider doing so from within a virtual environment;
 python -m venv venv
 venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip
-
-maturin develop # Replaces `pip install -e .`
+pip install -e .[docs,extras,pdftools,vision]
 ```
 
 Please notice that Linux users may need to install `python-venv`; under Debian-based distributions that is done with `sudo apt install python-venv`, which requires admin rights. Also notice that activating an environment is done with `source venv/bin/activate` instead.
+
+For convenience, you find a `develop.ps1` script in project root.
 
 ## Documentation
 
