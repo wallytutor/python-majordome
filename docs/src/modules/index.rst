@@ -13,4 +13,4 @@ API Docs
     plotting
     reactor
     transport
-    _majordome
+    crates
