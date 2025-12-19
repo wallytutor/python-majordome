@@ -13,54 +13,8 @@ param (
 )
 
 # ----------------------------------------------------------------------------
-# Messages
-# ----------------------------------------------------------------------------
-
-function Write-Head {
-    param( [string]$Text )
-    Write-Host $Text -ForegroundColor Cyan
-}
-
-function Write-Warn {
-    param( [string]$Text )
-    Write-Host $Text -ForegroundColor Yellow
-}
-
-function Write-Good {
-    param( [string]$Text )
-    Write-Host $Text -ForegroundColor Green
-}
-
-function Write-Bad {
-    param( [string]$Text )
-    Write-Host $Text -ForegroundColor Red
-}
-
-# ----------------------------------------------------------------------------
 # Steps
 # ----------------------------------------------------------------------------
-
-function Initialize-VirtualEnvironment {
-    Write-Head "Working from a virtual environment..."
-
-    $VenvPath = Join-Path $PSScriptRoot ".venv"
-    $VenvActivate = Join-Path $VenvPath "Scripts\Activate.ps1"
-
-    if (-not (Test-Path $VenvPath)) {
-        Write-Warn "Virtual environment not found, creating one..."
-        python -m venv $VenvPath
-
-        if ($LASTEXITCODE -ne 0) {
-            Write-Bad "Failed to create virtual environment!"
-            return $false
-        }
-    }
-
-    Write-Good "Activating virtual environment..."
-    & $VenvActivate
-
-    return $true
-}
 
 function Get-StatusMessage {
     param( [string]$Message = "" )

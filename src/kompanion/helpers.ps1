@@ -2,56 +2,14 @@
 # helpers.ps1
 # ---------------------------------------------------------------------------
 
-function Test-InPath() {
-    param (
-        [string]$Directory,
-        [string]$Path = $env:Path
-    )
+. "$PSScriptRoot/utils/messages.ps1"
+. "$PSScriptRoot/utils/path.ps1"
+. "$PSScriptRoot/utils/compression.ps1"
+. "$PSScriptRoot/utils/python.ps1"
 
-    $normalized = $Directory.TrimEnd('\')
-    $filtered = ($Path -split ';' | ForEach-Object { $_.TrimEnd('\') })
-    return $filtered -contains $normalized
-}
-
-function Initialize-EnsureDirectory() {
-    param (
-        [string]$Path
-    )
-
-    if (!(Test-Path -Path $Path)) {
-        New-Item -ItemType Directory -Path $Path
-    }
-}
-
-function Initialize-AddToPath() {
-    param (
-        [string]$Directory
-    )
-
-    if (Test-Path -Path $Directory) {
-        if (!(Test-InPath $Directory)) {
-            $env:Path = "$Directory;" + $env:Path
-        }
-    } else {
-        Write-Host "Not prepeding missing path to environment: $Directory"
-    }
-}
-
-function Initialize-AddToManPath() {
-    param (
-        [string]$Directory
-    )
-
-    # Notice that PS man is just Get-Help and this will have no effect there.
-    # TODO: figure out how to get actual man working everywhere in PS.
-    if (Test-Path -Path $Directory) {
-        if (!(Test-InPath -Directory $Directory -Path $env:MANPATH)) {
-            $env:MANPATH = "$Directory;" + $env:MANPATH
-        }
-    } else {
-        Write-Host "Not prepeding missing path to environment: $Directory"
-    }
-}
+# ---------------------------------------------------------------------------
+# Others
+# ---------------------------------------------------------------------------
 
 function Invoke-CapturedCommand() {
     param (
@@ -90,80 +48,6 @@ function Invoke-DownloadIfNeeded() {
     }
 }
 
-function Invoke-UncompressZipIfNeeded() {
-    param (
-        [string]$Source,
-        [string]$Destination
-    )
-
-    if (!(Test-Path -Path $Destination)) {
-        Write-Host "Expanding $Source into $Destination"
-        Expand-Archive -Path $Source -DestinationPath $Destination
-    }
-}
-
-function Invoke-Uncompress7zIfNeeded() {
-    param (
-        [string]$Source,
-        [string]$Destination
-    )
-
-    if (!(Test-Path -Path $Destination)) {
-        Write-Host "Expanding $Source into $Destination"
-
-        if (Test-Path "$env:SEVENZIP_HOME\7z.exe") {
-            $sevenZipPath = "$env:SEVENZIP_HOME\7z.exe"
-        } else {
-            $sevenZipPath = "7zr.exe"
-        }
-
-        Invoke-CapturedCommand $sevenZipPath @("x", $Source , "-o$Destination")
-    }
-}
-
-function Invoke-UncompressGzipIfNeeded() {
-    param(
-        [string]$Source,
-        [string]$Destination
-    )
-
-    $inputf  = [IO.File]::OpenRead($Source)
-    $output = [IO.File]::Create($Destination)
-
-    $what   = [IO.Compression.CompressionMode]::Decompress
-    $gzip   = New-Object IO.Compression.GzipStream($inputf, $what)
-
-    $buffer = New-Object byte[] 4096
-    while (($read = $gzip.Read($buffer, 0, $buffer.Length)) -gt 0) {
-        $output.Write($buffer, 0, $read)
-    }
-
-    $gzip.Dispose()
-    $output.Dispose()
-    $inputf.Dispose()
-}
-
-function Invoke-UncompressMsiIfNeeded() {
-    param (
-        [string]$Source,
-        [string]$Destination
-    )
-
-    if (!(Test-Path -Path $Destination)) {
-        if (Test-Path "$env:LESSMSI_HOME\lessmsi.exe") {
-            $lessMsiPath = "$env:LESSMSI_HOME\lessmsi.exe"
-        } else {
-            $lessMsiPath = "lessmsi.exe"
-        }
-
-        Invoke-CapturedCommand $lessMsiPath @("x", $Source , "$Destination\")
-    }
-}
-
-# elseif ($Method -eq "TAR") {
-#     New-Item -Path "$Destination" -ItemType Directory
-#     tar -xzf $Source -C $Destination
-
 function Invoke-DirectoryBackupNoAdmin() {
     param (
         [string]$Source,
@@ -188,18 +72,6 @@ function Invoke-DirectoryBackupNoAdmin() {
     if ($TestOnly) { $RoboArgs += @("/L") }
 
     robocopy @RoboArgs
-}
-
-function Piperish() {
-    $pythonPath = "$env:PYTHON_HOME\python.exe"
-
-    if (Test-Path -Path $pythonPath) {
-        $argList = @("-m", "pip", "--trusted-host", "pypi.org",
-                     "--trusted-host", "files.pythonhosted.org") + $args
-        Invoke-CapturedCommand $pythonPath $argList
-    } else {
-        Write-Host "Python executable not found!"
-    }
 }
 
 function Rename-FilesToStandard {
@@ -317,61 +189,87 @@ function Show-ModuleList() {
 function Get-KompanionHelperFunctions() {
     <#
     .SYNOPSIS
-        Lists all functions available in the helpers.ps1 module.
+        Lists all functions available in the helpers.ps1 module and utils directory.
 
     .DESCRIPTION
-        Retrieves and displays all functions defined in the current helpers.ps1 module,
-    .DESCRIPTION
-        Retrieves and displays all functions defined in the current helpers.ps1 module.
-        By default, shows only function names for quick reference.
+        Retrieves and displays all functions defined in helpers.ps1 and all scripts
+        in the utils directory. By default, shows only function names grouped by source file.
 
     .PARAMETER Detailed
         When specified, shows detailed help information for each function.
 
     .EXAMPLE
-        Get-HelperFunctions
-        Lists all available function names.
+        Get-KompanionHelperFunctions
+        Lists all available function names grouped by source file.
 
     .EXAMPLE
-        Get-HelperFunctions -Detailed
+        Get-KompanionHelperFunctions -Detailed
         Shows detailed help information for each function.
     #>
     param(
         [switch]$Detailed
     )
 
-    # Get the path to the current script
-    $scriptPath = "$env:KOMPANION_SRC\helpers.ps1"
+    # Collect all script files
+    $scriptFiles = @(
+        @{
+            Path = "$env:KOMPANION_SRC\helpers.ps1"
+            Name = "helpers.ps1"
+        }
+    )
 
-    # Parse the script to find all function definitions
-    $functions = Get-Content -Path $scriptPath | Select-String -Pattern "^function\s+(\S+)" | ForEach-Object {
-        $_.Matches.Groups[1].Value
+    # Add all utils scripts
+    Get-ChildItem -Path "$env:KOMPANION_SRC\utils" -Filter "*.ps1" | ForEach-Object {
+        $scriptFiles += @{
+            Path = $_.FullName
+            Name = "utils/$($_.Name)"
+        }
     }
 
-    Write-Host "`nAvailable Functions in helpers.ps1:" -ForegroundColor Cyan
+    Write-Host "`nAvailable Functions in Kompanion:" -ForegroundColor Cyan
     Write-Host ("=" * 80) -ForegroundColor Cyan
 
-    if ($Detailed) {
-        foreach ($func in $functions) {
-            $help = Get-Help $func -ErrorAction SilentlyContinue
-            if ($help) {
-                Write-Host "`n$func" -ForegroundColor Green
-                Write-Host ("  " + $help.Synopsis) -ForegroundColor Yellow
-                if ($help.Description) {
-                    Write-Host "  Description: $($help.Description.Text)"
+    $totalFunctions = 0
+
+    foreach ($script in $scriptFiles) {
+        # Parse the script to find all function definitions
+        $functions = Get-Content -Path $script.Path |
+            Select-String -Pattern "^function\s+(\S+)" |
+            ForEach-Object {
+                $_.Matches.Groups[1].Value
+            }
+
+        if ($functions.Count -gt 0) {
+            Write-Host "`n[$($script.Name)]" -ForegroundColor Yellow
+            Write-Host ("-" * 80) -ForegroundColor DarkGray
+
+            if ($Detailed) {
+                foreach ($func in $functions) {
+                    $help = Get-Help $func -ErrorAction SilentlyContinue
+                    if ($help) {
+                        Write-Host "`n  $func" -ForegroundColor Green
+                        Write-Host ("    " + $help.Synopsis) -ForegroundColor White
+                        if ($help.Description) {
+                            Write-Host "    Description: $($help.Description.Text)" -ForegroundColor Gray
+                        }
+                    } else {
+                        Write-Host "`n  $func" -ForegroundColor Green
+                        Write-Host "    (No help available)" -ForegroundColor DarkGray
+                    }
                 }
             } else {
-                Write-Host "`n$func" -ForegroundColor Green
-                Write-Host "  (No help available)" -ForegroundColor Gray
+                foreach ($func in $functions) {
+                    Write-Host "  $func" -ForegroundColor White
+                }
             }
-        }
-    } else {
-        foreach ($func in $functions) {
-            Write-Host "  $func" -ForegroundColor White
+
+            $totalFunctions += $functions.Count
         }
     }
 
-    Write-Host "`nTotal Functions: $($functions.Count)" -ForegroundColor Cyan
+    Write-Host "`n" -NoNewline
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+    Write-Host "Total Functions: $totalFunctions" -ForegroundColor Cyan
     Write-Host ("=" * 80) -ForegroundColor Cyan
 }
 
