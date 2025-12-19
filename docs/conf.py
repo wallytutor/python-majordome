@@ -103,7 +103,7 @@ myst_enable_extensions = [
 ]
 
 # Include references
-bibtex_bibfiles = ["book/references.bib"]
+bibtex_bibfiles = ["../notes/references.bib"]
 
 ##############################################################################
 # Notebook samples support
