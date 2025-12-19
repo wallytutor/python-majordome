@@ -13,4 +13,5 @@ API Docs
     plotting
     reactor
     transport
-    crates
+    crates/constants
+    crates/diffusion
