@@ -24,8 +24,11 @@ Microsoft/
 # Logs
 log.*
 
-# COmpilation intermediates
+# Compilation intermediates
 *.pyd~
+
+# Draw.io backup files
+*.drawio.bkp
 
 ##############################################################################
 # PYTHON
