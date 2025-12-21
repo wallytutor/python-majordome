@@ -1,8 +1,8 @@
 [workspace]
 members = [
-    "src/crates/calphad",
-    "src/crates/constants",
-    "src/crates/corelib",
-    "src/crates/diffusion",
+    "crates/calphad",
+    "crates/constants",
+    "crates/corelib",
+    "crates/diffusion",
 ]
 resolver = "3"

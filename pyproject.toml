@@ -101,22 +101,22 @@ vision = [
 
 [[tool.setuptools-rust.ext-modules]]
 target = "majordome.constants"
-path = "src/crates/constants/Cargo.toml"
+path = "crates/constants/Cargo.toml"
 binding = "PyO3"
 
 [[tool.setuptools-rust.ext-modules]]
 target = "majordome.corelib"
-path = "src/crates/corelib/Cargo.toml"
+path = "crates/corelib/Cargo.toml"
 binding = "PyO3"
 
 [[tool.setuptools-rust.ext-modules]]
 target = "majordome.calphad"
-path = "src/crates/calphad/Cargo.toml"
+path = "crates/calphad/Cargo.toml"
 binding = "PyO3"
 
 [[tool.setuptools-rust.ext-modules]]
 target = "majordome.diffusion"
-path = "src/crates/diffusion/Cargo.toml"
+path = "crates/diffusion/Cargo.toml"
 binding = "PyO3"
 
 ##############################################################################
