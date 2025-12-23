@@ -222,13 +222,39 @@ StandardProblem.full_expression()
 
 ### Type 1 - Dirichlet
 
-Let's start by the Dirichlet, or fixed concentration, boundary condition (type 1), for which the concentration at the boundary face is prescribed, *i.e.* $c_{\text{B}} = c_{\text{prescribed}}$. Notice that before using this we need to make a choice regarding the computational grid (mesh); you could have half-volumes on boundaries or fictitious volumes (sometimes called ghost cells).
+Let's start by the Dirichlet, or fixed concentration, boundary condition (type 1), for which the concentration at the boundary face is prescribed, *i.e.* $c_{\text{B}} = c_{\text{prescribed}}$. Notice that before using this we need to make a choice regarding the computational grid (mesh); you could have half-volumes on boundaries, fictitious volumes (sometimes called ghost cells), or immesed nodes over the boundary.
 
-Since partial control volumes on boundaries introduce implementation complexities in code and lack conservation (especially in higher dimensions), see a discussion by @Maliska2004 (section 3.7) for details. This solution implies considerably more unknowns in 3-D problems, for which different variants of FVM will be discussed at a more advanced point.
+Partial control volumes on boundaries are not desirable as they introduce implementation complexities in code and lack conservation (especially in higher dimensions), see a discussion by @Maliska2004 (section 3.7) for details. In what follows we discuss immersed nodes and extended domains with _ghost_ cells. This last solution implies considerably more unknowns in 3-D problems, for which different variants of FVM will be discussed at a more advanced point.
 
-Assume the last cell on *west* boundary is indexed as $P$ and the *ghost* cell to its left $G$ (fictitious cell in place of $W$). The procedure for deriving this condition consists of two main steps. First, we compute the mass flux from the boundary to the first cell center by introducing a immersed boundary node with composition $c_{B}$. Notice that this node does not belong to the cell. Then we assume the existence of the aforementioned *ghost* cell at composition $c_{G}$ beyond the domain. Our task here is to identify an expression for $c_{G}$ so that it is solved along with the interior points.
+::: {.callout-note title="Immersed boundary"}
 
-To reach this goal, we declare a few variables corresponding to the compositions and the diffusion coefficients at the interface and compute relevant fluxes. To identify the compatible *ghost* composition we equate the fluxes by both definitions and solve for $c_{G}$. Notice that the flux computed from boundary node uses half-cell length for the derivative approximation.
+Assume the last cell on _west_ boundary is indexed as $P$; over its _west_ boundary we find a node where prescribed composition $c_{B}$ is enforced - and the corresponding diffusion coefficient $D_{b}$. Notice that this node does not belong to the cell, nor represents a half-cell, but lies over its boundary. We start by computing the mass flux from the boundary node to the first cell center; this flux is computed using half-cell length $\delta/2$ for the derivative approximation.
+
+```{python}
+J_w = diffusion_flux(FaceVars.D_b, CellVars.c_P, CellVars.c_B, delta=FvmVars.delta/2)
+J_w
+```
+
+This expression of flux is used as replacement for the _west_ boundary in the full equation:
+
+```{python}
+eq = StandardProblem.full_expression(J_w=J_w, subs_fourier=True)
+eq
+```
+
+The coefficients for the first row of the matrix problem are summarized below:
+
+```{python}
+tabulate_fv_coefs(eq.lhs)
+```
+
+:::
+
+The immersed boundary approach presented above is simple. Nonetheless, it requires a different calculation of boundary nodes with respect to the volume, but that comes with the advantage that no additional equation has been added to the system. Let's now explore the extended domain alternative.
+
+As above, assume the last cell on _west_ boundary is indexed as $P$. Consider another _ghost_ cell to its left being denoted $G$ (fictitious cell in place of $W$). The node $c_{B}$ where composition is enforced and the same details presented above still apply here. Here we repeat the immersed node flux computation and do the same with respect to _ghost_ cell $G$.
+
+Our goal is to identify an equation for $c_{G}$ so that it is solved along with the interior points and ensures the same flux as the immersed node. To identify the compatible _ghost_ composition we equate the fluxes by both definitions and solve for $c_{G}$. The following steps repeat what we have seem so far and should be self-explanatory.
 
 ```{python}
 J_w1 = diffusion_flux(FaceVars.D_b, CellVars.c_P,
@@ -237,108 +263,33 @@ J_w1 = diffusion_flux(FaceVars.D_b, CellVars.c_P,
 J_w2 = diffusion_flux(FaceVars.D_g, CellVars.c_P,
                       CellVars.c_G, delta=FvmVars.delta)
 
+tabulate_fv_coefs(J_w1 - J_w2)
+```
+
+Care must be taken for interpreting the above result; here $c_{G}$ takes the diagonal position and $c_{P}$ is the first _east_ cell in the first row of the problem's matrix. There is no previous state (no coefficient on $c_{0}$), but a source term based on $c_{B}$ that must be placed on the right-hand side for solution. This is the equation we are looking for to extend the system.
+
+Since this equation has $D_{g}$ as a coefficient, an initial guess for $c_{G}$ is required. The boundary $B$ being the same interface for evaluation of $D_{g}$, for both fluxes to equate one needs to make sure the same diffusivity is evaluated there. Thus we make $D_{b}\equiv{}D_{g}$, what seems physically reasonable but so far not supported by any mathematical argument:
+
+```{python}
 c_G_sol = solve(Eq(J_w1, J_w2), CellVars.c_G)[0]
-c_G_sol
+
+c_G_bis = expand(c_G_sol.subs(FaceVars.D_b, FaceVars.D_g))
+c_G_bis
 ```
 
-The boundary $B$ being the same interface for evaluation of $D_{g}$, for both fluxes to equate one needs to make sure the same diffusivity is evaluated there. Thus we make $D_{b}\equiv{}D_{g}$, what seems physically reasonable but not supported by any mathematical argument:
+This simply says that the composition is linearly extrapolated, with the distances from cell centers to the boundary being used as weighting factors. It ensures the problem is initialized the same as the immersed boundary as we made $D_g=D_b$.
+
+::: {.callout-caution title="Common mistake"}
+
+One could think about solving for $c_G$ and using the result in the standard balance equation, but doing so falls back to the immersed boundary approach. Replacing the solution in `J_w2` simply gets back to the initial point and does not produce one extra equation!
 
 ```{python}
-c_G_sol = expand(c_G_sol.subs(FaceVars.D_b, FaceVars.D_g))
-c_G_sol
+J_w = J_w2.subs(CellVars.c_G, c_G_bis)
+
+eq = StandardProblem.full_expression(J_w=J_w, subs_fourier=True)
+tabulate_fv_coefs(eq.lhs)
 ```
 
-This simply says that the composition is linearly extrapolated, with the distances from cell centers to the boundary being used as weighting factors. Finally we apply the condition as an extra cell to the west of the domain, replacing the required symbols:
-
-```{python}
-eq = StandardProblem.full_expression(subs_rhs=[
-        (FaceVars.D_w, FaceVars.D_g),
-        (CellVars.c_W, c_G_sol),
-    ], subs_fourier=True)
-eq
-```
-
-The table below display the identified coefficients:
-
-```{python}
-df = tabulate_fv_coefs(eq.lhs)
-df
-```
-
-```{python}
-a1 = df.loc[df["Variable"] == CellVars.c_B, "Coefficient"].iloc[0]
-a1
-```
-
-::: callout-caution
-When deriving the above one may notice that the argument for replacement is not that trivial, although the discussion provided above tries to enforce physical behaviour. For the flux to be the same using both $c_{B}$ or $c_{G}$ one actually needs the following constraint to be respected:
-
-```{python}
-constraint1 = expand((J_w1 - J_w2) * FvmVars.delta)
-Eq(constraint1, 0)
-```
-
-```{python}
-c_G_sol1 = solve(constraint1, CellVars.c_G)[0]
-c_G_sol1
-```
-
-```{python}
-eq1 = StandardProblem.full_expression(subs_rhs=[
-        (FaceVars.D_w, FaceVars.D_g),
-        (CellVars.c_W, c_G_sol1),
-    ], subs_fourier=True)
-eq1
-```
-
-```{python}
-df = tabulate_fv_coefs(eq1.lhs)
-df
-```
-:::
-
-::: callout-important
-But the actual value of $D_{g}$ is evaluated from the harmonic mean between neighboring cells; the expressions for cell diffusivities $D_{K}(x,c)$ being arbitrary, we inject them in the constraint and simplify the expression to get the expanded constraint.
-
-```{python}
-D_g_sym = harmonic_mean(CellVars.D_G, CellVars.D_P)
-
-constraint2 = constraint1.subs(FaceVars.D_g, D_g_sym) / 2
-constraint2 = numer(cancel(expand(constraint2)))
-
-c_G_sol2 = solve(constraint2, CellVars.c_G)[0]
-Eq(CellVars.c_G, c_G_sol2)
-```
-
-Since $D_{b}\equiv{}D_{B}(x_B, c_B)$, *i.e.* it is evaluated with the prescribed boundary composition, the only unknown in the above equation is $c_{G}$, which depends nonlinearly on itself through $D_{G}(-\delta/2, c_G)$.
-
-```{python}
-eq2 = StandardProblem.full_expression(subs_rhs=[
-        (FaceVars.D_w, FaceVars.D_g),
-        (CellVars.c_W, c_G_sol2),
-    ], subs_fourier=True)
-eq2
-```
-
-Now we are able to inspect the coefficients:
-
-```{python}
-df = tabulate_fv_coefs(eq2.lhs)
-df
-```
-
-Observing the pattern that appears, we closely inspect the one associated to $c_{B}$:
-
-```{python}
-a2 = df.loc[df["Variable"] == CellVars.c_B, "Coefficient"].iloc[0]
-a2
-```
-
-The following simplification shows that the prior approach is different from the extended nonlinear approach; close inspection show the following relationship with respect to $D_g$:
-
-```{python}
-expand(a1 * FaceVars.D_b / D_g_sym - a2)
-```
 :::
 
 ## More on boundary conditions
