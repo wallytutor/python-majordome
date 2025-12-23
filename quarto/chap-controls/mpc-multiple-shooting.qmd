@@ -11,22 +11,22 @@ $$
 subjected to
 
 $$
-\begin{align*}
+\begin{aligned}
 \dot{x}_0 &= zx_0-x_1+u & \quad{}t\in[0,10]\\
 \dot{x}_1 &= x_0        & \quad{}t\in[0,10]\\
 0         &= x_1^2+z-1  & \quad{}t\in[0,10]
-\end{align*}
+\end{aligned}
 $$
 
 with boundary values
 
 $$
-\begin{align*}
+\begin{aligned}
 x_0(t=0) &= 0\\
 x_1(t=0) &= 1\\
 x_0(t=10) &= 0\\
 x_1(t=10) &= 0
-\end{align*}
+\end{aligned}
 $$
 
 and bounded control $u\in[-0.75;1.00]$ over the whole interval, with $z$ being an algebraic variable.

@@ -186,19 +186,17 @@ Next we generalize the system for including a mass fraction of fluids in a solid
 The simple model is proposed as a set of mass, species, and energy equations:
 
 $$
-\begin{align}
+\begin{aligned}
 \dfrac{dm}{dt}&=-\dot{m}_{evap}\\[6pt]
 \dfrac{dY}{dt}&=\dfrac{\dot{m}}{m}\\[6pt]
 \dfrac{dT}{dt}&=\dfrac{\dot{q}_{in}+\dot{m}L}{mc_{P}}
-\end{align}
+\end{aligned}
 $$
 
 where the consitutive laws for mass averaged specific heat is given by:
 
 $$
-\begin{align}
-c_{p}&=Yc_{p,w} + (1-Y)c_{p,b}\\[6pt]
-\end{align}
+c_{p}=Yc_{p,w} + (1-Y)c_{p,b}
 $$
 
 Notice that we could solve only 2 equations by making a transformation in mass equation definition, but that would shadow the generality of the model for any number of species.
