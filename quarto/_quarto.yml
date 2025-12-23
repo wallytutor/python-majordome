@@ -78,12 +78,12 @@ book:
   # ELMER CASES
   # --------------------------------------------------------------------------
 
-    # - part: "Elmer Cases"
-    #   chapters:
-    #     - chap-elmer-cases/conduction-1/README
-    #     - chap-elmer-cases/conduction-2/README
-    #     - chap-elmer-cases/conduction-3/README
-    #     - chap-elmer-cases/thermomechanical-1/README
+    - part: "Elmer Cases"
+      chapters:
+        - chap-elmer-cases/conduction-1/index.qmd
+        # - chap-elmer-cases/conduction-2/README
+        # - chap-elmer-cases/conduction-3/README
+        # - chap-elmer-cases/thermomechanical-1/README
 
   # --------------------------------------------------------------------------
   # SCIENTIFIC COMPUTING
@@ -113,6 +113,15 @@ book:
       chapters:
         - chap-image-analysis/porosity-measurement.qmd
         - chap-image-analysis/metadata-extraction.qmd
+
+  # --------------------------------------------------------------------------
+  # Montagne
+  # --------------------------------------------------------------------------
+
+    - part: "Montagne"
+      chapters:
+      - chap-montagne/liens.qmd
+      - chap-montagne/carto.qmd
 
   # --------------------------------------------------------------------------
   # REFERENCES
