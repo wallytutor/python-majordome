@@ -156,16 +156,14 @@ Notice that so far nothing has been said with respect to the instant at which th
 Because it is more convenient for symbolic manipulations with SymPy, the problem is currently writen as $F(c)=0$, *i.e.* all elements are on the left-hand side. Care must be taken to properly interpret the signs of the coefficients below.
 
 ```{python}
-variables = [CellVars.c_0, CellVars.c_P, CellVars.c_E, CellVars.c_W]
-coefs = get_fv_coefficients(eq.lhs, variables)
+coefs = get_fv_coefficients(eq.lhs)
 coefs
 ```
 
 Because it is mor readable, a helper utility is provided to tabulate them:
 
 ```{python}
-variables = [CellVars.c_0, CellVars.c_P, CellVars.c_E, CellVars.c_W]
-tabulate_fv_coefs(eq.lhs, variables)
+tabulate_fv_coefs(eq.lhs)
 ```
 
 ```{=html}
@@ -231,7 +229,8 @@ Partial control volumes on boundaries are not desirable as they introduce implem
 Assume the last cell on _west_ boundary is indexed as $P$; over its _west_ boundary we find a node where prescribed composition $c_{B}$ is enforced - and the corresponding diffusion coefficient $D_{b}$. Notice that this node does not belong to the cell, nor represents a half-cell, but lies over its boundary. We start by computing the mass flux from the boundary node to the first cell center; this flux is computed using half-cell length $\delta/2$ for the derivative approximation.
 
 ```{python}
-J_w = diffusion_flux(FaceVars.D_b, CellVars.c_P, CellVars.c_B, delta=FvmVars.delta/2)
+J_w = diffusion_flux(FaceVars.D_b, CellVars.c_P,
+                     CellVars.c_B, delta=FvmVars.delta/2)
 J_w
 ```
 
