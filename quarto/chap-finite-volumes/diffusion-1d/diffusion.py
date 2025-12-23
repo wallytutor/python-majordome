@@ -36,6 +36,11 @@ SUBS_FOURIER = [
 ]
 
 
+def diffusion_flux(D, c1, c2, delta=FvmVars.delta):
+    """ Compute the (forward difference) diffusion flux between two points. """
+    return -D * (c2 - c1) / delta
+
+
 def get_fv_coefficients(expr, variables, op=lambda x: x):
     """ Extract coefficients for the specified variables. """
     expanded = expand(expr)

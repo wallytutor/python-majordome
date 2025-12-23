@@ -1,9 +1,15 @@
 # Diffusion in 1-D {#sec-diffusion-1d}
 
 ```{python}
+%load_ext autoreload
+%autoreload 2
+```
+
+```{python}
 from sympy import Eq
 from sympy import expand
 from diffusion import FvmVars, CellVars, FaceVars
+from diffusion import diffusion_flux
 import diffusion
 ```
 
@@ -65,21 +71,21 @@ where $\delta$ is the width of the control volume. This equation represents a di
 
 Below we compose this expression with help of [SymPy](https://docs.sympy.org/latest/index.html). Notice that when compositing the right-hand side `rhs` we multiply by -1 because we are integrating the negative of the fluxes.
 
-<!-- $$
+<!--
 \left(c_{P}-c_{P}^{0}\right)
 \dfrac{\delta}{\tau}=
 D_{e}\dfrac{c_{E}-c_{P}}{\delta}-
 D_{w}\dfrac{c_{P}-c_{W}}{\delta}
-$$ -->
+-->
 
 ```{python}
-J_w = -FaceVars.D_w * (CellVars.c_P - CellVars.c_W) / FvmVars.delta
-J_e = -FaceVars.D_e * (CellVars.c_E - CellVars.c_P) / FvmVars.delta
+J_w = diffusion_flux(FaceVars.D_w, CellVars.c_W, CellVars.c_P)
+J_e = diffusion_flux(FaceVars.D_e, CellVars.c_P, CellVars.c_E)
 
 lhs = (CellVars.c_P - CellVars.c_0) * FvmVars.delta / FvmVars.tau
 rhs = -1 * (J_e - J_w)
 
-eq = Eq(lhs, rhs)
+eq = Eq(lhs - rhs, 0)
 eq
 ```
 
@@ -91,18 +97,15 @@ $$
 
 A final step to get a linear form of the problem is multiplying both sides by $\tau/\delta$ and rearranging terms. This form clearly shows the contribution of each neighboring concentration to the rate of change at point P. The coefficient of $c_P$ is negative, representing the outflow from the central node, while the coefficients of $c_E$ and $c_W$ are positive, representing inflow from the neighboring nodes.
 
-<!-- $$
+<!--
 c_{P}-c_{P}^{0}=
 \dfrac{\tau}{\delta^2}\left[
     D_{e}c_{E}-(D_{e}+D_{w})c_{P}+D_{w}c_{W}
 \right]
-$$ -->
+-->
 
 ```{python}
-lhs = expand(lhs * FvmVars.tau / FvmVars.delta)
-rhs = expand(rhs * FvmVars.tau / FvmVars.delta)
-
-eq = lhs - rhs
+eq = Eq(expand(eq.lhs * FvmVars.tau / FvmVars.delta), 0)
 eq
 ```
 
@@ -112,15 +115,15 @@ $$
 \alpha_{k}=\dfrac{\tau{}D_{k}}{\delta^2}
 $$
 
-<!-- $$
+<!--
 c_{P}-c_{P}^{0}=
 \alpha_{e}c_{E}-(\alpha_{e}+\alpha_{w})c_{P}+\alpha_{w}c_{W}
-$$ -->
+-->
 
 Performing the replacements with help of SymPy:
 
 ```{python}
-eq = Eq(eq.subs(diffusion.SUBS_FOURIER), 0)
+eq = Eq(eq.lhs.subs(diffusion.SUBS_FOURIER), 0)
 eq
 ```
 
@@ -142,22 +145,17 @@ diffusion.tabulate_fv_coefs(eq.lhs, variables)
 ```
 
 <!--
-$$
 c_{P}^{\tau}-c_{P}^{0}=
 \alpha_{e}^{\tau}c_{E}^{\tau}-
 (\alpha_{e}^{\tau}+\alpha_{w}^{\tau})c_{P}^{\tau}+
 \alpha_{w}^{\tau}c_{W}^{\tau}
-$$
 
 Each cell in the triple has its coefficient and a more convenient form (for later programming its solution) is established by representing the equation as
 
-$$
 A_{W}c_{W}^{\tau} + A_{P}c_{P}^{\tau} + A_{E}c_{E}^{\tau} = c_{P}^{0}
-$$
 
 where
 
-$$
 \begin{align*}
 A_{P} &= 1 + \alpha_{e}^{\tau}+\alpha_{w}^{\tau}
 \\[6pt]
@@ -165,7 +163,7 @@ A_{E} &= -\alpha_{e}^{\tau}
 \\[6pt]
 A_{W} &= -\alpha_{w}^{\tau}
 \end{align*}
-$$ -->
+-->
 
 {{< include bc-part-1.qmd >}}
 {{< include bc-part-2.qmd >}}
