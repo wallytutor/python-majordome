@@ -9,3 +9,14 @@ index.tex
 
 # Any sandbox
 *sandbox*
+
+# LaTeX
+*.aux
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.pdf
+*.synctex*
+*.toc
