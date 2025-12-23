@@ -1,4 +1,4 @@
-# Converting data to Shomate format
+# Converting Shomate data
 
 The goal of this tutorial is to illustrate how to transform other thermodynamic data formats (here the closely related Maier-Kelly) into [Shomate formalist](https://cantera.org/stable/reference/thermo/species-thermo.html#the-shomate-parameterization) for use with Cantera. This is especially useful for composing larger databases with standardized properties.
 

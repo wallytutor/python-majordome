@@ -1,4 +1,4 @@
-# Data recovery from THERMODDEM webpage
+# Minerals web scrapping
 
 References:
 
