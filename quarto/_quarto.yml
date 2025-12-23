@@ -39,6 +39,13 @@ book:
         - chap-ansys-fluent/tui-solution.qmd
         - chap-ansys-fluent/tui-results.qmd
 
+    - part: "Scientific Computing"
+      chapters:
+        - chap-computing/introduction.qmd
+        - chap-computing/operating-systems.qmd
+        - chap-computing/tools-selection.qmd
+        - chap-computing/tools-portable.qmd
+
     - references.qmd
 
 bibliography: ../notes/references.bib
