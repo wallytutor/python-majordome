@@ -25,11 +25,19 @@ book:
   chapters:
     - index.qmd
 
+  # --------------------------------------------------------------------------
+  # FINITE VOLUME METHOD
+  # --------------------------------------------------------------------------
+
     - part: "Finite Volume Method"
       chapters:
         - chap-finite-volumes/index.qmd
         - chap-finite-volumes/diffusion-1d/index.qmd
         - chap-finite-volumes/convection-1d/index.qmd
+
+  # --------------------------------------------------------------------------
+  # ANSYS FLUENT
+  # --------------------------------------------------------------------------
 
     - part: "Ansys Fluent"
       chapters:
@@ -39,12 +47,29 @@ book:
         - chap-ansys-fluent/tui-solution.qmd
         - chap-ansys-fluent/tui-results.qmd
 
+  # --------------------------------------------------------------------------
+  # SCIENTIFIC COMPUTING
+  # --------------------------------------------------------------------------
+
     - part: "Scientific Computing"
       chapters:
         - chap-computing/introduction.qmd
         - chap-computing/operating-systems.qmd
         - chap-computing/tools-selection.qmd
         - chap-computing/tools-portable.qmd
+
+  # --------------------------------------------------------------------------
+  # SCIENTIFIC PROGRAMMING
+  # --------------------------------------------------------------------------
+
+    - part: "Scientific Programming"
+      chapters:
+        - chap-programming/rust.qmd
+        - chap-programming/haskell.qmd
+
+  # --------------------------------------------------------------------------
+  # REFERENCES
+  # --------------------------------------------------------------------------
 
     - references.qmd
 
