@@ -1,10 +1,27 @@
+# Jupyter and Quarto
 jupyterlab
 jupytext
+nbconvert
+ghp-import
 pyyaml
 
+# Web scraping and database
+beautifulsoup4
+tinydb
+
+# General purpose dependencies
+exifread
+folium
+
+# Scientific dependencies
 cantera
+casadi
 matplotlib
+numba
 numpy
+pandas
+pyvista
+scikit-image
+scikit-learn
 scipy
 sympy
-pandas
