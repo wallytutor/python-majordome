@@ -26,6 +26,16 @@ book:
     - index.qmd
 
   # --------------------------------------------------------------------------
+  # MODEL PREDICTIVE CONTROL
+  # --------------------------------------------------------------------------
+
+    - part: "Model Predictive Control"
+      chapters:
+        - chap-controls/mpc-multiple-shooting.qmd
+        - chap-controls/mpc-boiling-evaporation.qmd
+        - chap-controls/mpc-kinetics-part-a.qmd
+
+  # --------------------------------------------------------------------------
   # FINITE VOLUME METHOD
   # --------------------------------------------------------------------------
 
