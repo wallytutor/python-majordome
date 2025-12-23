@@ -31,6 +31,14 @@ book:
         - chap-finite-volumes/diffusion-1d/index.qmd
         - chap-finite-volumes/convection-1d/index.qmd
 
+    - part: "Ansys Fluent"
+      chapters:
+        - chap-ansys-fluent/tui-basics.qmd
+        - chap-ansys-fluent/tui-config.qmd
+        - chap-ansys-fluent/tui-setup.qmd
+        - chap-ansys-fluent/tui-solution.qmd
+        - chap-ansys-fluent/tui-results.qmd
+
     - references.qmd
 
 bibliography: ../notes/references.bib
@@ -41,6 +49,7 @@ bibliography: ../notes/references.bib
 
 format:
   html:
+    highlight-style: pygments
     theme:
       - sandstone
       - superhero
