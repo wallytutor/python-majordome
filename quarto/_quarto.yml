@@ -64,6 +64,28 @@ book:
         - chap-ansys-fluent/tui-results.qmd
 
   # --------------------------------------------------------------------------
+  # ELMER CSC
+  # --------------------------------------------------------------------------
+
+    - part: "Elmer CSC"
+      chapters:
+        - chap-elmer-csc/intro.qmd
+        - chap-elmer-csc/elmer.qmd
+        - chap-elmer-csc/sif.qmd
+        - chap-elmer-csc/matc.qmd
+
+  # --------------------------------------------------------------------------
+  # ELMER CASES
+  # --------------------------------------------------------------------------
+
+    # - part: "Elmer Cases"
+    #   chapters:
+    #     - chap-elmer-cases/conduction-1/README
+    #     - chap-elmer-cases/conduction-2/README
+    #     - chap-elmer-cases/conduction-3/README
+    #     - chap-elmer-cases/thermomechanical-1/README
+
+  # --------------------------------------------------------------------------
   # SCIENTIFIC COMPUTING
   # --------------------------------------------------------------------------
 
