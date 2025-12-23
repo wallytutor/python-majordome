@@ -1,0 +1,11 @@
+# Quarto defaults:
+/.quarto/
+**/*.quarto_ipynb
+
+# Generated content:
+_book/
+*_files/
+index.tex
+
+# Any sandbox
+*sandbox*
