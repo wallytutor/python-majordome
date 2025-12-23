@@ -4,7 +4,8 @@
 
 param (
     [switch]$TestQuarto,
-    [switch]$Render
+    [switch]$Render,
+    [switch]$Clean
 )
 
 # ----------------------------------------------------------------------------
@@ -56,6 +57,12 @@ if ($TestQuarto) {
     }
 
     Write-Good "`n=== Build tools ready ==="
+}
+
+if ($Clean) {
+    Write-Head "`nCleaning Quarto output..."
+    Remove-Item -Recurse -Force "_book"
+    Remove-Item -Recurse -Force ".quarto"
 }
 
 if ($Render) {
