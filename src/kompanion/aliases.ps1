@@ -23,6 +23,11 @@ function jlab {
         -NoNewWindow -Wait
 }
 
+function qprev {
+    & Start-Process quarto.exe -ArgumentList "preview", "--no-browser" `
+        -NoNewWindow -Wait
+}
+
 # ---------------------------------------------------------------------------
 # EOF
 # ---------------------------------------------------------------------------
