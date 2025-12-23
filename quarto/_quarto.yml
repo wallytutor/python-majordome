@@ -21,6 +21,8 @@ book:
   title: "Notes Book"
   author: "Walter Dal'Maz Silva"
   date: "today"
+  sidebar:
+    collapse-level: 1
 
   chapters:
     - index.qmd
@@ -104,6 +106,7 @@ book:
       chapters:
         - chap-programming/rust.qmd
         - chap-programming/haskell.qmd
+        - chap-programming/julia101.qmd
 
   # --------------------------------------------------------------------------
   # IMAGE ANALYSIS
