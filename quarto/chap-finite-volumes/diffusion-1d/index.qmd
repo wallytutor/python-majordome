@@ -1,9 +1,5 @@
 # Diffusion in 1-D {#sec-diffusion-1d}
 
-```{python}
-import diffusion
-```
-
 {{< include intro.qmd >}}
 {{< include bc-part-1.qmd >}}
 {{< include bc-part-2.qmd >}}
