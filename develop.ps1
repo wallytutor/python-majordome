@@ -120,7 +120,7 @@ if ($DistClean) {
 }
 
 if ($Isolate) {
-    if (-not (Initialize-VirtualEnvironment)) {
+    if (-not (Initialize-VirtualEnvironment -VenvRoot $PSScriptRoot)) {
         exit 1
     }
 }
