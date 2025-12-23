@@ -49,13 +49,20 @@ bibliography: ../notes/references.bib
 
 format:
   html:
-    highlight-style: pygments
+    highlight-style: github
+    # highlight-style: pygments
     theme:
       - sandstone
-      - superhero
+      # - superhero
 
   pdf:
+    highlight-style: github
     documentclass: scrreprt
+    papersize: a4
+    mainfont: "Latin Modern Sans"
+    sansfont: "Latin Modern Sans"
+    geometry:
+      - margin=20mm
 
 ##############################################################################
 # EOF
