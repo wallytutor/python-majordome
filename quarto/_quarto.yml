@@ -25,6 +25,12 @@ book:
   chapters:
     - index.qmd
 
+    - part: "Thermodynamics"
+      chapters:
+      - chap-thermodynamics/converting-shomate.qmd
+      - chap-thermodynamics/calphad-nitrides.qmd
+      - chap-thermodynamics/minerals-scraper.qmd
+
   # --------------------------------------------------------------------------
   # MODEL PREDICTIVE CONTROL
   # --------------------------------------------------------------------------
@@ -76,6 +82,15 @@ book:
       chapters:
         - chap-programming/rust.qmd
         - chap-programming/haskell.qmd
+
+  # --------------------------------------------------------------------------
+  # IMAGE ANALYSIS
+  # --------------------------------------------------------------------------
+
+    - part: "Image Analysis"
+      chapters:
+        - chap-image-analysis/porosity-measurement.qmd
+        - chap-image-analysis/metadata-extraction.qmd
 
   # --------------------------------------------------------------------------
   # REFERENCES
