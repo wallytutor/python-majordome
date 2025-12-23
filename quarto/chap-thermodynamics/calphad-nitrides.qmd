@@ -1,4 +1,4 @@
-# Gibbs energy analysis of $Si_3N_4$ and $MnSiN_2$
+# Nitrides Gibbs energy
 
 Data was retrieved and manually prepared from extractions made from [NIST JANAF tables](https://janaf.nist.gov/).
 
