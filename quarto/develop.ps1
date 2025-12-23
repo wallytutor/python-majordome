@@ -5,6 +5,7 @@
 param (
     [switch]$TestQuarto,
     [switch]$Render,
+    [switch]$DumpPdf,
     [switch]$Clean
 )
 
@@ -67,6 +68,10 @@ if ($Clean) {
 
 if ($Render) {
     quarto preview --no-browser --port 2505
+}
+
+if ($DumpPdf) {
+    quarto render --to pdf
 }
 
 # ----------------------------------------------------------------------------
