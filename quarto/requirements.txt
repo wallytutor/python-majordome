@@ -1,4 +1,10 @@
 jupyterlab
 jupytext
 pyyaml
+
+cantera
+matplotlib
+numpy
+scipy
 sympy
+pandas

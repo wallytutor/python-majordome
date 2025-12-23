@@ -1,5 +1,0 @@
-## Introduction
-
-```{python}
-import diffusion
-```
