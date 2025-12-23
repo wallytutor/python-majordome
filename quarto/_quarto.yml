@@ -1,0 +1,53 @@
+##############################################################################
+# Documentation and help at https://quarto.org/docs/books/
+#
+# Typical commands to use:
+# - quarto preview --no-browser
+# - quarto render --to pdf
+# - quarto render --to html
+##############################################################################
+
+project:
+  type: book
+
+execute:
+  python: "./.venv/Scripts/pythonw.exe"
+
+##############################################################################
+# Structure
+##############################################################################
+
+book:
+  title: "Notes Book"
+  author: "Walter Dal'Maz Silva"
+  date: "today"
+
+  chapters:
+    - index.qmd
+
+    - part: "Finite Volume Method"
+      chapters:
+        - chap-finite-volumes/index.qmd
+        - chap-finite-volumes/diffusion-1d/index.qmd
+        - chap-finite-volumes/convection-1d/index.qmd
+
+    - references.qmd
+
+bibliography: ../notes/references.bib
+
+##############################################################################
+# Formatting
+##############################################################################
+
+format:
+  html:
+    theme:
+      - sandstone
+      - superhero
+
+  pdf:
+    documentclass: scrreprt
+
+##############################################################################
+# EOF
+##############################################################################

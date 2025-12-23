@@ -1,0 +1,3 @@
+# Notes Book {.unnumbered}
+
+This is a Quarto book.
