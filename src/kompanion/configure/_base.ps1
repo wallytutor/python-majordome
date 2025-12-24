@@ -10,11 +10,11 @@ function Start-KompanionBaseConfigure() {
     Write-Host "- starting Kompanion base configuration..."
 
     if ($Config.vscode)      { Invoke-ConfigureVsCode }
+    if ($Config.sevenzip)    { Invoke-ConfigureSevenZip }
     if ($Config.zettlr)      { Invoke-ConfigureZettlr }
     if ($Config.drawio)      { Invoke-ConfigureDrawio }
     if ($Config.git)         { Invoke-ConfigureGit }
     if ($Config.nvim)        { Invoke-ConfigureNvim }
-    if ($Config.sevenzip)    { Invoke-ConfigureSevenZip }
     if ($Config.lessmsi)     { Invoke-ConfigureLessMsi }
     if ($Config.curl)        { Invoke-ConfigureCurl }
     if ($Config.msys2)       { Invoke-ConfigureMsys2 }
@@ -40,6 +40,22 @@ function Invoke-ConfigureVsCode() {
     Initialize-AddToPath -Directory "$env:VSCODE_HOME"
 }
 
+function Invoke-ConfigureSevenZip() {
+    $env:SEVENZIP_HOME = "$env:KOMPANION_BIN\7z"
+    Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+
+    # Legacy: prefer the one from stack if available:
+    # $stackSevenZip = "$env:STACK_ROOT\local-programs\x86_64-windows"
+    #
+    # if (Test-Path $stackSevenZip) {
+    #     $env:SEVENZIP_HOME = $stackSevenZip
+    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+    # } else {
+    #     $env:SEVENZIP_HOME = "$env:KOMPANION_BIN"
+    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+    # }
+}
+
 function Invoke-ConfigureZettlr() {
     $env:ZETTLR_HOME = "$env:KOMPANION_BIN\zettlr"
     $env:ZETTLR_DATA = "$env:KOMPANION_DATA\zettlr"
@@ -59,22 +75,6 @@ function Invoke-ConfigureGit() {
 function Invoke-ConfigureNvim() {
     $env:NVIM_HOME = "$env:KOMPANION_BIN\nvim\nvim-win64\bin"
     Initialize-AddToPath -Directory "$env:NVIM_HOME"
-}
-
-function Invoke-ConfigureSevenZip() {
-    $env:SEVENZIP_HOME = "$env:KOMPANION_BIN\7z"
-    Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
-
-    # Legacy: prefer the one from stack if available:
-    # $stackSevenZip = "$env:STACK_ROOT\local-programs\x86_64-windows"
-    #
-    # if (Test-Path $stackSevenZip) {
-    #     $env:SEVENZIP_HOME = $stackSevenZip
-    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
-    # } else {
-    #     $env:SEVENZIP_HOME = "$env:KOMPANION_BIN"
-    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
-    # }
 }
 
 function Invoke-ConfigureLessMsi() {

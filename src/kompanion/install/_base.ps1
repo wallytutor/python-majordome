@@ -42,7 +42,7 @@ function Invoke-InstallVsCode() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
-
+    Invoke-ConfigureVsCode
 }
 
 function Invoke-InstallSevenZip() {
@@ -70,6 +70,7 @@ function Invoke-InstallSevenZip() {
     }
 
     Move-Item -Path $temp -Destination $path
+    Invoke-ConfigureSevenZip
 }
 
 function Invoke-InstallZettlr() {
@@ -87,6 +88,7 @@ function Invoke-InstallZettlr() {
     Invoke-Uncompress7zIfNeeded -Source $app    -Destination $path
 
     Remove-Item -Path $temp -Recurse -Force
+    Invoke-ConfigureZettlr
 }
 
 function Invoke-InstallDrawio() {
@@ -98,6 +100,7 @@ function Invoke-InstallDrawio() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureDrawio
 }
 
 function Invoke-InstallGit() {
@@ -109,6 +112,7 @@ function Invoke-InstallGit() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-CapturedCommand $output @("-y", "-o$path")
+    Invoke-ConfigureGit
 }
 
 function Invoke-InstallNvim() {
@@ -120,6 +124,7 @@ function Invoke-InstallNvim() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureNvim
 }
 
 function Invoke-InstallLessMsi() {
@@ -131,6 +136,7 @@ function Invoke-InstallLessMsi() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureLessMsi
 }
 
 function Invoke-InstallCurl() {
@@ -142,6 +148,7 @@ function Invoke-InstallCurl() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureCurl
 }
 
 function Invoke-InstallMsys2() {
@@ -167,6 +174,7 @@ function Invoke-InstallMsys2() {
     # pacman-key --init && pacman-key --populate msys2
     # pacman -Syuu && pacman -S bash coreutils make gcc p7zip
     # pacman -Sy --noconfirm; pacman -S --noconfirm p7zip
+    Invoke-ConfigureMsys2
 }
 
 function Invoke-InstallPandoc() {
@@ -178,7 +186,7 @@ function Invoke-InstallPandoc() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
-
+    Invoke-ConfigurePandoc
 }
 
 function Invoke-InstallJabRef() {
@@ -190,6 +198,7 @@ function Invoke-InstallJabRef() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureJabRef
 }
 
 function Invoke-InstallInkscape() {
@@ -201,6 +210,7 @@ function Invoke-InstallInkscape() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureInkscape
 }
 
 function Invoke-InstallMikTex() {
@@ -231,6 +241,8 @@ function Invoke-InstallMikTex() {
                     "--portable", $miktex)
         Invoke-CapturedCommand $path $argList
     }
+
+    Invoke-ConfigureMikTex
 }
 
 function Invoke-InstallNteract() {
@@ -242,6 +254,7 @@ function Invoke-InstallNteract() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureNteract
 }
 
 function Invoke-InstallFfmpeg() {
@@ -257,6 +270,7 @@ function Invoke-InstallFfmpeg() {
 
     Move-Item -Path (Join-Path $temp "ffmpeg-*") -Destination $path
     Remove-Item -Path $temp -Recurse -Force
+    Invoke-ConfigureFfmpeg
 }
 
 function Invoke-InstallImageMagick() {
@@ -268,6 +282,7 @@ function Invoke-InstallImageMagick() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureImageMagick
 }
 
 function Invoke-InstallPoppler() {
@@ -279,6 +294,7 @@ function Invoke-InstallPoppler() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigurePoppler
 }
 
 function Invoke-InstallQuarto() {
@@ -290,6 +306,7 @@ function Invoke-InstallQuarto() {
 
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
+    Invoke-ConfigureQuarto
 }
 
 # ---------------------------------------------------------------------------
