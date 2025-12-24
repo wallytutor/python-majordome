@@ -169,7 +169,9 @@
 
     "[python]": {
         "editor.tabSize": 4,
-        "editor.foldingStrategy": "indentation"
+        "editor.foldingStrategy": "indentation",
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 80,
     },
 
     "python.analysis.autoSearchPaths": true,
