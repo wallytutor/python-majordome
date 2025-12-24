@@ -1,0 +1,46 @@
+{
+    "base": {
+        "vscode": true,
+        "zettlr": true,
+        "drawio": true,
+        "git": true,
+        "nvim": true,
+        "sevenzip": true,
+        "lessmsi": true,
+        "curl": true,
+        "msys2": true,
+        "pandoc": true,
+        "jabref": true,
+        "inkscape": true,
+        "miktex": true,
+        "nteract": true,
+        "ffmpeg": true,
+        "imagemagick": true,
+        "poppler": true,
+        "quarto": true
+    },
+    "lang": {
+        "python": true,
+        "julia": true,
+        "node": true,
+        "erlang": true,
+        "haskell": true,
+        "elm": true,
+        "racket": false,
+        "rust": true,
+        "coq": true,
+        "rlang": true
+    },
+    "simu": {
+        "paraview": true,
+        "freecad": true,
+        "blender": true,
+        "meshlab": true,
+        "dwsim": true,
+        "elmer": true,
+        "gmsh": true,
+        "su2": true,
+        "tesseract": true,
+        "radcal": true
+    }
+}
