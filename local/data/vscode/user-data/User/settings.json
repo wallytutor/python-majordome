@@ -39,7 +39,7 @@
     "workbench.tree.indent": 12,
 
     // Use the Julia theme:
-    "workbench.colorTheme": "GitHub Dark Colorblind (Beta)",
+    "workbench.colorTheme": "Soda Pop VS - Bordered",
     "workbench.iconTheme": "vscode-icons",
 
     // Add a clearly visible ruler (language dependent position):
@@ -142,7 +142,7 @@
 
     "[quarto]": {
         "editor.wordWrap": "wordWrapColumn",
-        "editor.wordWrapColumn": 100,
+        "editor.wordWrapColumn": 80,
         "editor.quickSuggestions": {
             "comments": "on",
             "other": "on",
