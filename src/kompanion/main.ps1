@@ -88,10 +88,6 @@ function Start-KompanionInstall() {
     . "$PSScriptRoot\install\_lang.ps1"
     . "$PSScriptRoot\install\_simu.ps1"
 
-    # For allowing configuration on the fly!
-    . "$PSScriptRoot\configure\_base.ps1"
-    . "$PSScriptRoot\configure\_lang.ps1"
-
     # XXX: languages come last because some packages might override
     # them (especially Python that is used everywhere).
     Start-KompanionBaseInstall $Config.base
@@ -106,8 +102,8 @@ function Start-KompanionConfigure() {
 
     Write-Host "`nStarting Kompanion configuration..."
 
-    . "$PSScriptRoot\configure\_base.ps1"
-    . "$PSScriptRoot\configure\_lang.ps1"
+    . "$PSScriptRoot\install\_base.ps1"
+    . "$PSScriptRoot\install\_lang.ps1"
     . "$PSScriptRoot\install\_simu.ps1"
 
     # XXX: languages come last because some packages might override
