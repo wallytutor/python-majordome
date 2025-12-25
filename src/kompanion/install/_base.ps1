@@ -2,7 +2,7 @@
 # Caller
 # ---------------------------------------------------------------------------
 
-function Start-KompanionBaseInstall() {
+function Start-KompanionBaseInstall {
     param (
         [pscustomobject]$Config
     )
@@ -29,11 +29,45 @@ function Start-KompanionBaseInstall() {
     if ($Config.quarto)      { Invoke-InstallQuarto }
 }
 
+function Start-KompanionBaseConfigure {
+    param (
+        [pscustomobject]$Config
+    )
+
+    Write-Host "- starting Kompanion base configuration..."
+
+    if ($Config.vscode)      { Invoke-ConfigureVsCode }
+    if ($Config.sevenzip)    { Invoke-ConfigureSevenZip }
+    if ($Config.zettlr)      { Invoke-ConfigureZettlr }
+    if ($Config.drawio)      { Invoke-ConfigureDrawio }
+    if ($Config.git)         { Invoke-ConfigureGit }
+    if ($Config.nvim)        { Invoke-ConfigureNvim }
+    if ($Config.lessmsi)     { Invoke-ConfigureLessMsi }
+    if ($Config.curl)        { Invoke-ConfigureCurl }
+    if ($Config.msys2)       { Invoke-ConfigureMsys2 }
+    if ($Config.pandoc)      { Invoke-ConfigurePandoc }
+    if ($Config.jabref)      { Invoke-ConfigureJabRef }
+    if ($Config.inkscape)    { Invoke-ConfigureInkscape }
+    if ($Config.miktex)      { Invoke-ConfigureMikTex }
+    if ($Config.nteract)     { Invoke-ConfigureNteract }
+    if ($Config.ffmpeg)      { Invoke-ConfigureFfmpeg }
+    if ($Config.imagemagick) { Invoke-ConfigureImageMagick }
+    if ($Config.poppler)     { Invoke-ConfigurePoppler }
+    if ($Config.quarto)      { Invoke-ConfigureQuarto }
+}
+
 # ---------------------------------------------------------------------------
 # Implementation
 # ---------------------------------------------------------------------------
 
-function Invoke-InstallVsCode() {
+function Invoke-ConfigureVsCode {
+    $env:VSCODE_HOME       = "$env:KOMPANION_BIN\vscode"
+    $env:VSCODE_EXTENSIONS = "$env:KOMPANION_DATA\vscode\extensions"
+    $env:VSCODE_SETTINGS   = "$env:KOMPANION_DATA\vscode\user-data"
+    Initialize-AddToPath -Directory "$env:VSCODE_HOME"
+}
+
+function Invoke-InstallVsCode {
     $output = "$env:KOMPANION_TEMP\vscode.zip"
     $path   = "$env:KOMPANION_BIN\vscode"
     $url    = "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
@@ -45,7 +79,23 @@ function Invoke-InstallVsCode() {
     Invoke-ConfigureVsCode
 }
 
-function Invoke-InstallSevenZip() {
+function Invoke-ConfigureSevenZip {
+    $env:SEVENZIP_HOME = "$env:KOMPANION_BIN\7z"
+    Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+
+    # Legacy: prefer the one from stack if available:
+    # $stackSevenZip = "$env:STACK_ROOT\local-programs\x86_64-windows"
+    #
+    # if (Test-Path $stackSevenZip) {
+    #     $env:SEVENZIP_HOME = $stackSevenZip
+    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+    # } else {
+    #     $env:SEVENZIP_HOME = "$env:KOMPANION_BIN"
+    #     Initialize-AddToPath -Directory "$env:SEVENZIP_HOME"
+    # }
+}
+
+function Invoke-InstallSevenZip {
     # Legacy: use full 7zip (from stackage) instead of 7zr!
     # $output = "$env:KOMPANION_TEMP\7zr.exe"
     # $path   = "$env:KOMPANION_BIN\7zr.exe"
@@ -73,7 +123,13 @@ function Invoke-InstallSevenZip() {
     Invoke-ConfigureSevenZip
 }
 
-function Invoke-InstallZettlr() {
+function Invoke-ConfigureZettlr {
+    $env:ZETTLR_HOME = "$env:KOMPANION_BIN\zettlr"
+    $env:ZETTLR_DATA = "$env:KOMPANION_DATA\zettlr"
+    Initialize-AddToPath -Directory "$env:ZETTLR_HOME"
+}
+
+function Invoke-InstallZettlr {
     $output = "$env:KOMPANION_TEMP\zettlr.exe"
     $temp   = "$env:KOMPANION_TEMP\zettlr_tmp"
     $path   = "$env:KOMPANION_BIN\zettlr"
@@ -91,7 +147,12 @@ function Invoke-InstallZettlr() {
     Invoke-ConfigureZettlr
 }
 
-function Invoke-InstallDrawio() {
+function Invoke-ConfigureDrawio {
+    $env:DRAWIO_HOME = "$env:KOMPANION_BIN\drawio"
+    Initialize-AddToPath -Directory "$env:DRAWIO_HOME"
+}
+
+function Invoke-InstallDrawio {
     $output = "$env:KOMPANION_TEMP\drawio.zip"
     $path   = "$env:KOMPANION_BIN\drawio"
     $url    = "https://github.com/jgraph/drawio-desktop/releases/download/v29.0.3/draw.io-29.0.3-windows.zip"
@@ -103,7 +164,12 @@ function Invoke-InstallDrawio() {
     Invoke-ConfigureDrawio
 }
 
-function Invoke-InstallGit() {
+function Invoke-ConfigureGit {
+    $env:GIT_HOME = "$env:KOMPANION_BIN\git"
+    Initialize-AddToPath -Directory "$env:GIT_HOME\cmd"
+}
+
+function Invoke-InstallGit {
     $output = "$env:KOMPANION_TEMP\git.exe  "
     $path   = "$env:KOMPANION_BIN\git"
     $url    = "https://github.com/git-for-windows/git/releases/download/v2.51.0.windows.1/PortableGit-2.51.0-64-bit.7z.exe"
@@ -115,7 +181,12 @@ function Invoke-InstallGit() {
     Invoke-ConfigureGit
 }
 
-function Invoke-InstallNvim() {
+function Invoke-ConfigureNvim {
+    $env:NVIM_HOME = "$env:KOMPANION_BIN\nvim\nvim-win64\bin"
+    Initialize-AddToPath -Directory "$env:NVIM_HOME"
+}
+
+function Invoke-InstallNvim {
     $output = "$env:KOMPANION_TEMP\nvim.zip"
     $path   = "$env:KOMPANION_BIN\nvim"
     $url    = "https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip"
@@ -127,7 +198,12 @@ function Invoke-InstallNvim() {
     Invoke-ConfigureNvim
 }
 
-function Invoke-InstallLessMsi() {
+function Invoke-ConfigureLessMsi {
+    $env:LESSMSI_HOME = "$env:KOMPANION_BIN\lessmsi"
+    Initialize-AddToPath -Directory "$env:LESSMSI_HOME"
+}
+
+function Invoke-InstallLessMsi {
     $output = "$env:KOMPANION_TEMP\lessmsi.zip"
     $path   = "$env:KOMPANION_BIN\lessmsi"
     $url    = "https://github.com/activescott/lessmsi/releases/download/v2.10.3/lessmsi-v2.10.3.zip"
@@ -139,7 +215,12 @@ function Invoke-InstallLessMsi() {
     Invoke-ConfigureLessMsi
 }
 
-function Invoke-InstallCurl() {
+function Invoke-ConfigureCurl {
+    $env:CURl_HOME = "$env:KOMPANION_BIN\curl\curl-8.16.0_13-win64-mingw\bin"
+    Initialize-AddToPath -Directory "$env:CURl_HOME"
+}
+
+function Invoke-InstallCurl {
     $output = "$env:KOMPANION_TEMP\curl.zip"
     $path   = "$env:KOMPANION_BIN\curl"
     $url    = "https://curl.se/windows/dl-8.16.0_13/curl-8.16.0_13-win64-mingw.zip"
@@ -151,7 +232,11 @@ function Invoke-InstallCurl() {
     Invoke-ConfigureCurl
 }
 
-function Invoke-InstallMsys2() {
+function Invoke-ConfigureMsys2 {
+    # TODO once MSYS2 is installed!
+}
+
+function Invoke-InstallMsys2 {
     Write-Host "- installing MSYS2 (not yet implemented)..."
     # $output = Get-KompanionPath $$config.install.msys2.saveAs
     # $path   = Get-KompanionPath $$config.install.msys2.path
@@ -177,7 +262,12 @@ function Invoke-InstallMsys2() {
     Invoke-ConfigureMsys2
 }
 
-function Invoke-InstallPandoc() {
+function Invoke-ConfigurePandoc {
+    $env:PANDOC_HOME = "$env:KOMPANION_BIN\pandoc\pandoc-3.8"
+    Initialize-AddToPath -Directory "$env:PANDOC_HOME"
+}
+
+function Invoke-InstallPandoc {
     $output = "$env:KOMPANION_TEMP\pandoc.zip"
     $path   = "$env:KOMPANION_BIN\pandoc"
     $url    =  "https://github.com/jgm/pandoc/releases/download/3.8/pandoc-3.8-windows-x86_64.zip"
@@ -189,7 +279,12 @@ function Invoke-InstallPandoc() {
     Invoke-ConfigurePandoc
 }
 
-function Invoke-InstallJabRef() {
+function Invoke-ConfigureJabRef {
+    $env:JABREF_HOME = "$env:KOMPANION_BIN\jabref\JabRef"
+    Initialize-AddToPath -Directory "$env:JABREF_HOME"
+}
+
+function Invoke-InstallJabRef {
     $output = "$env:KOMPANION_TEMP\jabref.zip"
     $path   = "$env:KOMPANION_BIN\jabref"
     $url    = "https://github.com/JabRef/jabref/releases/download/v5.15/JabRef-5.15-portable_windows.zip"
@@ -201,7 +296,12 @@ function Invoke-InstallJabRef() {
     Invoke-ConfigureJabRef
 }
 
-function Invoke-InstallInkscape() {
+function Invoke-ConfigureInkscape {
+    $env:INKSCAPE_HOME = "$env:KOMPANION_BIN\inkscape\inkscape\bin"
+    Initialize-AddToPath -Directory "$env:INKSCAPE_HOME"
+}
+
+function Invoke-InstallInkscape {
     $output = "$env:KOMPANION_TEMP\inkscape.7z"
     $path   = "$env:KOMPANION_BIN\inkscape"
     $url    = "https://inkscape.org/gallery/item/53695/inkscape-1.4_2024-10-11_86a8ad7-x64.7z"
@@ -213,7 +313,18 @@ function Invoke-InstallInkscape() {
     Invoke-ConfigureInkscape
 }
 
-function Invoke-InstallMikTex() {
+function Invoke-ConfigureMikTex {
+    $env:MIKTEX_HOME = "$env:KOMPANION_BIN\miktex"
+    Initialize-AddToPath -Directory "$env:MIKTEX_HOME"
+
+    $path = "$env:MIKTEX_HOME\miktex-portable.cmd"
+    Start-Process -FilePath $path -NoNewWindow
+
+    Initialize-AddToPath -Directory "$env:MIKTEX_HOME\texmfs\install\miktex\bin\x64\internal"
+    Initialize-AddToPath -Directory "$env:MIKTEX_HOME\texmfs\install\miktex\bin\x64"
+}
+
+function Invoke-InstallMikTex {
     $output  = "$env:KOMPANION_TEMP\miktexsetup.zip"
     $path    = "$env:KOMPANION_BIN\miktexsetup"
     $url     = "https://miktex.org/download/ctan/systems/win32/miktex/setup/windows-x64/miktexsetup-5.5.0+1763023-x64.zip"
@@ -245,7 +356,12 @@ function Invoke-InstallMikTex() {
     Invoke-ConfigureMikTex
 }
 
-function Invoke-InstallNteract() {
+function Invoke-ConfigureNteract {
+    $env:NTERACT_HOME = "$env:KOMPANION_BIN\nteract\"
+    Initialize-AddToPath -Directory "$env:NTERACT_HOME"
+}
+
+function Invoke-InstallNteract {
     $output = "$env:KOMPANION_TEMP\nteract.zip"
     $path   = "$env:KOMPANION_BIN\nteract"
     $url    = "https://github.com/nteract/nteract/releases/download/v0.28.0/nteract-0.28.0-win.zip"
@@ -257,7 +373,12 @@ function Invoke-InstallNteract() {
     Invoke-ConfigureNteract
 }
 
-function Invoke-InstallFfmpeg() {
+function Invoke-ConfigureFfmpeg {
+    $env:FFMPEG_HOME = "$env:KOMPANION_BIN\ffmpeg\bin"
+    Initialize-AddToPath -Directory "$env:FFMPEG_HOME"
+}
+
+function Invoke-InstallFfmpeg {
     $output = "$env:KOMPANION_TEMP\ffmpeg.7z"
     $temp   = "$env:KOMPANION_TEMP\ffmpeg"
     $path   = "$env:KOMPANION_BIN\ffmpeg"
@@ -273,7 +394,12 @@ function Invoke-InstallFfmpeg() {
     Invoke-ConfigureFfmpeg
 }
 
-function Invoke-InstallImageMagick() {
+function Invoke-ConfigureImageMagick {
+    $env:IMAGEMAGICK_HOME = "$env:KOMPANION_BIN\imagemagick"
+    Initialize-AddToPath -Directory "$env:IMAGEMAGICK_HOME"
+}
+
+function Invoke-InstallImageMagick {
     $output = "$env:KOMPANION_TEMP\imagemagick.zip"
     $path   = "$env:KOMPANION_BIN\imagemagick"
     $url    = "https://github.com/ImageMagick/ImageMagick/releases/download/7.1.2-8/ImageMagick-7.1.2-8-portable-Q16-HDRI-x64.7z"
@@ -285,7 +411,13 @@ function Invoke-InstallImageMagick() {
     Invoke-ConfigureImageMagick
 }
 
-function Invoke-InstallPoppler() {
+function Invoke-ConfigurePoppler {
+    $env:POPLER_HOME = "$env:KOMPANION_BIN\poppler\poppler-25.11.0\Library"
+    Initialize-AddToPath -Directory "$env:POPLER_HOME\bin"
+    Initialize-AddToManPath -Directory "$env:POPLER_HOME\share\man"
+}
+
+function Invoke-InstallPoppler {
     $output = "$env:KOMPANION_TEMP\poppler.zip"
     $path   = "$env:KOMPANION_BIN\poppler"
     $url    = "https://github.com/oschwartz10612/poppler-windows/releases/download/v25.11.0-0/Release-25.11.0-0.zip"
@@ -297,7 +429,12 @@ function Invoke-InstallPoppler() {
     Invoke-ConfigurePoppler
 }
 
-function Invoke-InstallQuarto() {
+function Invoke-ConfigureQuarto {
+    $env:QUARTO_HOME = "$env:KOMPANION_BIN\quarto"
+    Initialize-AddToPath -Directory "$env:QUARTO_HOME\bin"
+}
+
+function Invoke-InstallQuarto {
     $output = "$env:KOMPANION_TEMP\quarto.zip"
     $path   = "$env:KOMPANION_BIN\quarto"
     $url    = "https://github.com/quarto-dev/quarto-cli/releases/download/v1.8.26/quarto-1.8.26-win.zip"
