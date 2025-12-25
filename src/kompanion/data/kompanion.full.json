@@ -41,6 +41,7 @@
         "gmsh": true,
         "su2": true,
         "tesseract": true,
-        "radcal": true
+        "radcal": true,
+        "freefem": true
     }
 }
