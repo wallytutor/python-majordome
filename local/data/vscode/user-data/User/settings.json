@@ -77,11 +77,13 @@
     "editor.rulers": [72, 79, 90, 100],
 
     // Indentation and font size settings:
+    "editor.fontFamily": "Cascadia Mono",
     "editor.detectIndentation": false,
     "editor.insertSpaces": true,
     "editor.tabSize": 4,
-    "editor.fontSize": 13,
-    "editor.lineHeight": 15,
+    "editor.fontSize": 14,
+    "editor.lineHeight": 16,
+    "editor.fontWeight": "normal",
 
     // Specific settings for JSONC files (mainly this file):
     "[jsonc]": {
