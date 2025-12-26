@@ -390,6 +390,7 @@
     // OTHER
     //////////////////////////////////////////////////////////////////////////
 
+    "redhat.telemetry.enabled": false,
     "vsicons.dontShowNewVersionMessage": true,
 
     "security.workspace.trust.untrustedFiles": "open",
