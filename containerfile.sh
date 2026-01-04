@@ -25,7 +25,7 @@ APPTAINER=/usr/bin/apptainer
 "${APPTAINER}" build "${project}.sif" "docker-archive://${project}.tar"
 
 # Remove tar-file:
-# rm -rf "${project}.tar"
+[[ -f "${project}.tar" ]] && rm -rf "${project}.tar"
 
 # After making sure it is working, remove the image (do not automate!):
 # "${PODMAN}" rmi "${project}"
