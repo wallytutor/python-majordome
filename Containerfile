@@ -79,6 +79,17 @@ RUN mkdir -p $APPHOME
 WORKDIR $APPHOME
 
 # ----------------------------------------------------------------------------
+# PRE-INSTALL
+# ----------------------------------------------------------------------------
+
+# Linux libraries needed for PyVista/VTK:
+RUN apt-get install -y libxrender1
+
+# Pre-install Python dependencies:
+COPY containerfile.txt /opt/app/containerfile.txt
+RUN python3 -m pip install -r /opt/app/containerfile.txt
+
+# ----------------------------------------------------------------------------
 # CLEAN UP
 # ----------------------------------------------------------------------------
 
