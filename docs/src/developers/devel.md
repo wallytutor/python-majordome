@@ -16,6 +16,8 @@ apptainer shell instance://majordome
 apptainer instance stop majordome
 ```
 
+For convenience, the full workflow has been added to `develop.sh`, which handles environment creation, activation, and package compilation. Nonetheless, stopping the instance remains your responsibility after working on the project.
+
 ## Windows
 
 ### Environment
