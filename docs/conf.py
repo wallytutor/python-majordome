@@ -37,6 +37,12 @@ author = "Walter Dal'Maz Silva"
 # for parsing. An alternative that I could not get working yet is myst_nb
 # https://myst-nb.readthedocs.io/en/v0.13.2/use/myst.html
 
+# XXX: had to get back to napoleon for Rust. Trying to use both numpydoc and
+# napoleon together (no problems so far).
+# https://blog.savant-ai.io/227aff68e481
+# https://github.com/insight-platform/pyo3-sphinx-documentation/tree/main
+# https://github.com/PyO3/pyo3/discussions/2330
+
 extensions = [
     "myst_parser",              # Parse MyST Markdown
     "nbsphinx",                 # Render notebooks
@@ -47,6 +53,9 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.napoleon",
 ]
 
 source_suffix = [".rst", ".md"]
@@ -63,6 +72,12 @@ exclude_patterns = [
     "**/_*.py",              # Python development files
     "*_.md",                 # Sync of .py notebooks
 ]
+
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "show-inheritance": True,
+}
 
 ##############################################################################
 # Options for HTML output
