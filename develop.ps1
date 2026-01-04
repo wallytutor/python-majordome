@@ -1,4 +1,60 @@
 
+<#
+.SYNOPSIS
+    Development build script for the Majordome project under Windows.
+
+.DESCRIPTION
+    This script automates the development workflow for Majordome, a mixed
+    Python/Rust project. It handles dependency checks, builds the project
+    in development mode, generates documentation, and creates distribution
+    packages.
+
+.PARAMETER Clean
+    Removes build artifacts and log files (build/, target/, log.*).
+
+.PARAMETER DistClean
+    Performs a full clean including virtual environments, distribution
+    files, and documentation builds (.venv/, dist/, docs/_build/).
+
+.PARAMETER Isolate
+    Initializes and activates a virtual environment before building.
+
+.PARAMETER Distribute
+    Creates a wheel distribution package and displays its contents,
+    including data files and Rust extension modules (.pyd).
+
+.PARAMETER Documentation
+    Builds the Sphinx documentation in HTML format.
+
+.PARAMETER FreshDocs
+    Forces a fresh documentation build by clearing the cache (used with
+    -Documentation).
+
+.EXAMPLE
+    .\develop.ps1
+    Performs a standard development build.
+
+.EXAMPLE
+    .\develop.ps1 -Clean -Isolate
+    Cleans previous builds, sets up a virtual environment, and builds.
+
+.EXAMPLE
+    .\develop.ps1 -Documentation -FreshDocs
+    Rebuilds the documentation from scratch.
+
+.EXAMPLE
+    .\develop.ps1 -DistClean -Isolate -Distribute
+    Full clean, setup virtual environment, build, and create distribution
+    package.
+
+.NOTES
+    Requirements:
+    - Rust/Cargo toolchain
+    - Python with pip
+
+    Build logs are written to log.build, log.dist, and log.docs files.
+#>
+
 # ----------------------------------------------------------------------------
 # Parameters
 # ----------------------------------------------------------------------------
@@ -15,6 +71,13 @@ param (
 # ----------------------------------------------------------------------------
 # Steps
 # ----------------------------------------------------------------------------
+
+function Rm-Rf {
+    param (
+        [string]$Path
+    )
+    Remove-Item -Recurse -Force $Path -ErrorAction SilentlyContinue
+}
 
 function Get-StatusMessage {
     param( [string]$Message = "" )
@@ -107,16 +170,16 @@ Write-Head "=== Majordome Development Setup ==="
 
 if ($Clean -or $DistClean) {
     Write-Warn "Cleaning previous builds..."
-    Remove-Item -Recurse -Force $(Join-Path $PSScriptRoot "build") -ErrorAction SilentlyContinue
-    Remove-Item -Recurse -Force $(Join-Path $PSScriptRoot "target") -ErrorAction SilentlyContinue
-    Remove-Item -Force $(Join-Path $PSScriptRoot "log.*") -ErrorAction SilentlyContinue
+    Rm-Rf $(Join-Path $PSScriptRoot "build")
+    Rm-Rf $(Join-Path $PSScriptRoot "target")
+    Rm-Rf $(Join-Path $PSScriptRoot "log.*")
 }
 
 if ($DistClean) {
     Write-Warn "Cleaning distribution and environment..."
-    Remove-Item -Recurse -Force $(Join-Path $PSScriptRoot ".venv") -ErrorAction SilentlyContinue
-    Remove-Item -Recurse -Force $(Join-Path $PSScriptRoot "dist") -ErrorAction SilentlyContinue
-    Remove-Item -Recurse -Force $(Join-Path $PSScriptRoot "docs\_build") -ErrorAction SilentlyContinue
+    Rm-Rf $(Join-Path $PSScriptRoot ".venv")
+    Rm-Rf $(Join-Path $PSScriptRoot "dist")
+    Rm-Rf $(Join-Path $PSScriptRoot "docs\_build")
 }
 
 if ($Isolate) {
