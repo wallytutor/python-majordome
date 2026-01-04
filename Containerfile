@@ -37,6 +37,9 @@ RUN apt-get install -y curl wget software-properties-common
 # Install Python and venv tools:
 RUN apt-get install -y python3 python3-venv python3-pip python3-dev
 
+# Other required software:
+RUN apt-get install -y pandoc inkscape
+
 # ----------------------------------------------------------------------------
 # Python environment setup
 # ----------------------------------------------------------------------------
