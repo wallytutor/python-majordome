@@ -155,7 +155,7 @@ function Invoke-BuildDocs {
     Write-Head "`nBuilding documentation..."
 
     $opts = @("-b", "html")
-    if ($FreshDocs) { $opts = "-E" + $opts }
+    if ($FreshDocs) { $opts = $opts + "-E" }
 
     $what = @("docs/", "docs/src/", "docs/_build/")
     & sphinx-build $opts -c $what > log.docs 2>&1
