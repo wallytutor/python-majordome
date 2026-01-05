@@ -21,7 +21,7 @@ Provides various physical and mathematical constants.
 .. autofunction:: majordome.constants.faraday
 .. autofunction:: majordome.constants.gravity
 .. autofunction:: majordome.constants.gas_constant
-.. autofunction:: majordome.constants.plank
+.. autofunction:: majordome.constants.planck
 .. autofunction:: majordome.constants.speed_of_light
 ```
 
