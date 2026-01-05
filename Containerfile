@@ -38,7 +38,10 @@ RUN apt-get install -y curl wget software-properties-common
 RUN apt-get install -y python3 python3-venv python3-pip python3-dev
 
 # Other required software:
-RUN apt-get install -y pandoc inkscape
+RUN apt-get install -y pandoc inkscape poppler-utils tesseract-ocr imagemagick
+
+# Linux libraries needed for PyVista/VTK:
+RUN apt-get install -y libxrender1 libvtk9-dev
 
 # ----------------------------------------------------------------------------
 # Python environment setup
@@ -84,9 +87,6 @@ WORKDIR $APPHOME
 # ----------------------------------------------------------------------------
 # PRE-INSTALL
 # ----------------------------------------------------------------------------
-
-# Linux libraries needed for PyVista/VTK:
-RUN apt-get install -y libxrender1
 
 # Pre-install Python dependencies:
 COPY containerfile.txt /opt/app/containerfile.txt

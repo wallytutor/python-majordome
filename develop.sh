@@ -27,8 +27,9 @@ function inside_instance() {
 function develop_majordome() {
     if inside_instance; then
         # If from inside apptainer, install package:
-        pip install .[docs,pdftools,vision]
+        python -m pip install -e .[docs,extras,pdftools,vision]
         sphinx-build -E -b html -c docs/ docs/src/ docs/_build/
+        # TODO automate update of containerfile.txt here?
     else
         # Work in a shell within the instance:
         start_instance
