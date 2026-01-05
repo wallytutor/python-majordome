@@ -41,7 +41,14 @@ RUN apt-get install -y python3 python3-venv python3-pip python3-dev
 RUN apt-get install -y pandoc inkscape poppler-utils tesseract-ocr imagemagick
 
 # Linux libraries needed for PyVista/VTK:
-RUN apt-get install -y libxrender1 libvtk9-dev
+RUN apt-get install -y \
+    libxrender1 \
+    libvtk9-dev \
+    libosmesa6 \
+    libgl1 \
+    libegl1 \
+    libgomp1 \
+    libtbb12
 
 # ----------------------------------------------------------------------------
 # Python environment setup
@@ -91,13 +98,6 @@ WORKDIR $APPHOME
 # Pre-install Python dependencies:
 COPY containerfile.txt /opt/app/containerfile.txt
 RUN python3 -m pip install -r /opt/app/containerfile.txt
-
-RUN apt-get install -y \
-    libosmesa6 \
-    libgl1 \
-    libegl1 \
-    libgomp1 \
-    libtbb12
 
 # ----------------------------------------------------------------------------
 # CLEAN UP
