@@ -92,6 +92,13 @@ WORKDIR $APPHOME
 COPY containerfile.txt /opt/app/containerfile.txt
 RUN python3 -m pip install -r /opt/app/containerfile.txt
 
+RUN apt-get install -y \
+    libosmesa6 \
+    libgl1 \
+    libegl1 \
+    libgomp1 \
+    libtbb12
+
 # ----------------------------------------------------------------------------
 # CLEAN UP
 # ----------------------------------------------------------------------------
