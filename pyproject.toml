@@ -93,6 +93,8 @@ pdftools = [
     "pytesseract>=0.3.13",
 ]
 vision = [
+    "exifread>=3.5.1",
+    "hyperspy>=2.3.0",
     "scikit-image>=0.25.2",
 ]
 
