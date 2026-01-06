@@ -115,7 +115,9 @@
         "**/.venv/": true,
         "**/__pycache__/": true,
         "**/.ipynb_checkpoints/": true,
-        "**/*.mod": true
+        "**/.jupyter_cache/": true,
+        "**/*.mod": true,
+        "**/.vdoc.*": true
     },
 
     //////////////////////////////////////////////////////////////////////////
