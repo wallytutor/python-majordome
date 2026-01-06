@@ -13,5 +13,6 @@ API Docs
     plotting
     reactor
     transport
+    vision
     crates/constants
     crates/diffusion
