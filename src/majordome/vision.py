@@ -2,6 +2,7 @@
 from enum import Enum
 from pathlib import Path
 from hyperspy.misc.utils import DictionaryTreeBrowser
+from numpy.typing import NDArray
 from PIL import Image
 from PIL.ExifTags import TAGS
 from skimage import io as skio
@@ -173,13 +174,12 @@ class SEMImageLoader:
     def __init__(self, fname: Path, backend: str = "HS"):
         self.img  = hs.load(fname)
         self.meta = self._load_metadata(fname, backend)
+        self.fei  = None
 
         # TODO understand why named FEI. Specfic to microscope brand?
-        if isinstance(self.meta, DictionaryTreeBrowser) and \
-          "fei_metadata" in self.meta:
-            self.fei  = self.meta["fei_metadata"]
-        else:
-            self.fei = None
+        if isinstance(self.meta, DictionaryTreeBrowser):
+            if "fei_metadata" in self.meta:
+                self.fei  = self.meta["fei_metadata"]
 
     def _load_metadata(self, fname: Path, backend: str):
         """ Wrap metadata loading for readability of constructor. """
@@ -222,3 +222,13 @@ class SEMImageLoader:
     def metadata(self):
         """ Get the metadata of the image. """
         return self.meta
+
+    @property
+    def data(self) -> NDArray:
+        """ Get the image data as a NumPy array. """
+        return self.img.data
+
+    @data.setter
+    def data(self, array: NDArray) -> None:
+        """ Set the image data from a NumPy array. """
+        self.img.data = array
