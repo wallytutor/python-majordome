@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 from pathlib import Path
+from hyperspy.misc.utils import DictionaryTreeBrowser
+from PIL import Image
+from PIL.ExifTags import TAGS
 from skimage import io as skio
 from skimage import color, exposure, filters
 from numpy.typing import NDArray
+import exifread
+import hyperspy.api as hs
 import numpy as np
 
 
@@ -159,3 +164,61 @@ class ThresholdImage(Enum):
                 img = self._otsu(img)
 
         return img
+
+
+class SEMImageLoader:
+    """ A class to load SEM images and their metadata. """
+    __slots__ = ("img", "meta", "fei")
+
+    def __init__(self, fname: Path, backend: str = "HS"):
+        self.img  = hs.load(fname)
+        self.meta = self._load_metadata(fname, backend)
+
+        # TODO understand why named FEI. Specfic to microscope brand?
+        if isinstance(self.meta, DictionaryTreeBrowser) and \
+          "fei_metadata" in self.meta:
+            self.fei  = self.meta["fei_metadata"]
+        else:
+            self.fei = None
+
+    def _load_metadata(self, fname: Path, backend: str):
+        """ Wrap metadata loading for readability of constructor. """
+        match backend.upper():
+            case "HS":
+                return self.img.original_metadata
+            case "PIL":
+                return self.metadata_pil(fname)
+            case "EXIFREAD":
+                return self.metadata_exifread(fname)
+            case _:
+                raise ValueError(f"Unknown backend '{backend}'")
+
+    @staticmethod
+    def metadata_exifread(fname: Path) -> dict:
+        """ Extract metadata using exifread package. """
+        with open(fname, "rb") as reader:
+            exif_data = {k:v for k, v in exifread.process_file(reader).items()}
+
+        return exif_data
+
+    @staticmethod
+    def metadata_pil(fname: Path) -> dict:
+        """ Extract metadata using PIL.Image package. """
+        skip_tags = {"StripOffsets", "StripByteCounts"}
+
+        with Image.open(fname) as img:
+            data = img.getexif()
+            exif_data = {}
+
+            for tag_id, value in data.items():
+                if (tag_name := TAGS.get(tag_id, tag_id)) in skip_tags:
+                    continue
+
+                exif_data[tag_name] = value
+
+        return exif_data
+
+    @property
+    def metadata(self):
+        """ Get the metadata of the image. """
+        return self.meta

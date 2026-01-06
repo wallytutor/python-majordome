@@ -224,6 +224,7 @@ try:
         ChannelSelector,
         ContrastEnhancement,
         ThresholdImage,
+        SEMImageLoader,
     )
 
     __all__ += [
@@ -231,6 +232,7 @@ try:
         "ChannelSelector",
         "ContrastEnhancement",
         "ThresholdImage",
+        "SEMImageLoader",
     ]
 except ImportError:
     pass
