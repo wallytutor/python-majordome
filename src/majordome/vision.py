@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 from pathlib import Path
+from hyperspy.signals import BaseSignal
 from hyperspy.misc.utils import DictionaryTreeBrowser
 from numpy.typing import NDArray
 from PIL import Image
 from PIL.ExifTags import TAGS
+from scipy.integrate import cumulative_simpson
 from skimage import io as skio
 from skimage import color, exposure, filters
 from numpy.typing import NDArray
 import exifread
 import hyperspy.api as hs
 import numpy as np
+
+from .plotting import MajordomePlot
 
 
 class ImageCrop:
@@ -219,6 +223,11 @@ class SEMImageLoader:
         return exif_data
 
     @property
+    def image(self): # -> hs.Image:
+        """ Get the HyperSpy image object. """
+        return self.img
+
+    @property
     def metadata(self):
         """ Get the metadata of the image. """
         return self.meta
@@ -232,3 +241,180 @@ class SEMImageLoader:
     def data(self, array: NDArray) -> None:
         """ Set the image data from a NumPy array. """
         self.img.data = array
+
+
+class SEMImageHandler(SEMImageLoader):
+    """ A class to represent a SEM image and its metadata. """
+    __slots__ = ("_orig", "_fft")
+
+    def __init__(self, fname: Path, crop: bool = True):
+        super().__init__(fname, backend="HS")
+        self._orig = self.img.deepcopy()
+
+        if crop:
+            self._crop_sem_bar()
+
+    def _crop_sem_bar(self):
+        """ Crop the SEM scale bar from the image. """
+        dx = self.fei.Image.ResolutionX
+        dy = self.fei.Image.ResolutionY
+
+        self.img.crop("width",  end=dx)
+        self.img.crop("height", end=dy)
+
+    def _plot_title(self):
+        """ Generate a plot title from metadata. """
+        mode = self.fei.Detectors.Mode
+        volt = self.fei.Beam.HV / 1000
+        h, w = self.dimensions
+
+        return f"{mode} at {volt:.0f} kV - region of {w:.1f} µm x {h:.1f} µm"
+
+    def plot(self, **kwargs):
+        """ Plot the image with optional scalebar and title. """
+        kwargs.setdefault("scalebar", False)
+        kwargs.setdefault("scalebar_color", "#0000ff")
+        kwargs.setdefault("axes_off", True)
+        kwargs.setdefault("colorbar", False)
+        kwargs.setdefault("title", self._plot_title())
+        self.img.plot(**kwargs)
+
+    def reset(self, crop: bool = True):
+        """ Reset the image data to the original state. """
+        self.img = self._orig.deepcopy()
+
+        if crop:
+            self._crop_sem_bar()
+
+    def apply_gaussian(self, sigma: float,
+                       fresh: bool = False, **kwargs) -> None:
+        """ Apply Gaussian filter to the image data. """
+        if fresh:
+            self.reset(crop=kwargs.pop("crop", True))
+
+        self.data = filters.gaussian(self.data, sigma=sigma)
+
+    def apply_contrast(self, method: ContrastEnhancement,
+                       fresh: bool = False, **kwargs) -> None:
+        """ Apply contrast enhancement to the image data. """
+        if fresh:
+            self.reset(crop=kwargs.pop("crop", True))
+
+        self.data = method.apply(self.data, **kwargs)
+
+    def apply_derivative(self, order: int = 1, axes="xy",
+                         fresh: bool = False, **kwargs) -> None:
+        """ Apply derivative filter to the image data. """
+        if fresh:
+            self.reset(crop=kwargs.pop("crop", True))
+
+        match axes:
+            case "x":
+                self.data = self.img.derivative(0, order=order).data
+            case "y":
+                self.data = self.img.derivative(1, order=order).data
+            case "xy":
+                data0 = self.img.derivative(0, order=order).data
+                data1 = self.img.derivative(1, order=order).data
+                self.data = data0 + data1
+
+    @property
+    def dimensions(self) -> tuple[float, float]:
+        """ Get the dimensions in micrometers of the scanned region. """
+        try:
+            h = 1e6 * self.fei["EScan"]["VerFieldsize"]
+            w = 1e6 * self.fei["EScan"]["HorFieldsize"]
+        except:
+            h, w = self.img.data.shape
+            w = 1e6 * w * self.fei.Scan.PixelWidth
+            h = 1e6 * h * self.fei.Scan.PixelHeight
+
+        return h, w
+
+
+class CharacteristicLength:
+    """" Compute the characteristic length of a 2D field through FFT. """
+    __slots__ = ("_k_centers", "_spectrum", "_length")
+
+    def __init__(self, f, Lx, Ly, nbins=200, window=True) -> None:
+        Ny, Nx = f.shape if not isinstance(f, BaseSignal) else f.data.shape
+        P = self.power_spectrum(f, Nx, Ny, Lx, Ly, window)
+
+        K = self.wavenumber_grid(Nx, Ny, Lx, Ly)
+        k, E = self.radial_binarization(P, K, nbins)
+
+        self._k_centers = k
+        self._spectrum  = E
+
+    def power_spectrum(self, f, Nx, Ny, Lx, Ly, window):
+        """ Compute the power spectrum of the field f. """
+        if isinstance(f, BaseSignal):
+            F = f.fft(shift=True, apodization=window).data#, )
+        else:
+            if window:
+                f = self.apodization(f, Nx, Ny, Lx, Ly)
+
+            F = np.fft.fftshift(np.fft.fft2(f))
+
+        return np.abs(F)**2
+
+    def apodization(self, f, Nx, Ny, Lx, Ly):
+        """ Apply a 2D (cosine) Hann window to the field f. """
+        wx = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Nx) / Nx))
+        wy = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Ny) / Ny))
+        W = np.outer(wy, wx)
+        return f * W
+
+    def wavenumber_grid(self, Nx, Ny, Lx, Ly):
+        """ Compute the cycles per unit length wavenumber grid. """
+        kx = np.fft.fftshift(np.fft.fftfreq(Nx, d=Lx/Nx))
+        ky = np.fft.fftshift(np.fft.fftfreq(Ny, d=Ly/Ny))
+
+        KX, KY = np.meshgrid(kx, ky)
+        return np.sqrt(KX**2 + KY**2)
+
+    def radial_binarization(self, P, K, nbins):
+        """ Digitize the wavenumber grid into radial bins. """
+        k_bins = np.linspace(0, K.max(), nbins+1)
+        k = 0.5 * (k_bins[:-1] + k_bins[1:])
+
+        # Digitize all points at once
+        idx = np.digitize(K.ravel(), k_bins)
+
+        # Vectorized radial average
+        E = np.zeros(nbins)
+        for i in range(1, nbins+1):
+            mask = (idx == i)
+            if np.any(mask):
+                E[i-1] = P.ravel()[mask].mean()
+
+        return k, E / np.trapz(E, k)
+
+    @property
+    def characteristic_length(self):
+        """ Retrieve characteristic length from the spectrum. """
+        if not hasattr(self, "_length"):
+            # Skip zero-frequency bin:
+            i_peak = np.argmax(self._spectrum[1:]) + 1
+            k_peak = self._k_centers[i_peak]
+            self._length = 1.0 / k_peak
+
+        return self._length
+
+    @MajordomePlot.new
+    def plot_spectrum(self, plot=None, cdf=True, cutoff=None):
+        """ Plot the power spectrum and indicate characteristic length. """
+        fig, ax = plot.subplots()
+
+        x = 1 / self._k_centers
+        y = self._spectrum
+        Y = self.characteristic_length
+
+        if cdf:
+            y = 1 - cumulative_simpson(y, x=x[::-1], initial=0)
+
+        ax[0].plot(x, y)
+        ax[0].set_xlabel("Length [µm]")
+        ax[0].axvline(Y, color="red", linestyle="--",
+                      label=f"Characteristic length: {Y:.2f} µm")
+        ax[0].legend(loc=1)

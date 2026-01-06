@@ -225,6 +225,8 @@ try:
         ContrastEnhancement,
         ThresholdImage,
         SEMImageLoader,
+        SEMImageHandler,
+        CharacteristicLength,
     )
 
     __all__ += [
@@ -233,6 +235,8 @@ try:
         "ContrastEnhancement",
         "ThresholdImage",
         "SEMImageLoader",
+        "SEMImageHandler",
+        "CharacteristicLength",
     ]
 except ImportError:
     pass
