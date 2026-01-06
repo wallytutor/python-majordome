@@ -21,4 +21,10 @@
 ```{eval-rst}
 .. autoclass:: majordome.vision.SEMImageLoader
     :members:
+
+.. autoclass:: majordome.vision.SEMImageHandler
+    :members:
+
+.. autoclass:: majordome.vision.CharacteristicLength
+    :members:
 ```
