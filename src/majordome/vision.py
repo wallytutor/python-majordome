@@ -230,7 +230,7 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         return self.__original
 
     @property
-    def image(self):
+    def handle(self) -> Signal2D:
         """ Access to internal image. """
         return self._image
 
@@ -254,7 +254,7 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         """ Set the image data from a NumPy array. """
         self._image.data = array
 
-    def view(self, **kwargs):
+    def view(self, **kwargs) -> None:
         """ Plot the image with optional scalebar and title. """
         kwargs.setdefault("scalebar", False)
         kwargs.setdefault("scalebar_color", "#0000ff")
@@ -268,6 +268,11 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
     def fft(self, window=True) -> NDArray:
         """ Perform FFT of internal image instance. """
         return self._image.fft(shift=True, apodization=window).data
+
+    def spectrum_plot(self, window=True) -> None:
+        """ Plot the power spectrum of the internal image. """
+        F = self._image.fft(shift=True, apodization=window)
+        F.plot(power_spectrum=True)
 
 
 class CharacteristicLengthSEMImage:
