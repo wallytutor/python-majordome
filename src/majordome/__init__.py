@@ -133,18 +133,15 @@ __all__ += [
 # majordome.pdftools
 # ---------------------------------------------------------------------
 
-try:
-    from .pdftools import (
-        PdfExtracted,
-        PdfToTextConverter,
-    )
+from .pdftools import (
+    PdfExtracted,
+    PdfToTextConverter,
+)
 
-    __all__ += [
-        "PdfExtracted",
-        "PdfToTextConverter",
-    ]
-except ImportError:
-    pass
+__all__ += [
+    "PdfExtracted",
+    "PdfToTextConverter",
+]
 
 # ---------------------------------------------------------------------
 # majordome.plotting
@@ -218,28 +215,25 @@ def toggle_warnings(**kwargs):
 # majordome.vision
 # ---------------------------------------------------------------------
 
-try:
-    from .vision import (
-        ImageCrop,
-        ChannelSelector,
-        ContrastEnhancement,
-        ThresholdImage,
-        AbstractSEMImageLoader,
-        HyperSpySEMImageLoaderStub,
-        CharacteristicLengthSEMImage,
-    )
+from .vision import (
+    ImageCrop,
+    ChannelSelector,
+    ContrastEnhancement,
+    ThresholdImage,
+    AbstractSEMImageLoader,
+    HyperSpySEMImageLoaderStub,
+    CharacteristicLengthSEMImage,
+)
 
-    __all__ += [
-        "ImageCrop",
-        "ChannelSelector",
-        "ContrastEnhancement",
-        "ThresholdImage",
-        "AbstractSEMImageLoader",
-        "HyperSpySEMImageLoaderStub",
-        "CharacteristicLengthSEMImage",
-    ]
-except ImportError:
-    pass
+__all__ += [
+    "ImageCrop",
+    "ChannelSelector",
+    "ContrastEnhancement",
+    "ThresholdImage",
+    "AbstractSEMImageLoader",
+    "HyperSpySEMImageLoaderStub",
+    "CharacteristicLengthSEMImage",
+]
 
 # ---------------------------------------------------------------------
 # EOF

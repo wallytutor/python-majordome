@@ -22,7 +22,7 @@
 # Below we illustrate the usage of `PdfToTextConverted`. Please notice that data curation of extracted texts is still required if readability is a requirement. If quality of automated extractions is often poor for a specific language, you might want to search the web how to *train tesseract*, that topic is not covered here.
 
 # %% [markdown]
-# **Note:** this note assumes `majordome` has been installed with optional dependencies from `pdftools`, *i.e.* `pip install majordome[pdftools]`; it also assumes [tesseract](https://github.com/tesseract-ocr/tesseract) and [poppler](https://github.com/oschwartz10612/poppler-windows), and [ImageMagick](https://imagemagick.org/) are available in system path. Under Windows you might struggle to get them all working together, please check Majordome's Kompanion for automatic installation.
+# **Note:** this note assumes [tesseract](https://github.com/tesseract-ocr/tesseract) and [poppler](https://github.com/oschwartz10612/poppler-windows), and [ImageMagick](https://imagemagick.org/) are available in system path. Under Windows you might struggle to get them all working together, please check Majordome's Kompanion for automatic installation.
 
 # %% [markdown]
 # Install dependencies on Ubuntu 22.04:
