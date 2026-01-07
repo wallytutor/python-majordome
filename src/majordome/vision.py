@@ -271,6 +271,7 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
 
     def spectrum_plot(self, window=True) -> None:
         """ Plot the power spectrum of the internal image. """
+        plt.close("all")
         F = self._image.fft(shift=True, apodization=window)
         F.plot(power_spectrum=True)
 
