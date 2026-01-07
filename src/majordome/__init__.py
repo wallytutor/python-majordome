@@ -224,9 +224,9 @@ try:
         ChannelSelector,
         ContrastEnhancement,
         ThresholdImage,
-        SEMImageLoader,
-        SEMImageHandler,
-        CharacteristicLength,
+        AbstractSEMImageLoader,
+        HyperSpySEMImageLoaderStub,
+        CharacteristicLengthSEMImage,
     )
 
     __all__ += [
@@ -234,9 +234,9 @@ try:
         "ChannelSelector",
         "ContrastEnhancement",
         "ThresholdImage",
-        "SEMImageLoader",
-        "SEMImageHandler",
-        "CharacteristicLength",
+        "AbstractSEMImageLoader",
+        "HyperSpySEMImageLoaderStub",
+        "CharacteristicLengthSEMImage",
     ]
 except ImportError:
     pass

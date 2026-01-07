@@ -19,12 +19,12 @@
 ## Microscopy helpers
 
 ```{eval-rst}
-.. autoclass:: majordome.vision.SEMImageLoader
+.. autoclass:: majordome.vision.AbstractSEMImageLoader
     :members:
 
-.. autoclass:: majordome.vision.SEMImageHandler
+.. autoclass:: majordome.vision.HyperSpySEMImageLoaderStub
     :members:
 
-.. autoclass:: majordome.vision.CharacteristicLength
+.. autoclass:: majordome.vision.CharacteristicLengthSEMImage
     :members:
 ```
