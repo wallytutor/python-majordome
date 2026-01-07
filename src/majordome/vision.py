@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from hyperspy.signals import BaseSignal
+from hyperspy.api import load as hs_load
+from hyperspy.signals import Signal2D
 from hyperspy.misc.utils import DictionaryTreeBrowser
 from numpy.typing import NDArray
 from PIL import Image
@@ -11,7 +13,7 @@ from skimage import io as skio
 from skimage import color, exposure, filters
 from numpy.typing import NDArray
 import exifread
-import hyperspy.api as hs
+import matplotlib.pyplot as plt
 import numpy as np
 
 from .plotting import MajordomePlot
@@ -171,199 +173,138 @@ class ThresholdImage(Enum):
         return img
 
 
-class SEMImageLoader:
-    """ A class to load SEM images and their metadata. """
-    __slots__ = ("img", "meta", "fei")
-
-    def __init__(self, fname: Path, backend: str = "HS"):
-        self.img  = hs.load(fname)
-        self.meta = self._load_metadata(fname, backend)
-        self.fei  = None
-
-        # TODO understand why named FEI. Specfic to microscope brand?
-        if isinstance(self.meta, DictionaryTreeBrowser):
-            if "fei_metadata" in self.meta:
-                self.fei  = self.meta["fei_metadata"]
-
-    def _load_metadata(self, fname: Path, backend: str):
-        """ Wrap metadata loading for readability of constructor. """
-        match backend.upper():
-            case "HS":
-                return self.img.original_metadata
-            case "PIL":
-                return self.metadata_pil(fname)
-            case "EXIFREAD":
-                return self.metadata_exifread(fname)
-            case _:
-                raise ValueError(f"Unknown backend '{backend}'")
-
-    @staticmethod
-    def metadata_exifread(fname: Path) -> dict:
-        """ Extract metadata using exifread package. """
-        with open(fname, "rb") as reader:
-            exif_data = {k:v for k, v in exifread.process_file(reader).items()}
-
-        return exif_data
-
-    @staticmethod
-    def metadata_pil(fname: Path) -> dict:
-        """ Extract metadata using PIL.Image package. """
-        skip_tags = {"StripOffsets", "StripByteCounts"}
-
-        with Image.open(fname) as img:
-            data = img.getexif()
-            exif_data = {}
-
-            for tag_id, value in data.items():
-                if (tag_name := TAGS.get(tag_id, tag_id)) in skip_tags:
-                    continue
-
-                exif_data[tag_name] = value
-
-        return exif_data
+class AbstractSEMImageLoader(ABC):
+    @property
+    def dimensions(self) -> NDArray:
+        """ Get the image dimensions in micrometers. """
+        return self.pixel_size * np.array(self.shape)
 
     @property
-    def image(self): # -> hs.Image:
-        """ Get the HyperSpy image object. """
-        return self.img
+    @abstractmethod
+    def shape(self) -> tuple[int, int]:
+        """ Get the image shape as (height, width). """
+        pass
 
     @property
-    def metadata(self):
-        """ Get the metadata of the image. """
-        return self.meta
+    @abstractmethod
+    def pixel_size(self) -> float:
+        """ Pixel size in micrometers. """
+        pass
+
+    @property
+    @abstractmethod
+    def data(self) -> NDArray:
+        """ Get the image data as a NumPy array. """
+        pass
+
+    @data.setter
+    @abstractmethod
+    def data(self, value: NDArray) -> None:
+        """ Set the image data from a NumPy array. """
+        pass
+
+    @abstractmethod
+    def view(self, **kwargs):
+        """ Plot the image with optional scalebar and title. """
+        pass
+
+
+class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
+    """ Base SEM image loader using HyperSpy."""
+    __slots__ = ("__original", "_image", "_pixel_size", "_title")
+
+    def __init__(self, filepath: Path) -> None:
+        super().__init__()
+
+        # Load image that will remain unmodified:
+        self.__original = hs_load(filepath)
+
+        # Create empty slots for inheritors:
+        self._image = Signal2D([[], []])
+        self._pixel_size = -1.0
+        self._title = ""
+
+    @property
+    def original(self):
+        """ Original unmodified image. """
+        return self.__original
+
+    @property
+    def image(self):
+        """ Access to internal image. """
+        return self._image
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        """ Get the image shape as (height, width). """
+        return self._image.data.shape[:2]
+
+    @property
+    def pixel_size(self) -> float:
+        """ Pixel size (in micrometers). """
+        return self._pixel_size
 
     @property
     def data(self) -> NDArray:
         """ Get the image data as a NumPy array. """
-        return self.img.data
+        return np.array(self._image.data)
 
     @data.setter
     def data(self, array: NDArray) -> None:
         """ Set the image data from a NumPy array. """
-        self.img.data = array
+        self._image.data = array
 
-
-class SEMImageHandler(SEMImageLoader):
-    """ A class to represent a SEM image and its metadata. """
-    __slots__ = ("_orig", "_fft")
-
-    def __init__(self, fname: Path, crop: bool = True):
-        super().__init__(fname, backend="HS")
-        self._orig = self.img.deepcopy()
-
-        if crop:
-            self._crop_sem_bar()
-
-    def _crop_sem_bar(self):
-        """ Crop the SEM scale bar from the image. """
-        dx = self.fei.Image.ResolutionX
-        dy = self.fei.Image.ResolutionY
-
-        self.img.crop("width",  end=dx)
-        self.img.crop("height", end=dy)
-
-    def _plot_title(self):
-        """ Generate a plot title from metadata. """
-        mode = self.fei.Detectors.Mode
-        volt = self.fei.Beam.HV / 1000
-        h, w = self.dimensions
-
-        return f"{mode} at {volt:.0f} kV - region of {w:.1f} µm x {h:.1f} µm"
-
-    def plot(self, **kwargs):
+    def view(self, **kwargs):
         """ Plot the image with optional scalebar and title. """
         kwargs.setdefault("scalebar", False)
         kwargs.setdefault("scalebar_color", "#0000ff")
         kwargs.setdefault("axes_off", True)
         kwargs.setdefault("colorbar", False)
-        kwargs.setdefault("title", self._plot_title())
-        self.img.plot(**kwargs)
+        kwargs.setdefault("title", self._title)
 
-    def reset(self, crop: bool = True):
-        """ Reset the image data to the original state. """
-        self.img = self._orig.deepcopy()
+        plt.close("all")
+        self._image.plot(**kwargs)
 
-        if crop:
-            self._crop_sem_bar()
-
-    def apply_gaussian(self, sigma: float,
-                       fresh: bool = False, **kwargs) -> None:
-        """ Apply Gaussian filter to the image data. """
-        if fresh:
-            self.reset(crop=kwargs.pop("crop", True))
-
-        self.data = filters.gaussian(self.data, sigma=sigma)
-
-    def apply_contrast(self, method: ContrastEnhancement,
-                       fresh: bool = False, **kwargs) -> None:
-        """ Apply contrast enhancement to the image data. """
-        if fresh:
-            self.reset(crop=kwargs.pop("crop", True))
-
-        self.data = method.apply(self.data, **kwargs)
-
-    def apply_derivative(self, order: int = 1, axes="xy",
-                         fresh: bool = False, **kwargs) -> None:
-        """ Apply derivative filter to the image data. """
-        if fresh:
-            self.reset(crop=kwargs.pop("crop", True))
-
-        match axes:
-            case "x":
-                self.data = self.img.derivative(0, order=order).data
-            case "y":
-                self.data = self.img.derivative(1, order=order).data
-            case "xy":
-                data0 = self.img.derivative(0, order=order).data
-                data1 = self.img.derivative(1, order=order).data
-                self.data = data0 + data1
-
-    @property
-    def dimensions(self) -> tuple[float, float]:
-        """ Get the dimensions in micrometers of the scanned region. """
-        try:
-            h = 1e6 * self.fei["EScan"]["VerFieldsize"]
-            w = 1e6 * self.fei["EScan"]["HorFieldsize"]
-        except:
-            h, w = self.img.data.shape
-            w = 1e6 * w * self.fei.Scan.PixelWidth
-            h = 1e6 * h * self.fei.Scan.PixelHeight
-
-        return h, w
+    def fft(self, window=True) -> NDArray:
+        """ Perform FFT of internal image instance. """
+        return self._image.fft(shift=True, apodization=window).data
 
 
-class CharacteristicLength:
+class CharacteristicLengthSEMImage:
     """" Compute the characteristic length of a 2D field through FFT. """
     __slots__ = ("_k_centers", "_spectrum", "_length")
 
-    def __init__(self, f, Lx, Ly, nbins=200, window=True) -> None:
-        Ny, Nx = f.shape if not isinstance(f, BaseSignal) else f.data.shape
-        P = self.power_spectrum(f, Nx, Ny, Lx, Ly, window)
+    def __init__(self, f: AbstractSEMImageLoader, **kwargs) -> None:
+        nbins = kwargs.pop("nbins", 200)
+        window = kwargs.pop("window", True)
 
+        Lx, Ly = f.dimensions
+        Ny, Nx = f.shape
+
+        P = self.power_spectrum(f, Nx, Ny, window)
         K = self.wavenumber_grid(Nx, Ny, Lx, Ly)
         k, E = self.radial_binarization(P, K, nbins)
 
         self._k_centers = k
         self._spectrum  = E
 
-    def power_spectrum(self, f, Nx, Ny, Lx, Ly, window):
+    @staticmethod
+    def fft(f, Nx, Ny, window):
+        """ Compute the FFT of the field with possible apodization. """
+        if hasattr(f, "fft"):
+            return f.fft(window)
+
+        if window:
+            # Apply a 2D (cosine) Hann window to the field f.
+            wx = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Nx) / Nx))
+            wy = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Ny) / Ny))
+            f = f * np.outer(wy, wx)
+
+        return np.fft.fftshift(np.fft.fft2(f))
+
+    def power_spectrum(self, f, Nx, Ny, window):
         """ Compute the power spectrum of the field f. """
-        if isinstance(f, BaseSignal):
-            F = f.fft(shift=True, apodization=window).data#, )
-        else:
-            if window:
-                f = self.apodization(f, Nx, Ny, Lx, Ly)
-
-            F = np.fft.fftshift(np.fft.fft2(f))
-
-        return np.abs(F)**2
-
-    def apodization(self, f, Nx, Ny, Lx, Ly):
-        """ Apply a 2D (cosine) Hann window to the field f. """
-        wx = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Nx) / Nx))
-        wy = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Ny) / Ny))
-        W = np.outer(wy, wx)
-        return f * W
+        return np.abs(self.fft(f, Nx, Ny, window))**2
 
     def wavenumber_grid(self, Nx, Ny, Lx, Ly):
         """ Compute the cycles per unit length wavenumber grid. """
@@ -382,13 +323,17 @@ class CharacteristicLength:
         idx = np.digitize(K.ravel(), k_bins)
 
         # Vectorized radial average
-        E = np.zeros(nbins)
+        E = np.zeros(nbins, dtype=P.dtype)
+
         for i in range(1, nbins+1):
             mask = (idx == i)
             if np.any(mask):
                 E[i-1] = P.ravel()[mask].mean()
 
-        return k, E / np.trapz(E, k)
+        # Normalize the spectrum:
+        E = E / np.trapezoid(E, k)
+
+        return k, E
 
     @property
     def characteristic_length(self):
@@ -418,3 +363,41 @@ class CharacteristicLength:
         ax[0].axvline(Y, color="red", linestyle="--",
                       label=f"Characteristic length: {Y:.2f} µm")
         ax[0].legend(loc=1)
+
+
+def load_metadata(fname: Path, backend: str = "HS"):
+    """ Wrap metadata loading for readability of constructor. """
+    match backend.upper():
+        case "HS":
+            return hs_load(fname).original_metadata
+        case "PIL":
+            return metadata_pil(fname)
+        case "EXIFREAD":
+            return metadata_exifread(fname)
+        case _:
+            raise ValueError(f"Unknown backend '{backend}'")
+
+
+def metadata_exifread(fname: Path) -> dict:
+    """ Extract metadata using exifread package. """
+    with open(fname, "rb") as reader:
+        exif_data = {k:v for k, v in exifread.process_file(reader).items()}
+
+    return exif_data
+
+
+def metadata_pil(fname: Path) -> dict:
+    """ Extract metadata using PIL.Image package. """
+    skip_tags = {"StripOffsets", "StripByteCounts"}
+
+    with Image.open(fname) as img:
+        data = img.getexif()
+        exif_data = {}
+
+        for tag_id, value in data.items():
+            if (tag_name := TAGS.get(tag_id, tag_id)) in skip_tags:
+                continue
+
+            exif_data[tag_name] = value
+
+    return exif_data
