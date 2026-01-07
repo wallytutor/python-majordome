@@ -28,7 +28,7 @@ For developing the package, consider doing so from within a virtual environment;
 python -m venv venv
 venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip
-pip install -e .[docs,extras,pdftools,vision]
+pip install -e .[docs,extras]
 ```
 
 Please notice that Linux users may need to install `python-venv`; under Debian-based distributions that is done with `sudo apt install python-venv`, which requires admin rights. Also notice that activating an environment is done with `source venv/bin/activate` instead.
@@ -40,7 +40,7 @@ For convenience, you find a `develop.ps1` script in project root.
 During development it is highly recommended to verify documentation build succeeds; in practice it is automatically generated and deployed by a [GitHub workflow](https://github.com/wallytutor/python-majordome/blob/main/.github/workflows/documentation.yml). From within a development environment created as per the previous section (and containing the package installed at least in development mode), run the following:
 
 ```bash
-pip install .[docs,pdftools,vision]
+pip install .[docs]
 sphinx-build -E -b html -c docs/ docs/src/ docs/_build/
 ```
 

@@ -140,7 +140,7 @@ function Test-RequiredTools {
 
 function Invoke-DevelopBuild {
     Write-Head "`nBuilding and installing development version..."
-    $pkg = "$PSScriptRoot[docs,extras,pdftools,vision]"
+    $pkg = "$PSScriptRoot[docs,extras]"
     & python -m pip install -e $pkg --no-build-isolation > log.build 2>&1
     return Get-StatusMessage "Check log.build"
 }
