@@ -149,11 +149,13 @@ __all__ += [
 
 from .plotting import (
     MajordomePlot,
+    PowerFormatter,
     centered_colormap,
 )
 
 __all__ += [
     "MajordomePlot",
+    "PowerFormatter",
     "centered_colormap",
 ]
 

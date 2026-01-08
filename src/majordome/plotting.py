@@ -6,6 +6,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import ListedColormap, TwoSlopeNorm
+from matplotlib.ticker import FuncFormatter
 from pyvista import LookupTable
 import functools
 import matplotlib.pyplot as plt
@@ -138,6 +139,23 @@ class MajordomePlot:
                 return obj
             return wrapper
         return decorator if _func is None else decorator(_func)
+
+
+class PowerFormatter(FuncFormatter):
+    """ Formatter for power of ten in numerical axes. """
+    __slots__ = ("_superscripts",)
+
+    def __init__(self, **kwargs) -> None:
+        values = kwargs.get("values", "0123456789-")
+        supers = kwargs.get("supers", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
+        self._superscripts = str.maketrans(values, supers)
+
+        super().__init__(self._format_power)
+
+    def _format_power(self, x, pos) -> str:
+        """ Format a power of ten using current font. """
+        exp = f"{int(x)}".translate(self._superscripts)
+        return f"10{exp}"
 
 
 def centered_colormap(name: str, vmin: float, vmax: float,

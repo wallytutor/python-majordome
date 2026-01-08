@@ -5,18 +5,18 @@ from pathlib import Path
 from hyperspy.api import load as hs_load
 from hyperspy.signals import Signal2D
 from hyperspy.misc.utils import DictionaryTreeBrowser
+from matplotlib import pyplot as plt
 from numpy.typing import NDArray
-from PIL import Image
-from PIL.ExifTags import TAGS
+from PIL import Image, ExifTags
 from scipy.integrate import cumulative_simpson
 from skimage import io as skio
 from skimage import color, exposure, filters
 from numpy.typing import NDArray
 import exifread
-import matplotlib.pyplot as plt
 import numpy as np
 
-from .plotting import MajordomePlot
+from .common import bounds
+from .plotting import MajordomePlot, PowerFormatter
 
 
 class ImageCrop:
@@ -173,6 +173,28 @@ class ThresholdImage(Enum):
         return img
 
 
+class HelpersFFT:
+    """ Helper methods for FFT-based analysis. """
+    @staticmethod
+    def wavenumber_axis(N, L):
+        """ Compute the cycles per unit length wavenumber axis. """
+        return np.fft.fftshift(np.fft.fftfreq(N, d=L/N))
+
+    @staticmethod
+    def wavenumber_axes(Nx, Ny, Lx, Ly):
+        """ Compute the cycles per unit length wavenumber axes. """
+        kx = HelpersFFT.wavenumber_axis(Nx, Lx)
+        ky = HelpersFFT.wavenumber_axis(Ny, Ly)
+        return kx, ky
+
+    @staticmethod
+    def wavenumber_grid(Nx, Ny, Lx, Ly):
+        """ Compute the cycles per unit length wavenumber grid. """
+        kx, ky = HelpersFFT.wavenumber_axes(Nx, Ny, Lx, Ly)
+        KX, KY = np.meshgrid(kx, ky)
+        return np.sqrt(KX**2 + KY**2)
+
+
 class AbstractSEMImageLoader(ABC):
     @property
     def dimensions(self) -> NDArray:
@@ -269,11 +291,32 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         """ Perform FFT of internal image instance. """
         return self._image.fft(shift=True, apodization=window).data
 
-    def spectrum_plot(self, window=True) -> None:
+    @MajordomePlot.new(grid=False)
+    def spectrum_plot(self, plot=None, window=True, vstep=2):
         """ Plot the power spectrum of the internal image. """
-        plt.close("all")
+        """ Plot the FFT spectrum with proper calibration. """
         F = self._image.fft(shift=True, apodization=window)
-        F.plot(power_spectrum=True)
+        P = np.log10(np.abs(F.data)**2)
+
+        vmin, vmax = bounds(P)
+        Nx, Ny = self.shape
+        Lx, Ly = self.dimensions
+        wx, wy = HelpersFFT.wavenumber_axes(Nx, Ny, Lx, Ly)
+
+        ticks = np.round(np.arange(vmin, vmax + vstep / 2, vstep))
+        extent = [wx.min(), wx.max(), wy.min(), wy.max()]
+
+        fig, ax = plot.subplots()
+        im = ax[0].imshow(P, cmap="gray", extent=extent)
+
+        ax[0].set_title("FFT Spectrum")
+        ax[0].set_xlabel("Horizontal spatial frequency (1 / µm)")
+        ax[0].set_ylabel("Vertical spatial frequency (1 / µm)")
+
+        cbar = fig.colorbar(im, ax=ax[0], shrink=0.95)
+        cbar.set_label("Power spectral density", rotation=270, labelpad=15)
+        cbar.set_ticks(ticks)
+        cbar.ax.yaxis.set_major_formatter(PowerFormatter())
 
 
 class CharacteristicLengthSEMImage:
@@ -288,7 +331,7 @@ class CharacteristicLengthSEMImage:
         Ny, Nx = f.shape
 
         P = self.power_spectrum(f, Nx, Ny, window)
-        K = self.wavenumber_grid(Nx, Ny, Lx, Ly)
+        K = HelpersFFT.wavenumber_grid(Nx, Ny, Lx, Ly)
         k, E = self.radial_binarization(P, K, nbins)
 
         self._k_centers = k
@@ -401,7 +444,7 @@ def metadata_pil(fname: Path) -> dict:
         exif_data = {}
 
         for tag_id, value in data.items():
-            if (tag_name := TAGS.get(tag_id, tag_id)) in skip_tags:
+            if (tag_name := ExifTags.TAGS.get(tag_id, tag_id)) in skip_tags:
                 continue
 
             exif_data[tag_name] = value
