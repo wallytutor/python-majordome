@@ -14,6 +14,9 @@
 
 .. autoclass:: majordome.vision.ThresholdImage
     :members:
+
+.. autoclass:: majordome.vision.HelpersFFT
+    :members:
 ```
 
 ## Microscopy helpers
