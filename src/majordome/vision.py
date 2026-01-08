@@ -415,7 +415,16 @@ class CharacteristicLengthSEMImage:
 
 
 def load_metadata(fname: Path, backend: str = "HS"):
-    """ Wrap metadata loading for readability of constructor. """
+    """ Wrap metadata loading for readability of constructor.
+
+    Parameters
+    ----------
+    fname: Path
+        Path to the file to be parsed.
+    backend: str = "HS"
+        Data extraction backend. Supports "HS" for HyperSpy, "PIL" for
+        PIL, and "EXIFREAD" for exifread packages.
+    """
     match backend.upper():
         case "HS":
             return hs_load(fname).original_metadata
@@ -424,7 +433,8 @@ def load_metadata(fname: Path, backend: str = "HS"):
         case "EXIFREAD":
             return metadata_exifread(fname)
         case _:
-            raise ValueError(f"Unknown backend '{backend}'")
+            raise ValueError(f"Unknown backend '{backend}', currently"
+                             f"available: HS, PIL, EXIFREAD")
 
 
 def metadata_exifread(fname: Path) -> dict:
@@ -437,16 +447,21 @@ def metadata_exifread(fname: Path) -> dict:
 
 def metadata_pil(fname: Path) -> dict:
     """ Extract metadata using PIL.Image package. """
-    skip_tags = {"StripOffsets", "StripByteCounts"}
-
     with Image.open(fname) as img:
-        data = img.getexif()
+        # XXX: using more complete private method!
+        data = img._getexif()
         exif_data = {}
 
         for tag_id, value in data.items():
-            if (tag_name := ExifTags.TAGS.get(tag_id, tag_id)) in skip_tags:
-                continue
+            # TODO Add filter parameters
+            # skip_tags = {"StripOffsets", "StripByteCounts"}
+            # if (tag_name := ExifTags.TAGS.get(tag_id, tag_id)) in skip_tags:
+            #     continue
+            exif_data[ExifTags.TAGS.get(tag_id, tag_id)] = value
 
-            exif_data[tag_name] = value
+    if "GPSInfo" in exif_data:
+        data = exif_data["GPSInfo"]
+        gps = {ExifTags.GPSTAGS.get(k, k): v for k, v in data.items()}
+        exif_data["GPSInfo"] = gps
 
     return exif_data
