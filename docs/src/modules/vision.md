@@ -17,6 +17,8 @@
 
 .. autoclass:: majordome.vision.HelpersFFT
     :members:
+
+.. autofunction:: majordome.vision.load_metadata
 ```
 
 ## Microscopy helpers
