@@ -453,10 +453,6 @@ def metadata_pil(fname: Path) -> dict:
         exif_data = {}
 
         for tag_id, value in data.items():
-            # TODO Add filter parameters
-            # skip_tags = {"StripOffsets", "StripByteCounts"}
-            # if (tag_name := ExifTags.TAGS.get(tag_id, tag_id)) in skip_tags:
-            #     continue
             exif_data[ExifTags.TAGS.get(tag_id, tag_id)] = value
 
     if "GPSInfo" in exif_data:
