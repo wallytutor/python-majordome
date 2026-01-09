@@ -323,7 +323,6 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         return HelpersFFT.plot_spectrum2d(P, Nx, Ny, Lx, Ly, vstep=vstep)
 
 
-
 class CharacteristicLengthSEMImage:
     """" Compute the characteristic length of a 2D field through FFT. """
     __slots__ = ("_k_centers", "_spectrum", "_length", "_table")
