@@ -194,6 +194,29 @@ class HelpersFFT:
         KX, KY = np.meshgrid(kx, ky)
         return np.sqrt(KX**2 + KY**2)
 
+    @MajordomePlot.new(grid=False)
+    @staticmethod
+    def plot_spectrum2d(P: NDArray, Nx: int, Ny: int, Lx: float, Ly: float,
+                        vstep: int = 2, *, plot: MajordomePlot):
+        """ Plot a 2D power spectrum with proper calibration. """
+        vmin, vmax = bounds(P)
+        wx, wy = HelpersFFT.wavenumber_axes(Nx, Ny, Lx, Ly)
+
+        ticks = np.round(np.arange(vmin, vmax + vstep / 2, vstep))
+        extent = (wx.min(), wx.max(), wy.min(), wy.max())
+
+        fig, ax = plot.subplots()
+        im = ax[0].imshow(P, cmap="gray", extent=extent)
+
+        ax[0].set_title("FFT Spectrum")
+        ax[0].set_xlabel("Horizontal spatial frequency (1 / µm)")
+        ax[0].set_ylabel("Vertical spatial frequency (1 / µm)")
+
+        cbar = fig.colorbar(im, ax=ax[0], shrink=0.95)
+        cbar.set_label("Power spectral density", rotation=270, labelpad=15)
+        cbar.set_ticks(ticks)
+        cbar.ax.yaxis.set_major_formatter(PowerFormatter())
+
 
 class AbstractSEMImageLoader(ABC):
     @property
@@ -291,32 +314,14 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         """ Perform FFT of internal image instance. """
         return self._image.fft(shift=True, apodization=window).data
 
-    @MajordomePlot.new(grid=False)
-    def spectrum_plot(self, plot=None, window=True, vstep=2):
+    def spectrum_plot(self, window=True, vstep=2):
         """ Plot the power spectrum of the internal image. """
         """ Plot the FFT spectrum with proper calibration. """
+        (Nx, Ny), (Lx, Ly) = self.shape, self.dimensions
         F = self._image.fft(shift=True, apodization=window)
         P = np.log10(np.abs(F.data)**2)
+        return HelpersFFT.plot_spectrum2d(P, Nx, Ny, Lx, Ly, vstep=vstep)
 
-        vmin, vmax = bounds(P)
-        Nx, Ny = self.shape
-        Lx, Ly = self.dimensions
-        wx, wy = HelpersFFT.wavenumber_axes(Nx, Ny, Lx, Ly)
-
-        ticks = np.round(np.arange(vmin, vmax + vstep / 2, vstep))
-        extent = [wx.min(), wx.max(), wy.min(), wy.max()]
-
-        fig, ax = plot.subplots()
-        im = ax[0].imshow(P, cmap="gray", extent=extent)
-
-        ax[0].set_title("FFT Spectrum")
-        ax[0].set_xlabel("Horizontal spatial frequency (1 / µm)")
-        ax[0].set_ylabel("Vertical spatial frequency (1 / µm)")
-
-        cbar = fig.colorbar(im, ax=ax[0], shrink=0.95)
-        cbar.set_label("Power spectral density", rotation=270, labelpad=15)
-        cbar.set_ticks(ticks)
-        cbar.ax.yaxis.set_major_formatter(PowerFormatter())
 
 
 class CharacteristicLengthSEMImage:
