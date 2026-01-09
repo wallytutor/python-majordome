@@ -309,6 +309,8 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
 
         plt.close("all")
         self._image.plot(**kwargs)
+        fig = plt.gcf()
+        fig.patch.set_facecolor("white")
 
     def fft(self, window=True) -> NDArray:
         """ Perform FFT of internal image instance. """
