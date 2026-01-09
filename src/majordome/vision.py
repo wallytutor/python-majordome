@@ -4,16 +4,16 @@ from enum import Enum
 from pathlib import Path
 from hyperspy.api import load as hs_load
 from hyperspy.signals import Signal2D
-from hyperspy.misc.utils import DictionaryTreeBrowser
 from matplotlib import pyplot as plt
 from numpy.typing import NDArray
 from PIL import Image, ExifTags
-from scipy.integrate import cumulative_simpson
+from scipy.integrate import simpson, cumulative_simpson
 from skimage import io as skio
 from skimage import color, exposure, filters
 from numpy.typing import NDArray
 import exifread
 import numpy as np
+import pandas as pd
 
 from .common import bounds
 from .plotting import MajordomePlot, PowerFormatter
@@ -326,7 +326,7 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
 
 class CharacteristicLengthSEMImage:
     """" Compute the characteristic length of a 2D field through FFT. """
-    __slots__ = ("_k_centers", "_spectrum", "_length")
+    __slots__ = ("_k_centers", "_spectrum", "_length", "_table")
 
     def __init__(self, f: AbstractSEMImageLoader, **kwargs) -> None:
         nbins = kwargs.pop("nbins", 200)
@@ -384,9 +384,6 @@ class CharacteristicLengthSEMImage:
             if np.any(mask):
                 E[i-1] = P.ravel()[mask].mean()
 
-        # Normalize the spectrum:
-        E = E / np.trapezoid(E, k)
-
         return k, E
 
     @property
@@ -400,23 +397,60 @@ class CharacteristicLengthSEMImage:
 
         return self._length
 
-    @MajordomePlot.new
-    def plot_spectrum(self, plot=None, cdf=True, cutoff=None):
+    @property
+    def table(self) -> pd.DataFrame:
+        if not hasattr(self, "_table"):
+            # Retrieve the data:
+            x = self._k_centers.copy()
+            y = self._spectrum.copy()
+
+            # Normalize y to have area = 1 under the curve (PDF) and compute the
+            # cumulative distribution function (CDF); notice that we actually
+            # evaluate 1-CDF because of plotting in physical (length) space:
+            pdf = y / simpson(y, x=x)
+            cdf = 1 - cumulative_simpson(pdf, x=x, initial=0)
+            z = 1 / x
+
+            self._table = pd.DataFrame({
+                "Wavenumber (1/µm)": x,
+                "Power Spectrum": y,
+                "Length (µm)": z,
+                "PDF": pdf,
+                "CDF": cdf
+            })
+
+        return self._table
+
+    @MajordomePlot.new(shape=(2, 1), size=(6, 9))
+    def plot_spectrum(self, *, plot, cutoff=None):
         """ Plot the power spectrum and indicate characteristic length. """
+        table = self.table
+        z = table["Length (µm)"].to_numpy()
+        cdf = table["CDF"].to_numpy()
+        pdf = table["PDF"].to_numpy()
+
+        mean = self.characteristic_length
+        label = f"Characteristic length: {mean:.2f} µm"
+
         fig, ax = plot.subplots()
 
-        x = 1 / self._k_centers
-        y = self._spectrum
-        Y = self.characteristic_length
+        ax[0].plot(z, cdf)
+        ax[1].plot(z, pdf)
 
-        if cdf:
-            y = 1 - cumulative_simpson(y, x=x[::-1], initial=0)
+        if cutoff is not None and cutoff > 0 and cutoff < z.max():
+            ax[0].set_xlim(0, cutoff)
 
-        ax[0].plot(x, y)
+        ax[0].set_ylabel("CDF")
+        ax[1].set_ylabel("PDF")
         ax[0].set_xlabel("Length [µm]")
-        ax[0].axvline(Y, color="red", linestyle="--",
-                      label=f"Characteristic length: {Y:.2f} µm")
-        ax[0].legend(loc=1)
+        ax[1].set_xlabel("Length [µm]")
+
+        conf = dict(color="red", linestyle="--", label=label)
+        ax[0].axvline(mean, **conf)
+        ax[1].axvline(mean, **conf)
+
+        ax[0].legend(loc="best", fontsize=9)
+        ax[1].legend(loc="best", fontsize=9)
 
 
 def load_metadata(fname: Path, backend: str = "HS"):
