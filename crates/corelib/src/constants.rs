@@ -1,13 +1,14 @@
-use pyo3::prelude::*;
+//////////////////////////////////////////////////////////////////////////////
+/// Constants module for majordome.corelib
+//////////////////////////////////////////////////////////////////////////////
+
+use pyo3::prelude::pymodule;
 
 #[pymodule]
 pub mod constants {
-    use pyo3::prelude::*;
+    use pyo3::prelude::pyfunction;
 
     type Double = f64;
-
-    #[pymodule_export]
-    pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
     #[pymodule_export]
     pub const PI: Double = std::f64::consts::PI;
@@ -48,12 +49,6 @@ pub mod constants {
     //=================================================================
     // DUMMY INTERFACES FOR DOCS
     //=================================================================
-
-    /// Version of the Rust crate for majordome.constants.
-    #[pyfunction]
-    fn version() -> String {
-        format!("{}", VERSION)
-    }
 
     /// Mathematical constant π (pi).
     ///
