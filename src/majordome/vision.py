@@ -400,6 +400,7 @@ class CharacteristicLengthSEMImage:
 
     @property
     def table(self) -> pd.DataFrame:
+        """ Retrieve the computed spectrum as a pandas DataFrame. """
         if not hasattr(self, "_table"):
             # Retrieve the data:
             x = self._k_centers.copy()

@@ -1,7 +1,3 @@
 [workspace]
-members = [
-    "crates/calphad",
-    "crates/corelib",
-    "crates/diffusion",
-]
+members = ["src/majordome-*"]
 resolver = "3"
