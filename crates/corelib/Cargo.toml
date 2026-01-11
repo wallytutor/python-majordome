@@ -5,7 +5,7 @@ edition = "2024"
 
 [lib]
 name = "corelib"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [package.metadata.maturin]
 name = "majordome.corelib"
