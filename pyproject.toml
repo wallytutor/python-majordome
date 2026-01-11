@@ -1,11 +1,15 @@
 # https://setuptools.pypa.io/en/latest/userguide/quickstart.html
+# https://setuptools-rust.readthedocs.io/en/latest/
 [build-system]
-requires = ["setuptools>=65", "setuptools-rust>=1.5.2"]
+requires = [
+    "setuptools>=65",
+    "setuptools-rust>=1.5.2"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "majordome"
-version = "0.7.0"
+dynamic = ["version"]
 dependencies = [
     "beautifulsoup4>=4.12.2",
     "cantera>=3",
@@ -76,6 +80,9 @@ include-package-data = true
     "data/latex/*.tex"
 ]
 
+[tool.setuptools.dynamic]
+version = {attr = "version.__version__"}
+
 ##############################################################################
 # PEP621
 ##############################################################################
@@ -116,17 +123,17 @@ path = "crates/corelib/Cargo.toml"
 ##############################################################################
 
 [[tool.setuptools-rust.ext-modules]]
-target = "majordome.corelib"
+target = "majordome._corelib"
 path = "crates/corelib/Cargo.toml"
 binding = "PyO3"
 
 [[tool.setuptools-rust.ext-modules]]
-target = "majordome.calphad"
+target = "majordome._calphad"
 path = "crates/calphad/Cargo.toml"
 binding = "PyO3"
 
 [[tool.setuptools-rust.ext-modules]]
-target = "majordome.diffusion"
+target = "majordome._diffusion"
 path = "crates/diffusion/Cargo.toml"
 binding = "PyO3"
 
