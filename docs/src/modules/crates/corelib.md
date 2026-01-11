@@ -1,12 +1,12 @@
-# corelib (create)
+# corelib (crate)
+
+```{eval-rst}
+.. autofunction:: majordome.corelib.version
+```
 
 ## corelib.constants
 
 Provides various physical and mathematical constants.
-
-```{eval-rst}
-.. autofunction:: majordome.corelib.constants.version
-```
 
 ### Mathematical constants
 

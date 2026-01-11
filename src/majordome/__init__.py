@@ -6,10 +6,13 @@ __all__ = []
 # majordome._majordome: Rust extension module
 # ---------------------------------------------------------------------
 
-try:
-    from .corelib import VERSION as __version__
-except ImportError:
-    __version__ = "unknown"
+from .corelib import VERSION as __version__
+from .corelib import constants
+
+__all__ += [
+    "__version__",
+    "constants"
+]
 
 # ---------------------------------------------------------------------
 # majordome.common: considered internals, do not expose:

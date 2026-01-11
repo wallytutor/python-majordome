@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::PyAny;
-use corelib::constants::constants::GAS_CONSTANT;
+use corelib::core_const::GAS_CONSTANT;
 
 type PyObject = Py<PyAny>;
 
