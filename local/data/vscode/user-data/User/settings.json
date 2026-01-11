@@ -352,10 +352,11 @@
 
     "github.copilot.enable": {
         "*": true,
+        "quarto": true,
+        "python": true,
         "plaintext": false,
         "markdown": false,
         "scminput": false,
-        "python": true
     },
 
     // XXX: use Copilot behing a proxy!
