@@ -4,6 +4,7 @@ use std::path::Path;
 use std::process::{Command, Stdio, exit};
 use std::process::{ExitStatus};
 use std::env;
+use corelib::{dedent};
 
 #[macro_use]
 extern crate corelib;
@@ -11,33 +12,6 @@ extern crate corelib;
 //////////////////////////////////////////////////////////////////////////////
 // UTILITY FUNCTIONS
 //////////////////////////////////////////////////////////////////////////////
-
-fn dedent(s: &str) -> String {
-    let lines: Vec<&str> = s.lines().collect();
-
-    if lines.is_empty() {
-        return String::new();
-    }
-
-    // Find minimum indentation (ignoring empty lines)
-    let min_indent = lines.iter()
-        .filter(|line| !line.trim().is_empty())
-        .map(|line| line.chars().take_while(|c| c.is_whitespace()).count())
-        .min()
-        .unwrap_or(0);
-
-    // Remove that indentation from all lines
-    lines.iter()
-        .map(|line| {
-            if line.len() >= min_indent {
-                &line[min_indent..]
-            } else {
-                line
-            }
-        })
-        .collect::<Vec<_>>()
-        .join("\n")
-}
 
 fn remove_file_if_exists(file_path: &Path) -> () {
     if file_path.exists() {
@@ -55,6 +29,7 @@ fn run_command(log: &File, cmd: &str, args: &[&str]) -> Result<ExitStatus, std::
         .stderr(Stdio::from(log.try_clone().unwrap()))
         .status()
 }
+
 //////////////////////////////////////////////////////////////////////////////
 // STRUCTS & ENUMS
 //////////////////////////////////////////////////////////////////////////////
