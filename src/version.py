@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 """ Get the built-time version of the package. """
+from packaging.version import Version, InvalidVersion
+from subprocess import run, CalledProcessError
 from pathlib import Path
-import subprocess
 import tomllib
 
 
 def build_version() -> str:
-    """ Get the built-time version of the package. """
+    """ Get the built-time version of the package.
+
+    Note: GitHub actions for some reason yet to be identified does not
+    return the correct git describe output, so we fall back to Cargo.toml
+    version in that case.
+    """
     try:
         return get_git_output()
-    except subprocess.CalledProcessError:
+    except (InvalidVersion, CalledProcessError):
         return get_cargo_version()
 
 
@@ -19,7 +25,7 @@ def comply_pep440(version: str) -> str:
     Convert git describe format to PEP 440 compliant version
     Example: 0.7.0-4-gcedeff5f-dirty -> 0.7.0.post4+gcedeff5f.dirty
     """
-    if '-' not in version:
+    if "-" not in version:
         return version
 
     parts = version.split("-")
@@ -45,8 +51,8 @@ def comply_pep440(version: str) -> str:
 def get_git_output() -> str:
     """ Get the version from git tags. """
     cmd = ["git", "describe", "--tags", "--always", "--dirty"]
-    res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    return comply_pep440(res.stdout.strip())
+    res = run(cmd, capture_output=True, text=True, check=True)
+    return str(Version(comply_pep440(res.stdout.strip())))
 
 
 def get_cargo_version() -> str:
