@@ -27,7 +27,12 @@ function inside_instance() {
 function develop_majordome() {
     if inside_instance; then
         # If from inside apptainer, install package:
+        python -m pip install --upgrade pip
+        python -m pip install --upgrade build wheel
+        python -m pip install --upgrade setuptools setuptools-rust
+
         python -m pip install -e .[docs,extras]
+        python -m build --wheel --sdist
         sphinx-build -E -b html -c docs/ docs/src/ docs/_build/
         # TODO automate update of containerfile.txt here?
     else
