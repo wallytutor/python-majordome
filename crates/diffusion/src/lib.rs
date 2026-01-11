@@ -33,7 +33,7 @@ fn validate_array_type(array: &Bound<'_, PyAny>) -> PyResult<()> {
 // Module definition
 //////////////////////////////////////////////////////////////////////////////
 
-#[pymodule]
+#[pymodule(name = "_diffusion")]
 pub mod diffusion {
     #[pymodule_export]
     pub const VERSION: &str = env!("CARGO_PKG_VERSION");

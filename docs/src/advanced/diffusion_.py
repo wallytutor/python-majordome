@@ -19,7 +19,7 @@
 
 # %%
 from majordome import constants
-from majordome import diffusion as md
+from majordome import _diffusion as md
 import numpy as np
 
 # %% [markdown]

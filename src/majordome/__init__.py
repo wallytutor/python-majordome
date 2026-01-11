@@ -6,8 +6,8 @@ __all__ = []
 # majordome._majordome: Rust extension module
 # ---------------------------------------------------------------------
 
-from .corelib import VERSION as __version__
-from .corelib import constants
+from ._corelib import VERSION as __version__
+from ._corelib import constants
 
 __all__ += [
     "__version__",
