@@ -1,0 +1,13 @@
+[package]
+name = "utils"
+version = "0.1.0"
+edition = "2024"
+
+# XXX: multiple binaries in a single crate, just add [[bin]] sections.
+[[bin]]
+name = "containerize"
+path = "src/bin/containerize.rs"
+
+[dependencies]
+pyo3 = "0.27.0"
+# constants = { path = "../constants" }

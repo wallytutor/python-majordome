@@ -4,5 +4,6 @@ members = [
     "crates/constants",
     "crates/corelib",
     "crates/diffusion",
+    "crates/utils",
 ]
 resolver = "3"

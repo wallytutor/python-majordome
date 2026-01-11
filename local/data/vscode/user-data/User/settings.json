@@ -85,6 +85,11 @@
     "editor.lineHeight": 16,
     "editor.fontWeight": "normal",
 
+    // Enable semantic highlighting (for Rust mainly):
+    "editor.semanticTokenColorCustomizations": {
+        "enabled": true
+    },
+
     // Specific settings for JSONC files (mainly this file):
     "[jsonc]": {
         "editor.tabSize": 4,
@@ -141,6 +146,18 @@
     },
 
     //////////////////////////////////////////////////////////////////////////
+    // RUST
+    //////////////////////////////////////////////////////////////////////////
+
+    "[rust]": {
+        "editor.tabSize": 4,
+        "editor.foldingStrategy": "indentation",
+        "editor.wordWrap": "wordWrapColumn",
+        "editor.wordWrapColumn": 100,
+        "editor.rulers": [79, 100],
+    },
+
+    //////////////////////////////////////////////////////////////////////////
     // QUARTO
     //////////////////////////////////////////////////////////////////////////
 
@@ -183,7 +200,7 @@
     "python.analysis.stubPath": "./typings",
     "python.analysis.typeCheckingMode": "standard",
     "python.createEnvironment.trigger": "off",
-    "python.defaultInterpreterPath": "${env:PYTHON_HOME}\\python\\python.exe",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
     "python.useEnvironmentsExtension": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.languageServer": "Default",
@@ -404,5 +421,6 @@
     "remote.SSH.remotePlatform": {
         "10.13.52.2": "linux",
         "frontal": "linux"
-    }
+    },
+    "chat.viewSessions.orientation": "stacked"
 }
