@@ -39,7 +39,7 @@
     "workbench.tree.indent": 12,
 
     // Use the Julia theme:
-    "workbench.colorTheme": "Soda Pop VS - Bordered",
+    "workbench.colorTheme": "Bearded Theme Arc",
     "workbench.iconTheme": "vscode-icons",
 
     // Add a clearly visible ruler (language dependent position):
