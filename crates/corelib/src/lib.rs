@@ -14,7 +14,7 @@ pub mod corelib {
     use pyo3::prelude::pyfunction;
 
     #[pymodule_export]
-    pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+    pub const VERSION: &str = env!("GIT_VERSION");
 
     /// Version of majordome.corelib.
     #[pyfunction]
