@@ -5,7 +5,7 @@ from typing import Any, NamedTuple
 from cantera.composite import Solution
 import cantera as ct
 
-from . import constants
+from .corelib import constants
 from .common import AbstractReportable
 from .common import CompositionType, SolutionLikeType, StateType
 from .reactor import NormalFlowRate, solution_report, copy_quantity

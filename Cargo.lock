@@ -16,13 +16,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "constants"
-version = "0.1.0"
-dependencies = [
- "pyo3",
-]
-
-[[package]]
 name = "corelib"
 version = "0.7.0"
 dependencies = [
@@ -33,7 +26,7 @@ dependencies = [
 name = "diffusion"
 version = "0.1.0"
 dependencies = [
- "constants",
+ "corelib",
  "pyo3",
 ]
 

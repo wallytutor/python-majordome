@@ -14,5 +14,5 @@ API Docs
     reactor
     transport
     vision
-    crates/constants
+    crates/corelib
     crates/diffusion

@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use constants::constants::GAS_CONSTANT;
+use corelib::constants::constants::GAS_CONSTANT;
 use super::diffusivity::ArrheniusModifiedDiffusivity;
 
 fn composition_dependence(x: &[f64]) -> f64 {

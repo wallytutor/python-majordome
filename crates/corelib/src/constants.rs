@@ -1,6 +1,5 @@
 use pyo3::prelude::*;
 
-
 #[pymodule]
 pub mod constants {
     use pyo3::prelude::*;
@@ -151,5 +150,4 @@ pub mod constants {
     fn p_normal() -> Double {
         P_NORMAL
     }
-
 }

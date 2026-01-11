@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "crates/calphad",
-    "crates/constants",
     "crates/corelib",
     "crates/diffusion",
     "crates/utils",
