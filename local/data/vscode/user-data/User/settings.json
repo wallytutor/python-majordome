@@ -117,12 +117,28 @@
     },
 
     "files.exclude": {
+        // Python virtual environments:
         "**/.venv/": true,
+
+        // Common cache/build folders:
         "**/__pycache__/": true,
         "**/.ipynb_checkpoints/": true,
         "**/.jupyter_cache/": true,
+
+        // Fortran module files:
         "**/*.mod": true,
-        "**/.vdoc.*": true
+
+        // Quarto cache files:
+        "**/.quarto/": true,
+        "**/.vdoc.*": true,
+
+        // Rust targets:
+        "**/target/": true,
+
+        // Build and distribution folders:
+        "**/build/": true,
+        "**/dist/": true,
+        "**/*.egg-info/": true,
     },
 
     //////////////////////////////////////////////////////////////////////////
