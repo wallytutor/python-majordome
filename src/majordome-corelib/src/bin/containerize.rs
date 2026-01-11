@@ -43,6 +43,8 @@ struct Config {
     project: String,
     container: ContainerRuntime,
     cleanup: bool,
+    generate_tar: bool,
+    generate_sif: bool
 }
 
 impl Config {
@@ -52,7 +54,8 @@ impl Config {
         let mut project: Option<&String> = None;
         let mut container = ContainerRuntime::Podman;
         let mut cleanup = false;
-
+        let mut generate_tar = true;
+        let mut generate_sif = true;
         let mut i = 1;
 
         while i < args.len() {
@@ -98,6 +101,21 @@ impl Config {
                 }
 
                 // -----------------------------------------------------------
+                // Handle --no-tar and --no-sif options
+                // -----------------------------------------------------------
+
+                "--no-dump" => {
+                    generate_tar = false;
+                    generate_sif = false;
+                    i += 1;
+                }
+
+                "--no-sif" => {
+                    generate_sif = false;
+                    i += 1;
+                }
+
+                // -----------------------------------------------------------
                 // Handle project or unexpected option
                 // -----------------------------------------------------------
 
@@ -129,10 +147,17 @@ impl Config {
             }
         };
 
+        if !generate_tar {
+            print_warning!("--no-tar specified; skipping tar file generation");
+            generate_sif = false;
+        }
+
         Config {
             project: project_name.to_string(),
             container,
             cleanup,
+            generate_tar,
+            generate_sif
         }
     }
 
@@ -153,12 +178,15 @@ impl Config {
             Options:
                 --help, -h             Show this help message and exit
                 --container <runtime>  Choose docker or podman (default: podman)
-                --cleanup              Remove tar file before building (default: true)
+                --cleanup              Remove TAR file before building (default: true)
+                --no-dump              Skip both TAR and SIF generation (default: false)
+                --no-sif               Skip SIF generation (default: false)
 
             Examples:
                 {0} science-devel
                 {0} my-project --container docker
                 {0} my-project --cleanup
+                {0} my-project science-devel --container podman --no-sif
             ", name);
 
         println!("{color}{}\x1b[0m", dedent(usage));
@@ -302,8 +330,12 @@ fn main() {
         remove_file_if_exists(&sif_file);
     } else if has_tar || has_sif {
         print_warning!("existing files detected:");
-        if has_tar { print_warning!(" - {}", tar_file.display()); }
-        if has_sif { print_warning!(" - {}", sif_file.display()); }
+        if config.generate_tar && has_tar {
+            print_warning!(" - {}", tar_file.display());
+        }
+        if config.generate_sif && has_sif {
+            print_warning!(" - {}", sif_file.display());
+        }
         print_warning!("use --cleanup to remove existing files before building.");
         exit(1);
     } else {
@@ -326,6 +358,11 @@ fn main() {
         }
     }
 
+    if !config.generate_tar {
+        print_success!("\n✓ Skipping tar file generation as per --no-tar flag");
+        return;
+    }
+
     match config.container.dump(&config) {
         Ok(s) if s.success() => {
             print_success!("✓ Saved {} file", tar_file.display())
@@ -340,6 +377,11 @@ fn main() {
             print_error!("✗ Failed to execute save command: {}", e);
             exit(1);
         }
+    }
+
+    if !config.generate_sif {
+        print_success!("\n✓ Skipping SIF file generation as per --no-sif flag");
+        return;
     }
 
     match config.container.convert(&config) {
