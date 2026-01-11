@@ -105,7 +105,11 @@ bindings = "bin"
 
 [[tool.setuptools-rust.bins]]
 target = "containerize"
-path = "crates/utils/Cargo.toml"
+path = "crates/corelib/Cargo.toml"
+
+[[tool.setuptools-rust.bins]]
+target = "majordome"
+path = "crates/corelib/Cargo.toml"
 
 ##############################################################################
 # CRATES (MODULES)

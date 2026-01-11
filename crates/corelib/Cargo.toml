@@ -7,6 +7,15 @@ edition = "2024"
 name = "corelib"
 crate-type = ["cdylib", "rlib"]
 
+# XXX: multiple binaries in a single crate, just add [[bin]] sections.
+[[bin]]
+name = "containerize"
+path = "src/bin/containerize.rs"
+
+[[bin]]
+name = "majordome"
+path = "src/bin/majordome.rs"
+
 [package.metadata.maturin]
 name = "majordome.corelib"
 bindings = "pyo3"
