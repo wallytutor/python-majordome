@@ -9,7 +9,7 @@ pub mod constants;
 pub use constants::constants as core_const;
 pub use textfile::dedent;
 
-#[pymodule]
+#[pymodule(name = "_corelib")]
 pub mod corelib {
     use pyo3::prelude::pyfunction;
 
