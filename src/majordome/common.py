@@ -2,7 +2,6 @@
 from abc import ABC
 from abc import abstractmethod
 from collections import deque
-from functools import wraps
 from importlib import resources
 from io import StringIO
 from numbers import Number
@@ -10,7 +9,6 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, NamedTuple
 from IPython import embed
-from matplotlib import pyplot as plt
 from tabulate import tabulate
 import functools
 import logging
@@ -23,7 +21,7 @@ import cantera as ct
 import numpy as np
 import pandas as pd
 
-from . import constants
+from .corelib import constants
 
 DATA = Path(str(resources.files("majordome").joinpath("data")))
 """ Path to project data folder. """
