@@ -10,7 +10,6 @@ from PIL import Image, ExifTags
 from scipy.integrate import simpson, cumulative_simpson
 from skimage import io as skio
 from skimage import color, exposure, filters
-from numpy.typing import NDArray
 import exifread
 import numpy as np
 import pandas as pd
