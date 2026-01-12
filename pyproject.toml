@@ -2,8 +2,8 @@
 # https://setuptools-rust.readthedocs.io/en/latest/
 [build-system]
 requires = [
-    "setuptools>=65",
-    "setuptools-rust>=1.5.2"
+    "setuptools>=80",
+    "setuptools-rust>=1.12.2"
 ]
 build-backend = "setuptools.build_meta"
 

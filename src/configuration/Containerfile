@@ -113,6 +113,14 @@ RUN python3.12 -m pip install -r /opt/app/containerfile.txt
 RUN python3.13 -m pip install -r /opt/app/containerfile.txt
 # RUN python3.14 -m pip install -r /opt/app/containerfile.txt
 
+# Pre-install build tools:
+RUN python3.12 -m pip install \
+    'build==1.4.0' 'wheel==0.45.1' 'setuptools_rust==1.12.0'
+RUN python3.13 -m pip install \
+    'build==1.4.0' 'wheel==0.45.1' 'setuptools_rust==1.12.0'
+# RUN python3.14 -m pip install \
+#     'build==1.4.0' 'wheel==0.45.1' 'setuptools_rust==1.12.0'
+
 # ----------------------------------------------------------------------------
 # CLEAN UP
 # ----------------------------------------------------------------------------
