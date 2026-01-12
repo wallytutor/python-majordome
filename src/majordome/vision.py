@@ -295,9 +295,9 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         return np.array(self._image.data)
 
     @data.setter
-    def data(self, array: NDArray) -> None:
+    def data(self, value: NDArray) -> None:
         """ Set the image data from a NumPy array. """
-        self._image.data = array
+        self._image.data = value
 
     def view(self, **kwargs) -> None:
         """ Plot the image with optional scalebar and title. """
