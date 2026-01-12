@@ -312,7 +312,10 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         plt.close("all")
 
         if kwargs.pop("backend") == "matplotlib":
-            fig, ax = plt.subplots(facecolor="white")
+            fig, ax = plt.subplots(
+                figsize=kwargs.pop("figsize", (8, 6)),
+                facecolor=kwargs.pop("facecolor", "white")
+            )
             ax.imshow(self._image.data, cmap="gray")
             ax.set_title(kwargs.pop("title", ""))
             ax.axis("off")
