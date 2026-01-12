@@ -438,7 +438,7 @@ class CharacteristicLengthSEMImage:
         return self._table
 
     @MajordomePlot.new(shape=(2, 1), size=(6, 9))
-    def plot_spectrum(self, *, plot, cutoff=None):
+    def _plot_spectrum_full(self, *, plot, cutoff=None):
         """ Plot the power spectrum and indicate characteristic length. """
         table = self.table
         z = table["Length (µm)"].to_numpy()
@@ -467,6 +467,46 @@ class CharacteristicLengthSEMImage:
 
         ax[0].legend(loc="best", fontsize=9)
         ax[1].legend(loc="best", fontsize=9)
+
+    @MajordomePlot.new(shape=(1, 1), size=(6, 5))
+    def _plot_spectrum_density(self, *, plot, cutoff=None):
+        """ Plot the power spectrum and indicate characteristic length. """
+        table = self.table
+        z = table["Length (µm)"].to_numpy()
+        pdf = table["PDF"].to_numpy()
+
+        mean = self.characteristic_length
+        label = f"Characteristic length: {mean:.2f} µm"
+
+        fig, ax = plot.subplots()
+
+        ax[0].plot(z, pdf)
+
+        if cutoff is not None and cutoff > 0 and cutoff < z.max():
+            ax[0].set_xlim(0, cutoff)
+
+        ax[0].set_ylabel("PDF")
+        ax[0].set_xlabel("Length [µm]")
+
+        conf = dict(color="red", linestyle="--", label=label)
+        ax[0].axvline(mean, **conf)
+
+        ax[0].legend(loc="best", fontsize=9)
+
+    def plot_spectrum(self, full: bool = False, cutoff: float | None = None):
+        """ Plot the characteristic length spectrum.
+
+        Parameters
+        ----------
+        full : bool = True
+            If True, plot both PDF and CDF. If False, plot only PDF.
+        cutoff : float | None = None
+            If provided, limit the x-axis to [0, cutoff].
+        """
+        if full:
+            return self._plot_spectrum_full(cutoff=cutoff)
+
+        return self._plot_spectrum_density(cutoff=cutoff)
 
 
 def load_metadata(fname: Path, backend: str = "HS"):
