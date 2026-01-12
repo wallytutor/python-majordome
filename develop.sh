@@ -25,15 +25,19 @@ function inside_instance() {
 }
 
 function develop_majordome() {
+    python=$1
+
     if inside_instance; then
         # If from inside apptainer, install package:
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade build wheel
-        python -m pip install --upgrade setuptools setuptools-rust
+        ${python} -m pip install --upgrade pip
+        ${python} -m pip install --upgrade build wheel
+        ${python} -m pip install --upgrade setuptools setuptools-rust
 
-        python -m pip install -e .[docs,extras]
-        python -m build --wheel --sdist
-        sphinx-build -E -b html -c docs/ docs/src/ docs/_build/
+        ${python} -m pip install -e .[docs,extras]
+        ${python} -m build --wheel --sdist
+
+        # Build documentation (TODO which sphinx-build?):
+        # sphinx-build -E -b html -c docs/ docs/src/ docs/_build/
         # TODO automate update of containerfile.txt here?
     else
         # Work in a shell within the instance:
@@ -42,4 +46,7 @@ function develop_majordome() {
     fi
 }
 
-develop_majordome
+# XXX: for Python3.14 see notes on Containerfile:
+develop_majordome '/opt/python3.12/bin/python3.12'
+develop_majordome '/opt/python3.13/bin/python3.13'
+# develop_majordome '/opt/python3.14/bin/python3.14'
