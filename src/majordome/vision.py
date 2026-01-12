@@ -321,7 +321,7 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
             fig = plt.gcf()
             fig.patch.set_facecolor("white")
 
-        if kwargs.pop("show", True):
+        if kwargs.pop("show", False):
             plt.show()
 
         return fig
