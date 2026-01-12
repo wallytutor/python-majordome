@@ -4,6 +4,7 @@ from enum import Enum
 from pathlib import Path
 from hyperspy.api import load as hs_load
 from hyperspy.signals import Signal2D
+from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 from numpy.typing import NDArray
 from PIL import Image, ExifTags
@@ -298,18 +299,32 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
         """ Set the image data from a NumPy array. """
         self._image.data = value
 
-    def view(self, **kwargs) -> None:
+    def view(self, **kwargs) -> Figure:
         """ Plot the image with optional scalebar and title. """
+        kwargs.setdefault("backend", "matplotlib")
+        kwargs.setdefault("title", self._title)
+
         kwargs.setdefault("scalebar", False)
         kwargs.setdefault("scalebar_color", "#0000ff")
         kwargs.setdefault("axes_off", True)
         kwargs.setdefault("colorbar", False)
-        kwargs.setdefault("title", self._title)
 
         plt.close("all")
-        self._image.plot(**kwargs)
-        fig = plt.gcf()
-        fig.patch.set_facecolor("white")
+
+        if kwargs.pop("backend") == "matplotlib":
+            fig, ax = plt.subplots(facecolor="white")
+            ax.imshow(self._image.data, cmap="gray")
+            ax.set_title(kwargs.pop("title", ""))
+            ax.axis("off")
+        else:
+            self._image.plot(**kwargs)
+            fig = plt.gcf()
+            fig.patch.set_facecolor("white")
+
+        if kwargs.pop("show", True):
+            plt.show()
+
+        return fig
 
     def fft(self, window=True) -> NDArray:
         """ Perform FFT of internal image instance. """
