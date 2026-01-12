@@ -54,14 +54,26 @@ RUN apt-get install -y \
 # Python environment setup
 # ----------------------------------------------------------------------------
 
-# Create a virtual environment:
-RUN python3 -m venv /opt/venv
+RUN add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update && \
+    apt-get install -y python3.12 python3.12-venv python3.12-dev && \
+    apt-get install -y python3.13 python3.13-venv python3.13-dev && \
+    apt-get install -y python3.14 python3.14-venv python3.14-dev
+
+# Create a virtual environments:
+RUN python3.12 -m venv /opt/python3.12/
+RUN python3.13 -m venv /opt/python3.13/
+RUN python3.14 -m venv /opt/python3.14/
 
 # Activate venv by using its binaries directly:
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/python3.12/bin:$PATH"
+ENV PATH="/opt/python3.13/bin:$PATH"
+ENV PATH="/opt/python3.14/bin:$PATH"
 
 # Ensure pip is up to date:
-RUN python3 -m pip install --upgrade pip
+RUN python3.12 -m pip install --upgrade pip
+RUN python3.13 -m pip install --upgrade pip
+RUN python3.14 -m pip install --upgrade pip
 
 # ----------------------------------------------------------------------------
 # RUST
@@ -80,7 +92,6 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path \
 
 # Add Rust (Cargo actually) to PATH for all container sessions:
 ENV PATH="/opt/cargo/bin:$PATH"
-RUN python3 -m pip install 'maturin'
 
 # ----------------------------------------------------------------------------
 # HOME
@@ -96,8 +107,11 @@ WORKDIR $APPHOME
 # ----------------------------------------------------------------------------
 
 # Pre-install Python dependencies:
+# XXX: Python3.14 still needs dependencies to be fixed.
 COPY containerfile.txt /opt/app/containerfile.txt
-RUN python3 -m pip install -r /opt/app/containerfile.txt
+RUN python3.12 -m pip install -r /opt/app/containerfile.txt
+RUN python3.13 -m pip install -r /opt/app/containerfile.txt
+# RUN python3.14 -m pip install -r /opt/app/containerfile.txt
 
 # ----------------------------------------------------------------------------
 # CLEAN UP

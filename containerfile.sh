@@ -18,6 +18,9 @@ APPTAINER=/usr/bin/apptainer
 # Build the container image:
 "${PODMAN}" build -t "${project}" -f "Containerfile" .
 
+# Run the container interactively to test it if necessary:
+# "${PODMAN}" run -it "localhost/${project}:latest" /bin/bash
+
 # Dump container to portable .tar file:
 "${PODMAN}" save -o "${project}.tar" "localhost/${project}"
 
