@@ -2,6 +2,6 @@ Set objShell = CreateObject("Wscript.Shell")
 Dim pShell, kommand
 
 pShell = "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "
-kommand = ". main.ps1 -RunVsCode"
+kommand = ". src/kompanion/main.ps1 -RunVsCode"
 
 objShell.Run pShell & kommand, 0, True
