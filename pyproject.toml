@@ -63,7 +63,7 @@ Issues = "https://github.com/wallytutor/python-majordome/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["majordome*"]
+include = ["majordome*", "walang*"]
 exclude = []
 namespaces = false
 
