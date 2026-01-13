@@ -86,7 +86,6 @@ function develop_majordome() {
         run_majordome_build '/opt/python3.12/bin/python3.12'
         run_majordome_build '/opt/python3.13/bin/python3.13'
         # run_majordome_build '/opt/python3.14/bin/python3.14'
-
     else
         # Work in a shell within the instance:
         start_instance
