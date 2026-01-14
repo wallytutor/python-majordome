@@ -19,6 +19,7 @@
     :members:
 
 .. autofunction:: majordome.vision.load_metadata
+.. autofunction:: majordome.vision.hyperspy_rgb_to_numpy
 ```
 
 ## Microscopy helpers

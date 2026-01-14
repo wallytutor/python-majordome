@@ -559,3 +559,15 @@ def metadata_pil(fname: Path) -> dict:
         exif_data["GPSInfo"] = gps
 
     return exif_data
+
+
+def hyperspy_rgb_to_numpy(image: Signal2D, dtype=np.float32) -> NDArray:
+    """ Handle conversion of image into a plain NumPy array. """
+    if not image.data.dtype.names:
+        return image.data.astype(np.float32)
+
+    r = image.data["R"].astype(np.float32)
+    g = image.data["G"].astype(np.float32)
+    b = image.data["B"].astype(np.float32)
+
+    return np.stack([r, g, b], axis=-1)

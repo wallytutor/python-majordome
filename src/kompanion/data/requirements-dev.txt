@@ -13,6 +13,9 @@ pandas
 scipy
 sympy
 
+# Pandas alternatives
+polars[all]
+
 # Data formats
 arrow
 openpyxl
@@ -41,6 +44,9 @@ FiPy
 meshio
 py-pde
 pyvista
+datalab-platform[qt]
+hyperspy
+opencv-python
 
 # Machine learning
 torch
