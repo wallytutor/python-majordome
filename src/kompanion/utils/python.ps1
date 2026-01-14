@@ -43,16 +43,34 @@ function Check-HasValidPython {
 }
 
 function Piperish() {
-    param (
-        [string]$PythonPath = "$env:PYTHON_HOME\python.exe"
-    )
+    $PythonPath = $null
+    $pipArgs = @()
+
+    for ($i = 0; $i -lt $args.Count; $i++) {
+        if ($args[$i] -eq "-PythonPath" -and ($i + 1) -lt $args.Count) {
+            $PythonPath = $args[$i + 1]
+            $i++  # Skip the next argument
+        } else {
+            $pipArgs += $args[$i]
+        }
+    }
+
     if (-not $PythonPath) {
+        $PythonPath = "$env:PYTHON_HOME\python.exe"
+    }
+
+    # XXX: Keep for debugging
+    # Write-Host "Using Python at: $PythonPath"
+
+    if (-not (Test-Path $PythonPath)) {
         Write-Bad "Required Python not found: $PythonPath..."
         exit 1
     }
 
     $argList = @("-m", "pip", "--trusted-host", "pypi.org",
-                 "--trusted-host", "files.pythonhosted.org") + $args
+                 "--trusted-host", "files.pythonhosted.org")
+    $argList += $pipArgs
+
     # Write-Host "Invoking: $PythonPath $($argList -join ' ')"
     Invoke-CapturedCommand $PythonPath $argList
 }
