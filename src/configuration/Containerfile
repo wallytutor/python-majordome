@@ -127,6 +127,13 @@ RUN if [ -n "$EXTRA_PACKAGES" ]; then \
         apt-get install -y $EXTRA_PACKAGES; \
     fi
 
+# ARG QUARTO_DL="https://github.com/quarto-dev/quarto-cli/releases/download"
+# ARG QUARTO_VERSION="1.8.26"
+# RUN export QUARTO_DEB="quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
+#     wget "${QUARTO_DL}/v${QUARTO_VERSION}/${QUARTO_DEB}" && \
+#     dpkg -i "${QUARTO_DEB}" && \
+#     rm "${QUARTO_DEB}"
+
 # ----------------------------------------------------------------------------
 # CLEAN UP
 # ----------------------------------------------------------------------------
