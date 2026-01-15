@@ -39,7 +39,7 @@
     "workbench.tree.indent": 12,
 
     // Use the Julia theme:
-    "workbench.colorTheme": "Bearded Theme feat. Mintshake D Raynh",
+    "workbench.colorTheme": "Default Light Modern",
     "workbench.iconTheme": "vscode-icons",
 
     // Add a clearly visible ruler (language dependent position):
@@ -217,7 +217,7 @@
     "python.analysis.stubPath": "./typings",
     "python.analysis.typeCheckingMode": "standard",
     "python.createEnvironment.trigger": "off",
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    // "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
     "python.useEnvironmentsExtension": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.languageServer": "Default",
