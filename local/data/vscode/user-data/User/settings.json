@@ -39,13 +39,13 @@
     "workbench.tree.indent": 12,
 
     // Use the Julia theme:
-    "workbench.colorTheme": "Default Light Modern",
+    "workbench.colorTheme": "GitHub Dark Colorblind (Beta)",
     "workbench.iconTheme": "vscode-icons",
 
     // Add a clearly visible ruler (language dependent position):
     "workbench.colorCustomizations": {
         "editorRuler.foreground": "#3d17e4",
-        "editor.background": "#f2f2f2"
+        // "editor.background": "#f2f2f2"
     },
 
     // Just the icon for pinned tabs:
@@ -440,5 +440,6 @@
         "10.13.52.2": "linux",
         "frontal": "linux"
     },
-    "chat.viewSessions.orientation": "stacked"
+    "chat.viewSessions.orientation": "stacked",
+    "python.defaultInterpreterPath": "d:\\majordome\\local\\bin\\inkscape\\inkscape\\bin\\python.exe"
 }
