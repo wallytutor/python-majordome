@@ -1,96 +1,93 @@
 #!/usr/bin/env bash
+##############################################################################
+# XXX: under SELinux, may need to label the current directory for container:
+# sudo semanage fcontext -a -t container_file_t "$(realpath $PWD)(/.*)?"
+# sudo restorecon -Rv "$(realpath $PWD)"
+##############################################################################
 
-# Get the directory where this script is located:
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Ensure script runs from its own directory:
-cd "${SCRIPT_DIR}" || {
-    echo "Error: Cannot change to script directory: ${SCRIPT_DIR}" >&2
-    exit 1
-}
-
-# Set project name:
-PROJECT="majordome"
-
-# Set context directory for building the container:
-CONTEXT="${SCRIPT_DIR}/src/configuration"
-
-# Configure path to applications:
 CONTAINER=/usr/bin/podman
-APPTAINER=/usr/bin/apptainer
 
-function create_image() {
-    # Avoid the following warning:  WARN[0000] "/" is not a shared mount,
-    # this could cause issues or missing mounts with rootless containers.
-    # sudo mount --make-rshared /
+ensure_local_run() {
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-    # Ensure a fresh start:
-    # [[ -f "${PROJECT}.tar" ]] && rm -rf "${PROJECT}.tar"
-    # [[ -f "${PROJECT}.sif" ]] && rm -rf "${PROJECT}.sif"
-
-    # Build the container image:
-    "${CONTAINER}" build \
-        -t "${PROJECT}" \
-        -f "${CONTEXT}/Containerfile" "${CONTEXT}"
-
-    # Run the container interactively to test it if necessary:
-    # "${CONTAINER}" run -it "localhost/${PROJECT}:latest" /bin/bash
-
-    # Dump container to portable .tar file:
-    "${CONTAINER}" save -o "${PROJECT}.tar" "localhost/${PROJECT}"
-
-    # Convert container into apptainer:
-    "${APPTAINER}" build "${PROJECT}.sif" "docker-archive://${PROJECT}.tar"
-
-    # Remove tar-file:
-    [[ -f "${PROJECT}.tar" ]] && rm -rf "${PROJECT}.tar"
-
-    # After making sure it is working, remove the image (do not automate!):
-    # "${PODMAN}" rmi "${PROJECT}"
+    cd "${script_dir}" || {
+        echo "Error: Cannot change to script directory: ${script_dir}" >&2
+        exit 1
+    }
 }
 
-function start_instance() {
-    # Create majordome.sif if not found:
-    [[ ! -f "${PROJECT}.sif" ]] && create_image
+clean_start() {
+    ensure_local_run
 
-    # Activate apptainer instance if not present:
-    if ! ${APPTAINER} instance list | grep -q ${PROJECT}; then
-        ${APPTAINER} instance start --bind $(pwd):/opt/app \
-            --writable-tmpfs ${PROJECT}.sif ${PROJECT}
-    else
-        echo "Apptainer instance '${PROJECT}' already running."
+    rm -rf \
+        build/ \
+        dist/ \
+        docs/_build/ \
+        src/majordome/*.so \
+        src/majordome.egg-info/ \
+        target/
+}
+
+majordome_build() {
+    local python=$1
+
+    "${python}" -m pip install -e .[docs,extras]
+
+    if [ $? -ne 0 ]; then
+        echo "Error: pip install failed" >&2
+        exit 1
+    fi
+
+    "${python}" -m build --wheel --sdist
+
+    if [ $? -ne 0 ]; then
+        echo "Error: wheel build failed" >&2
+        exit 1
     fi
 }
 
-function inside_instance() {
-    if [ -n "$APPTAINER_NAME" ] || [ -n "$SINGULARITY_NAME" ]; then
-        return 0
+majordome_docs_build() {
+    local python=$1
+    local dest="docs/references.bib"
+
+    if [ ! -f "${dest}" ]; then
+        repo="https://raw.githubusercontent.com/wallytutor/notes-book"
+        file="${repo}/refs/heads/main/references.bib"
+        wget "${file}" -O "${dest}"
+    fi
+
+    "${python}" -m sphinx -E -b html -c docs/ docs/src/ docs/_build/
+}
+
+majordome_develop() {
+    majordome_build '/opt/python3.12/bin/python3.12'
+    majordome_build '/opt/python3.13/bin/python3.13'
+
+    # XXX: build docs with Python 3.12 for now:
+    majordome_docs_build '/opt/python3.12/bin/python3.12'
+}
+
+container_start() {
+    local image_name="localhost/majordome:latest"
+    local image_bind="$(realpath $PWD):/opt/app"
+    local context="$(realpath $PWD)/src/configuration"
+
+    if "${CONTAINER}" image exists "${image_name}"; then
+        "${CONTAINER}" run -it \
+            -v "${image_bind}" "${image_name}" /bin/bash
     else
-        return 1
+        "${CONTAINER}" build -t "majordome" \
+            -f "${context}/Containerfile" "${context}"
     fi
 }
 
-function run_majordome_build() {
-    python=$1
-    ${python} -m pip install -e .[docs,extras]
-    ${python} -m build --wheel --sdist
-    # Build documentation (TODO which sphinx-build?):
-    # sphinx-build -E -b html -c docs/ docs/src/ docs/_build/
-    # TODO automate update of containerfile.txt here?
-}
+main() {
+    ensure_local_run
+    clean_start
 
-function develop_majordome() {
-    if inside_instance; then
-        # If from inside apptainer, install package:
-        # XXX: for Python3.14 see notes on Containerfile:
-        run_majordome_build '/opt/python3.12/bin/python3.12'
-        run_majordome_build '/opt/python3.13/bin/python3.13'
-        # run_majordome_build '/opt/python3.14/bin/python3.14'
+    if [ -f "/run/.containerenv" ] || [ -f "/.dockerenv" ]; then
+        majordome_develop
     else
-        # Work in a shell within the instance:
-        start_instance
-        ${APPTAINER} shell instance://${PROJECT}
+        container_start
     fi
 }
-
-develop_majordome
