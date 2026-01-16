@@ -14,5 +14,5 @@ API Docs
     reactor
     transport
     vision
-    crates/corelib
-    crates/diffusion
+    majordome-corelib
+    majordome-diffusion
