@@ -87,9 +87,6 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path \
     --profile minimal \
     --default-host x86_64-unknown-linux-gnu
 
-# XXX: DO I NEED THIS??
-# RUN . "/opt/cargo/env
-
 # Add Rust (Cargo actually) to PATH for all container sessions:
 ENV PATH="/opt/cargo/bin:$PATH"
 
