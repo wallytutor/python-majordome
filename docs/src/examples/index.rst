@@ -11,3 +11,4 @@ Examples
     pdftools_
     reactor_
     transport_
+    onkwargs_

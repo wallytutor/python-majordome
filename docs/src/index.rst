@@ -7,5 +7,4 @@ Majordome
 
     examples/index
     modules/index
-    developers/index
     references
