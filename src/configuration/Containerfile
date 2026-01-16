@@ -71,9 +71,9 @@ ENV PATH="/opt/python3.13/bin:$PATH"
 ENV PATH="/opt/python3.14/bin:$PATH"
 
 # Ensure pip is up to date:
-RUN python3.12 -m pip install --upgrade pip build
-RUN python3.13 -m pip install --upgrade pip build
-RUN python3.14 -m pip install --upgrade pip build
+RUN /opt/python3.12/bin/python -m pip install --upgrade pip build
+RUN /opt/python3.13/bin/python -m pip install --upgrade pip build
+RUN /opt/python3.14/bin/python -m pip install --upgrade pip build
 
 # ----------------------------------------------------------------------------
 # RUST
@@ -108,15 +108,15 @@ WORKDIR $APPHOME
 
 # Pre-install Python dependencies:
 # XXX: Python3.14 still needs dependencies to be fixed.
-COPY containerfile.txt /opt/app/containerfile.txt
-RUN python3.12 -m pip install -r /opt/app/containerfile.txt
-RUN python3.13 -m pip install -r /opt/app/containerfile.txt
-# RUN python3.14 -m pip install -r /opt/app/containerfile.txt
+COPY requirements.txt /opt/requirements.txt
+RUN /opt/python3.12/bin/python -m pip install -r /opt/requirements.txt
+RUN /opt/python3.13/bin/python -m pip install -r /opt/requirements.txt
+# RUN python3.14 -m pip install -r /opt/requirements.txt
 
 # Pre-install build tools:
-RUN python3.12 -m pip install 'wheel==0.45.1' 'setuptools_rust==1.12.0'
-RUN python3.13 -m pip install 'wheel==0.45.1' 'setuptools_rust==1.12.0'
-# RUN python3.14 -m pip install 'wheel==0.45.1' 'setuptools_rust==1.12.0'
+RUN /opt/python3.12/bin/python -m pip install 'wheel==0.45.1' 'setuptools_rust==1.12.0'
+RUN /opt/python3.13/bin/python -m pip install 'wheel==0.45.1' 'setuptools_rust==1.12.0'
+# RUN /opt/python3.14/bin/python -m pip install 'wheel==0.45.1' 'setuptools_rust==1.12.0'
 
 # ----------------------------------------------------------------------------
 # EXTEND
@@ -129,7 +129,7 @@ RUN if [ -n "$EXTRA_PACKAGES" ]; then \
 
 # ARG QUARTO_DL="https://github.com/quarto-dev/quarto-cli/releases/download"
 # ARG QUARTO_VERSION="1.8.26"
-# RUN export QUARTO_DEB="quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
+# RUN QUARTO_DEB="quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
 #     wget "${QUARTO_DL}/v${QUARTO_VERSION}/${QUARTO_DEB}" && \
 #     dpkg -i "${QUARTO_DEB}" && \
 #     rm "${QUARTO_DEB}"
