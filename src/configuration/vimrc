@@ -1,0 +1,85 @@
+" mkdir -p ~/.config/nvim
+" ln -s $(realpath $PWD)/vimrc ~/.config/nvim/init.vim
+"
+
+" ---------------------------------------------------------------------
+" GENERAL
+" ---------------------------------------------------------------------
+
+" Disable old Vi compatibility to unlock modern Vim behavior
+set nocompatible
+
+" Enable syntax highlighting
+syntax on
+
+" Enable filetype detection, plugins, and indentation rules
+filetype plugin indent on
+
+
+" ---------------------------------------------------------------------
+" UI / Editing Comfort
+" ---------------------------------------------------------------------
+
+" Show absolute line numbers
+set number
+
+" Show relative numbers for efficient movement (j/k)
+set relativenumber
+
+" Highlight the current line for better focus
+set cursorline
+
+" Enable true color support in terminals that support it
+set termguicolors
+
+" ---------------------------------------------------------------------
+" Indentation, Tabs, and Text
+" ---------------------------------------------------------------------
+
+" Number of spaces a <Tab> counts for
+set tabstop=4
+
+" Number of spaces used for autoindent and << >>
+set shiftwidth=4
+
+" Convert tabs to spaces
+set expandtab
+
+" Enable smart indentation based on syntax
+set smartindent
+
+" Wrap long lines instead of cutting them visually
+set wrap
+
+" Break wrapped lines at word boundaries, not mid‑word
+set linebreak
+
+" ---------------------------------------------------------------------
+" Search Behavior
+" ---------------------------------------------------------------------
+
+" Case-insensitive search by default
+set ignorecase
+
+" But if the search contains uppercase, make it case-sensitive
+set smartcase
+
+" Highlight search matches
+set hlsearch
+
+" Show matches as you type
+set incsearch
+
+" ---------------------------------------------------------------------
+" Clipboard & Mouse
+" ---------------------------------------------------------------------
+
+" Enable mouse support in all modes
+set mouse=a
+
+" Use the system clipboard for all yank/paste operations
+set clipboard=unnamedplus
+
+" ---------------------------------------------------------------------
+" EOF
+" ---------------------------------------------------------------------
