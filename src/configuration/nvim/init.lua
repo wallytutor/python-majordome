@@ -1,5 +1,5 @@
 -- ---------------------------------------------------------------------
--- ln -s $(realpath $PWD)/nvim ~/.config/nvim
+-- init.lua - Neovim configuration
 -- ---------------------------------------------------------------------
 
 -- About Neovim defaults:
@@ -84,7 +84,24 @@ vim.opt.clipboard = 'unnamedplus'
 -- LSP CONFIGURATION
 -- ---------------------------------------------------------------------
 
--- vim.lsp.config('rust')
+-- vim.lsp.enable('pyrefly')
+vim.lsp.enable('rust_analyzer')
+
+-- Show diagnostic popup
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
+
+-- Navigate diagnostics
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+
+-- Show all diagnostics
+vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
+
+-- LSP actions (when LSP is attached)
+vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
+vim.keymap.set('n', 'K', vim.lsp.buf.hover)
+vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename)
+vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action)
 
 -- ---------------------------------------------------------------------
 -- EOF
