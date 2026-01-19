@@ -387,9 +387,9 @@ class PlugFlowChainCantera:
         self._f_outflow.TP = None, self._P
 
         # Create reactors and reservoirs for system:
-        self._r_sources = ct.Reservoir(self._f_sources)
-        self._r_content = ct.IdealGasReactor(self._f_content)
-        self._r_outflow = ct.Reservoir(self._f_outflow)
+        self._r_sources = ct.Reservoir(self._f_sources,       clone=False)
+        self._r_content = ct.IdealGasReactor(self._f_content, clone=False)
+        self._r_outflow = ct.Reservoir(self._f_outflow,       clone=False)
 
         # Connect the reactor to the *world* (unit area wall). Notice
         # that imposing `A=1.0` means that when setting up the heat flux
@@ -412,7 +412,7 @@ class PlugFlowChainCantera:
         # Create array of states for results:
         extra = {"z_cell": z, "V_cell": V, "Q_cell": self._Q,
                  "m_cell": 0.0, "mdot_cell": 0.0}
-        self._states = ct.SolutionArray(self._r_content.thermo,
+        self._states = ct.SolutionArray(self._r_content.phase,
                                         shape = (z.shape[0],),
                                         extra = extra)
 
