@@ -1,6 +1,5 @@
 -- ---------------------------------------------------------------------
--- mkdir -p ~/.config/nvim
--- ln -s $(realpath $PWD)/init.lua ~/.config/nvim/init.lua
+-- ln -s $(realpath $PWD)/nvim ~/.config/nvim
 -- ---------------------------------------------------------------------
 
 -- About Neovim defaults:
@@ -85,17 +84,7 @@ vim.opt.clipboard = 'unnamedplus'
 -- LSP CONFIGURATION
 -- ---------------------------------------------------------------------
 
--- Require rust-analyzer from package manager
--- local lsp = require('lspconfig')
-
--- lsp.rust_analyzer.setup({
---     settings = {
---         ["rust-analyzer"] = {
---             cargo = { allFeatures = true },
---             checkOnSave = { command = "clippy" },
---         }
---     }
--- })
+-- vim.lsp.config('rust')
 
 -- ---------------------------------------------------------------------
 -- EOF
