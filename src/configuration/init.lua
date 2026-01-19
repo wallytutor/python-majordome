@@ -82,5 +82,21 @@ vim.opt.mouse = 'a'
 vim.opt.clipboard = 'unnamedplus'
 
 -- ---------------------------------------------------------------------
+-- LSP CONFIGURATION
+-- ---------------------------------------------------------------------
+
+-- Require rust-analyzer from package manager
+-- local lsp = require('lspconfig')
+
+-- lsp.rust_analyzer.setup({
+--     settings = {
+--         ["rust-analyzer"] = {
+--             cargo = { allFeatures = true },
+--             checkOnSave = { command = "clippy" },
+--         }
+--     }
+-- })
+
+-- ---------------------------------------------------------------------
 -- EOF
 -- ---------------------------------------------------------------------
