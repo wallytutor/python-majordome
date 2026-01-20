@@ -689,7 +689,8 @@ class PlugFlowChainCantera:
     # -----------------------------------------------------------------
 
     @MajordomePlot.new(shape=(2, 1), sharex=True, grid=True, size=(8, 8))
-    def quick_plot(self, plot=None, selected=None, but=None, **kwargs):
+    def quick_plot(self, *, plot: MajordomePlot, selected=None,
+                   but=None, **kwargs):
         fig, ax = plot.subplots()
 
         if selected and but:
