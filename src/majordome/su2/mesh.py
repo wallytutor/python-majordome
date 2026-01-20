@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 from pathlib import Path
+from pyvista import (
+    UnstructuredGrid,
+)
 import re
 import warnings
 import numpy as np
@@ -14,6 +17,44 @@ class SU2MeshType(Enum):
     CGNS = "CGNS"
 
 
+def mesh_su2_tags(fname: str | Path, mesh, **kwargs) -> dict[str, int]:
+    """
+    Extract all MARKER_TAG names from a SU2 mesh file efficiently.
+
+    Parameters
+    ----------
+    fname : str | Path
+        Path to the SU2 mesh file.
+    chunk_size : int
+        Size of chunks to read (default 1 MB (1024**2 bits)).
+    encoding : str
+        File encoding (default 'utf-8').
+
+    Returns
+    -------
+    dict[str, int]
+        All marker tag names and index found in the file.
+    """
+    chunk_size = kwargs.get("chunk_size", 1048576)
+    encoding = kwargs.get("encoding", "utf-8")
+
+    tags = []
+    pattern = re.compile(r"MARKER_TAG\s*=\s*(\S+)")
+
+    with open(fname, "r", encoding=encoding, errors="ignore") as f:
+        while chunk := f.read(chunk_size):
+            tags.extend(pattern.findall(chunk))
+
+    tags_expect = np.unique(mesh.cell_data["su2:tag"])
+    tags_map = {t: k for k, t in enumerate(tags, 1)}
+
+    # XXX: +1 for internal tag 0
+    if len(tags_expect) != len(tags_map) + 1:
+        raise ValueError("Mismatch between expected and found tags.")
+
+    return tags_map
+
+
 class SU2MeshLoader:
     __slots__ = ("_file", "_mesh", "_boundary_tags", "_boundaries")
 
@@ -24,38 +65,21 @@ class SU2MeshLoader:
             warnings.simplefilter("ignore")
             self._mesh = pv.read(path)
 
-    def extract_marker_tags(self,
-            chunk_size: int = 1048576,
-            encoding: str = "utf-8"
-        ) -> dict[str, int]:
-        """
-        Extract all MARKER_TAG names from a SU2 mesh file efficiently.
-
-        Parameters
-        ----------
-        chunk_size : int
-            Size of chunks to read (default 1 MB (1024**2 bits)).
+    def extract_marker_tags(self, **kwargs) -> dict[str, int]:
+        """ Extract all marker names from mesh file.
 
         Returns
         -------
         dict[str, int]
             All marker tag names and index found in the file.
         """
-        # TODO handle CGNS files by extension type
-
-        tags = []
-        pattern = re.compile(r"MARKER_TAG\s*=\s*(\S+)")
-
-        with open(self._file, "r", encoding=encoding, errors="ignore") as f:
-            while chunk := f.read(chunk_size):
-                tags.extend(pattern.findall(chunk))
-
-        tags_expect = np.unique(self._mesh.cell_data["su2:tag"])
-        tags_map = {t: k for k, t in enumerate(tags, 1)}
-
-        # XXX: +1 for internal tag 0
-        if len(tags_expect) != len(tags_map) + 1:
-            raise ValueError("Mismatch between expected and found tags.")
+        match self._file.suffix.lower():
+            case ".su2":
+                tags_map = mesh_su2_tags(self._file, self._mesh, **kwargs)
+            case ".cgns":
+                raise NotImplementedError("CGNS format not supported yet.")
+            case _:
+                raise ValueError("Unsupported file format.")
 
         self._boundaries = tags_map
         return tags_map
