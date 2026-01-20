@@ -2,8 +2,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 from pathlib import Path
-from hyperspy.api import load as hs_load
-from hyperspy.signals import Signal2D
 from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 from numpy.typing import NDArray
@@ -11,9 +9,15 @@ from PIL import Image, ExifTags
 from scipy.integrate import simpson, cumulative_simpson
 from skimage import io as skio
 from skimage import color, exposure, filters
+import warnings
 import exifread
 import numpy as np
 import pandas as pd
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from hyperspy.api import load as hs_load
+    from hyperspy.signals import Signal2D
 
 from .common import bounds
 from .plotting import MajordomePlot, PowerFormatter
