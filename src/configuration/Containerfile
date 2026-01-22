@@ -91,6 +91,20 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --no-modify-path \
 ENV PATH="/opt/cargo/bin:$PATH"
 
 # ----------------------------------------------------------------------------
+# QUARTO
+# ----------------------------------------------------------------------------
+
+ARG QUARTO_DL="https://github.com/quarto-dev/quarto-cli/releases/download"
+ARG QUARTO_VERSION="1.8.26"
+
+RUN QUARTO_DEB="quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
+    wget "${QUARTO_DL}/v${QUARTO_VERSION}/${QUARTO_DEB}" && \
+    dpkg -i "${QUARTO_DEB}" && \
+    rm "${QUARTO_DEB}"
+
+RUN quarto install tinytex
+
+# ----------------------------------------------------------------------------
 # HOME
 # ----------------------------------------------------------------------------
 
@@ -123,13 +137,6 @@ ARG EXTRA_PACKAGES=""
 RUN if [ -n "$EXTRA_PACKAGES" ]; then \
         apt-get install -y $EXTRA_PACKAGES; \
     fi
-
-# ARG QUARTO_DL="https://github.com/quarto-dev/quarto-cli/releases/download"
-# ARG QUARTO_VERSION="1.8.26"
-# RUN QUARTO_DEB="quarto-${QUARTO_VERSION}-linux-amd64.deb" && \
-#     wget "${QUARTO_DL}/v${QUARTO_VERSION}/${QUARTO_DEB}" && \
-#     dpkg -i "${QUARTO_DEB}" && \
-#     rm "${QUARTO_DEB}"
 
 # ----------------------------------------------------------------------------
 # CLEAN UP
