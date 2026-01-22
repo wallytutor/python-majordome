@@ -1,3 +1,7 @@
 [workspace]
-members = ["src/majordome-*"]
+members = [
+    "src/majordome-calphad",
+    "src/majordome-corelib",
+    "src/majordome-diffusion",
+]
 resolver = "3"
