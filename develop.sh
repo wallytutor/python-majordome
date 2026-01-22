@@ -72,8 +72,11 @@ container_start() {
     local image_bind="$(realpath $PWD):/opt/app"
     local context="$(realpath $PWD)/src/configuration"
 
+    local ports=""
+    ports+=" -p 7000:7000" # internal-flow-su2.py
+
     if "${CONTAINER}" image exists "${image_name}"; then
-        "${CONTAINER}" run -it \
+        "${CONTAINER}" run -it ${ports} \
             -v "${image_bind}" "${image_name}" /bin/bash
     else
         "${CONTAINER}" build -t "majordome" \
