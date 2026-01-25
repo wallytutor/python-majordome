@@ -87,14 +87,27 @@ class ParametersCFL:
         return tuple(data)
 
 
+class BCTypeAbstract(ABC):
+    __slots__ = ("_marker",)
+
+    def __init__(self, marker: str) -> None:
+        super().__init__()
+        self._marker = marker
+
+
 class BCTypeAbstractWall(ABC):
     pass
 
-class BCTypeAbstractInlet(ABC):
-    pass
 
-class BCTypeAbstractOutlet(ABC):
-    pass
+class BCTypeAbstractInlet(BCTypeAbstract):
+    def __init__(self, marker: str) -> None:
+        super().__init__(marker)
+
+
+class BCTypeAbstractOutlet(BCTypeAbstract):
+    def __init__(self, marker: str) -> None:
+        super().__init__(marker)
+
 
 class BCTypeNamedMarker(str):
     """ Wrapper type for string-like markers. """
@@ -119,8 +132,31 @@ class BCTypeTurbulentSAInlet(BCTypeAbstractInlet):
 class BCTypeTurbulentSSTInlet(BCTypeAbstractInlet):
     pass
 
+
 class BCTypeSupersonicInlet(BCTypeAbstractInlet):
-    pass
+    __slots__ = ("_temperature", "_static_pressure", "_velocity")
+
+    def __init__(self,
+            marker: str,
+            temperature: float,
+            static_pressure: float,
+            velocity: TrupleFloat
+        ) -> None:
+        super().__init__(marker)
+        self._temperature = temperature
+        self._static_pressure = static_pressure
+        self._velocity = velocity
+
+    def __str__(self) -> str:
+        value = (
+            f"{self._marker}, "
+            f"{self._temperature}, "
+            f"{self._static_pressure}, "
+            f"{self._velocity[0]}, "
+            f"{self._velocity[1]}, "
+            f"{self._velocity[2]}"
+        )
+        return f"( {value} )"
 
 
 class BCTypeCompressibleOutlet(BCTypeAbstractOutlet):
@@ -669,7 +705,7 @@ class BoundaryConditions(GroupEntriesMixin):
     marker_inlet: MarkerList                 = empty_list_field()
     marker_outlet: MarkerList                = empty_list_field()
     marker_inlet_turbulent: MarkerList       = empty_list_field()
-    marker_supersonic_inlet: MarkerList      = empty_list_field()
+    marker_supersonic_inlet: BCTypeSupersonicInlet = None
     marker_supersonic_outlet: MarkerList     = empty_list_field()
 
     marker_actdisk: MarkerList               = empty_list_field()
@@ -777,6 +813,11 @@ class BoundaryConditions(GroupEntriesMixin):
             self.entry("MARKER_OUTLET", self.marker_outlet)
 
         # self.entry("MARKER_INLET_TURBULENT", self.marker_inlet_turbulent)
+
+        if self.marker_supersonic_inlet:
+            self.entry("MARKER_SUPERSONIC_INLET",
+                       self.marker_supersonic_inlet, force=True)
+
         # self.entry("MARKER_SUPERSONIC_INLET", self.marker_supersonic_inlet)
         # self.entry("MARKER_SUPERSONIC_OUTLET", self.marker_supersonic_outlet)
 
@@ -1207,7 +1248,7 @@ class FlowNumericalMethod(GroupEntriesMixin):
         TODO: make a class as ParametersCFL.
     """
     conv_num_method_flow: ConvectiveScheme = ConvectiveScheme.ROE
-    roe_low_dissipation: RoeLowDissipation = RoeLowDissipation.FD
+    roe_low_dissipation: RoeLowDissipation = RoeLowDissipation.NONE
     roe_kappa: MaybeFloat = None
     min_roe_turkel_prec: MaybeFloat = None
     max_roe_turkel_prec: MaybeFloat = None
@@ -1360,7 +1401,10 @@ class SlopeLimiter(GroupEntriesMixin):
                                  "is not available for flow equations.")
 
             self.entry("MUSCL_FLOW", self.muscl_flow)
-            self.entry("SLOPE_LIMITER_FLOW", self.slope_limiter_flow)
+
+        # Should I put this inside the if muscl_flow block as it was before?
+        # Some examples set it to NONE even when MUSCL_FLOW is YES.
+        self.entry("SLOPE_LIMITER_FLOW", self.slope_limiter_flow, force=True)
 
         # Turbulence equation MUSCL and slope limiter
         if self.muscl_turb:
@@ -1800,7 +1844,7 @@ class SU2Configuration(GroupEntriesMixin):
     compressible_freestream_definition : CompressibleFreeStreamDefinition
         Compressible free-stream conditions definition group.
     """
-    problem: ProblemDefinition
+    problem: ProblemDefinition | None = None
     compressible_freestream: CompressibleFreeStreamDefinition | None = None
     reference_values: ReferenceValues | None = None
     boundary_conditions: BoundaryConditions | None = None
@@ -1823,7 +1867,9 @@ class SU2Configuration(GroupEntriesMixin):
             Full SU2 configuration file.
         """
         self.start()
-        self.cfg.append(self.problem.to_cfg())
+
+        if self.problem is not None:
+            self.cfg.append(self.problem.to_cfg())
 
         if self.compressible_freestream is not None:
             self.cfg.append(self.compressible_freestream.to_cfg())
