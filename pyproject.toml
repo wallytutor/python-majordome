@@ -142,6 +142,11 @@ target = "majordome._diffusion"
 path = "src/majordome-diffusion/Cargo.toml"
 binding = "PyO3"
 
+[[tool.setuptools-rust.ext-modules]]
+target = "majordome._handlers"
+path = "src/majordome-handlers/Cargo.toml"
+binding = "PyO3"
+
 ##############################################################################
 # EOF
 ##############################################################################
