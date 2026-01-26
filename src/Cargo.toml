@@ -10,12 +10,13 @@ pyo3 = "0.27.0"
 [lib]
 name = "majordome"
 crate-type = ["cdylib", "rlib"]
+path = "majordome/lib.rs"
 
 # XXX: multiple binaries in a single crate, just add [[bin]] sections.
 [[bin]]
 name = "containerize"
-path = "src/bin/containerize.rs"
+path = "majordome/scripts/containerize.rs"
 
 [[bin]]
 name = "majordome"
-path = "src/bin/majordome.rs"
+path = "majordome/scripts/majordome.rs"

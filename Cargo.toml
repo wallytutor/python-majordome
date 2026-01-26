@@ -1,3 +1,0 @@
-[workspace]
-members = ["src/majordome"]
-resolver = "3"
