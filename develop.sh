@@ -7,6 +7,31 @@
 
 CONTAINER=/usr/bin/podman
 
+FLAG_BUILD_PY312=true
+FLAG_BUILD_PY313=false
+FLAG_BUILD_DOCS=false
+
+parse_args() {
+    while [ $# -gt 0 ]; do
+        case $1 in
+            --no-py312)
+                FLAG_BUILD_PY312=false
+                ;;
+            --py313)
+                FLAG_BUILD_PY313=true
+                ;;
+            --docs)
+                FLAG_BUILD_DOCS=true
+                ;;
+            *)
+                echo "Unknown argument: $1" >&2
+                exit 1
+                ;;
+        esac
+        shift
+    done
+}
+
 ensure_local_run() {
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -60,11 +85,18 @@ majordome_docs_build() {
 }
 
 majordome_develop() {
-    majordome_build '/opt/python3.12/bin/python3.12'
-    majordome_build '/opt/python3.13/bin/python3.13'
+    if [ "${FLAG_BUILD_PY312}" = true ]; then
+        majordome_build '/opt/python3.12/bin/python3.12'
+    fi
 
-    # XXX: build docs with Python 3.12 for now:
-    majordome_docs_build '/opt/python3.12/bin/python3.12'
+    if [ "${FLAG_BUILD_PY313}" = true ]; then
+        majordome_build '/opt/python3.13/bin/python3.13'
+    fi
+
+    if [ "${FLAG_BUILD_DOCS}" = true ]; then
+        # XXX: build docs with Python 3.12 for now:
+        majordome_docs_build '/opt/python3.12/bin/python3.12'
+    fi
 }
 
 container_start() {
@@ -86,6 +118,7 @@ container_start() {
 
 main() {
     ensure_local_run
+    parse_args "$@"
     clean_start
 
     if [ -f "/run/.containerenv" ] || [ -f "/.dockerenv" ]; then
