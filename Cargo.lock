@@ -32,7 +32,7 @@ dependencies = [
 
 [[package]]
 name = "handlers"
-version = "0.1.0"
+version = "0.7.3"
 dependencies = [
  "pyo3",
 ]

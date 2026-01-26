@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from ._corelib import constants
+from ._rustapi import constants
 from .common import DATA
 from .plotting import MajordomePlot
 

@@ -10,6 +10,7 @@ CONTAINER=/usr/bin/podman
 FLAG_BUILD_PY312=true
 FLAG_BUILD_PY313=false
 FLAG_BUILD_DOCS=false
+FLAG_BUILD_CLEAN=false
 
 parse_args() {
     while [ $# -gt 0 ]; do
@@ -22,6 +23,9 @@ parse_args() {
                 ;;
             --docs)
                 FLAG_BUILD_DOCS=true
+                ;;
+            --clean)
+                FLAG_BUILD_CLEAN=true
                 ;;
             *)
                 echo "Unknown argument: $1" >&2
@@ -119,7 +123,10 @@ container_start() {
 main() {
     ensure_local_run
     parse_args "$@"
-    clean_start
+
+    if [ "${FLAG_BUILD_CLEAN}" = true ]; then
+        clean_start
+    fi
 
     if [ -f "/run/.containerenv" ] || [ -f "/.dockerenv" ]; then
         majordome_develop
