@@ -3,5 +3,6 @@ members = [
     "src/majordome-calphad",
     "src/majordome-corelib",
     "src/majordome-diffusion",
+    "src/majordome-handlers",
 ]
 resolver = "3"
