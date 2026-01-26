@@ -14,5 +14,4 @@ API Docs
     reactor
     transport
     vision
-    majordome-corelib
-    majordome-diffusion
+    majordome

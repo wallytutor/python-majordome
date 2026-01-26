@@ -1,6 +1,6 @@
 use pyo3::prelude::*;
 
-#[pymodule(name = "_handlers")]
+#[pymodule(name = "_majordome")]
 pub mod handlers {
     use pyo3::prelude::*;
 

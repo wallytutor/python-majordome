@@ -117,34 +117,19 @@ bindings = "bin"
 
 [[tool.setuptools-rust.bins]]
 target = "containerize"
-path = "src/majordome-corelib/Cargo.toml"
+path = "src/majordome/Cargo.toml"
 
 [[tool.setuptools-rust.bins]]
 target = "majordome"
-path = "src/majordome-corelib/Cargo.toml"
+path = "src/majordome/Cargo.toml"
 
 ##############################################################################
 # CRATES (MODULES)
 ##############################################################################
 
 [[tool.setuptools-rust.ext-modules]]
-target = "majordome._corelib"
-path = "src/majordome-corelib/Cargo.toml"
-binding = "PyO3"
-
-[[tool.setuptools-rust.ext-modules]]
-target = "majordome._calphad"
-path = "src/majordome-calphad/Cargo.toml"
-binding = "PyO3"
-
-[[tool.setuptools-rust.ext-modules]]
-target = "majordome._diffusion"
-path = "src/majordome-diffusion/Cargo.toml"
-binding = "PyO3"
-
-[[tool.setuptools-rust.ext-modules]]
-target = "majordome._handlers"
-path = "src/majordome-handlers/Cargo.toml"
+target = "majordome._majordome"
+path = "src/majordome/Cargo.toml"
 binding = "PyO3"
 
 ##############################################################################
