@@ -64,6 +64,18 @@ alias appx="apptainer instance stop"
 #         --bind "$(realpath $PWD):${2:-/opt/app}" "${1}" "${1%.sif}"
 # }
 
+pexec() {
+    local label=$1
+
+    if [ -z "${label}" ]; then
+        echo "Usage: pexec <container-id|container-name>" >&2
+        podman container ls
+        return 1
+    fi
+
+    podman exec -it "${1}" /bin/bash
+}
+
 ##############################################################################
 # Screen aliases
 ##############################################################################
