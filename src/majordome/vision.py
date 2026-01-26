@@ -126,6 +126,11 @@ class ChannelSelector(Enum):
         """ Convert the channel selector to a dictionary. """
         return {"channel": self.name, "index": self.value}
 
+    @classmethod
+    def names(cls) -> list[str]:
+        """ Get the list of channel names. """
+        return [channel.name for channel in cls]
+
 
 class ContrastEnhancement(Enum):
     """ Enumeration for contrast enhancement methods. """
