@@ -13,3 +13,9 @@ impl SolverType {
         SU2InputEntry::to_su2_input(self)
     }
 }
+
+#[pymodule]
+pub mod su2 {
+    #[pymodule_export]
+    use super::SolverType;
+}
