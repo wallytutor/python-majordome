@@ -1,6 +1,35 @@
+// FIXME: this code was experimental and now does not meet quality standards.
+// It needs to be revisited, cleaned up, and properly tested.
+
 use pyo3::prelude::*;
-use pyo3::types::PyAny;
-use corelib::core_const::GAS_CONSTANT;
+use pyo3::types::{PyAny, PyList};
+
+use crate::core::declarations::GAS_CONSTANT;
+
+fn validate_callback_xt(callback: &Bound<'_, PyAny>) -> PyResult<()> {
+    if !callback.is_callable() {
+        return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+            "callback must be callable with signature: fn(x[], T)"
+        ));
+    }
+    Ok(())
+}
+
+fn validate_array_type(array: &Bound<'_, PyAny>) -> PyResult<()> {
+    let is_valid = array.is_instance_of::<PyList>()
+        || array.hasattr("__array__").unwrap_or(false);
+
+    if !is_valid {
+        return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
+            "array must be a list or numpy array"
+        ));
+    }
+    Ok(())
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// diffusivity
+//////////////////////////////////////////////////////////////////////////////
 
 type PyObject = Py<PyAny>;
 
@@ -91,7 +120,7 @@ impl PreExponentialFactor {
     #[new]
     fn new(callback: PyObject) -> PyResult<Self> {
         Python::attach(|py| {
-            super::validate_callback_xt(callback.bind(py))?;
+            validate_callback_xt(callback.bind(py))?;
             Ok(PreExponentialFactor {
                 callback: Some(callback),
                 rust_callback: None,
@@ -103,14 +132,14 @@ impl PreExponentialFactor {
         // Use Rust callback if available, otherwise use Python callback
         if let Some(rust_fn) = self.rust_callback {
             Python::attach(|_py| {
-                super::validate_array_type(array)?;
+                validate_array_type(array)?;
                 // Extract Vec<f64> from Python array
                 let x: Vec<f64> = array.extract()?;
                 Ok(rust_fn(&x, temperature))
             })
         } else if let Some(ref callback) = self.callback {
             Python::attach(|py| {
-                super::validate_array_type(array)?;
+                validate_array_type(array)?;
                 callback.call1(py, (array, temperature))?.extract(py)
             })
         } else {
@@ -126,7 +155,7 @@ impl ActivationEnergy {
     #[new]
     fn new(callback: PyObject) -> PyResult<Self> {
         Python::attach(|py| {
-            super::validate_callback_xt(callback.bind(py))?;
+            validate_callback_xt(callback.bind(py))?;
             Ok(ActivationEnergy {
                 callback: Some(callback),
                 rust_callback: None,
@@ -138,14 +167,14 @@ impl ActivationEnergy {
         // Use Rust callback if available, otherwise use Python callback
         if let Some(rust_fn) = self.rust_callback {
             Python::attach(|_py| {
-                super::validate_array_type(array)?;
+                validate_array_type(array)?;
                 // Extract Vec<f64> from Python array
                 let x: Vec<f64> = array.extract()?;
                 Ok(rust_fn(&x, temperature))
             })
         } else if let Some(ref callback) = self.callback {
             Python::attach(|py| {
-                super::validate_array_type(array)?;
+                validate_array_type(array)?;
                 callback.call1(py, (array, temperature))?.extract(py)
             })
         } else {
@@ -219,7 +248,7 @@ impl ArrheniusModifiedDiffusivity {
 
     fn __call__(&self, array: &Bound<'_, PyAny>, temperature: f64) -> PyResult<f64> {
         Python::attach(|_py| {
-            super::validate_array_type(array)?;
+            validate_array_type(array)?;
 
             let d0 = self.pre_exponential.__call__(array, temperature)?;
             let ea = self.activation_energy.__call__(array, temperature)?;
@@ -231,5 +260,63 @@ impl ArrheniusModifiedDiffusivity {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// EOF
+// slycke
 //////////////////////////////////////////////////////////////////////////////
+
+fn composition_dependence(x: &[f64]) -> f64 {
+    if x.len() != 2 { // XXX While we cannot enforce compile-time length!
+        panic!("composition array must have at least two elements");
+    }
+
+    x[0] + 0.72 * x[1]
+}
+
+fn pre_exponential(x: &[f64]) -> f64 {
+    let b = -320.0 / GAS_CONSTANT;
+    (b * composition_dependence(x)).exp() / (1.0 - 5.0 * (x[0] + x[1]))
+}
+
+fn activation_modifier(x: &[f64]) -> f64 {
+    570_000.0 * composition_dependence(x)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Factory functions for diffusivity models
+//////////////////////////////////////////////////////////////////////////////
+
+#[pyfunction]
+pub fn create_carbon_diffusivity() -> ArrheniusModifiedDiffusivity {
+    ArrheniusModifiedDiffusivity::from_rust_fns(
+        |x, _t| 4.84e-05 * (1.0 - 5.0 * x[1]) * pre_exponential(&x),
+        |x, _t| 155_000.0 - activation_modifier(&x),
+    )
+}
+
+#[pyfunction]
+pub fn create_nitrogen_diffusivity() -> ArrheniusModifiedDiffusivity {
+    ArrheniusModifiedDiffusivity::from_rust_fns(
+        |x, _t| 9.10e-05 * (1.0 - 5.0 * x[0]) * pre_exponential(&x),
+        |x, _t| 168_600.0 - activation_modifier(&x),
+    )
+}
+
+#[pymodule]
+pub mod slycke {
+    #[pymodule_export]
+    pub use super::create_carbon_diffusivity;
+
+    #[pymodule_export]
+    pub use super::create_nitrogen_diffusivity;
+}
+
+#[pymodule]
+pub mod diffusion {
+    #[pymodule_export]
+    pub use super::PreExponentialFactor;
+
+    #[pymodule_export]
+    pub use super::ActivationEnergy;
+
+    #[pymodule_export]
+    pub use super::ArrheniusModifiedDiffusivity;
+}

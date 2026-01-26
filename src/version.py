@@ -57,8 +57,8 @@ def get_git_output() -> str:
 
 def get_cargo_version() -> str:
     """ Get the version from Cargo.toml. """
-    root = Path(__file__).resolve().parent
-    cargo_toml = root / "majordome-corelib/Cargo.toml"
+    root = Path(__file__).resolve().parents[1]
+    cargo_toml = root / "majordome/Cargo.toml"
 
     with open(cargo_toml, "rb") as fp:
         data = tomllib.load(fp)

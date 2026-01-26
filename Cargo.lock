@@ -9,35 +9,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
-name = "calphad"
-version = "0.1.0"
-dependencies = [
- "pyo3",
-]
-
-[[package]]
-name = "corelib"
-version = "0.7.3"
-dependencies = [
- "pyo3",
-]
-
-[[package]]
-name = "diffusion"
-version = "0.1.0"
-dependencies = [
- "corelib",
- "pyo3",
-]
-
-[[package]]
-name = "handlers"
-version = "0.7.3"
-dependencies = [
- "pyo3",
-]
-
-[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -57,6 +28,13 @@ name = "libc"
 version = "0.2.178"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37c93d8daa9d8a012fd8ab92f088405fb202ea0b6ab73ee2482ae66af4f42091"
+
+[[package]]
+name = "majordome"
+version = "0.8.0"
+dependencies = [
+ "pyo3",
+]
 
 [[package]]
 name = "memoffset"

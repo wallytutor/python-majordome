@@ -4,10 +4,10 @@ use std::path::Path;
 use std::process::{Command, Stdio, exit};
 use std::process::{ExitStatus};
 use std::env;
-use corelib::{dedent};
+use majordome::utils::textfile::dedent;
 
 #[macro_use]
-extern crate corelib;
+extern crate majordome;
 
 //////////////////////////////////////////////////////////////////////////////
 // UTILITY FUNCTIONS

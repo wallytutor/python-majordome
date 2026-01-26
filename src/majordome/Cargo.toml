@@ -1,11 +1,14 @@
 [package]
-name = "corelib"
-version = "0.7.3"
+name = "majordome"
+version = "0.8.0"
 edition = "2024"
 build = "build.rs"
 
+[dependencies]
+pyo3 = "0.27.0"
+
 [lib]
-name = "corelib"
+name = "majordome"
 crate-type = ["cdylib", "rlib"]
 
 # XXX: multiple binaries in a single crate, just add [[bin]] sections.
@@ -16,10 +19,3 @@ path = "src/bin/containerize.rs"
 [[bin]]
 name = "majordome"
 path = "src/bin/majordome.rs"
-
-[package.metadata.maturin]
-name = "majordome.corelib"
-bindings = "pyo3"
-
-[dependencies]
-pyo3 = "0.27.0"
