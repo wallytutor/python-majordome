@@ -21,7 +21,7 @@ import cantera as ct
 import numpy as np
 import pandas as pd
 
-from ._corelib import constants
+from ._rustapi import constants
 
 DATA = Path(str(resources.files("majordome").joinpath("data")))
 """ Path to project data folder. """

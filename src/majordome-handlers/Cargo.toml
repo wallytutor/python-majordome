@@ -1,12 +1,12 @@
 [package]
 name = "handlers"
-version = "0.1.0"
+version = "0.7.3"
 edition = "2024"
+build = "build.rs"
+
+[dependencies]
+pyo3 = "0.27.0"
 
 [lib]
 name = "handlers"
 crate-type = ["cdylib", "rlib"]
-
-[dependencies]
-pyo3 = "0.27.0"
-# corelib = { path = "../majordome-corelib" }

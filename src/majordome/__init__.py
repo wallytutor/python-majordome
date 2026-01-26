@@ -3,11 +3,13 @@
 __all__ = []
 
 # ---------------------------------------------------------------------
-# majordome._majordome: Rust extension module
+# majordome._rustapi: Rust extension modules wrapper
 # ---------------------------------------------------------------------
 
-from ._corelib import VERSION as __version__
-from ._corelib import constants
+from ._rustapi import (
+    __version__,
+    constants
+)
 
 __all__ += [
     "__version__",
