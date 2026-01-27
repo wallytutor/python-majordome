@@ -128,8 +128,8 @@ class ChannelSelector(Enum):
 
     @classmethod
     def names(cls) -> list[str]:
-        """ Get the list of channel names. """
-        return [channel.name for channel in cls]
+        """ Get the list of enumeration names. """
+        return [entry.name for entry in cls]
 
 
 class ContrastEnhancement(Enum):
@@ -157,6 +157,11 @@ class ContrastEnhancement(Enum):
 
         return img
 
+    @classmethod
+    def names(cls) -> list[str]:
+        """ Get the list of enumeration names. """
+        return [entry.name for entry in cls]
+
 
 class ThresholdImage(Enum):
     """ Enumeration for image thresholding methods. """
@@ -180,6 +185,11 @@ class ThresholdImage(Enum):
                 img = self._otsu(img)
 
         return img
+
+    @classmethod
+    def names(cls) -> list[str]:
+        """ Get the list of enumeration names. """
+        return [entry.name for entry in cls]
 
 
 class HelpersFFT:
