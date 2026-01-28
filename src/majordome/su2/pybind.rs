@@ -1,17 +1,27 @@
 use pyo3::prelude::*;
 
 use super::enums::SolverType;
-use super::traits::SU2InputEntry;
+use super::traits::AsInput;
 
 #[pymethods]
 impl SolverType {
-    fn __str__(&self) -> String {
-        self.to_string()
+    #[staticmethod]
+    fn type_name() -> &'static str {
+        <SolverType as AsInput>::type_name()
     }
 
-    fn to_su2_input(&self) -> String {
-        SU2InputEntry::to_su2_input(self)
+    fn to_name(&self) -> String {
+        AsInput::to_name(self)
     }
+
+    fn to_input(&self) -> String {
+        AsInput::to_input(self)
+    }
+
+    fn __str__(&self) -> String {
+        self.to_name()
+    }
+
 }
 
 #[pymodule]
