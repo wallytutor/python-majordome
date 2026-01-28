@@ -1,5 +1,9 @@
 use super::enums::SolverType;
 
+// pub trait AsStr {
+//     fn as_str(&self) -> &'static str;
+// }
+
 pub trait SU2InputEntry {
     fn to_su2_input(&self) -> String;
 }
