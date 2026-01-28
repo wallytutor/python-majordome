@@ -2,6 +2,8 @@
 from enum import Enum
 from typing import Any
 
+from .._majordome import su2 as SU2
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Helpers
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -36,27 +38,6 @@ class YesNoEnum(ConfigEnum):
     def __bool__(self) -> bool:
         """ Evaluate as boolean. """
         return self == YesNoEnum.YES
-
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# https://su2code.github.io/docs_v7/Solver-Setup/
-# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-class SolverType(ConfigEnum):
-    """ Solver type options. """
-    EULER              = "EULER"
-    NAVIER_STOKES      = "NAVIER_STOKES"
-    RANS               = "RANS"
-    INC_EULER          = "INC_EULER"
-    INC_NAVIER_STOKES  = "INC_NAVIER_STOKES"
-    INC_RANS           = "INC_RANS"
-    NEMO_EULER         = "NEMO_EULER"
-    NEMO_NAVIER_STOKES = "NEMO_NAVIER_STOKES"
-    FEM_EULER          = "FEM_EULER"
-    FEM_NAVIER_STOKES  = "FEM_NAVIER_STOKES"
-    FEM_RANS           = "FEM_RANS"
-    FEM_LES            = "FEM_LES"
-    HEAT_EQUATION_FVM  = "HEAT_EQUATION_FVM"
-    ELASTICITY         = "ELASTICITY"
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # https://su2code.github.io/docs_v7/Physical-Definition/
@@ -147,24 +128,24 @@ class InletType(ConfigEnum):
     VELOCITY_INLET   = "VELOCITY_INLET"
     PRESSURE_INLET   = "PRESSURE_INLET"
 
-    def validate_solver(self, solver_type: SolverType) -> bool:
+    def validate_solver(self, solver_type: SU2.SolverType) -> bool:
         """ Validate if the inlet type is compatible with the solver type. """
         match self:
 
             case InletType.TOTAL_CONDITIONS | InletType.MASS_FLOW:
                 return solver_type in {
-                    SolverType.EULER,
-                    SolverType.NAVIER_STOKES,
-                    SolverType.RANS,
-                    SolverType.FEM_EULER,
-                    SolverType.FEM_NAVIER_STOKES,
+                    SU2.SolverType.Euler,
+                    SU2.SolverType.NavierStokes,
+                    SU2.SolverType.Rans,
+                    SU2.SolverType.FemEuler,
+                    SU2.SolverType.FemNavierStokes,
                 }
 
             case InletType.VELOCITY_INLET | InletType.PRESSURE_INLET:
                 return solver_type in {
-                    SolverType.INC_EULER,
-                    SolverType.INC_NAVIER_STOKES,
-                    SolverType.INC_RANS
+                    SU2.SolverType.IncEuler,
+                    SU2.SolverType.IncNavierStokes,
+                    SU2.SolverType.IncRans
                 }
 
 
@@ -291,7 +272,7 @@ class ConvectiveScheme(ConfigEnum):
     L2ROE         = "L2ROE"
     LMROE         = "LMROE"
 
-    def validate_solver(self, solver_type: SolverType) -> bool:
+    def validate_solver(self, solver_type: SU2.SolverType) -> bool:
         """ Validate if the convective scheme is compatible with the solver type. """
         raise NotImplementedError("Validation not implemented yet.")
 
