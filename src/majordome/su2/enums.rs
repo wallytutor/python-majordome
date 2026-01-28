@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 #[pyclass]
+#[derive(Debug)]
 pub enum SolverType {
     Euler,
     NavierStokes,
