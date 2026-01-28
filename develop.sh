@@ -11,6 +11,7 @@ FLAG_BUILD_PY312=true
 FLAG_BUILD_PY313=false
 FLAG_BUILD_DOCS=false
 FLAG_BUILD_CLEAN=false
+FLAG_BUILD_QUICK=true
 
 parse_args() {
     while [ $# -gt 0 ]; do
@@ -26,6 +27,9 @@ parse_args() {
                 ;;
             --clean)
                 FLAG_BUILD_CLEAN=true
+                ;;
+            --full)
+                FLAG_BUILD_QUICK=false
                 ;;
             *)
                 echo "Unknown argument: $1" >&2
@@ -60,11 +64,19 @@ clean_start() {
 majordome_build() {
     local python=$1
 
-    "${python}" -m pip install -e .[docs,extras]
+    if [ "${FLAG_BUILD_QUICK}" = true ]; then
+        "${python}" -m pip install -e . --no-deps
+    else
+        "${python}" -m pip install -e .[docs,extras]
+    fi
 
     if [ $? -ne 0 ]; then
         echo "Error: pip install failed" >&2
         exit 1
+    fi
+
+    if [ "${FLAG_BUILD_QUICK}" = true ]; then
+        return
     fi
 
     "${python}" -m build --wheel --sdist
