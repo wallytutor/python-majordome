@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 from warnings import warn
 
+from .._majordome import su2 as SU2
 # XXX: for now, later organize imports properly
 from .enums import *
 
@@ -204,6 +205,13 @@ class GroupEntriesMixin:
             self.start()
         self.cfg.append(f"{80 * '%'}\n%% {title}\n{80 * '%'}")
 
+    def input(self, value: Any) -> None:
+        if not hasattr(value, "to_input"):
+            print(value, dir(value))
+            raise AttributeError("Value has no 'to_input' method")
+
+        self.cfg.append(value.to_input())
+
     def entry(self, key: str, value: Any, force: bool = False) -> None:
         """ Add configuration entry. """
         if force:
@@ -244,7 +252,7 @@ class ProblemDefinition(GroupEntriesMixin):
 
     Attributes
     ----------
-    solver : SolverType
+    solver : SU2.SolverType
         Solver type.
     turbulence_model : TurbulenceModel
         Turbulence model.
@@ -279,7 +287,7 @@ class ProblemDefinition(GroupEntriesMixin):
     config_list : list[str]
         List of config files for multizone setup.
     """
-    solver: SolverType                     = SolverType.EULER
+    solver: SU2.SolverType                 = SU2.SolverType.Euler
     turbulence_model: TurbulenceModel      = TurbulenceModel.NONE
     sst_options: ShearStressTransportModel = ShearStressTransportModel.NONE
     sa_options: SpalartAllmarasModel       = SpalartAllmarasModel.NONE
@@ -333,7 +341,8 @@ class ProblemDefinition(GroupEntriesMixin):
         """
         self.header("DIRECT, ADJOINT, AND LINEARIZED PROBLEM DEFINITION")
 
-        self.entry("SOLVER", self.solver)
+        self.input(self.solver)
+        # self.entry("SOLVER", self.solver)
 
         if self.turbulence_model:
             self._handle_turbulence_model()
