@@ -1,6 +1,10 @@
 use pyo3::prelude::*;
 
 #[pyclass]
+#[derive(Debug, Clone)]
+pub struct VelocityType(pub f64, pub f64, pub f64);
+
+#[pyclass]
 #[derive(Debug)]
 pub enum SolverType {
     Euler,
@@ -27,5 +31,5 @@ pub enum InletType {
     IncVelocityInlet(String),
     IncPressureInlet(String),
     TurbulentSAInlet(String),
-    SuperSonicInlet(String),
+    SupersonicInlet(String, f64, f64, VelocityType),
 }
