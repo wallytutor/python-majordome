@@ -10,7 +10,7 @@ CONTAINER=/usr/bin/podman
 FLAG_BUILD_PY312=true
 FLAG_BUILD_PY313=false
 FLAG_BUILD_DOCS=false
-FLAG_BUILD_CLEAN=true
+FLAG_BUILD_CLEAN=false
 
 parse_args() {
     while [ $# -gt 0 ]; do
