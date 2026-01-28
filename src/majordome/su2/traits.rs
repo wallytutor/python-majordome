@@ -49,7 +49,7 @@ impl AsInput for InletType {
             Self::TurbulentSAInlet(..)     => "TURBULENT_SA_INLET",
             Self::SupersonicInlet(..)      => "SUPERSONIC_INLET"
         };
-        val.to_string()
+        format!("MARKER_{val}")
     }
 
     fn to_value(&self) -> String {
