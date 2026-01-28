@@ -18,3 +18,14 @@ pub enum SolverType {
     HeatEquationFvm,
     Elasticity
 }
+
+#[pyclass]
+#[derive(Debug)]
+pub enum InletType {
+    TotalConditionsInlet(String),
+    MassFlowInlet(String),
+    IncVelocityInlet(String),
+    IncPressureInlet(String),
+    TurbulentSAInlet(String),
+    SuperSonicInlet(String),
+}
