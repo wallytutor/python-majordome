@@ -144,9 +144,9 @@ class CropGuidesDisplay:
             Color of the guide lines in RGB format. Default is (0, 255, 0).
         """
         positions = kwargs.get("positions", [20, 40, 60, 80])
-        depth     = kwargs.get("depth_guide", 5)
-        thick     = kwargs.get("guide_thickness", 4)
-        color     = kwargs.get("guide_color", (0, 255, 0))
+        depth     = kwargs.get("depth", 5)
+        thick     = kwargs.get("thickness", 4)
+        color     = kwargs.get("color", (0, 255, 0))
 
         tl = int(max(self._h, self._w) * depth / 100)
 
@@ -186,8 +186,8 @@ class CropGuidesDisplay:
             Color of the crop rectangle border in RGB format.
             Default is (255, 0, 0).
         """
-        thick = kwargs.get("crop_thickness", 5)
-        color = kwargs.get("crop_color", (255, 0, 0))
+        thick = kwargs.get("thickness", 5)
+        color = kwargs.get("color", (255, 0, 0))
 
         t, b, l, r = np.array(list(sides)) / 100
 
