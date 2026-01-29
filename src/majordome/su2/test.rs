@@ -1,5 +1,4 @@
-use super::enums::SolverType;
-use super::traits::AsInput;
+use super::enums::*;
 
 #[test]
 fn test_solver_type_to_su2_input() {
