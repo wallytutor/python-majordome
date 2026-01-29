@@ -1,0 +1,795 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Energy models &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/energy_';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fluent files" href="fluent_.html" />
+    <link rel="prev" title="Common utilities" href="common_.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Examples</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="common_.html">Common utilities</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdftools_.html">PDF text extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transport_.html">Transport properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/index.html">API Docs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../modules/common.html">majordome.common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/energy.html">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/pdftools.html">majordome.pdftools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/reactor.html">majordome.reactor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/transport.html">majordome.transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/vision.html">majordome.vision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../modules/majordome.html">corelib (crate)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/energy_.py" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.py</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Energy models</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Combustion-setup-utilities">Combustion setup utilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Energy-sources">Energy sources</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Energy-models">
+<h1>Energy models<a class="headerlink" href="#Energy-models" title="Link to this heading">#</a></h1>
+<p>This module is concerned with providing classes for computation of energy sources; these are mostly related to estimation of fuel consumption or integration to another simulation modules. Hereafter we illustrate the in cascading complexity the available energy sources. Some of these are simple wrapper around features provided by the combustion utilities.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">majordome</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">StateType</span><span class="p">,</span>
+    <span class="n">NormalFlowRate</span><span class="p">,</span>
+    <span class="n">CombustionPowerOp</span><span class="p">,</span>
+    <span class="n">CombustionFlowOp</span><span class="p">,</span>
+    <span class="n">CombustionAtmosphereCHON</span><span class="p">,</span>
+    <span class="n">CombustionPowerSupply</span><span class="p">,</span>
+    <span class="n">HeatedGasEnergySource</span><span class="p">,</span>
+    <span class="n">CombustionEnergySource</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import majordome.walang</span>
+<span class="c1"># ct = __builtins__.cantera</span>
+</pre></div>
+</div>
+</div>
+<section id="Combustion-setup-utilities">
+<h2>Combustion setup utilities<a class="headerlink" href="#Combustion-setup-utilities" title="Link to this heading">#</a></h2>
+<p>A common need in industry is to evaluate the real heating value from a gas composition reported by the supplier. This is the main goal of <code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON</span></code>, which has a very simple API provided below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gas</span> <span class="o">=</span> <span class="n">CombustionAtmosphereCHON</span><span class="p">(</span><span class="s2">&quot;gri30.yaml&quot;</span><span class="p">)</span>
+<span class="n">lhv</span> <span class="o">=</span> <span class="n">gas</span><span class="o">.</span><span class="n">solution_heating_value</span><span class="p">(</span><span class="s2">&quot;CH4: 1&quot;</span><span class="p">,</span> <span class="s2">&quot;O2: 1&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solution heating value: </span><span class="si">{</span><span class="n">lhv</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> MJ/kg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Solution heating value: 50.03 MJ/kg
+</pre></div></div>
+</div>
+<p>Built upon it, <code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply</span></code> performs the basic calculations for retrieving required flow rates from a given power specification; this proves very handy for the CFD engineer.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">supply</span> <span class="o">=</span> <span class="n">CombustionPowerSupply</span><span class="p">(</span><span class="mf">500.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;CH4: 1&quot;</span><span class="p">,</span> <span class="s2">&quot;O2: 1&quot;</span><span class="p">,</span> <span class="s2">&quot;gri30.yaml&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">supply</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+| Property                  | Unit   |    Value |
+|---------------------------|--------|----------|
+| Required power            | kW     | 500      |
+| Lower heating value       | MJ/kg  |  50.0254 |
+| Fuel mass flow rate       | kg/h   |  35.9817 |
+| Oxidizer mass flow rate   | kg/h   | 143.532  |
+| Total mass flow rate      | kg/h   | 179.514  |
+| Fuel volume flow rate     | Nm³/h  |  50.2707 |
+| Oxidizer volume flow rate | Nm³/h  | 100.541  |
+| Total volume flow rate    | Nm³/h  | 150.812  |
+| Water production          | kg/h   |  80.8092 |
+| Carbon dioxide production | kg/h   |  98.7047 |
+| Total emissions           | kg/h   | 179.514  |
+</pre></div></div>
+</div>
+<p><strong>TODO:</strong> missing a sample with <code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer</span></code>!</p>
+</section>
+<section id="Energy-sources">
+<h2>Energy sources<a class="headerlink" href="#Energy-sources" title="Link to this heading">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="n">HeatedGasEnergySource</span><span class="p">(</span><span class="s2">&quot;airish.yaml&quot;</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">,</span> <span class="n">mass_flow_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+| Property               | Unit     | Value                 |
+|------------------------|----------|-----------------------|
+| Source kind            |          | HeatedGasEnergySource |
+| Provided power         | kW       | 500.0                 |
+| Source                 |          | airish.yaml           |
+| Phase                  |          | air                   |
+| Reference area         | m²       | 1.0                   |
+| Mass flow rate         | kg/s     | 1.0                   |
+| Volume flow rate       | m³/s     | 2.2051590808893957    |
+| Momentum flux          | kg.m/s²  | 2.2051590808893957    |
+| Reference temperature  | K        | 298.15                |
+| Reference pressure     | Pa       | 101325.0              |
+| Temperature            | K        | 778.5219246537463     |
+| Pressure               | Pa       | 101324.99999999999    |
+| Density                | kg/m³    | 0.453482022529039     |
+| Specific enthalpy      | J/(kg.K) | 500038.49937969144    |
+| Specific heat capacity | J/(kg.K) | 1091.748083028256     |
+| mass: AR               | -        | 0.013790127718329308  |
+| mass: N2               | -        | 0.7542602692440457    |
+| mass: O2               | -        | 0.23194960303762516   |
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="n">HeatedGasEnergySource</span><span class="p">(</span><span class="s2">&quot;airish.yaml&quot;</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">,</span> <span class="n">mass_flow_rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                               <span class="n">cross_area</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="s2">&quot;N2: 0.79, O2: 0.21&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+| Property               | Unit     | Value                 |
+|------------------------|----------|-----------------------|
+| Source kind            |          | HeatedGasEnergySource |
+| Provided power         | kW       | 500.0                 |
+| Source                 |          | airish.yaml           |
+| Phase                  |          | air                   |
+| Reference area         | m²       | 0.1                   |
+| Mass flow rate         | kg/s     | 1.0                   |
+| Volume flow rate       | m³/s     | 2.2090693490835482    |
+| Momentum flux          | kg.m/s²  | 22.090693490835484    |
+| Reference temperature  | K        | 298.15                |
+| Reference pressure     | Pa       | 101325.0              |
+| Temperature            | K        | 774.4142430033143     |
+| Pressure               | Pa       | 101324.99999999999    |
+| Density                | kg/m³    | 0.45267931512193527   |
+| Specific enthalpy      | J/(kg.K) | 500040.3236104384     |
+| Specific heat capacity | J/(kg.K) | 1100.3346580471573    |
+| mass: N2               | -        | 0.79                  |
+| mass: O2               | -        | 0.21                  |
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fuel_state</span> <span class="o">=</span> <span class="n">StateType</span><span class="p">(</span><span class="s2">&quot;CH4: 1&quot;</span><span class="p">,</span>             <span class="mi">300</span><span class="p">,</span> <span class="mi">101325</span><span class="p">)</span>
+<span class="n">oxid_state</span> <span class="o">=</span> <span class="n">StateType</span><span class="p">(</span><span class="s2">&quot;N2: 0.79, O2: 0.21&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">101325</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ops</span> <span class="o">=</span> <span class="n">CombustionPowerOp</span><span class="p">(</span><span class="mf">500.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">fuel_state</span><span class="p">,</span> <span class="n">oxid_state</span><span class="p">)</span>
+<span class="n">source</span> <span class="o">=</span> <span class="n">CombustionEnergySource</span><span class="p">(</span><span class="s2">&quot;ch4/bfer.yaml&quot;</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="n">ops</span><span class="p">,</span> <span class="n">cross_area</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Recover values for other tests that follow</span>
+<span class="c1"># TODO wrap these in properties for clean API:</span>
+<span class="n">mdot_fuel</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">_qty_fuel</span><span class="o">.</span><span class="n">mass</span>
+<span class="n">mdot_oxid</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">_qty_oxid</span><span class="o">.</span><span class="n">mass</span>
+
+<span class="n">nfr_fuel</span> <span class="o">=</span> <span class="n">NormalFlowRate</span><span class="o">.</span><span class="n">new_from_solution</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">_qty_fuel</span><span class="p">)</span>
+<span class="n">nfr_oxid</span> <span class="o">=</span> <span class="n">NormalFlowRate</span><span class="o">.</span><span class="n">new_from_solution</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">_qty_oxid</span><span class="p">)</span>
+
+<span class="n">qdot_fuel</span> <span class="o">=</span> <span class="mi">3600</span> <span class="o">*</span> <span class="n">mdot_fuel</span> <span class="o">/</span> <span class="n">nfr_fuel</span><span class="o">.</span><span class="n">density</span>
+<span class="n">qdot_oxid</span> <span class="o">=</span> <span class="mi">3600</span> <span class="o">*</span> <span class="n">mdot_oxid</span> <span class="o">/</span> <span class="n">nfr_oxid</span><span class="o">.</span><span class="n">density</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+| Property               | Unit     | Value                  |
+|------------------------|----------|------------------------|
+| Source kind            |          | CombustionEnergySource |
+| Provided power         | kW       | 500.0                  |
+| Source                 |          | ch4/bfer.yaml          |
+| Phase                  |          | CH4_BFER               |
+| Reference area         | m²       | 0.1                    |
+| Mass flow rate         | kg/s     | 0.18117768922524702    |
+| Volume flow rate       | m³/s     | 1.221027872548669      |
+| Momentum flux          | kg.m/s²  | 2.2122300842798728     |
+| ******* FLUE:          |          |                        |
+| Temperature            | K        | 2257.7969133307774     |
+| Pressure               | Pa       | 101325.00000819034     |
+| Density                | kg/m³    | 0.14838128866548494    |
+| Specific enthalpy      | J/(kg.K) | -254492.89776981465    |
+| Specific heat capacity | J/(kg.K) | 1516.597922218732      |
+| mass: CH4              | -        | 2.766227442722399e-17  |
+| mass: CO               | -        | 0.010559409120412885   |
+| mass: CO2              | -        | 0.13474113875912538    |
+| mass: H2O              | -        | 0.12389490081229028    |
+| mass: N2               | -        | 0.7247731344386606     |
+| mass: O2               | -        | 0.006031416869510655   |
+| ******* FUEL:          |          |                        |
+| Temperature            | K        | 300.0                  |
+| Pressure               | Pa       | 101325.00000000001     |
+| Density                | kg/m³    | 0.6516985521312658     |
+| Specific enthalpy      | J/(kg.K) | -4645856.881890704     |
+| Specific heat capacity | J/(kg.K) | 2229.0429122783953     |
+| mass: CH4              | -        | 1.0                    |
+| ******* OXIDIZER:      |          |                        |
+| Temperature            | K        | 300.0                  |
+| Pressure               | Pa       | 101325.00000000001     |
+| Density                | kg/m³    | 1.171970349439655      |
+| Specific enthalpy      | J/(kg.K) | 1907.6015935135354     |
+| Specific heat capacity | J/(kg.K) | 1010.0686132988887     |
+| mass: N2               | -        | 0.7670907820415769     |
+| mass: O2               | -        | 0.2329092179584231     |
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ops</span> <span class="o">=</span> <span class="n">CombustionFlowOp</span><span class="p">(</span><span class="s2">&quot;mass&quot;</span><span class="p">,</span> <span class="n">mdot_fuel</span><span class="p">,</span> <span class="n">mdot_oxid</span><span class="p">,</span> <span class="n">fuel_state</span><span class="p">,</span> <span class="n">oxid_state</span><span class="p">)</span>
+<span class="n">source</span> <span class="o">=</span> <span class="n">CombustionEnergySource</span><span class="p">(</span><span class="s2">&quot;ch4/bfer.yaml&quot;</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="n">ops</span><span class="p">,</span> <span class="n">cross_area</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+| Property               | Unit     | Value                  |
+|------------------------|----------|------------------------|
+| Source kind            |          | CombustionEnergySource |
+| Provided power         | kW       | 500.0                  |
+| Source                 |          | ch4/bfer.yaml          |
+| Phase                  |          | CH4_BFER               |
+| Reference area         | m²       | 0.1                    |
+| Mass flow rate         | kg/s     | 0.18117768922524702    |
+| Volume flow rate       | m³/s     | 1.221027872548669      |
+| Momentum flux          | kg.m/s²  | 2.2122300842798728     |
+| ******* FLUE:          |          |                        |
+| Temperature            | K        | 2257.7969133307774     |
+| Pressure               | Pa       | 101325.00000819034     |
+| Density                | kg/m³    | 0.14838128866548494    |
+| Specific enthalpy      | J/(kg.K) | -254492.89776981465    |
+| Specific heat capacity | J/(kg.K) | 1516.597922218732      |
+| mass: CH4              | -        | 2.766227442722399e-17  |
+| mass: CO               | -        | 0.010559409120412885   |
+| mass: CO2              | -        | 0.13474113875912538    |
+| mass: H2O              | -        | 0.12389490081229028    |
+| mass: N2               | -        | 0.7247731344386606     |
+| mass: O2               | -        | 0.006031416869510655   |
+| ******* FUEL:          |          |                        |
+| Temperature            | K        | 300.0                  |
+| Pressure               | Pa       | 101325.00000000001     |
+| Density                | kg/m³    | 0.6516985521312658     |
+| Specific enthalpy      | J/(kg.K) | -4645856.881890704     |
+| Specific heat capacity | J/(kg.K) | 2229.0429122783953     |
+| mass: CH4              | -        | 1.0                    |
+| ******* OXIDIZER:      |          |                        |
+| Temperature            | K        | 300.0                  |
+| Pressure               | Pa       | 101325.00000000001     |
+| Density                | kg/m³    | 1.171970349439655      |
+| Specific enthalpy      | J/(kg.K) | 1907.6015935135354     |
+| Specific heat capacity | J/(kg.K) | 1010.0686132988887     |
+| mass: N2               | -        | 0.7670907820415769     |
+| mass: O2               | -        | 0.2329092179584231     |
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ops</span> <span class="o">=</span> <span class="n">CombustionFlowOp</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">,</span> <span class="n">qdot_fuel</span><span class="p">,</span> <span class="n">qdot_oxid</span><span class="p">,</span> <span class="n">fuel_state</span><span class="p">,</span> <span class="n">oxid_state</span><span class="p">)</span>
+<span class="n">source</span> <span class="o">=</span> <span class="n">CombustionEnergySource</span><span class="p">(</span><span class="s2">&quot;ch4/bfer.yaml&quot;</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="n">ops</span><span class="p">,</span> <span class="n">cross_area</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">report</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+| Property               | Unit     | Value                  |
+|------------------------|----------|------------------------|
+| Source kind            |          | CombustionEnergySource |
+| Provided power         | kW       | 500.0                  |
+| Source                 |          | ch4/bfer.yaml          |
+| Phase                  |          | CH4_BFER               |
+| Reference area         | m²       | 0.1                    |
+| Mass flow rate         | kg/s     | 0.18117768922524705    |
+| Volume flow rate       | m³/s     | 1.2210278725486692     |
+| Momentum flux          | kg.m/s²  | 2.212230084279873      |
+| ******* FLUE:          |          |                        |
+| Temperature            | K        | 2257.7969133307774     |
+| Pressure               | Pa       | 101325.00000819034     |
+| Density                | kg/m³    | 0.14838128866548494    |
+| Specific enthalpy      | J/(kg.K) | -254492.89776981465    |
+| Specific heat capacity | J/(kg.K) | 1516.597922218732      |
+| mass: CH4              | -        | 2.766227442722399e-17  |
+| mass: CO               | -        | 0.010559409120412885   |
+| mass: CO2              | -        | 0.13474113875912538    |
+| mass: H2O              | -        | 0.12389490081229028    |
+| mass: N2               | -        | 0.7247731344386606     |
+| mass: O2               | -        | 0.006031416869510655   |
+| ******* FUEL:          |          |                        |
+| Temperature            | K        | 300.0                  |
+| Pressure               | Pa       | 101325.00000000001     |
+| Density                | kg/m³    | 0.6516985521312658     |
+| Specific enthalpy      | J/(kg.K) | -4645856.881890704     |
+| Specific heat capacity | J/(kg.K) | 2229.0429122783953     |
+| mass: CH4              | -        | 1.0                    |
+| ******* OXIDIZER:      |          |                        |
+| Temperature            | K        | 300.0                  |
+| Pressure               | Pa       | 101325.00000000001     |
+| Density                | kg/m³    | 1.171970349439655      |
+| Specific enthalpy      | J/(kg.K) | 1907.6015935135354     |
+| Specific heat capacity | J/(kg.K) | 1010.0686132988887     |
+| mass: N2               | -        | 0.7670907820415769     |
+| mass: O2               | -        | 0.2329092179584231     |
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="common_.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Common utilities</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="fluent_.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Fluent files</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Combustion-setup-utilities">Combustion setup utilities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Energy-sources">Energy sources</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
