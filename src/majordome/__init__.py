@@ -224,6 +224,7 @@ def toggle_warnings(**kwargs):
 
 from .vision import (
     ImageCrop,
+    CropGuidesDisplay,
     ChannelSelector,
     ContrastEnhancement,
     ThresholdImage,
@@ -234,6 +235,7 @@ from .vision import (
 
 __all__ += [
     "ImageCrop",
+    "CropGuidesDisplay",
     "ChannelSelector",
     "ContrastEnhancement",
     "ThresholdImage",

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
 from enum import Enum
+from numbers import Number
 from pathlib import Path
 from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
@@ -21,6 +22,8 @@ with warnings.catch_warnings():
 
 from .common import bounds
 from .plotting import MajordomePlot, PowerFormatter
+
+CropTuple = tuple[Number, Number, Number, Number]
 
 
 class ImageCrop:
@@ -97,6 +100,114 @@ class ImageCrop:
             "right": self._right,
             "top": self._top
         }
+
+
+class CropGuidesDisplay:
+    """ Class to display crop guides on an image.
+
+    Processing is performed in a copy of the original image to avoid
+    modifying it. It is converted to uint8 and RGB if needed.
+
+    Parameters
+    ----------
+    image : ndarray
+        Input image on which to draw the guides.
+    """
+    __slots__ = ("_image", "_h", "_w")
+
+    def __init__(self, image: NDArray) -> None:
+        self._image = image.copy()
+
+        if self._image.dtype in (np.float32, np.float64):
+            self._image = (self._image * 255).astype(np.uint8)
+
+        if len(self._image.shape) == 2:
+            self._image = np.stack([self._image] * 3, axis=-1)
+
+        self._h = self._image.shape[0]
+        self._w = self._image.shape[1]
+
+    def add_guides(self, **kwargs) -> NDArray:
+        """ Draw guide lines at relevant coordinates of the image.
+
+        Parameters
+        ----------
+        positions : list, optional
+            List of percentages (0-100) indicating where to draw the guide
+            lines. Default is [20, 40, 60, 80].
+        depth_guide : int, optional
+            Depth of the guide lines as a percentage of the image size.
+            Default is 5.
+        guide_thickness : int, optional
+            Thickness of the guide lines. Default is 4.
+        guide_color : tuple, optional
+            Color of the guide lines in RGB format. Default is (0, 255, 0).
+        """
+        positions = kwargs.get("positions", [20, 40, 60, 80])
+        depth     = kwargs.get("depth_guide", 5)
+        thick     = kwargs.get("guide_thickness", 4)
+        color     = kwargs.get("guide_color", (0, 255, 0))
+
+        tl = int(max(self._h, self._w) * depth / 100)
+
+        for pct in positions:
+            x_pos = int(self._w * pct / 100)
+            y_pos = int(self._h * pct / 100)
+
+            if 0 <= x_pos < self._w:
+                slice_x = slice(x_pos, x_pos+thick)
+                slice_t = slice(0, tl)
+                slice_b = slice(self._h-tl, self._h)
+
+                self._image[slice_t, slice_x] = color
+                self._image[slice_b, slice_x] = color
+
+            if 0 <= y_pos < self._h:
+                slice_y = slice(y_pos, y_pos+thick)
+                slice_l = slice(0, tl)
+                slice_r = slice(self._w-tl, self._w)
+
+                self._image[slice_y, slice_l] = color
+                self._image[slice_y, slice_r] = color
+
+        return self._image
+
+    def add_crop_lines(self, sides: CropTuple, **kwargs) -> NDArray:
+        """ Draw crop lines on the image for visualization.
+
+        Parameters
+        ----------
+        sides : tuple
+            Tuple of four numbers indicating the percentage to crop
+            from each side in the order (top, bottom, left, right).
+        crop_thickness : int, optional
+            Thickness of the crop rectangle border. Default is 5.
+        crop_color : tuple, optional
+            Color of the crop rectangle border in RGB format.
+            Default is (255, 0, 0).
+        """
+        thick = kwargs.get("crop_thickness", 5)
+        color = kwargs.get("crop_color", (255, 0, 0))
+
+        t, b, l, r = np.array(list(sides)) / 100
+
+        t = int(self._h * (0 + t))
+        b = int(self._h * (1 - b))
+
+        l = int(self._w * (0 + l))
+        r = int(self._w * (1 - r))
+
+        self._image[t:t+thick, :] = color
+        self._image[b-thick:b, :] = color
+        self._image[:, l:l+thick] = color
+        self._image[:, r-thick:r] = color
+
+        return self._image
+
+    @property
+    def image(self) -> NDArray:
+        """ Get the processed image with guides. """
+        return self._image
 
 
 class ChannelSelector(Enum):
