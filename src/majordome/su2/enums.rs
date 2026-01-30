@@ -77,7 +77,6 @@ pub fn parse_cfg(py: Python, fname: &str) -> PyResult<Py<PyAny>> {
         result.set_item(k.to_string().to_uppercase(), v)?;
     }
 
-    print_success!("Converted CFG entries to uppercase keys.");
     Ok(result.into())
 }
 
