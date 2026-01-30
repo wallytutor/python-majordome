@@ -16,8 +16,15 @@ ensure_repository() {
 main() {
     echo "Setting up SU2 Tutorials and Test Cases..."
 
-    cfg="https://raw.githubusercontent.com/su2code/SU2/refs/heads/master/config_template.cfg"
-    wget -O config_template.cfg "$cfg"
+    template="config_template.cfg"
+
+    if [[ ! -f "$template" ]]; then
+        echo "Downloading SU2 configuration template..."
+        cfg="https://raw.githubusercontent.com/su2code/SU2/refs/heads/master/config_template.cfg"
+        wget -O "$template" "$cfg"
+    else
+        echo "Configuration template already exists."
+    fi
 
     tuto="tuto"
     test="test"
