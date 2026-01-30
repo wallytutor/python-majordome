@@ -1,5 +1,89 @@
+use std::fs;
 use pyo3::prelude::*;
+use pyo3::types::{PyModule, PyList, PyTuple, PyDict, PyString};
+use pyo3::exceptions::{PyIOError};
+use crate::{print_header, print_success};
 use crate::utils::types::variant_name_upper;
+
+//////////////////////////////////////////////////////////////////////////////
+// parse_cfg function
+//
+// Please notice that for quick debugging, here is the equivalent Python code:
+// the goal of having a rust version is just to simplify project structure.
+//
+// def parse_su2_cfg(fname):
+//     """ Parse a SU2 configuration file into a dictionary. """
+//     from configparser import ConfigParser
+//     parser = ConfigParser(comment_prefixes=("%",))
+//
+//     with open(fname) as fp:
+//         parser.read_string("[root]\n" + fp.read())
+//
+//     return {k.upper(): v for k, v in dict(parser["root"]).items()}
+//////////////////////////////////////////////////////////////////////////////
+
+#[pyfunction]
+pub fn parse_cfg(py: Python, fname: &str) -> PyResult<Py<PyAny>> {
+    print_header!("Parsing SU2 CFG file: {fname}");
+
+    let kwargs = {
+        let comment = PyTuple::new(py, &[
+            PyString::new(py, "%")
+        ])?;
+
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("comment_prefixes", comment)?;
+        kwargs
+    };
+
+    let config_parser = {
+        let configparser = PyModule::import(py, "configparser")?;
+        configparser.getattr("ConfigParser")?.call((), Some(&kwargs))?
+    };
+
+    let data = {
+        // Read the file content
+        let data = fs::read_to_string(fname)
+            .map_err(|e| PyIOError::new_err(e.to_string()))?;
+
+        // ConfigParser needs a section header, so we add a dummy one
+        let data = format!("[root]\n{}", data);
+
+        // Convert to PyString before calling read_string
+        PyString::new(py, &data)
+    };
+
+    let root = {
+        // Read the configuration from the string and get root section
+        config_parser.call_method1("read_string", (data,))?;
+        config_parser.get_item("root")?
+    };
+
+    let builtins = PyModule::import(py, "builtins")?;
+    let pylist = builtins.getattr("list")?;
+
+    let data = root.call_method0("items")?;
+    let data = pylist.call1((data,))?;
+    let items = data.cast::<PyList>()?;
+
+    // Build a new dict with uppercased keys
+    let result = PyDict::new(py);
+
+    for item in items.iter() {
+        let tuple = item.cast::<PyTuple>()?;
+
+        let k = tuple.get_item(0)?;
+        let v = tuple.get_item(1)?;
+        result.set_item(k.to_string().to_uppercase(), v)?;
+    }
+
+    print_success!("Converted CFG entries to uppercase keys.");
+    Ok(result.into())
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// AsInput Trait
+//////////////////////////////////////////////////////////////////////////////
 
 pub trait AsInput {
     fn type_name() -> &'static str;
@@ -147,7 +231,6 @@ impl AsInput for SolverType {
 //     pub u: f64,
 //     pub dir: DirectionType,
 // }
-
 
 #[pyclass]
 #[derive(Debug)]
