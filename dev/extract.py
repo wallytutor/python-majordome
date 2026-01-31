@@ -3,6 +3,7 @@ from pathlib import Path
 from majordome._majordome import su2
 import re
 import pandas as pd
+import yaml
 
 
 class PrepareProjectData:
@@ -34,11 +35,14 @@ class PrepareProjectData:
         # out as we only want the main sections.
         return list(filter(lambda s: not s.startswith("%"), sections))
 
-    def tabulate_keys(self) -> pd.DataFrame:
+    def tabulate_keys(self, sort=False) -> pd.DataFrame:
         """ Convert the config data to a DataFrame. """
-        entries = sorted(self.cfg_data.keys())
-        df = pd.DataFrame({"entry": entries, "status": ""})
-        return df
+        entries = self.cfg_data.keys()
+
+        if sort:
+            entries = sorted(entries)
+
+        return pd.DataFrame({"entry": entries, "status": ""})
 
 
 def get_cfg_file(case_path: Path) -> Path:
@@ -69,14 +73,16 @@ test = HERE / "test"
 cnf = get_cfg_file(HERE)
 project = PrepareProjectData(cnf)
 
-with open("sandbox.md", "w") as f:
-    f.write("# Config File Entries\n\n")
-    f.write(project.tabulate_keys().to_markdown(index=False))
+# with open("sandbox-entries.yaml", "w") as f:
+    # yaml.dump({"entries": list(project.cfg_data.keys())}, f)
+
+# with open("config.yaml") as f:
+#     config = yaml.safe_load(f)
+
+# with open("sandbox-sections.md", "w") as f:
+#     f.write("# Config File Entries\n\n")
+#     f.write(project.tabulate_keys().to_markdown(index=False))
 
 # wd = tuto / "compressible_flow" / "Inviscid_Bump"
 # cnf = get_cfg_file(wd)
 # data = su2.parse_cfg(str(cnf))
-
-
-
-# wd = HERE
