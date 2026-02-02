@@ -330,12 +330,13 @@ class LabelizeRegions:
     min_size : int | None, optional
         Minimum size of objects to keep, by default None
     """
-    __slots__ = ("_mask", "_labels", "_contours", "_regions")
+    __slots__ = ("_mask", "_labels", "_contours", "_regions", "_table")
 
     def __init__(self,
             mask: NDArray,
             clean_border: bool = True,
-            min_size: int | None = None
+            min_size: int | None = None,
+            properties: list[str] | None = None
         ) -> None:
         labels = measure.label(1 - mask)
 
@@ -349,6 +350,20 @@ class LabelizeRegions:
         self._labels = labels
         self._contours = measure.find_contours(labels, level=0.5)
         self._regions = measure.regionprops(labels)
+
+        if properties is not None:
+            self._table = pd.DataFrame(
+                measure.regionprops_table(labels, properties=properties)
+            )
+
+    @property
+    def table(self) -> pd.DataFrame:
+        """ Get the table of region properties. """
+        if not hasattr(self, "_table"):
+            raise AttributeError("No properties table available. "
+                                 "Specify 'properties' parameter "
+                                 "when instantiating the class.")
+        return self._table
 
     def overlay_contours(self,
             image: NDArray | None = None,
