@@ -6,10 +6,25 @@ from pathlib import Path
 from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 from numpy.typing import NDArray
-from PIL import Image, ExifTags
-from scipy.integrate import simpson, cumulative_simpson
-from skimage import io as skio
-from skimage import color, exposure, filters
+from PIL import (
+    Image,
+    ImageDraw,
+    ExifTags,
+)
+from scipy.integrate import (
+    simpson,
+    cumulative_simpson,
+)
+from skimage import (
+    io as skio,
+    util as skutil,
+    color,
+    exposure,
+    filters,
+    measure,
+    morphology,
+    segmentation,
+)
 import warnings
 import exifread
 import numpy as np
@@ -301,6 +316,73 @@ class ThresholdImage(Enum):
     def names(cls) -> list[str]:
         """ Get the list of enumeration names. """
         return [entry.name for entry in cls]
+
+
+class LabelizeRegions:
+    """ Label connected regions in a binary mask and extract contours.
+
+    Parameters
+    ----------
+    mask : ndarray
+        Binary mask where regions of interest are marked as 1.
+    clean_border : bool, optional
+        Whether to remove objects touching the border, by default True.
+    min_size : int | None, optional
+        Minimum size of objects to keep, by default None
+    """
+    __slots__ = ("_mask", "_labels", "_contours", "_regions")
+
+    def __init__(self,
+            mask: NDArray,
+            clean_border: bool = True,
+            min_size: int | None = None
+        ) -> None:
+        labels = measure.label(1 - mask)
+
+        if clean_border:
+            labels = segmentation.clear_border(labels)
+
+        if min_size is not None and min_size > 0:
+            labels = morphology.remove_small_objects(labels, min_size)
+
+        self._mask = mask.copy()
+        self._labels = labels
+        self._contours = measure.find_contours(labels, level=0.5)
+        self._regions = measure.regionprops(labels)
+
+    def overlay_contours(self,
+            image: NDArray | None = None,
+            *,
+            color: tuple[int, int, int] = (255, 0, 0),
+            width: int = 2
+        ) -> Image.Image:
+        """ Overlay contours on the input image.
+
+        Parameters
+        ----------
+        image : ndarray | None, optional
+            Image on which to overlay the contours. If None, uses the
+            internal mask, by default None.
+        color : tuple, optional
+            Color of the contour lines, by default (255, 0, 0).
+        width : int, optional
+            Width of the contour lines, by default 2.
+        """
+        if image is None:
+            image = self._mask
+
+        tmp = skutil.img_as_ubyte(image)
+        tmp = Image.fromarray(tmp)
+        tmp = tmp.convert("RGB")
+
+        draw = ImageDraw.Draw(tmp)
+
+        for contour in self._contours:
+            # Convert (row, col) to (x, y) and to tuples
+            points = [tuple(point[::-1]) for point in contour]
+            draw.line(points, fill=color, width=width)
+
+        return tmp
 
 
 class HelpersFFT:
