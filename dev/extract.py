@@ -60,6 +60,24 @@ def get_cfg_file(case_path: Path) -> Path:
     return cnf[0]
 
 
+def get_cfg_maps() -> dict:
+    """ Gets the mapping of sections and entries. """
+    with open("config.yaml") as f:
+        config = yaml.safe_load(f)
+
+    config["reverse"] ={}
+
+    for section, entries in config["sections"].items():
+        for entry in entries:
+            if entry in config["reverse"]:
+                raise RuntimeError(f"Entry {entry} already assigned to "
+                                f"section {config['reverse'][entry]}")
+
+            config["reverse"][entry] = section
+
+    return config
+
+
 HERE = Path(__file__).parent
 print(f"Preparing data from {HERE}")
 
@@ -69,15 +87,18 @@ build.mkdir(exist_ok=True)
 tuto = HERE / "tuto"
 test = HERE / "test"
 
-
-cnf = get_cfg_file(HERE)
-project = PrepareProjectData(cnf)
-
+# cnf = get_cfg_file(HERE)
+# project = PrepareProjectData(cnf)
+#
+# Save the list of entries to a YAML file the first time (will need
+# manual categorization later).
 # with open("sandbox-entries.yaml", "w") as f:
-    # yaml.dump({"entries": list(project.cfg_data.keys())}, f)
+#    yaml.dump({"entries": list(project.cfg_data.keys())}, f)
 
-# with open("config.yaml") as f:
-#     config = yaml.safe_load(f)
+config = get_cfg_maps()
+
+
+#  = {v: k for k, v in config["sections"].items()}
 
 # with open("sandbox-sections.md", "w") as f:
 #     f.write("# Config File Entries\n\n")
