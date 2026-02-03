@@ -37,10 +37,8 @@
 
     // Make tree levels more readable when expanded:
     "workbench.tree.indent": 12,
-
-    // Use the Julia theme:
-    "workbench.colorTheme": "GitHub Dark",
     "workbench.iconTheme": "vscode-icons",
+    "workbench.colorTheme": "Bearded Theme feat. WebDevCody",
 
     // Add a clearly visible ruler (language dependent position):
     "workbench.colorCustomizations": {
@@ -441,4 +439,5 @@
         "frontal": "linux"
     },
     "chat.viewSessions.orientation": "stacked",
+
 }
