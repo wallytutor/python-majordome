@@ -812,3 +812,116 @@ sections:
     PASTIX_VERBOSITY_LEVEL,
     PASTIX_FILL_LEVEL
   ]
+
+tutorials:
+  compressible_flow:
+    level_a:
+      "Inviscid_Bump":
+          "config": "inv_channel.cfg"
+
+      "Inviscid_Wedge":
+          "config": "inv_wedge_HLLC.cfg"
+
+      "Inviscid_ONERAM6":
+          "config": "inv_ONERAM6.cfg"
+
+    level_b:
+      "Laminar_Flat_Plate":
+        config: ""
+
+      "Laminar_Cylinder":
+        config: ""
+
+      "Turbulent_Flat_Plate":
+        config: ""
+
+      "Transitional_Flat_Plate":
+        config: ""
+
+      "Transitional_Flat_Plate/Langtry_and_Menter/T3A":
+        config: ""
+
+      "Transitional_Flat_Plate/Langtry_and_Menter/T3A-":
+        config: ""
+
+      "Turbulent_ONERAM6":
+        config: ""
+
+      "Unsteady_NACA0012":
+        config: ""
+
+    level_c:
+      "compressible_flow/UQ_NACA0012":
+        config: ""
+
+      "compressible_flow/NICFD_nozzle":
+        config: ""
+
+      "compressible_flow/NICFD_nozzle/DataDriven":
+        config: ""
+
+      "compressible_flow/NICFD_nozzle/PhysicsInformed":
+        config: ""
+
+    unlisted:
+      "compressible_flow/ActuatorDisk_VariableLoad":
+        config: ""
+
+      "compressible_flow/QuickStart":
+        config: ""
+
+      "compressible_flow/Transitional_Airfoil":
+        config: ""
+
+      "compressible_flow/QuickStart/adj":
+        config: ""
+
+      "compressible_flow/QuickStart/dadj":
+        config: ""
+
+      "compressible_flow/Transitional_Airfoil/Langtry_and_Menter":
+        config: ""
+
+      "compressible_flow/Transitional_Airfoil/Langtry_and_Menter/E387":
+        config: ""
+
+      "compressible_flow/Transitional_Airfoil/Langtry_and_Menter/NLF":
+        config: ""
+
+
+  # "design/Inc_Turbulent_Bend_Wallfunctions",
+  # "design/Inviscid_2D_Unconstrained_NACA0012",
+  # "design/Inviscid_3D_Constrained_ONERAM6",
+  # "design/Multi_Objective_Shape_Design",
+  # "design/Species_Transport",
+  # "design/Turbulent_2D_Constrained_RAE2822",
+  # "design/Unsteady_Shape_Opt_NACA0012",
+  # "incompressible_flow/Inc_Combustion",
+  # "incompressible_flow/Inc_Inviscid_Hydrofoil",
+  # "incompressible_flow/Inc_Laminar_Cavity",
+  # "incompressible_flow/Inc_Laminar_Flat_Plate",
+  # "incompressible_flow/Inc_Laminar_Step",
+  # "incompressible_flow/Inc_Species_Transport",
+  # "incompressible_flow/Inc_Species_Transport_Composition_Dependent_Model",
+  # "incompressible_flow/Inc_Streamwise_Periodic",
+  # "incompressible_flow/Inc_Transitional_Prolate_Spheroid",
+  # "incompressible_flow/Inc_Turbulent_Bend_Wallfunctions",
+  # "incompressible_flow/Inc_Turbulent_Flat_Plate",
+  # "incompressible_flow/Inc_Turbulent_NACA0012",
+  # "incompressible_flow/Inc_Von_Karman_Cylinder",
+  # "multiphysics/contact_resistance_cht",
+  # "multiphysics/steady_cht",
+  # "multiphysics/steady_fsi",
+  # "multiphysics/unsteady_cht",
+  # "multiphysics/unsteady_fsi_python",
+  # "structural_mechanics/cantilever",
+  # "multiphysics/unsteady_fsi_python/Ma01",
+  # "multiphysics/unsteady_fsi_python/Ma02",
+  # "multiphysics/unsteady_fsi_python/Ma03",
+  # "multiphysics/unsteady_fsi_python/Ma0357",
+  # "multiphysics/unsteady_fsi_python/Ma0364",
+  # "incompressible_flow/Inc_Combustion/1__premixed_hydrogen",
+  # "incompressible_flow/Inc_Species_Transport/1__FFD-box-writing",
+  # "incompressible_flow/Inc_Species_Transport/2__mesh-deform-test",
+  # "incompressible_flow/Inc_Species_Transport/3__gradient-validation",
+  # "incompressible_flow/Inc_Species_Transport/4__optimization",
