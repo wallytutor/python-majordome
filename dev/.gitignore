@@ -1,5 +1,0 @@
-build/
-tuto/
-test/
-*.cfg
-!template.cfg
