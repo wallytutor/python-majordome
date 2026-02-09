@@ -38,7 +38,7 @@
     // Make tree levels more readable when expanded:
     "workbench.tree.indent": 12,
     "workbench.iconTheme": "vscode-icons",
-    "workbench.colorTheme": "Bearded Theme HC Ebony",
+    "workbench.colorTheme": "Bearded Themanopia (Experimental)",
 
     // Add a clearly visible ruler (language dependent position):
     "workbench.colorCustomizations": {
