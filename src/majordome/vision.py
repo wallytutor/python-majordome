@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import Enum, StrEnum, auto
 from numbers import Number
 from pathlib import Path
 from matplotlib.figure import Figure
@@ -258,11 +258,11 @@ class ChannelSelector(Enum):
         return [entry.name for entry in cls]
 
 
-class ContrastEnhancement(Enum):
+class ContrastEnhancement(StrEnum):
     """ Enumeration for contrast enhancement methods. """
-    NONE       = "none"
-    ADAPTIVE   = "adaptive"
-    STRETCHING = "stretching"
+    NONE       = auto()
+    ADAPTIVE   = auto()
+    STRETCHING = auto()
 
     def _adaptive(self, img, *, nbins=256, **kw):
         return exposure.equalize_adapthist(img, nbins=nbins)
@@ -289,10 +289,26 @@ class ContrastEnhancement(Enum):
         return [entry.name for entry in cls]
 
 
-class ThresholdImage(Enum):
+class ThresholdImage(StrEnum):
     """ Enumeration for image thresholding methods. """
-    MANUAL = "manual"
-    OTSU   = "otsu"
+    MANUAL = auto()
+    OTSU   = auto()
+
+    # NOTE: we intentionally don't define a `verbose` attribute here because
+    # attributes in Enum bodies become enum members. Instead we provide a
+    # class-controlled verbosity flag `_verbose` (set after the class
+    # definition) with accessors below. This keeps verbosity out of the
+    # enumeration members while allowing run-time control.
+
+    @classmethod
+    def get_verbose(cls) -> bool:
+        """ Return the class-level verbosity flag for ThresholdImage. """
+        return bool(getattr(cls, "_verbose", False))
+
+    @classmethod
+    def set_verbose(cls, value: bool) -> None:
+        """ Set the class-level verbosity flag for ThresholdImage. """
+        cls._verbose = bool(value)
 
     def _manual(self, img: NDArray, threshold: float) -> NDArray:
         mask = np.ones_like(img, dtype=np.uint8)
@@ -300,7 +316,12 @@ class ThresholdImage(Enum):
         return mask
 
     def _otsu(self, img: NDArray) -> NDArray:
-        return img > filters.threshold_otsu(img)
+        threshold = filters.threshold_otsu(img)
+
+        if type(self).get_verbose():
+            print(f"OTSU threshold: {threshold:.4f}")
+
+        return img > threshold
 
     def apply(self, img: NDArray, **kw) -> NDArray:
         """ Apply thresholding to the input image. """
