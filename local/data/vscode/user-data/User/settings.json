@@ -437,8 +437,5 @@
     "remote.SSH.remotePlatform": {
         "10.13.52.2": "linux",
         "frontal": "linux"
-    },
-    "chat.viewSessions.orientation": "stacked",
-    "python.defaultInterpreterPath": "d:\\majordome\\local\\bin\\inkscape\\inkscape\\bin\\python.exe",
-
+    }
 }
