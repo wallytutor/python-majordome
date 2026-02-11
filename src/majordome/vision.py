@@ -357,9 +357,10 @@ class LabelizeRegions:
             mask: NDArray,
             clean_border: bool = True,
             min_size: int | None = None,
+            max_ratio: float | None = None,
             properties: list[str] | None = None
         ) -> None:
-        labels = measure.label(1 - mask)
+        labels = measure.label((1 - mask).astype(np.uint8))
 
         if clean_border:
             labels = segmentation.clear_border(labels)
@@ -369,13 +370,26 @@ class LabelizeRegions:
 
         self._mask = mask.copy()
         self._labels = labels
-        self._contours = measure.find_contours(labels, level=0.5)
         self._regions = measure.regionprops(labels)
 
+        if max_ratio is not None and max_ratio > 0:
+            self._remove_elongated(max_ratio)
+            labels = self._labels
+
+        self._contours = measure.find_contours(labels, level=0.5)
+
         if properties is not None:
-            self._table = pd.DataFrame(
-                measure.regionprops_table(labels, properties=properties)
-            )
+            table = measure.regionprops_table(labels, properties=properties)
+            self._table = pd.DataFrame(table)
+
+
+    def _remove_elongated(self, max_ratio: float) -> None:
+        """ Remove elongated objects based on their eccentricity. """
+        eccentricity = np.sqrt(1 - (1/max_ratio)**2)
+
+        for region in self._regions:
+            if region.eccentricity > eccentricity:
+                self._labels[self._labels == region.label] = 0
 
     @property
     def table(self) -> pd.DataFrame:
