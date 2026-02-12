@@ -372,7 +372,7 @@ class LabelizeRegions:
         self._labels = labels
         self._regions = measure.regionprops(labels)
 
-        if max_ratio is not None and max_ratio > 0:
+        if max_ratio is not None and max_ratio > 1.0:
             self._remove_elongated(max_ratio)
             labels = self._labels
 
@@ -381,7 +381,6 @@ class LabelizeRegions:
         if properties is not None:
             table = measure.regionprops_table(labels, properties=properties)
             self._table = pd.DataFrame(table)
-
 
     def _remove_elongated(self, max_ratio: float) -> None:
         """ Remove elongated objects based on their eccentricity. """
