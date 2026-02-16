@@ -186,7 +186,7 @@ function Invoke-ConfigureSu2 {
 function Invoke-InstallSu2 {
     $output = "$env:KOMPANION_TEMP\su2.zip"
     $path   = "$env:KOMPANION_TEMP\su2"
-    $url    = "https://github.com/su2code/SU2/releases/download/v8.3.0/SU2-v8.3.0-win64-mpi.zip"
+    $url    = "https://github.com/su2code/SU2/releases/download/v8.4.0/SU2-v8.4.0-win64-mpi.zip"
 
     # XXX: there is a second file inside it! Check!
     $innerOutput = "$env:KOMPANION_TEMP\su2\win64-mpi.zip"
