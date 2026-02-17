@@ -444,6 +444,8 @@ function Invoke-InstallQuarto {
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
     Invoke-ConfigureQuarto
+
+    & quarto install tinytex
 }
 
 # ---------------------------------------------------------------------------
