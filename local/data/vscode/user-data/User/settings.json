@@ -440,5 +440,6 @@
     "remote.SSH.remotePlatform": {
         "10.13.52.2": "linux",
         "frontal": "linux"
-    }
+    },
+    "python.defaultInterpreterPath": "c:\\Users\\walte\\GitHub\\majordome\\local\\bin\\inkscape\\inkscape\\bin\\python.exe"
 }
