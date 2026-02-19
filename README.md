@@ -5,6 +5,40 @@ General utilities for scientific Python and numerical simulation.
 - [Majordome docs](https://wallytutor.github.io/python-majordome/)
 <!-- - [Majordome on PyPI](https://pypi.org/project/majordome/) -->
 
+## Kompanion
+
+This section describes how to get Kompanion automatically sourced in your user profile for all PowerShell sessions.
+
+Start by creating an environment variable `KOMPANION_SOURCE` pointing to the *full-path* of file `src\kompanion\main.ps1`.
+
+For instance, if you are called like me and cloned this repository at `GitHub\python-majordome` under your profile, then its value should be `C:\Users\walter\GitHub\python-majordome\src\kompanion\main.ps1`
+
+Next, start PowerShell and identify the path to your user profile:
+
+```ps1
+echo $PROFILE
+```
+
+If that file does not exist, create it with:
+
+```ps1
+New-Item -ItemType File -Path $PROFILE -Force
+```
+
+Now you can run `notepad $PROFILE` to open it and append the following lines:
+
+```ps1
+if (Test-Path $env:KOMPANION_SOURCE) {
+    . $env:KOMPANION_SOURCE
+
+    # Uncomment the following if you want the terminal to start at
+    # the root of this repository; useful for development.
+    # cd "$env:KOMPANION_DIR"
+} else {
+    Write-Host "KOMPANION_SOURCE not found at '$env:KOMPANION_SOURCE'"
+}
+```
+
 ## Development
 
 ### Linux
