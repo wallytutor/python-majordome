@@ -1,0 +1,23 @@
+{
+    "examples/common_": 6.464,
+    "examples/energy_": 3.98,
+    "examples/fluent_": 3.683,
+    "examples/index": 0.002,
+    "examples/onkwargs_": 3.649,
+    "examples/pdftools_": 5.627,
+    "examples/reactor_": 4.01,
+    "examples/transport_": 7.359,
+    "index": 0.002,
+    "modules/common": 2.16,
+    "modules/energy": 0.57,
+    "modules/fluent": 0.218,
+    "modules/index": 0.002,
+    "modules/latex": 0.038,
+    "modules/majordome": 0.104,
+    "modules/pdftools": 0.051,
+    "modules/plotting": 0.194,
+    "modules/reactor": 0.262,
+    "modules/transport": 0.355,
+    "modules/vision": 0.458,
+    "references": 0.002
+}

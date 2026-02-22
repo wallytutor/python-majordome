@@ -1,0 +1,803 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>majordome.common &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/common';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="majordome.energy" href="energy.html" />
+    <link rel="prev" title="API Docs" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/common_.html">Common utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/energy_.html">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/pdftools_.html">PDF text extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/transport_.html">Transport properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Docs</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">majordome.common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdftools.html">majordome.pdftools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactor.html">majordome.reactor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transport.html">majordome.transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vision.html">majordome.vision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="majordome.html">corelib (crate)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/modules/common.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>majordome.common</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constants">Constants</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.DATA"><code class="docutils literal notranslate"><span class="pre">DATA</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-aliases">Type aliases</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.CompositionType"><code class="docutils literal notranslate"><span class="pre">CompositionType</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.SolutionLikeType"><code class="docutils literal notranslate"><span class="pre">SolutionLikeType</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.PathLike"><code class="docutils literal notranslate"><span class="pre">PathLike</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.MaybePath"><code class="docutils literal notranslate"><span class="pre">MaybePath</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType"><code class="docutils literal notranslate"><span class="pre">StateType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.P"><code class="docutils literal notranslate"><span class="pre">StateType.P</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.T"><code class="docutils literal notranslate"><span class="pre">StateType.T</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.X"><code class="docutils literal notranslate"><span class="pre">StateType.X</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utilities">Utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.AbstractReportable"><code class="docutils literal notranslate"><span class="pre">AbstractReportable</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.AbstractReportable.report"><code class="docutils literal notranslate"><span class="pre">AbstractReportable.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.AbstractReportable.report_data"><code class="docutils literal notranslate"><span class="pre">AbstractReportable.report_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData"><code class="docutils literal notranslate"><span class="pre">ReadTextData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData.read_data"><code class="docutils literal notranslate"><span class="pre">ReadTextData.read_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData.read_nlines"><code class="docutils literal notranslate"><span class="pre">ReadTextData.read_nlines()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData.read_sep"><code class="docutils literal notranslate"><span class="pre">ReadTextData.read_sep()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.InteractiveSession"><code class="docutils literal notranslate"><span class="pre">InteractiveSession</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.Capturing"><code class="docutils literal notranslate"><span class="pre">Capturing</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.RelaxUpdate"><code class="docutils literal notranslate"><span class="pre">RelaxUpdate</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.RelaxUpdate.update"><code class="docutils literal notranslate"><span class="pre">RelaxUpdate.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StabilizeNvarsConvergenceCheck"><code class="docutils literal notranslate"><span class="pre">StabilizeNvarsConvergenceCheck</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StabilizeNvarsConvergenceCheck.n_iterations"><code class="docutils literal notranslate"><span class="pre">StabilizeNvarsConvergenceCheck.n_iterations</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ComposedStabilizedConvergence"><code class="docutils literal notranslate"><span class="pre">ComposedStabilizedConvergence</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ComposedStabilizedConvergence.make_one"><code class="docutils literal notranslate"><span class="pre">ComposedStabilizedConvergence.make_one()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ComposedStabilizedConvergence.n_iterations"><code class="docutils literal notranslate"><span class="pre">ComposedStabilizedConvergence.n_iterations</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.has_program"><code class="docutils literal notranslate"><span class="pre">has_program()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.program_path"><code class="docutils literal notranslate"><span class="pre">program_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.first_in_path"><code class="docutils literal notranslate"><span class="pre">first_in_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.normalize_string"><code class="docutils literal notranslate"><span class="pre">normalize_string()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.safe_remove"><code class="docutils literal notranslate"><span class="pre">safe_remove()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.bounds"><code class="docutils literal notranslate"><span class="pre">bounds()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.within"><code class="docutils literal notranslate"><span class="pre">within()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.apply"><code class="docutils literal notranslate"><span class="pre">apply()</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="majordome-common">
+<h1>majordome.common<a class="headerlink" href="#majordome-common" title="Link to this heading">#</a></h1>
+<section id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.DATA">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">DATA</span></span><a class="headerlink" href="#majordome.common.DATA" title="Link to this definition">#</a></dt>
+<dd><p>Path to project data folder.</p>
+</dd></dl>
+
+</section>
+<section id="type-aliases">
+<h2>Type aliases<a class="headerlink" href="#type-aliases" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.CompositionType">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">CompositionType</span></span><a class="headerlink" href="#majordome.common.CompositionType" title="Link to this definition">#</a></dt>
+<dd><p>Input type for Cantera composition dictionaries.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.SolutionLikeType">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">SolutionLikeType</span></span><a class="headerlink" href="#majordome.common.SolutionLikeType" title="Link to this definition">#</a></dt>
+<dd><p>Input type for Cantera solution objects.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.PathLike">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">PathLike</span></span><a class="headerlink" href="#majordome.common.PathLike" title="Link to this definition">#</a></dt>
+<dd><p>Input type for file system paths.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="majordome.common.MaybePath">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">MaybePath</span></span><a class="headerlink" href="#majordome.common.MaybePath" title="Link to this definition">#</a></dt>
+<dd><p>Input type for optional file system paths.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.StateType">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">StateType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Number</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Number</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">101325.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.StateType" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>Input type for Cantera TPX state dictionaries.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.common.StateType.P">
+<span class="sig-name descname"><span class="pre">P</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Number</span></span><a class="headerlink" href="#majordome.common.StateType.P" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.common.StateType.T">
+<span class="sig-name descname"><span class="pre">T</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Number</span></span><a class="headerlink" href="#majordome.common.StateType.T" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.common.StateType.X">
+<span class="sig-name descname"><span class="pre">X</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.common.StateType.X" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.AbstractReportable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">AbstractReportable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.AbstractReportable" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for reportable objects.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.common.AbstractReportable.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.common.AbstractReportable.report" title="Link to this definition">#</a></dt>
+<dd><p>Provides a report of the object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.common.AbstractReportable.report_data">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">report_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.common.AbstractReportable.report_data" title="Link to this definition">#</a></dt>
+<dd><p>Provides data for assemblying the object report.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.ReadTextData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">ReadTextData</span></span><a class="headerlink" href="#majordome.common.ReadTextData" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Utilities for reading common text data formats.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.common.ReadTextData.read_data">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.ReadTextData.read_data" title="Link to this definition">#</a></dt>
+<dd><p>Read raw text data file with optional number of lines at end.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.common.ReadTextData.read_nlines">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_nlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlines</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.ReadTextData.read_nlines" title="Link to this definition">#</a></dt>
+<dd><p>Read at most <cite>n</cite> lines from text file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.common.ReadTextData.read_sep">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">read_sep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\\s+'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.ReadTextData.read_sep" title="Link to this definition">#</a></dt>
+<dd><p>Read raw text data file as a pandas.DataFrame object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.InteractiveSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">InteractiveSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.InteractiveSession" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Produce interactive sessions with a copy of function locals.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.Capturing">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">Capturing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.Capturing" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<p>Helper to capture excessive solver output.</p>
+<p>In some cases, specially when running from a notebook, it might
+be desirable to capture solver (here Ipopt specifically) output
+to later check, thus avoiding a overly long notebook.  For this
+end this context manager is to be used and redirect to a list.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.RelaxUpdate">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">RelaxUpdate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_ini</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.RelaxUpdate" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Relax solution for updating new iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>v_ini: np.ndarray</strong></dt><dd><p>Initial guess of solution.</p>
+</dd>
+<dt><strong>alpha: float = 0.5</strong></dt><dd><p>Fraction of old solution to use at updates.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.common.RelaxUpdate.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.common.RelaxUpdate.update" title="Link to this definition">#</a></dt>
+<dd><p>Update relaxation coefficients.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.StabilizeNvarsConvergenceCheck">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">StabilizeNvarsConvergenceCheck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equal_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.StabilizeNvarsConvergenceCheck" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Check stabilization towards a constant value along iterations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_vars: int</strong></dt><dd><p>Number of variables to be checked in problem.</p>
+</dd>
+<dt><strong>min_iter: int</strong></dt><dd><p>Minimum number of iterations before considering converged.</p>
+</dd>
+<dt><strong>max_iter: int</strong></dt><dd><p>Maximum number of iterations before considering failure.</p>
+</dd>
+<dt><strong>patience: int</strong></dt><dd><p>Number of consecutive convergences before declaring convergence.</p>
+</dd>
+<dt><strong>rtol: float = 1.0e-06</strong></dt><dd><p>See <cite>numpy.isclose</cite> for details.</p>
+</dd>
+<dt><strong>atol: float = 1.0e-12</strong></dt><dd><p>See <cite>numpy.isclose</cite> for details.</p>
+</dd>
+<dt><strong>equal_nan: bool = False</strong></dt><dd><p>See <cite>numpy.isclose</cite> for details.</p>
+</dd>
+<dt><strong>log_iter: bool = False</strong></dt><dd><p>If true, log convergence message when achieved.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.common.StabilizeNvarsConvergenceCheck.n_iterations">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_iterations</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#majordome.common.StabilizeNvarsConvergenceCheck.n_iterations" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to number of iterations performed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.common.ComposedStabilizedConvergence">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">ComposedStabilizedConvergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_arrs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.ComposedStabilizedConvergence" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for checking stabilization of several arrays.</p>
+<p>See <cite>StabilizeNvarsConvergenceCheck</cite> for key-word arguments;
+these are shared by all tested arrays. It is always possible to
+compose your own convergence checker using individual instances
+for more control over setup.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.common.ComposedStabilizedConvergence.make_one">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">make_one</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.ComposedStabilizedConvergence.make_one" title="Link to this definition">#</a></dt>
+<dd><p>Create a single instance of convergence checker.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.common.ComposedStabilizedConvergence.n_iterations">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_iterations</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#majordome.common.ComposedStabilizedConvergence.n_iterations" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to number of iterations performed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.has_program">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">has_program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#majordome.common.has_program" title="Link to this definition">#</a></dt>
+<dd><p>Test if a program is available in system path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.program_path">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">program_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">throw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.common.program_path" title="Link to this definition">#</a></dt>
+<dd><p>Returns a program path if it exists.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.first_in_path">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">first_in_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.common.first_in_path" title="Link to this definition">#</a></dt>
+<dd><p>Find first existing path in <cite>path_list</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.normalize_string">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">normalize_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.common.normalize_string" title="Link to this definition">#</a></dt>
+<dd><p>Normalize strings to be used as valid Python code.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.safe_remove">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">safe_remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_remove</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#majordome.common.safe_remove" title="Link to this definition">#</a></dt>
+<dd><p>Safely remove elements from a list and return it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.bounds">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.bounds" title="Link to this definition">#</a></dt>
+<dd><p>Returns minimum and maximum values of array <cite>arr</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.within">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">within</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.within" title="Link to this definition">#</a></dt>
+<dd><p>Check if value <cite>x</cite> is between extrema of array <cite>arr</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.common.apply">
+<span class="sig-prename descclassname"><span class="pre">majordome.common.</span></span><span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.common.apply" title="Link to this definition">#</a></dt>
+<dd><p>Apply unit operation over iterable items.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API Docs</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="energy.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">majordome.energy</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constants">Constants</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.DATA"><code class="docutils literal notranslate"><span class="pre">DATA</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#type-aliases">Type aliases</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.CompositionType"><code class="docutils literal notranslate"><span class="pre">CompositionType</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.SolutionLikeType"><code class="docutils literal notranslate"><span class="pre">SolutionLikeType</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.PathLike"><code class="docutils literal notranslate"><span class="pre">PathLike</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.MaybePath"><code class="docutils literal notranslate"><span class="pre">MaybePath</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType"><code class="docutils literal notranslate"><span class="pre">StateType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.P"><code class="docutils literal notranslate"><span class="pre">StateType.P</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.T"><code class="docutils literal notranslate"><span class="pre">StateType.T</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StateType.X"><code class="docutils literal notranslate"><span class="pre">StateType.X</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utilities">Utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.AbstractReportable"><code class="docutils literal notranslate"><span class="pre">AbstractReportable</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.AbstractReportable.report"><code class="docutils literal notranslate"><span class="pre">AbstractReportable.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.AbstractReportable.report_data"><code class="docutils literal notranslate"><span class="pre">AbstractReportable.report_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData"><code class="docutils literal notranslate"><span class="pre">ReadTextData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData.read_data"><code class="docutils literal notranslate"><span class="pre">ReadTextData.read_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData.read_nlines"><code class="docutils literal notranslate"><span class="pre">ReadTextData.read_nlines()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ReadTextData.read_sep"><code class="docutils literal notranslate"><span class="pre">ReadTextData.read_sep()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.InteractiveSession"><code class="docutils literal notranslate"><span class="pre">InteractiveSession</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.Capturing"><code class="docutils literal notranslate"><span class="pre">Capturing</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.RelaxUpdate"><code class="docutils literal notranslate"><span class="pre">RelaxUpdate</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.RelaxUpdate.update"><code class="docutils literal notranslate"><span class="pre">RelaxUpdate.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StabilizeNvarsConvergenceCheck"><code class="docutils literal notranslate"><span class="pre">StabilizeNvarsConvergenceCheck</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.StabilizeNvarsConvergenceCheck.n_iterations"><code class="docutils literal notranslate"><span class="pre">StabilizeNvarsConvergenceCheck.n_iterations</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ComposedStabilizedConvergence"><code class="docutils literal notranslate"><span class="pre">ComposedStabilizedConvergence</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ComposedStabilizedConvergence.make_one"><code class="docutils literal notranslate"><span class="pre">ComposedStabilizedConvergence.make_one()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.ComposedStabilizedConvergence.n_iterations"><code class="docutils literal notranslate"><span class="pre">ComposedStabilizedConvergence.n_iterations</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.has_program"><code class="docutils literal notranslate"><span class="pre">has_program()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.program_path"><code class="docutils literal notranslate"><span class="pre">program_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.first_in_path"><code class="docutils literal notranslate"><span class="pre">first_in_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.normalize_string"><code class="docutils literal notranslate"><span class="pre">normalize_string()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.safe_remove"><code class="docutils literal notranslate"><span class="pre">safe_remove()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.bounds"><code class="docutils literal notranslate"><span class="pre">bounds()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.within"><code class="docutils literal notranslate"><span class="pre">within()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.common.apply"><code class="docutils literal notranslate"><span class="pre">apply()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
