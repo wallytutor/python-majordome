@@ -39,11 +39,13 @@ class GpxFile:
 
     @staticmethod
     def load(fname: str | Path) -> None:
+        """ Load GPX file from provided path. """
         with open(fname, encoding="utf-8") as fp:
             return gpxpy.parse(fp)
 
     @staticmethod
     def dump(gpx: gpxpy.gpx.GPX, fname: str | Path) -> None:
+        """ Dump GPX file to provided path. """
         with open(fname, "w", encoding="utf-8") as fp:
             fp.write(gpx.to_xml())
 
@@ -81,6 +83,13 @@ class GpxManager(GpxFile):
 
         raise TypeError("Unsupported point type")
 
+    def _segment_points(self,
+            seg: GPXTrackSegment,
+            optional: bool
+        ) -> list[GPXTrackPoint]:
+        """ Extract points from a track segment and make a list. """
+        return [self._fill_attrs(p, optional) for p in seg.points]
+
     def metadata_to_gpx(self, other: GPX) -> None:
         """ Copy own metadata provided instance of gpxpy.gpx.GPX. """
         other.name         = self.name
@@ -107,25 +116,18 @@ class GpxManager(GpxFile):
 
             other.routes.append(new_r)
 
-    def _segment_points(self,
-            seg: GPXTrackSegment,
-            optional: bool
-        ) -> list[GPXTrackPoint]:
-        """ Extract points from a track segment and make a list. """
-        return [self._fill_attrs(p, optional) for p in seg.points]
-
     def tracks_to_gpx(self, other: GPX,
                       single_segment: bool = True,
                       optional: bool = False) -> None:
         """ Copy own tracks provided instance of gpxpy.gpx.GPX. """
         other.tracks.clear()
 
-        # ---
-        # XXX: I prefer duplicate code than complicated branching!
-        # ---
-
         for t in self.tracks:
             new_t = GPXTrack()
+
+            # ---
+            # XXX: I prefer duplicate code than complicated branching!
+            # ---
 
             if single_segment:
                 new_s = GPXTrackSegment()
@@ -155,9 +157,35 @@ class GpxManager(GpxFile):
         ) -> GPX:
         """ Create a new GPX instance with own data and provided options.
 
-        Note: when preparing traces for Garmin devices, remove optional
-        attributes (time and name) to avoid Garmin's validation errors.
+        Note: when preparing tracks for Garmin devices, keep in mind that
+        their parser is picky and providing a minimalist track is preferred
+        over a full-featured one. The defaults provided in this method are
+        aimed at cleaning OruxMaps generated tracks. Also consider removing
+        optional attributes (time and name) to avoid Garmin's validation
+        errors if data was exported from elsewhere.
 
+        Parameters
+        ----------
+        include_metadata : bool, optional
+            Whether to include metadata (name, description, author) in the
+            output GPX, by default True.
+        include_waypoints : bool, optional
+            Whether to include waypoints in the output GPX, by default False.
+        include_routes : bool, optional
+            Whether to include routes in the output GPX, by default False.
+        include_tracks : bool, optional
+            Whether to include tracks in the output GPX, by default True.
+        single_segment : bool, optional
+            Whether to merge all track segments into a single one, by default True.
+        dump : str | Path, optional
+            If provided, the output GPX will be dumped to the specified file, by default None.
+        optional : bool, optional
+            Whether to include optional attributes (time and name) in the output GPX, by default False.
+
+        Returns
+        -------
+        GPX
+            A new GPX instance containing the selected data.
         """
         clean = GPX()
 
