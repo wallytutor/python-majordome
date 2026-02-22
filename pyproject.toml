@@ -20,7 +20,7 @@ dependencies = [
     "gradio>=6.3.0",
     "gpxpy",
     "hyperspy>=2.3.0",
-    "ipython>=9.4.0",
+    "ipython>=9.4.0,<=9.6.0",
     "matplotlib>=3",
     "meshio>=5.3.5",
     "numba>=0.63.1",
