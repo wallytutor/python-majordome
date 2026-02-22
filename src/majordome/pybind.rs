@@ -15,8 +15,5 @@ pub mod handlers {
     use crate::core::pybind::constants;
 
     #[pymodule_export]
-    use crate::elmer::pybind::elmer;
-
-    #[pymodule_export]
     use crate::su2::pybind::su2;
 }
