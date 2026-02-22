@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Self
 from gpxpy.gpx import (
     GPX,
     GPXRoute,
@@ -10,53 +12,35 @@ from gpxpy.gpx import (
     GPXWaypoint,
 )
 import gpxpy
+import folium
 
 
-class GpxFile:
-    """ Wrapper around gpxpy.gpx.GPX for easier loading and dumping. """
+class GpxManager:
     __slots__ = (
+        "_gpx",
         "name",
         "description",
         "author_name",
-        "author_email"
+        "author_email",
         "waypoints",
         "routes",
-        "tracks"
+        "tracks",
+
+        # On-request attributes:
+        "_bounds",
+        "_center",
     )
 
-    def __init__(self, name: str = "", description: str = "",
-                 author_name: str = "", author_email: str = "",
-                 waypoints: list[GPXWaypoint] = [],
-                 routes: list[GPXRoute] = [],
-                 tracks: list[GPXTrack] = []) -> None:
-        self.name         = name
-        self.description  = description
-        self.author_name  = author_name
-        self.author_email = author_email
-        self.waypoints    = waypoints
-        self.routes       = routes
-        self.tracks       = tracks
+    def __init__(self, gpx: GPX) -> None:
+        self._gpx         = gpx
 
-    @staticmethod
-    def load(fname: str | Path) -> None:
-        """ Load GPX file from provided path. """
-        with open(fname, encoding="utf-8") as fp:
-            return gpxpy.parse(fp)
-
-    @staticmethod
-    def dump(gpx: gpxpy.gpx.GPX, fname: str | Path) -> None:
-        """ Dump GPX file to provided path. """
-        with open(fname, "w", encoding="utf-8") as fp:
-            fp.write(gpx.to_xml())
-
-
-class GpxManager(GpxFile):
-    def __init__(self, fname: str | Path) -> None:
-        gpx = GpxFile.load(fname)
-
-        super().__init__(gpx.name, gpx.description, gpx.author_name,
-                         gpx.author_email, gpx.waypoints, gpx.routes,
-                         gpx.tracks)
+        self.name         = gpx.name
+        self.description  = gpx.description
+        self.author_name  = gpx.author_name
+        self.author_email = gpx.author_email
+        self.waypoints    = gpx.waypoints
+        self.routes       = gpx.routes
+        self.tracks       = gpx.tracks
 
     def _fill_attrs(self,
             p: GPXWaypoint | GPXRoutePoint | GPXTrackPoint,
@@ -154,7 +138,7 @@ class GpxManager(GpxFile):
             single_segment: bool = True,
             dump: str | Path = None,
             optional: bool = False
-        ) -> GPX:
+        ) -> Self:
         """ Create a new GPX instance with own data and provided options.
 
         Note: when preparing tracks for Garmin devices, keep in mind that
@@ -202,6 +186,81 @@ class GpxManager(GpxFile):
             self.tracks_to_gpx(clean, single_segment, optional)
 
         if dump is not None:
-            GpxFile.dump(clean, dump)
+            GpxManager.dump(clean, dump)
 
-        return clean
+        return GpxManager(clean)
+
+    @staticmethod
+    def load(fname: str | Path) -> GPX:
+        """ Load GPX file from provided path. """
+        with open(fname, encoding="utf-8") as fp:
+            return gpxpy.parse(fp)
+
+    @staticmethod
+    def dump(gpx: GPX, fname: str | Path) -> None:
+        """ Dump GPX file to provided path. """
+        with open(fname, "w", encoding="utf-8") as fp:
+            fp.write(gpx.to_xml())
+
+    @classmethod
+    def from_file(cls, fname: str | Path) -> Self:
+        """ Load GPX file and return an instance of GpxManager. """
+        gpx = cls.load(fname)
+        return cls(gpx)
+
+    @property
+    def bounds(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        """ Get the bounding box of the track. """
+        if not hasattr(self, "_bounds"):
+            bounds = self._gpx.get_bounds()
+
+            self._bounds = [(
+                bounds.min_latitude,
+                bounds.min_longitude
+            ), (
+                bounds.max_latitude,
+                bounds.max_longitude
+            )]
+
+        return self._bounds
+
+    @property
+    def center(self) -> tuple[float, float]:
+        """ Get the center of the track. """
+        if not hasattr(self, "_center"):
+            bounds = self.bounds
+
+            self._center = (
+                (bounds[0][0] + bounds[1][0]) / 2,
+                (bounds[0][1] + bounds[1][1]) / 2
+            )
+
+        return self._center
+
+
+@dataclass
+class Tiles:
+    """ Representation of tiles for map rendering. """
+    url: str
+    attribution: str
+
+
+OPENSTREETMAPFR = Tiles(
+    url="https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png",
+    attribution="&copy; OpenStreetMap France"
+)
+
+OPENTOPOMAP = Tiles(
+    url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution="&copy; OpenTopoMap"
+)
+
+CYCLOSM = Tiles(
+    url="https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png",
+    attribution="&copy; CyclOSM"
+)
+
+MTBMAP = Tiles(
+    url="http://tile.mtbmap.cz/mtbmap_tiles/{z}/{x}/{y}.png",
+    attribution="&copy; MtbMap"
+)
