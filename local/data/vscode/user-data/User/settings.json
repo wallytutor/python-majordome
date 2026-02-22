@@ -169,7 +169,11 @@
 
     "[rust]": {
         "editor.tabSize": 4,
-        "editor.foldingStrategy": "indentation",
+
+        // XXX: keep this as auto to allow region-based folding in Rust files.
+        // This is contrary to what a research suggests...
+        "editor.foldingStrategy": "auto",
+        "editor.semanticHighlighting.enabled": true,
         "editor.wordWrap": "wordWrapColumn",
         "editor.wordWrapColumn": 100,
         "editor.rulers": [79, 100],
@@ -441,5 +445,4 @@
         "10.13.52.2": "linux",
         "frontal": "linux"
     },
-    "python.defaultInterpreterPath": "c:\\Users\\walte\\GitHub\\majordome\\local\\bin\\inkscape\\inkscape\\bin\\python.exe"
 }
