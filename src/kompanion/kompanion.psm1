@@ -1,1 +1,0 @@
-. "$PSScriptRoot\main.ps1"
