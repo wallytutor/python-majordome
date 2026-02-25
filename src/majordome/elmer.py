@@ -212,6 +212,8 @@ class ElmerTabularData:
     ValueError
         If no metadata file is provided/found.
     """
+    __slots__ = ["_meta", "_data"]
+
     def __init__(self,
                  fname: str | Path, *,
                  fmeta: str | Path | None = None):
