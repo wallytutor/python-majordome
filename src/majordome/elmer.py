@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 from typing import Self
+from numpy.typing import NDArray
 import numpy as np
 import pandas as pd
 
@@ -95,6 +96,7 @@ class ElmerConvergenceData:
     def plot_solver_convergence(self, *,
             solver_id: int,
             final_iter: bool = False,
+            time_axis: NDArray | None = None,
             plot: MajordomePlot
         ) -> MajordomePlot:
         """ Plot convergence data for a specific solver.
@@ -113,6 +115,13 @@ class ElmerConvergenceData:
 
         if final_iter:
             df = df.groupby("timestep").last().reset_index()
+
+        if final_iter and time_axis is not None:
+            if len(time_axis) != len(df):
+                raise ValueError("Length of time_axis must match number "
+                                 "of timesteps in the data.")
+
+            df["timestep"] = time_axis
 
         x = df["timestep"].to_numpy()
         y = np.log10(df["change"].to_numpy())
