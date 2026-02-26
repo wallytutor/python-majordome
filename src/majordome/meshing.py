@@ -8,7 +8,8 @@ class GmshOCCModel:
     """ Wrapper to manage OCC models with an OOP approach. """
     def __init__(self, *,
             render: bool = False,
-            name: str = "domain"
+            name: str = "domain",
+            **kws
         ) -> None:
         self._render = render
 
@@ -18,8 +19,12 @@ class GmshOCCModel:
         gmsh.initialize()
         gmsh.model.add(name)
 
-        occ  = gmsh.model.occ
-        mesh = gmsh.model.mesh
+        self._model = model = gmsh.model
+        self._occ   = occ   = model.occ
+        self._mesh  = mesh  = model.mesh
+
+        # Aliases for model operations:
+        self.add_physical_group = model.addPhysicalGroup
 
         # Aliases for OpenCascade geometry kernel:
         self.fragment          = occ.fragment
@@ -34,9 +39,10 @@ class GmshOCCModel:
         # Aliases for meshing operations:
         self.set_transfinite_curve   = mesh.setTransfiniteCurve
         self.set_transfinite_surface = mesh.setTransfiniteSurface
+        self.generate_mesh           = mesh.generate
 
-        # Aliases for physical groups:
-        self.add_physical_group = gmsh.model.addPhysicalGroup
+        # Configure with custom options:
+        self.configure(**kws)
 
     def __enter__(self) -> Self:
         return self
@@ -142,3 +148,10 @@ class GmshOCCModel:
                             tag_id: int = -1) -> int:
         """ Add a physical volume (3D) group. """
         return self.add_physical_group(3, tags, tag_id, name)
+
+    def mesh_and_save(self, filename: str, *, dim: int, **kws) -> None:
+        """ Generate mesh and save to file. """
+        self._configure_mesh(**kws)
+        self.synchronize()
+        self.generate_mesh(dim)
+        gmsh.write(filename)
