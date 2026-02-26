@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Self
+from typing import Any, Self
 from numpy.typing import NDArray
 import gmsh
 
@@ -18,14 +18,25 @@ class GmshOCCModel:
         gmsh.initialize()
         gmsh.model.add(name)
 
+        occ  = gmsh.model.occ
+        mesh = gmsh.model.mesh
+
         # Aliases for OpenCascade geometry kernel:
-        self.fragment          = gmsh.model.occ.fragment
-        self.synchronize       = gmsh.model.occ.synchronize
-        self.new_rectangle     = gmsh.model.occ.addRectangle
-        self.new_point         = gmsh.model.occ.addPoint
-        self.new_line          = gmsh.model.occ.addLine
-        self.new_curve_loop    = gmsh.model.occ.addCurveLoop
-        self.new_plane_surface = gmsh.model.occ.addPlaneSurface
+        self.fragment          = occ.fragment
+        self.synchronize       = occ.synchronize
+        self.new_rectangle     = occ.addRectangle
+        self.new_point         = occ.addPoint
+        self.new_line          = occ.addLine
+        self.new_curve_loop    = occ.addCurveLoop
+        self.new_plane_surface = occ.addPlaneSurface
+        self.get_mass          = occ.getMass
+
+        # Aliases for meshing operations:
+        self.set_transfinite_curve   = mesh.setTransfiniteCurve
+        self.set_transfinite_surface = mesh.setTransfiniteSurface
+
+        # Aliases for physical groups:
+        self.add_physical_group = gmsh.model.addPhysicalGroup
 
     def __enter__(self) -> Self:
         return self
@@ -40,6 +51,50 @@ class GmshOCCModel:
             gmsh.fltk.run()
 
         gmsh.finalize()
+
+    def _configure_geometry(self, **kws) -> None:
+        """ Configure geometry display options. """
+        show_points   = kws.get("show_points", False)
+        show_lines    = kws.get("show_lines", True)
+        show_surfaces = kws.get("show_surfaces", True)
+
+        self.set_option("Geometry.Points", show_points)
+        self.set_option("Geometry.Lines",  show_lines)
+        self.set_option("Geometry.Surfaces", show_surfaces)
+
+    def _configure_mesh(self, **kws) -> None:
+        """ Configure mesh display options. """
+        mesh_size_max  = kws.get("mesh_size_max", None)
+        mesh_algorithm = kws.get("mesh_algorithm", 6)
+        element_order  = kws.get("element_order", 2)
+
+        self.set_option("Mesh.MeshSizeMax",  mesh_size_max)
+        self.set_option("Mesh.Algorithm",    mesh_algorithm)
+        self.set_option("Mesh.ElementOrder", element_order)
+
+    def set_option(self, name: str, value: Any) -> None:
+        """ Set a raw Gmsh option. """
+        if value is None:
+            return
+
+        if isinstance(value, bool):
+            gmsh.option.setNumber(name, 1 if value else 0)
+            return
+
+        if isinstance(value, (int, float)):
+            gmsh.option.setNumber(name, value)
+            return
+
+        if isinstance(value, str):
+            gmsh.option.setString(name, value)
+            return
+
+        raise ValueError(f"Unsupported option value type: {type(value)}")
+
+    def configure(self, **kws) -> None:
+        """ Configure mesh parameters and display options. """
+        self._configure_geometry(**kws)
+        self._configure_mesh(**kws)
 
     def add_points(self, x: NDArray[float], y: NDArray[float]) -> list[int]:
         """ Add all points from lists to the model. """
@@ -60,3 +115,30 @@ class GmshOCCModel:
             line_tags.append(line)
 
         return line_tags
+
+    def get_length(self, line_tag: int) -> float:
+        """ Get the length of a line given its tag. """
+        return self.get_mass(1, line_tag)
+
+    def get_area(self, surface_tag: int) -> float:
+        """ Get the area of a surface given its tag. """
+        return self.get_mass(2, surface_tag)
+
+    def get_volume(self, volume_tag: int) -> float:
+        """ Get the volume of a 3D entity given its tag. """
+        return self.get_mass(3, volume_tag)
+
+    def add_physical_curve(self, *, tags: list[int], name: str,
+                           tag_id: int = -1) -> int:
+        """ Add a physical curve (1D) group. """
+        return self.add_physical_group(1, tags, tag_id, name)
+
+    def add_physical_surface(self, *, tags: list[int], name: str,
+                             tag_id: int = -1) -> int:
+        """ Add a physical surface (2D) group. """
+        return self.add_physical_group(2, tags, tag_id, name)
+
+    def add_physical_volume(self, *, tags: list[int], name: str,
+                            tag_id: int = -1) -> int:
+        """ Add a physical volume (3D) group. """
+        return self.add_physical_group(3, tags, tag_id, name)
