@@ -1194,14 +1194,20 @@ function Invoke-ConfigurePython() {
     $env:JUPYTER = "$env:PYTHON_HOME\Scripts\jupyter.exe"
 
     # Path to Jupyter kernels, etc.:
-    $env:JUPYTER_DATA_DIR = "$env:KOMPANION_DATA\jupyter"
+    $env:JUPYTER_DATA_DIR = "$env:KOMPANION_LOC\.jupyter"
 
     # This is required for nteract to work:
     $env:JUPYTER_PATH = $env:JUPYTER_DATA_DIR
 
     # Install minimal requirements:
-    $lockFile = "$env:KOMPANION_DATA\python.lock"
+    $lockFile = "$env:KOMPANION_LOC\python.lock"
 
+    # Ignore deps if requested:
+    if ($NoPythonDeps) {
+        New-Item -ItemType File -Path $lockFile -Force | Out-Null
+    }
+
+    # Note: manually remove lock file if no deps installed at first:
     if (!(Test-Path $lockFile)) {
         Piperish install --upgrade pip
         Piperish install -r "$env:KOMPANION_SRC\data\requirements.txt"
@@ -1227,15 +1233,21 @@ function Invoke-ConfigureJulia() {
     $env:JULIA_HOME = "$env:KOMPANION_BIN\julia\julia-1.12.1"
     Initialize-AddToPath -Directory "$env:JULIA_HOME\bin"
 
-    $env:JULIA_DEPOT_PATH   = "$env:KOMPANION_DATA\julia"
-    $env:JULIA_CONDAPKG_ENV = "$env:KOMPANION_DATA\CondaPkg"
+    $env:JULIA_DEPOT_PATH   = "$env:KOMPANION_LOC\.julia"
+    $env:JULIA_CONDAPKG_ENV = "$env:KOMPANION_LOC\.CondaPkg"
 
     # Path to local julia modules
     $env:AUCHIMISTE_PATH = "$env:KOMPANION_DIR\src\auchimiste"
 
     # Install minimal requirements:
-    $lockFile = "$env:KOMPANION_DATA\julia.lock"
+    $lockFile = "$env:KOMPANION_LOC\julia.lock"
 
+    # Ignore deps if requested:
+    if ($NoJuliaDeps) {
+        New-Item -ItemType File -Path $lockFile -Force | Out-Null
+    }
+
+    # Note: manually remove lock file if no deps installed at first:
     if (!(Test-Path $lockFile)) {
         # This will invode setup.jl which may take a long time...
         Invoke-CapturedCommand "$env:JULIA_HOME\bin\julia.exe" @("-e", "exit()")
