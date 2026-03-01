@@ -12,7 +12,7 @@
 .rustup/
 AppData/
 Desktop/
-miktex-console.lock
+*.lock
 
 #######################################################################
 # User profile: overrides
