@@ -1,3 +1,0 @@
-[submodule "local/pkg/elmer-sif-vscode"]
-	path = local/pkg/elmer-sif-vscode
-	url = https://github.com/wallytutor/elmer-sif-vscode.git
