@@ -1,4 +1,12 @@
 # kompanion.ps1
+# Possible future packages:
+# - Racket
+# - MLton
+# - smlnk
+# - octave
+# - scilab
+# - gnuplot
+# - graphviz
 
 param (
     [switch]$RebuildOnStart,
