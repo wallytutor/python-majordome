@@ -1188,7 +1188,7 @@ function Invoke-ConfigurePython() {
     Initialize-AddToPath -Directory "$env:PYTHON_HOME"
 
     # Path to IPython profiles, history, etc.:
-    $env:IPYTHONDIR = "$env:KOMPANION_DATA\ipython"
+    $env:IPYTHONDIR = "$env:KOMPANION_LOC\.ipython"
 
     # Jupyter to be used with IJulia (if any) and data path:
     $env:JUPYTER = "$env:PYTHON_HOME\Scripts\jupyter.exe"
