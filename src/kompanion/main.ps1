@@ -802,8 +802,8 @@ function Start-KompanionSimuConfigure {
 #region: install_configure_base
 function Invoke-ConfigureVsCode {
     $env:VSCODE_HOME       = "$env:KOMPANION_BIN\vscode"
-    $env:VSCODE_EXTENSIONS = "$env:KOMPANION_DATA\vscode\extensions"
-    $env:VSCODE_SETTINGS   = "$env:KOMPANION_DATA\vscode\user-data"
+    $env:VSCODE_EXTENSIONS = "$env:KOMPANION_LOC\.vscode\extensions"
+    $env:VSCODE_SETTINGS   = "$env:KOMPANION_LOC\.vscode\user-data"
     Initialize-AddToPath -Directory "$env:VSCODE_HOME"
 }
 
@@ -1219,7 +1219,10 @@ function Invoke-ConfigurePython() {
     if (!(Test-Path $lockFile)) {
         Piperish install --upgrade pip
         Piperish install -r "$env:KOMPANION_SRC\data\requirements.txt"
-        Piperish install -e "$env:KOMPANION_DIR"
+
+        # This used to be majordome, do not install by default!
+        # Piperish install -e "$env:KOMPANION_DIR"
+
         New-Item -ItemType File -Path $lockFile -Force | Out-Null
     }
 }
