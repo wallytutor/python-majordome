@@ -445,4 +445,5 @@
         "10.13.52.2": "linux",
         "frontal": "linux"
     },
+    "chat.viewSessions.orientation": "stacked",
 }

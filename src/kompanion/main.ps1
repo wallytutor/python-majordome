@@ -15,6 +15,56 @@ param (
     [switch]$NoJuliaDeps
 )
 
+#region: default_config
+$DEFAULT_CONFIG = [PSCustomObject]@{
+    base = [PSCustomObject]@{
+        vscode      = $true
+        git         = $true
+        curl        = $true
+        sevenzip    = $true
+        zettlr      = $false
+        drawio      = $false
+        nvim        = $false
+        lessmsi     = $false
+        msys2       = $false
+        pandoc      = $false
+        jabref      = $false
+        inkscape    = $false
+        miktex      = $false
+        nteract     = $false
+        ffmpeg      = $false
+        imagemagick = $false
+        poppler     = $false
+        quarto      = $false
+    }
+    lang = [PSCustomObject]@{
+        python      = $true
+        rust        = $true
+        julia       = $false
+        node        = $false
+        erlang      = $false
+        haskell     = $false
+        elm         = $false
+        racket      = $false
+        coq         = $false
+        rlang       = $false
+    }
+    simu = [PSCustomObject]@{
+        paraview    = $false
+        freecad     = $false
+        blender     = $false
+        meshlab     = $false
+        dwsim       = $false
+        elmer       = $false
+        gmsh        = $false
+        su2         = $false
+        tesseract   = $false
+        radcal      = $false
+        freefem     = $false
+    }
+}
+#endregion: default_config
+
 #region: kompanion
 function Start-KompanionMain() {
     Write-Good "Starting Kompanion from $PSScriptRoot!"
@@ -26,6 +76,7 @@ function Start-KompanionMain() {
     $env:KOMPANION_SRC  = "$env:KOMPANION_DIR\src\kompanion"
     $env:KOMPANION_LOC  = "$env:KOMPANION_DIR\local"
     $env:KOMPANION_PKG  = "$env:KOMPANION_LOC\pkg"
+    $env:KOMPANION_DOT  = "$env:KOMPANION_LOC\.kompanion"
 
     # Path to automatic subdirectories:
     $env:KOMPANION_BIN  = "$env:KOMPANION_LOC\bin"
@@ -494,14 +545,14 @@ function Initialize-VirtualEnvironment {
 
 #region: modules
 function Get-ModulesConfig() {
-    $path = "$env:KOMPANION_DATA\kompanion.json"
+    $path = "$env:KOMPANION_DOT\kompanion.json"
 
-    if (!(Test-Path -Path $path)) {
-        Write-Host "Using default modules configuration..."
-        $path = "$env:KOMPANION_SRC\data\kompanion.json"
+    if (Test-Path -Path $path) {
+        Write-Host "Using user-defined configuration..."
+        return Get-Content -Path $path -Raw | ConvertFrom-Json
     }
 
-    return Get-Content -Path $path -Raw | ConvertFrom-Json
+    return $DEFAULT_CONFIG
 }
 
 function Enable-Module() {
@@ -865,7 +916,7 @@ function Invoke-InstallSevenZip {
 
 function Invoke-ConfigureZettlr {
     $env:ZETTLR_HOME = "$env:KOMPANION_BIN\zettlr"
-    $env:ZETTLR_DATA = "$env:KOMPANION_DATA\zettlr"
+    $env:ZETTLR_DATA = "$env:KOMPANION_LOC\.zettlr"
     Initialize-AddToPath -Directory "$env:ZETTLR_HOME"
 }
 
@@ -1076,7 +1127,7 @@ function Invoke-InstallMikTex {
     Invoke-UncompressZipIfNeeded -Source $output -Destination $path
 
     $path = "$path\miktexsetup_standalone.exe"
-    $pkgData = "$env:KOMPANION_DATA\miktex"
+    $pkgData = "$env:KOMPANION_LOC\.miktex"
 
     if (!(Test-Path -Path $pkgData)) {
         Write-Host "Downloading MikTex data to $pkgData"
@@ -1208,7 +1259,7 @@ function Invoke-ConfigurePython() {
     $env:JUPYTER_PATH = $env:JUPYTER_DATA_DIR
 
     # Install minimal requirements:
-    $lockFile = "$env:KOMPANION_LOC\python.lock"
+    $lockFile = "$env:KOMPANION_DOT\python.lock"
 
     # Ignore deps if requested:
     if ($NoPythonDeps) {
@@ -1218,7 +1269,7 @@ function Invoke-ConfigurePython() {
     # Note: manually remove lock file if no deps installed at first:
     if (!(Test-Path $lockFile)) {
         Piperish install --upgrade pip
-        Piperish install -r "$env:KOMPANION_SRC\data\requirements.txt"
+        Piperish install -r "$env:KOMPANION_DOT\requirements.txt"
 
         # This used to be majordome, do not install by default!
         # Piperish install -e "$env:KOMPANION_DIR"
@@ -1251,7 +1302,7 @@ function Invoke-ConfigureJulia() {
     $env:AUCHIMISTE_PATH = "$env:KOMPANION_DIR\src\auchimiste"
 
     # Install minimal requirements:
-    $lockFile = "$env:KOMPANION_LOC\julia.lock"
+    $lockFile = "$env:KOMPANION_DOT\julia.lock"
 
     # Ignore deps if requested:
     if ($NoJuliaDeps) {
@@ -1311,17 +1362,17 @@ function Invoke-InstallErlang() {
 
 function Invoke-ConfigureHaskell() {
     $env:STACK_HOME = "$env:KOMPANION_BIN\stack"
-    $env:STACK_ROOT = "$env:KOMPANION_DATA\stack"
+    $env:STACK_ROOT = "$env:KOMPANION_LOC\.stack"
     Initialize-AddToPath -Directory "$env:KOMPANION_BIN\stack"
 
     # Install minimal requirements:
-    $lockFile = "$env:KOMPANION_DATA\haskell.lock"
+    $lockFile = "$env:KOMPANION_DOT\haskell.lock"
 
     if (!(Test-Path $lockFile)) {
         $stackPath = "$env:STACK_HOME\stack.exe"
         Invoke-CapturedCommand $stackPath @("setup")
 
-        $content = Get-Content -Raw -Path "$env:KOMPANION_SRC\data\stack-config.yaml"
+        $content = Get-Content -Raw -Path "$env:KOMPANION_DOT\stack-config.yaml"
         $content = $content -replace '__STACK_ROOT__', $env:STACK_ROOT
         Set-Content -Path "$env:STACK_ROOT\config.yaml" -Value $content
 
@@ -1360,7 +1411,7 @@ function Invoke-InstallElm() {
 function Invoke-ConfigureRacket() {
     # $env:RACKET_HOME = "$env:KOMPANION_BIN\racket"
     # Initialize-AddToPath -Directory "$env:RACKET_HOME\bin"
-    # $env:PLTUSERHOME     = "$env:KOMPANION_DATA\racket"
+    # $env:PLTUSERHOME     = "$env:KOMPANION_LOC\.racket"
     # $env:PLT_PKGDIR      = "$env:PLTUSERHOME\Racket\8.18\pkgs"
 }
 
@@ -1431,10 +1482,10 @@ function Invoke-ConfigureRlang() {
     Initialize-AddToPath -Directory "$env:RLANG_HOME\bin\x64"
 
     # Path to R libraries
-    $env:R_LIBS_USER = "$env:KOMPANION_DATA\R\4.5"
+    $env:R_LIBS_USER = "$env:KOMPANION_LOC\.rlang\4.5"
 
     # Install minimal requirements:
-    $lockFile = "$env:KOMPANION_DATA\rlang.lock"
+    $lockFile = "$env:KOMPANION_DOT\rlang.lock"
 
     if (!(Test-Path $lockFile)) {
         $rscriptPath = "$env:RLANG_HOME\bin\x64\Rscript.exe"
