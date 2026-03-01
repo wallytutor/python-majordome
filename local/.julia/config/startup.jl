@@ -24,10 +24,6 @@ function is_project(path)
     return isfile(joinpath(path, "Project.toml"))
 end
 
-function package_list(fname)
-    return joinpath(abspath(ENV["KOMPANION_SRC"]), "data", fname)
-end
-
 function maybe_package(path)
     return isdir(path) && endswith(path, ".jl") && is_project(path)
 end
@@ -40,15 +36,21 @@ function package_name(path)
 end
 
 function setup_loadpath()
-    open(package_list("julia-packages.txt")) do file
-        for package in eachline(file)
-            startswith(package, "#") && continue
+    minimal_packages = [
+        "CairoMakie",
+        "DrWatson",
+        "IJulia",
+        "OhMyREPL",
+        "Pluto",
+        "Revise",
+    ]
 
-            try
-                !is_installed(package) && Pkg.add(package)
-            catch err
-                @warn(err.msg)
-            end
+
+    for package in minimal_packages
+        try
+            !is_installed(package) && Pkg.add(package)
+        catch err
+            @warn(err.msg)
         end
     end
 
