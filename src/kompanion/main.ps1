@@ -75,12 +75,12 @@ function Start-KompanionMain() {
     # Paths to important subdirectories:
     $env:KOMPANION_SRC  = "$env:KOMPANION_DIR\src\kompanion"
     $env:KOMPANION_LOC  = "$env:KOMPANION_DIR\local"
+
     $env:KOMPANION_PKG  = "$env:KOMPANION_LOC\pkg"
     $env:KOMPANION_DOT  = "$env:KOMPANION_LOC\.kompanion"
 
     # Path to automatic subdirectories:
     $env:KOMPANION_BIN  = "$env:KOMPANION_LOC\bin"
-    $env:KOMPANION_DATA = "$env:KOMPANION_LOC\data"
     $env:KOMPANION_LOGS = "$env:KOMPANION_LOC\logs"
     $env:KOMPANION_TEMP = "$env:KOMPANION_LOC\temp"
 
@@ -90,7 +90,6 @@ function Start-KompanionMain() {
 
     # Ensure important directories exist:
     Initialize-EnsureDirectory $env:KOMPANION_BIN
-    Initialize-EnsureDirectory $env:KOMPANION_DATA
     Initialize-EnsureDirectory $env:KOMPANION_LOGS
     Initialize-EnsureDirectory $env:KOMPANION_TEMP
     Initialize-EnsureDirectory $env:USERPROFILE
@@ -115,7 +114,6 @@ function Start-KompanionMain() {
     Write-Head "-----------"
     Write-Output "KOMPANION_DIR       $env:KOMPANION_DIR"
     Write-Output "KOMPANION_BIN       $env:KOMPANION_BIN"
-    Write-Output "KOMPANION_DATA      $env:KOMPANION_DATA"
     Write-Output "KOMPANION_LOGS      $env:KOMPANION_LOGS"
     Write-Output "KOMPANION_TEMP      $env:KOMPANION_TEMP"
 
