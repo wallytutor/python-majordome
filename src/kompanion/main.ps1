@@ -1,16 +1,13 @@
-# ---------------------------------------------------------------------------
-# Parameters
-# ---------------------------------------------------------------------------
+# kompanion.ps1
 
 param (
     [switch]$RebuildOnStart,
-    [switch]$RunVsCode
+    [switch]$RunVsCode,
+    [switch]$NoPythonDeps,
+    [switch]$NoJuliaDeps
 )
 
-# ---------------------------------------------------------------------------
-# Caller
-# ---------------------------------------------------------------------------
-
+#region: kompanion
 function Start-KompanionMain() {
     Write-Good "Starting Kompanion from $PSScriptRoot!"
 
@@ -29,8 +26,8 @@ function Start-KompanionMain() {
     $env:KOMPANION_TEMP = "$env:KOMPANION_LOC\temp"
 
     # Fake user profile to avoid applications access:
-    $env:USERPROFILE    = "$env:KOMPANION_LOC\user"
-    $env:APPDATA        = "$env:KOMPANION_LOC\user\AppData"
+    $env:USERPROFILE    = "$env:KOMPANION_LOC"
+    $env:APPDATA        = "$env:KOMPANION_LOC\AppData"
 
     # Ensure important directories exist:
     Initialize-EnsureDirectory $env:KOMPANION_BIN
@@ -80,10 +77,131 @@ function Start-KompanionMain() {
     }
 }
 
-# ---------------------------------------------------------------------------
-# messages
-# ---------------------------------------------------------------------------
+function Start-KompanionInstall() {
+    param (
+        [pscustomobject]$Config
+    )
 
+    Write-Host "`nStarting Kompanion installation..."
+
+    # XXX: languages come last because some packages might override
+    # them (especially Python that is used everywhere).
+    Start-KompanionBaseInstall $Config.base
+    Start-KompanionLangInstall $Config.lang
+    Start-KompanionSimuInstall $Config.simu
+}
+
+function Start-KompanionConfigure() {
+    param (
+        [pscustomobject]$Config
+    )
+
+    Write-Host "`nStarting Kompanion configuration..."
+
+    # XXX: languages come last because some packages might override
+    # them (especially Python that is used everywhere).
+    Start-KompanionBaseConfigure $Config.base
+    Start-KompanionLangConfigure $Config.lang
+    Start-KompanionSimuConfigure $Config.simu
+}
+
+function KompanionSource {
+    . "$env:KOMPANION_SRC/main.ps1"
+}
+
+function KompanionRebuild {
+    . "$env:KOMPANION_SRC/main.ps1" -RebuildOnStart
+}
+
+function Get-KompanionHelperFunctions() {
+    <#
+    .SYNOPSIS
+        Lists all functions available in the helpers.ps1 module and utils directory.
+
+    .DESCRIPTION
+        Retrieves and displays all functions defined in helpers.ps1 and all scripts
+        in the utils directory. By default, shows only function names grouped by source file.
+
+    .PARAMETER Detailed
+        When specified, shows detailed help information for each function.
+
+    .EXAMPLE
+        Get-KompanionHelperFunctions
+        Lists all available function names grouped by source file.
+
+    .EXAMPLE
+        Get-KompanionHelperFunctions -Detailed
+        Shows detailed help information for each function.
+    #>
+    param(
+        [switch]$Detailed
+    )
+
+    # Collect all script files
+    $scriptFiles = @(
+        @{
+            Path = "$env:KOMPANION_SRC\helpers.ps1"
+            Name = "helpers.ps1"
+        }
+    )
+
+    # Add all utils scripts
+    Get-ChildItem -Path "$env:KOMPANION_SRC\utils" -Filter "*.ps1" | ForEach-Object {
+        $scriptFiles += @{
+            Path = $_.FullName
+            Name = "utils/$($_.Name)"
+        }
+    }
+
+    Write-Host "`nAvailable Functions in Kompanion:" -ForegroundColor Cyan
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+
+    $totalFunctions = 0
+
+    foreach ($script in $scriptFiles) {
+        # Parse the script to find all function definitions
+        $functions = Get-Content -Path $script.Path |
+            Select-String -Pattern "^function\s+(\S+)" |
+            ForEach-Object {
+                $_.Matches.Groups[1].Value
+            }
+
+        if ($functions.Count -gt 0) {
+            Write-Host "`n[$($script.Name)]" -ForegroundColor Yellow
+            Write-Host ("-" * 80) -ForegroundColor DarkGray
+
+            if ($Detailed) {
+                foreach ($func in $functions) {
+                    $help = Get-Help $func -ErrorAction SilentlyContinue
+                    if ($help) {
+                        Write-Host "`n  $func" -ForegroundColor Green
+                        Write-Host ("    " + $help.Synopsis) -ForegroundColor White
+                        if ($help.Description) {
+                            Write-Host "    Description: $($help.Description.Text)" -ForegroundColor Gray
+                        }
+                    } else {
+                        Write-Host "`n  $func" -ForegroundColor Green
+                        Write-Host "    (No help available)" -ForegroundColor DarkGray
+                    }
+                }
+            } else {
+                foreach ($func in $functions) {
+                    Write-Host "  $func" -ForegroundColor White
+                }
+            }
+
+            $totalFunctions += $functions.Count
+        }
+    }
+
+    Write-Host "`n" -NoNewline
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+    Write-Host "Total Functions: $totalFunctions" -ForegroundColor Cyan
+    Write-Host ("=" * 80) -ForegroundColor Cyan
+}
+#endregion: kompanion
+
+#region: messages
 function Write-Head {
     param( [string]$Text )
     Write-Host $Text -ForegroundColor Cyan
@@ -103,11 +221,9 @@ function Write-Bad {
     param( [string]$Text )
     Write-Host $Text -ForegroundColor Red
 }
+#endregion: messages
 
-# ---------------------------------------------------------------------------
-# path
-# ---------------------------------------------------------------------------
-
+#region: path
 function Test-InPath() {
     param (
         [string]$Directory,
@@ -158,11 +274,9 @@ function Initialize-AddToManPath() {
         Write-Host "Not prepeding missing path to environment: $Directory"
     }
 }
+#endregion: path
 
-# ---------------------------------------------------------------------------
-# compression
-# ---------------------------------------------------------------------------
-
+#region: compression
 function Invoke-UncompressZipIfNeeded() {
     param (
         [string]$Source,
@@ -233,14 +347,13 @@ function Invoke-UncompressMsiIfNeeded() {
     }
 }
 
-# elseif ($Method -eq "TAR") {
-#     New-Item -Path "$Destination" -ItemType Directory
-#     tar -xzf $Source -C $Destination
+# ($Method -eq "TAR") {
+# New-Item -Path "$Destination" -ItemType Directory
+# tar -xzf $Source -C $Destination
 
-# ---------------------------------------------------------------------------
-# python
-# ---------------------------------------------------------------------------
+#endregion: compression
 
+#region: python
 function Check-HasPython {
     try {
         python --version | Out-Null
@@ -369,102 +482,9 @@ function Initialize-VirtualEnvironment {
 
     return $true
 }
+#endregion: python
 
-# ---------------------------------------------------------------------------
-# Help
-# ---------------------------------------------------------------------------
-
-function Get-KompanionHelperFunctions() {
-    <#
-    .SYNOPSIS
-        Lists all functions available in the helpers.ps1 module and utils directory.
-
-    .DESCRIPTION
-        Retrieves and displays all functions defined in helpers.ps1 and all scripts
-        in the utils directory. By default, shows only function names grouped by source file.
-
-    .PARAMETER Detailed
-        When specified, shows detailed help information for each function.
-
-    .EXAMPLE
-        Get-KompanionHelperFunctions
-        Lists all available function names grouped by source file.
-
-    .EXAMPLE
-        Get-KompanionHelperFunctions -Detailed
-        Shows detailed help information for each function.
-    #>
-    param(
-        [switch]$Detailed
-    )
-
-    # Collect all script files
-    $scriptFiles = @(
-        @{
-            Path = "$env:KOMPANION_SRC\helpers.ps1"
-            Name = "helpers.ps1"
-        }
-    )
-
-    # Add all utils scripts
-    Get-ChildItem -Path "$env:KOMPANION_SRC\utils" -Filter "*.ps1" | ForEach-Object {
-        $scriptFiles += @{
-            Path = $_.FullName
-            Name = "utils/$($_.Name)"
-        }
-    }
-
-    Write-Host "`nAvailable Functions in Kompanion:" -ForegroundColor Cyan
-    Write-Host ("=" * 80) -ForegroundColor Cyan
-
-    $totalFunctions = 0
-
-    foreach ($script in $scriptFiles) {
-        # Parse the script to find all function definitions
-        $functions = Get-Content -Path $script.Path |
-            Select-String -Pattern "^function\s+(\S+)" |
-            ForEach-Object {
-                $_.Matches.Groups[1].Value
-            }
-
-        if ($functions.Count -gt 0) {
-            Write-Host "`n[$($script.Name)]" -ForegroundColor Yellow
-            Write-Host ("-" * 80) -ForegroundColor DarkGray
-
-            if ($Detailed) {
-                foreach ($func in $functions) {
-                    $help = Get-Help $func -ErrorAction SilentlyContinue
-                    if ($help) {
-                        Write-Host "`n  $func" -ForegroundColor Green
-                        Write-Host ("    " + $help.Synopsis) -ForegroundColor White
-                        if ($help.Description) {
-                            Write-Host "    Description: $($help.Description.Text)" -ForegroundColor Gray
-                        }
-                    } else {
-                        Write-Host "`n  $func" -ForegroundColor Green
-                        Write-Host "    (No help available)" -ForegroundColor DarkGray
-                    }
-                }
-            } else {
-                foreach ($func in $functions) {
-                    Write-Host "  $func" -ForegroundColor White
-                }
-            }
-
-            $totalFunctions += $functions.Count
-        }
-    }
-
-    Write-Host "`n" -NoNewline
-    Write-Host ("=" * 80) -ForegroundColor Cyan
-    Write-Host "Total Functions: $totalFunctions" -ForegroundColor Cyan
-    Write-Host ("=" * 80) -ForegroundColor Cyan
-}
-
-# ---------------------------------------------------------------------------
-# Module management
-# ---------------------------------------------------------------------------
-
+#region: modules
 function Get-ModulesConfig() {
     $path = "$env:KOMPANION_DATA\kompanion.json"
 
@@ -484,11 +504,9 @@ function Enable-Module() {
 function Show-ModuleList() {
     Write-Host "Sorry, WIP..."
 }
+#endregion: modules
 
-# ---------------------------------------------------------------------------
-# Others
-# ---------------------------------------------------------------------------
-
+#region: utils_other
 function Invoke-CapturedCommand() {
     param (
         [string]$FilePath,
@@ -635,11 +653,9 @@ function Rename-FilesToStandard {
         }
     }
 }
+#endregion: utils_other
 
-# ---------------------------------------------------------------------------
-# Install/Configure
-# ---------------------------------------------------------------------------
-
+#region: install_configure
 function Start-KompanionBaseInstall {
     param (
         [pscustomobject]$Config
@@ -773,11 +789,9 @@ function Start-KompanionSimuConfigure {
     if ($Config.radcal)    { Invoke-ConfigureRadcal }
     if ($Config.freefem)   { Invoke-ConfigureFreeFem }
 }
+#endregion: install_configure
 
-# ---------------------------------------------------------------------------
-# Base
-# ---------------------------------------------------------------------------
-
+#region: install_configure_base
 function Invoke-ConfigureVsCode {
     $env:VSCODE_HOME       = "$env:KOMPANION_BIN\vscode"
     $env:VSCODE_EXTENSIONS = "$env:KOMPANION_DATA\vscode\extensions"
@@ -1165,11 +1179,9 @@ function Invoke-InstallQuarto {
 
     & quarto install tinytex
 }
+#endregion: install_configure_base
 
-# ---------------------------------------------------------------------------
-# Languages
-# ---------------------------------------------------------------------------
-
+#region: install_configure_lang
 function Invoke-ConfigurePython() {
     $env:PYTHON_HOME = "$env:KOMPANION_BIN\python\WPy64-31380\python"
     Initialize-AddToPath -Directory "$env:PYTHON_HOME\Scripts"
@@ -1439,11 +1451,9 @@ function Invoke-InstallRlang() {
         Start-Process -FilePath $output -ArgumentList $arglist -Wait
     }
 }
+#endregion: install_configure_lang
 
-# ---------------------------------------------------------------------------
-# Simulation (not configured)
-# ---------------------------------------------------------------------------
-
+#region: install_configure_sim_nonconf
 function Invoke-InstallParaView {
     $output = "$env:KOMPANION_TEMP\paraview.zip"
     $path   = "$env:KOMPANION_BIN\paraview"
@@ -1506,11 +1516,9 @@ function Invoke-InstallDwsim {
     Invoke-DownloadIfNeeded -URL $url -Output $output
     Invoke-Uncompress7zIfNeeded -Source $output -Destination $path
 }
+#endregion: install_configure_sim_nonconf
 
-# ---------------------------------------------------------------------------
-# Simulation (configured)
-# ---------------------------------------------------------------------------
-
+#region: install_configure_sim_conf
 function Invoke-ConfigureRadcal {
     $env:FIREMODELS_HOME = "$env:KOMPANION_BIN\firemodels"
     Initialize-AddToPath -Directory "$env:FIREMODELS_HOME\FDS6\bin"
@@ -1629,11 +1637,9 @@ function Invoke-InstallTesseract {
 
     Invoke-ConfigureTesseract
 }
+#endregion: install_configure_sim_conf
 
-# ---------------------------------------------------------------------------
-# NOT FINISHED YET
-# ---------------------------------------------------------------------------
-
+#region: install_configure_sim_wip
 function Invoke-ConfigureFreeFem {
     # $env:FREEFEM_HOME = "$env:KOMPANION_BIN\freefem"
     # Initialize-AddToPath -Directory "$env:FREEFEM_HOME"
@@ -1651,50 +1657,7 @@ function Invoke-InstallFreeFem {
     # Invoke-UncompressZipIfNeeded -Source $output -Destination $path
     Invoke-ConfigureFreeFem
 }
-
-# ---------------------------------------------------------------------------
-# Modules
-# ---------------------------------------------------------------------------
-
-function Start-KompanionInstall() {
-    param (
-        [pscustomobject]$Config
-    )
-
-    Write-Host "`nStarting Kompanion installation..."
-
-    # XXX: languages come last because some packages might override
-    # them (especially Python that is used everywhere).
-    Start-KompanionBaseInstall $Config.base
-    Start-KompanionLangInstall $Config.lang
-    Start-KompanionSimuInstall $Config.simu
-}
-
-function Start-KompanionConfigure() {
-    param (
-        [pscustomobject]$Config
-    )
-
-    Write-Host "`nStarting Kompanion configuration..."
-
-    # XXX: languages come last because some packages might override
-    # them (especially Python that is used everywhere).
-    Start-KompanionBaseConfigure $Config.base
-    Start-KompanionLangConfigure $Config.lang
-    Start-KompanionSimuConfigure $Config.simu
-}
-
-function KompanionSource {
-    . "$env:KOMPANION_SRC/main.ps1"
-}
-
-function KompanionRebuild {
-    . "$env:KOMPANION_SRC/main.ps1" -RebuildOnStart
-}
-
-# ---------------------------------------------------------------------------
-# Main entry point
-# ---------------------------------------------------------------------------
+#endregion: install_configure_sim_wip
 
 Start-KompanionMain
 
