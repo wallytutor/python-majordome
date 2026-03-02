@@ -1,0 +1,1083 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>majordome.transport &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/transport';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="majordome.vision" href="vision.html" />
+    <link rel="prev" title="majordome.reactor" href="reactor.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/common_.html">Common utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/energy_.html">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/pdftools_.html">PDF text extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/transport_.html">Transport properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Docs</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="common.html">majordome.common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdftools.html">majordome.pdftools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactor.html">majordome.reactor</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">majordome.transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vision.html">majordome.vision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="majordome.html">corelib (crate)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/modules/transport.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>majordome.transport</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#effective-thermal-conductivity">Effective thermal conductivity</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.EffectiveThermalConductivity"><code class="docutils literal notranslate"><span class="pre">EffectiveThermalConductivity</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.EffectiveThermalConductivity.maxwell_garnett"><code class="docutils literal notranslate"><span class="pre">EffectiveThermalConductivity.maxwell_garnett()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.EffectiveThermalConductivity.singh1994"><code class="docutils literal notranslate"><span class="pre">EffectiveThermalConductivity.singh1994()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensionless-numbers">Dimensionless numbers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless"><code class="docutils literal notranslate"><span class="pre">SolutionDimless</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_grashof"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_grashof()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_peclet"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_peclet()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_prandtl"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_prandtl()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_rayleigh"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_rayleigh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_reynolds"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_reynolds()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_schmidt"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_schmidt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.grashof"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.grashof()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.peclet_heat"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.peclet_heat()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.peclet_mass"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.peclet_mass()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.prandtl"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.prandtl()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.rayleigh"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.rayleigh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.report"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.reynolds"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.reynolds()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.schmidt"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.schmidt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.set_state"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.set_state()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.solution"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.solution</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.update"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sutherland-fitting">Sutherland fitting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.bydef"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.bydef()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.coefs_table"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.coefs_table</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.fit"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.plot_species"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.plot_species()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.to_openfoam"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.to_openfoam()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.viscosity"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.viscosity</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#radiation-properties">Radiation properties</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_CO2"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.MR_LIM_CO2</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_H2O"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.MR_LIM_H2O</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_INF"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.MR_LIM_INF</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.NUM_COEFS"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.NUM_COEFS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.NUM_GRAYS"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.NUM_GRAYS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.P_TOL"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.P_TOL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.T_MAX"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.T_MAX</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.T_MIN"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.T_MIN</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.T_RED"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.T_RED</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#internals">Internals</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractRadiationModel"><code class="docutils literal notranslate"><span class="pre">AbstractRadiationModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractRadiationModel.load_raw_data"><code class="docutils literal notranslate"><span class="pre">AbstractRadiationModel.load_raw_data()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractRadiationModel.relax"><code class="docutils literal notranslate"><span class="pre">AbstractRadiationModel.relax()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.absorption_coefs"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.absorption_coefs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.emissivity"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.emissivity()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.eval_emissivity"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.eval_emissivity()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.gases_weights"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.gases_weights</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="majordome-transport">
+<h1>majordome.transport<a class="headerlink" href="#majordome-transport" title="Link to this heading">#</a></h1>
+<section id="effective-thermal-conductivity">
+<h2>Effective thermal conductivity<a class="headerlink" href="#effective-thermal-conductivity" title="Link to this heading">#</a></h2>
+<p>In some fields of research, such as porous media or composite materials, the evaluation of effective thermal properties are key for simulation of macroscopic application cases. Class <code class="docutils literal notranslate"><span class="pre">EffectiveThermalConductivity</span></code>  implements thermal conductivity models for this sort of applications, including:</p>
+<ul class="simple">
+<li><p>Maxwell-Garnett approximation (<a class="reference internal" href="#majordome.transport.EffectiveThermalConductivity.maxwell_garnett" title="majordome.transport.EffectiveThermalConductivity.maxwell_garnett"><code class="xref py py-meth docutils literal notranslate"><span class="pre">maxwell_garnett()</span></code></a>) as exposed in <span id="id1">[]</span>; further discussion of its origin and applicability is provided by <span id="id2">[]</span>.</p></li>
+<li><p>For porous media (packed bed in the context) with enhanced radiative effects the model by <span id="id3">[]</span> as discussed by <span id="id4">[]</span> is implemented  (<a class="reference internal" href="#majordome.transport.EffectiveThermalConductivity.singh1994" title="majordome.transport.EffectiveThermalConductivity.singh1994"><code class="xref py py-meth docutils literal notranslate"><span class="pre">singh1994()</span></code></a>).</p></li>
+</ul>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.transport.EffectiveThermalConductivity">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.transport.</span></span><span class="sig-name descname"><span class="pre">EffectiveThermalConductivity</span></span><a class="headerlink" href="#majordome.transport.EffectiveThermalConductivity" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Models for effective thermal conductivity of granular media.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.EffectiveThermalConductivity.maxwell_garnett">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">maxwell_garnett</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.EffectiveThermalConductivity.maxwell_garnett" title="Link to this definition">#</a></dt>
+<dd><p>Maxwell-Garnett effective medium theory approximation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>phi: float</strong></dt><dd><p>Solids packing fraction in packed bed [-].</p>
+</dd>
+<dt><strong>k_g: float</strong></dt><dd><p>Thermal conductivity of gas [W/(m.K)]</p>
+</dd>
+<dt><strong>k_s: float</strong></dt><dd><p>Thermal conductivity of solids [W/(m.K)]</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Effective domain thermal conductivity [W/(m.K)].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.EffectiveThermalConductivity.singh1994">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">singh1994</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.EffectiveThermalConductivity.singh1994" title="Link to this definition">#</a></dt>
+<dd><p>Singh (1994) model for effective thermal conductivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>T: float</strong></dt><dd><p>Temperature of solids [K].</p>
+</dd>
+<dt><strong>phi: float</strong></dt><dd><p>Solids packing fraction in packed bed [-].</p>
+</dd>
+<dt><strong>d_p: float</strong></dt><dd><p>Solids characteristic particle size [m].</p>
+</dd>
+<dt><strong>k_s: float</strong></dt><dd><p>Thermal conductivity of solids [W/(m.K)]</p>
+</dd>
+<dt><strong>epsilon: float</strong></dt><dd><p>Average emissivity of solids [-]. For solids with temperature
+dependent emissivity, it is worth estimating the right value
+for the temperature range being studied.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Effective domain thermal conductivity [W/(m.K)].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="dimensionless-numbers">
+<h2>Dimensionless numbers<a class="headerlink" href="#dimensionless-numbers" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.transport.</span></span><span class="sig-name descname"><span class="pre">SolutionDimless</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mech</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provides evaluation of dimensionless numbers for a solution.</p>
+<p>For keeping the API simple (as are the main use cases of this class),
+after accessing <cite>solution</cite> to setting its state, it is up to the user
+to call <cite>update</cite> as there is no pre-defined hook. It is not possible
+to implement such behavior of automatic call because you may simply
+retrieve the solution object and set the state later, after a hook
+has been called. The recommended way of setting state of the mixture
+is through <cite>set_state</cite> (see below).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mech: str</strong></dt><dd><p>Name or path to Cantera YAML solution mechanism.</p>
+</dd>
+<dt><strong>name = None</strong></dt><dd><p>Name of phase in mechanism if not a single one is present.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.bydef_grashof">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bydef_grashof</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.bydef_grashof" title="Link to this definition">#</a></dt>
+<dd><p>Grashof number by definition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.bydef_peclet">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bydef_peclet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.bydef_peclet" title="Link to this definition">#</a></dt>
+<dd><p>Péclet number by definition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.bydef_prandtl">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bydef_prandtl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.bydef_prandtl" title="Link to this definition">#</a></dt>
+<dd><p>Prandtl number by definition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.bydef_rayleigh">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bydef_rayleigh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.bydef_rayleigh" title="Link to this definition">#</a></dt>
+<dd><p>Rayleigh number by definition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.bydef_reynolds">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bydef_reynolds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">U</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.bydef_reynolds" title="Link to this definition">#</a></dt>
+<dd><p>Reynolds number by definition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.bydef_schmidt">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bydef_schmidt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">D</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.bydef_schmidt" title="Link to this definition">#</a></dt>
+<dd><p>Schmidt number by definition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.grashof">
+<span class="sig-name descname"><span class="pre">grashof</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9.80665</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.grashof" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the Grashof number for solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Tw</strong><span class="classifier">float</span></dt><dd><p>Reactor characteristic wall temperature [K].</p>
+</dd>
+<dt><strong>H</strong><span class="classifier">float</span></dt><dd><p>Problem characteristic (often vertical) length [m].</p>
+</dd>
+<dt><strong>g: float = constants.GRAVITY</strong></dt><dd><p>Acceleration of gravity at location [m/s²].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.peclet_heat">
+<span class="sig-name descname"><span class="pre">peclet_heat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.peclet_heat" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the heat Péclet number for solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>U</strong><span class="classifier">float</span></dt><dd><p>Flow characteristic velocity [m/s].</p>
+</dd>
+<dt><strong>L</strong><span class="classifier">float</span></dt><dd><p>Problem characteristic axial length [m].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.peclet_mass">
+<span class="sig-name descname"><span class="pre">peclet_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mix_diff_coeffs'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.peclet_mass" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the mass Péclet number for solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>U</strong><span class="classifier">float</span></dt><dd><p>Flow characteristic velocity [m/s].</p>
+</dd>
+<dt><strong>L</strong><span class="classifier">float</span></dt><dd><p>Problem characteristic axial length [m].</p>
+</dd>
+<dt><strong>vname: str = “mix_diff_coeffs”</strong></dt><dd><p>Name of diffusion coefficient attribute to use, depending on
+the mass/mole units needs in your calculations. For more details
+please consult <cite>cantera.Solution</cite> documentation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.prandtl">
+<span class="sig-name descname"><span class="pre">prandtl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.prandtl" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates Prandtl number for solution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.rayleigh">
+<span class="sig-name descname"><span class="pre">rayleigh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Tw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9.80665</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.rayleigh" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the Rayleigh number for solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>Tw</strong><span class="classifier">float</span></dt><dd><p>Reactor characteristic wall temperature [K].</p>
+</dd>
+<dt><strong>H</strong><span class="classifier">float</span></dt><dd><p>Problem characteristic (often vertical) length [m].</p>
+</dd>
+<dt><strong>g: float = constants.GRAVITY</strong></dt><dd><p>Acceleration of gravity at location [m/s²].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show_fitting_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tablefmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'simple'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.report" title="Link to this definition">#</a></dt>
+<dd><p>Produces a table for inspecting all computed values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.reynolds">
+<span class="sig-name descname"><span class="pre">reynolds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">U</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.reynolds" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates Reynolds number for solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>U</strong><span class="classifier">float</span></dt><dd><p>Flow characteristic velocity [m/s].</p>
+</dd>
+<dt><strong>L</strong><span class="classifier">float</span></dt><dd><p>Problem characteristic length [m].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.schmidt">
+<span class="sig-name descname"><span class="pre">schmidt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mix_diff_coeffs'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.schmidt" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates Schmidt number for solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>vname: str = “mix_diff_coeffs”</strong></dt><dd><p>Name of diffusion coefficient attribute to use, depending on
+the mass/mole units needs in your calculations. For more details
+please consult <cite>cantera.Solution</cite> documentation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.set_state">
+<span class="sig-name descname"><span class="pre">set_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tuple_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TPX'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.set_state" title="Link to this definition">#</a></dt>
+<dd><p>Set state of system with given arguments.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.solution">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">solution</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Solution</span></span><a class="headerlink" href="#majordome.transport.SolutionDimless.solution" title="Link to this definition">#</a></dt>
+<dd><p>Provides handle for setting state of solution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SolutionDimless.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SolutionDimless.update" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve all required properties from solution.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="sutherland-fitting">
+<h2>Sutherland fitting<a class="headerlink" href="#sutherland-fitting" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.transport.SutherlandFitting">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.transport.</span></span><span class="sig-name descname"><span class="pre">SutherlandFitting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mech</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SutherlandFitting" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Helper for fitting Sutherland parameters for all species in solution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mech: str</strong></dt><dd><p>Name or path to Cantera YAML solution mechanism.</p>
+</dd>
+<dt><strong>name = None</strong></dt><dd><p>Name of phase in mechanism if not a single one is present.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SutherlandFitting.bydef">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">bydef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">As</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.transport.SutherlandFitting.bydef" title="Link to this definition">#</a></dt>
+<dd><p>Sutherland transport parametric model as used in OpenFOAM.</p>
+<p>Function provided to be used in curve fitting to establish Sutherland
+coefficients from data computed by Cantera using Lennard-Jones model.
+Reference: <a class="reference external" href="https://cfd.direct/openfoam/user-guide/thermophysical">https://cfd.direct/openfoam/user-guide/thermophysical</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>T</strong><span class="classifier">NDArray[np.float64]</span></dt><dd><p>Temperature array given in kelvin.</p>
+</dd>
+<dt><strong>As</strong><span class="classifier">float</span></dt><dd><p>Sutherland coefficient.</p>
+</dd>
+<dt><strong>Ts</strong><span class="classifier">float</span></dt><dd><p>Sutherland temperature.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>NDArray[np.float64]</dt><dd><p>The viscosity in terms of temperature.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.transport.SutherlandFitting.coefs_table">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">coefs_table</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></span><a class="headerlink" href="#majordome.transport.SutherlandFitting.coefs_table" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve table of fitted model for all species.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SutherlandFitting.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">101325.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1.0,</span> <span class="pre">1000)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.transport.SutherlandFitting.fit" title="Link to this definition">#</a></dt>
+<dd><p>Manage fitting of selected species from mechanism.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>T: NDArray[float]</strong></dt><dd><p>Array of temperatures over which fit model [K].</p>
+</dd>
+<dt><strong>P: float = ct.one_atm</strong></dt><dd><p>Operating pressure for fitting [Pa].</p>
+</dd>
+<dt><strong>species_names: list[str] = None</strong></dt><dd><p>Names of species to be fitted; if none is provided, then
+all species in database are processed.</p>
+</dd>
+<dt><strong>p0: tuple[float, float] = (1.0, 1000)</strong></dt><dd><p>Initial guess for fitting; values are provided in (uPa.s, K)
+units (not the usual Pa.s values for readability of values).</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>pd.DataFrame</dt><dd><p>Table with evaluated proper</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SutherlandFitting.plot_species">
+<span class="sig-name descname"><span class="pre">plot_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.SutherlandFitting.plot_species" title="Link to this definition">#</a></dt>
+<dd><p>Generate verification plot for a given species.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.SutherlandFitting.to_openfoam">
+<span class="sig-name descname"><span class="pre">to_openfoam</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.transport.SutherlandFitting.to_openfoam" title="Link to this definition">#</a></dt>
+<dd><p>Convert fitting to OpenFOAM format.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.transport.SutherlandFitting.viscosity">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">viscosity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></span><a class="headerlink" href="#majordome.transport.SutherlandFitting.viscosity" title="Link to this definition">#</a></dt>
+<dd><p>Retrieve viscosity of species used in fitting.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="radiation-properties">
+<h2>Radiation properties<a class="headerlink" href="#radiation-properties" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.transport.</span></span><span class="sig-name descname"><span class="pre">WSGGRadlibBordbar2020</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#majordome.transport.AbstractWSGG" title="majordome.transport.AbstractWSGG"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractWSGG</span></code></a></p>
+<p>Weighted sum of gray gases radiation properties model.</p>
+<p>Pure Python implementation of Radlib model from Bordbar (2020).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>NUM_COEFS = 5</strong></dt><dd><p>Number of coefficients in polynomials (order + 1).</p>
+</dd>
+<dt><strong>NUM_GRAYS = 4</strong></dt><dd><p>Number of gray gases accounted for without clear gas.</p>
+</dd>
+<dt><strong>T_MIN = 300.0</strong></dt><dd><p>Minimum temperature accepted by the model [K].</p>
+</dd>
+<dt><strong>T_MAX = 2400.0</strong></dt><dd><p>Maximum temperature accepted by the model [K].</p>
+</dd>
+<dt><strong>T_RED = 1200.0</strong></dt><dd><p>Temperature used for computing dimensionless temperature [K].</p>
+</dd>
+<dt><strong>P_TOL = 1.0e-10</strong></dt><dd><p>Tolerance of carbon dioxide partial pressure [atm].</p>
+</dd>
+<dt><strong>MR_LIM_CO2 = 0.01</strong></dt><dd><p>Limit of <cite>Mr</cite> corresponding to CO2-rich mixtures.</p>
+</dd>
+<dt><strong>MR_LIM_H2O = 4.0</strong></dt><dd><p>Limit of <cite>Mr</cite> corresponding to H2O-rich mixtures.</p>
+</dd>
+<dt><strong>MR_LIM_INF = 1.0e+08</strong></dt><dd><p>Maximum allowed value of <cite>Mr</cite>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.MR_LIM_CO2">
+<span class="sig-name descname"><span class="pre">MR_LIM_CO2</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_CO2" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.MR_LIM_H2O">
+<span class="sig-name descname"><span class="pre">MR_LIM_H2O</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4.0</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_H2O" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.MR_LIM_INF">
+<span class="sig-name descname"><span class="pre">MR_LIM_INF</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">100000000.0</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_INF" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.NUM_COEFS">
+<span class="sig-name descname"><span class="pre">NUM_COEFS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.NUM_COEFS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.NUM_GRAYS">
+<span class="sig-name descname"><span class="pre">NUM_GRAYS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.NUM_GRAYS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.P_TOL">
+<span class="sig-name descname"><span class="pre">P_TOL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-10</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.P_TOL" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.T_MAX">
+<span class="sig-name descname"><span class="pre">T_MAX</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2400.0</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.T_MAX" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.T_MIN">
+<span class="sig-name descname"><span class="pre">T_MIN</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">300.0</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.T_MIN" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.transport.WSGGRadlibBordbar2020.T_RED">
+<span class="sig-name descname"><span class="pre">T_RED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1200.0</span></span><a class="headerlink" href="#majordome.transport.WSGGRadlibBordbar2020.T_RED" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<section id="internals">
+<h3>Internals<a class="headerlink" href="#internals" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.transport.AbstractRadiationModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.transport.</span></span><span class="sig-name descname"><span class="pre">AbstractRadiationModel</span></span><a class="headerlink" href="#majordome.transport.AbstractRadiationModel" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.AbstractRadiationModel.load_raw_data">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load_raw_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#majordome.transport.AbstractRadiationModel.load_raw_data" title="Link to this definition">#</a></dt>
+<dd><p>Load raw data for feeding an implementation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.AbstractRadiationModel.relax">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">relax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.AbstractRadiationModel.relax" title="Link to this definition">#</a></dt>
+<dd><p>Compute a fractional mixture of values.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.transport.AbstractWSGG">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.transport.</span></span><span class="sig-name descname"><span class="pre">AbstractWSGG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_gases</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.transport.AbstractWSGG" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#majordome.transport.AbstractRadiationModel" title="majordome.transport.AbstractRadiationModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractRadiationModel</span></code></a></p>
+<p>Abstract weighted sum of gray gases (WSGG) model.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.transport.AbstractWSGG.absorption_coefs">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">absorption_coefs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.transport.AbstractWSGG.absorption_coefs" title="Link to this definition">#</a></dt>
+<dd><p>Component gases absorption coefficients [1/m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.AbstractWSGG.emissivity">
+<span class="sig-name descname"><span class="pre">emissivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.transport.AbstractWSGG.emissivity" title="Link to this definition">#</a></dt>
+<dd><p>Compute integral emissivity over optical path.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.transport.AbstractWSGG.eval_emissivity">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">eval_emissivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pL</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.transport.AbstractWSGG.eval_emissivity" title="Link to this definition">#</a></dt>
+<dd><p>Compute integral emissivity over optical path.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.transport.AbstractWSGG.gases_weights">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">gases_weights</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.transport.AbstractWSGG.gases_weights" title="Link to this definition">#</a></dt>
+<dd><p>Fractional weight of model component gases [-].</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="reactor.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">majordome.reactor</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="vision.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">majordome.vision</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#effective-thermal-conductivity">Effective thermal conductivity</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.EffectiveThermalConductivity"><code class="docutils literal notranslate"><span class="pre">EffectiveThermalConductivity</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.EffectiveThermalConductivity.maxwell_garnett"><code class="docutils literal notranslate"><span class="pre">EffectiveThermalConductivity.maxwell_garnett()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.EffectiveThermalConductivity.singh1994"><code class="docutils literal notranslate"><span class="pre">EffectiveThermalConductivity.singh1994()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensionless-numbers">Dimensionless numbers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless"><code class="docutils literal notranslate"><span class="pre">SolutionDimless</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_grashof"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_grashof()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_peclet"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_peclet()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_prandtl"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_prandtl()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_rayleigh"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_rayleigh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_reynolds"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_reynolds()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.bydef_schmidt"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.bydef_schmidt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.grashof"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.grashof()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.peclet_heat"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.peclet_heat()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.peclet_mass"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.peclet_mass()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.prandtl"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.prandtl()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.rayleigh"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.rayleigh()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.report"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.reynolds"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.reynolds()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.schmidt"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.schmidt()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.set_state"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.set_state()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.solution"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.solution</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SolutionDimless.update"><code class="docutils literal notranslate"><span class="pre">SolutionDimless.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sutherland-fitting">Sutherland fitting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.bydef"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.bydef()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.coefs_table"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.coefs_table</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.fit"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.plot_species"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.plot_species()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.to_openfoam"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.to_openfoam()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.SutherlandFitting.viscosity"><code class="docutils literal notranslate"><span class="pre">SutherlandFitting.viscosity</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#radiation-properties">Radiation properties</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_CO2"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.MR_LIM_CO2</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_H2O"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.MR_LIM_H2O</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.MR_LIM_INF"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.MR_LIM_INF</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.NUM_COEFS"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.NUM_COEFS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.NUM_GRAYS"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.NUM_GRAYS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.P_TOL"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.P_TOL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.T_MAX"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.T_MAX</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.T_MIN"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.T_MIN</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.WSGGRadlibBordbar2020.T_RED"><code class="docutils literal notranslate"><span class="pre">WSGGRadlibBordbar2020.T_RED</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#internals">Internals</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractRadiationModel"><code class="docutils literal notranslate"><span class="pre">AbstractRadiationModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractRadiationModel.load_raw_data"><code class="docutils literal notranslate"><span class="pre">AbstractRadiationModel.load_raw_data()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractRadiationModel.relax"><code class="docutils literal notranslate"><span class="pre">AbstractRadiationModel.relax()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.absorption_coefs"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.absorption_coefs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.emissivity"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.emissivity()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.eval_emissivity"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.eval_emissivity()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.transport.AbstractWSGG.gases_weights"><code class="docutils literal notranslate"><span class="pre">AbstractWSGG.gases_weights</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

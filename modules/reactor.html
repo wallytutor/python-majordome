@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>majordome.reactor &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/reactor';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="majordome.transport" href="transport.html" />
+    <link rel="prev" title="majordome.plotting" href="plotting.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/common_.html">Common utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/energy_.html">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/pdftools_.html">PDF text extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/transport_.html">Transport properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Docs</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="common.html">majordome.common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy.html">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdftools.html">majordome.pdftools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">majordome.reactor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transport.html">majordome.transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vision.html">majordome.vision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="majordome.html">corelib (crate)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/modules/reactor.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>majordome.reactor</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-utilities">General utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.TPX"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.TPX</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.density"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.new_from_solution"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.new_from_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.report"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.report()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.toggle_reactor_warnings"><code class="docutils literal notranslate"><span class="pre">toggle_reactor_warnings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.composition_to_dict"><code class="docutils literal notranslate"><span class="pre">composition_to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.composition_to_array"><code class="docutils literal notranslate"><span class="pre">composition_to_array()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.solution_report"><code class="docutils literal notranslate"><span class="pre">solution_report()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.copy_solution"><code class="docutils literal notranslate"><span class="pre">copy_solution()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.copy_quantity"><code class="docutils literal notranslate"><span class="pre">copy_quantity()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plug-flow-reactors-pfr">Plug-flow reactors (PFR)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.contents"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.contents</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.failures"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.failures</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.loop"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.loop()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.n_reactors"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.n_reactors</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.n_species"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.n_species</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.network"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.network</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.quick_plot"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.quick_plot()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.register_heat_flow"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.register_heat_flow()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.states"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.states</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.update"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.update()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.use_cantera_steady_solver"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.use_cantera_steady_solver()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.use_smooth_flux"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.use_smooth_flux()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pfr-utilities">PFR utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.Q"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.Q</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.Y"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.Y</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.h"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.h</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.m"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.m</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.reset"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.reset()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.get_reactor_data"><code class="docutils literal notranslate"><span class="pre">get_reactor_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="majordome-reactor">
+<h1>majordome.reactor<a class="headerlink" href="#majordome-reactor" title="Link to this heading">#</a></h1>
+<section id="general-utilities">
+<h2>General utilities<a class="headerlink" href="#general-utilities" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.reactor.NormalFlowRate">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">NormalFlowRate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mech</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P_ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">101325.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.reactor.NormalFlowRate" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Compute normal flow rate for a given composition.</p>
+<p>This class makes use of the user defined state to create a function
+object that converts industrial scale flow rates in normal cubic
+meters per hour to kilograms per second. Nothing more, nothing less,
+it aims at helping the process engineer in daily life for this quite
+repetitive need when performing mass balances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mech: str | Path</strong></dt><dd><p>Path to Cantera mechanism used to compute mixture properties.</p>
+</dd>
+<dt><strong>X: CompositionType | None = None</strong></dt><dd><p>Composition specification in mole fractions. Notice that both
+<cite>X</cite> and <cite>Y</cite> are mutally exclusive keyword arguments.</p>
+</dd>
+<dt><strong>Y: CompositionType | None = None</strong></dt><dd><p>Composition specification in mass fractions. Notice that both
+<cite>X</cite> and <cite>Y</cite> are mutally exclusive keyword arguments.</p>
+</dd>
+<dt><strong>T_ref: float = constants.T_NORMAL</strong></dt><dd><p>Reference temperature of the system. If your industry does not
+use the same standard as the default values, and only in that
+case, please consider updating this keyword.</p>
+</dd>
+<dt><strong>P_ref: float = constants.P_NORMAL</strong></dt><dd><p>Reference pressure of the system. If your industry does not
+use the same standard as the default values, and only in that
+case, please consider updating this keyword.</p>
+</dd>
+<dt><strong>name: str | None = None</strong></dt><dd><p>Name of phase in mechanism, if more than one are specified
+within the same Cantera YAML database file.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.NormalFlowRate.TPX">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TPX</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.reactor.NormalFlowRate.TPX" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to the state of internal solution.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.NormalFlowRate.density">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">density</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.reactor.NormalFlowRate.density" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to the density of internal solution [kg/m³].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.NormalFlowRate.new_from_solution">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">new_from_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Solution</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#majordome.reactor.NormalFlowRate" title="majordome.reactor.NormalFlowRate"><span class="pre">NormalFlowRate</span></a></span></span><a class="headerlink" href="#majordome.reactor.NormalFlowRate.new_from_solution" title="Link to this definition">#</a></dt>
+<dd><p>Creates a new NormalFlowRate from a Cantera solution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.NormalFlowRate.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.reactor.NormalFlowRate.report" title="Link to this definition">#</a></dt>
+<dd><p>Provides a report of the mixture state.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.reactor.toggle_reactor_warnings">
+<span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">toggle_reactor_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">toggle_non_key_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toggle_missing_species_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toggle_unknown_species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.reactor.toggle_reactor_warnings" title="Link to this definition">#</a></dt>
+<dd><p>Reverse truth value of warning flags.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.reactor.composition_to_dict">
+<span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">composition_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.reactor.composition_to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Convert a Cantera composition string to dictionary.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.reactor.composition_to_array">
+<span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">composition_to_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.reactor.composition_to_array" title="Link to this definition">#</a></dt>
+<dd><p>Convert a Cantera composition string to array.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.reactor.solution_report">
+<span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">solution_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Solution</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_props</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">composition_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mass'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.reactor.solution_report" title="Link to this definition">#</a></dt>
+<dd><p>Generate a solution report for tabulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>sol: SolutionLikeType</strong></dt><dd><p>Cantera solution object for report generation.</p>
+</dd>
+<dt><strong>specific_props: bool = True</strong></dt><dd><p>If true, add specific heat capacity and enthalpy.</p>
+</dd>
+<dt><strong>composition_spec: str = “mass”</strong></dt><dd><p>Composition units specification, <cite>mass</cite> or <cite>mole</cite>.</p>
+</dd>
+<dt><strong>selected_species: list[str] = []</strong></dt><dd><p>Selected species to display; return all if a composition
+specification was provided.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>list[tuple[str, str, Any]]</dt><dd><p>A list of data entries intended to be displayed externally,
+<em>e.g.</em> with <cite>tabulate.tabulate</cite> or appended.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If in invalid composition specification is provided.
+If species filtering lead to an empty set of compositions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.reactor.copy_solution">
+<span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">copy_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Solution</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Solution</span></span></span><a class="headerlink" href="#majordome.reactor.copy_solution" title="Link to this definition">#</a></dt>
+<dd><p>Makes a hard copy of a Solution object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.reactor.copy_quantity">
+<span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">copy_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="headerlink" href="#majordome.reactor.copy_quantity" title="Link to this definition">#</a></dt>
+<dd><p>Makes a hard copy of a ct.composite.Quantity object.</p>
+</dd></dl>
+
+</section>
+<section id="plug-flow-reactors-pfr">
+<h2>Plug-flow reactors (PFR)<a class="headerlink" href="#plug-flow-reactors-pfr" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">PlugFlowChainCantera</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">101325.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smoot_flux</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cantera_steady</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Plug-flow reactor as a chain of 0-D reactors with Cantera.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mechanism: str</strong></dt><dd><p>Name or path to Cantera mechanism to be used.</p>
+</dd>
+<dt><strong>phase: str</strong></dt><dd><p>Name of phase to simulate (not inferred, even if a single is present!).</p>
+</dd>
+<dt><strong>z: NDArray[np.float64]</strong></dt><dd><p>Spatial coordinates of reactor cells [m].</p>
+</dd>
+<dt><strong>V: NDArray[np.float64]</strong></dt><dd><p>Volumes of reactor cells [m³].</p>
+</dd>
+<dt><strong>P: float = ct.one_atm</strong></dt><dd><p>Reactor operating pressure [Pa].</p>
+</dd>
+<dt><strong>K: float = 1.0</strong></dt><dd><p>Valve response constant (do not use unless simulation fails).</p>
+</dd>
+<dt><strong>smoot_flux: bool = False</strong></dt><dd><p>Apply a smoot transition function when internal stepping is performed;
+this is intended to avoid unphysical steady state approximations.</p>
+</dd>
+<dt><strong>cantera_steady: bool = True</strong></dt><dd><p>If true, use Cantera’ s <cite>advance_to_steady_state</cite> to solve problem;
+otherwise advance over meaninful time-scale of the problem.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.contents">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">contents</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Solution</span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.contents" title="Link to this definition">#</a></dt>
+<dd><p>Provides direct access to reactor contents.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.failures">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">failures</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.failures" title="Link to this definition">#</a></dt>
+<dd><p>List of failures encountered during last <cite>loop</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.loop">
+<span class="sig-name descname"><span class="pre">loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.loop" title="Link to this definition">#</a></dt>
+<dd><p>Loop over the slices of the plug-flow reactor.</p>
+<p>In case of solver failure, one might try the following configurations;
+it is recommended to start by reducing <cite>max_time_step</cite> before tweaking
+other parameters.</p>
+<p><code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">pfc.network.atol</span> <span class="pre">=</span> <span class="pre">1.0e-12</span>
+<span class="pre">pfc.network.rtol</span> <span class="pre">=</span> <span class="pre">1.0e-06</span>
+<span class="pre">pfc.network.max_time_step</span> <span class="pre">=</span> <span class="pre">0.1</span>
+<span class="pre">pfc.network.linear_solver_type</span> <span class="pre">=</span> <span class="pre">&quot;GMRES&quot;</span>
+<span class="pre">pfc.network.max_err_test_fails</span> <span class="pre">=</span> <span class="pre">10</span>
+<span class="pre">pfc.network.max_order</span> <span class="pre">=</span> <span class="pre">5</span>
+<span class="pre">pfc.network.max_steps</span> <span class="pre">=</span> <span class="pre">2000</span>
+<span class="pre">`</span></code></p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.n_reactors">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_reactors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.n_reactors" title="Link to this definition">#</a></dt>
+<dd><p>Number of reactors in mechanism.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.n_species">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">n_species</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.n_species" title="Link to this definition">#</a></dt>
+<dd><p>Number of species in mechanism.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.network">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">network</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ReactorNet</span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.network" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to the reactor network.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.quick_plot">
+<span class="sig-name descname"><span class="pre">quick_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="plotting.html#majordome.plotting.MajordomePlot" title="majordome.plotting.MajordomePlot"><span class="pre">MajordomePlot</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">but</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.quick_plot" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.register_heat_flow">
+<span class="sig-name descname"><span class="pre">register_heat_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.register_heat_flow" title="Link to this definition">#</a></dt>
+<dd><p>Provides registration of heat flux function.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.states">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">states</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SolutionArray</span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.states" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to the states of the reactor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#majordome.reactor.PlugFlowAxialSources" title="majordome.reactor.PlugFlowAxialSources"><span class="pre">PlugFlowAxialSources</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.update" title="Link to this definition">#</a></dt>
+<dd><p>Wraps call to <cite>loop</cite> when using a data structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.use_cantera_steady_solver">
+<span class="sig-name descname"><span class="pre">use_cantera_steady_solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.use_cantera_steady_solver" title="Link to this definition">#</a></dt>
+<dd><p>Select method to approach steady-state solution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowChainCantera.use_smooth_flux">
+<span class="sig-name descname"><span class="pre">use_smooth_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowChainCantera.use_smooth_flux" title="Link to this definition">#</a></dt>
+<dd><p>Select if smoothed heat flux is to be used.</p>
+</dd></dl>
+
+</dd></dl>
+
+<section id="pfr-utilities">
+<h3>PFR utilities<a class="headerlink" href="#pfr-utilities" title="Link to this heading">#</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowAxialSources">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">PlugFlowAxialSources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_reactors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.reactor.PlugFlowAxialSources" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provides a data structure for use with <cite>PlugFlowChainCantera</cite>.</p>
+<p>Helper data class for use with the solution method <cite>loop</cite> of the
+plug-flow reactor implementation. It provides the required memory
+for storage of source terms distributed along the reactor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_reactors: int</strong></dt><dd><p>Number of reactors in chain.</p>
+</dd>
+<dt><strong>n_species: int</strong></dt><dd><p>Number of species in mechanism.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>Q: NDArray[np.float64]</strong></dt><dd><p>Array of external heat source [W].</p>
+</dd>
+<dt><strong>m: NDArray[np.float64]</strong></dt><dd><p>Array of axial mass source terms [kg/s].</p>
+</dd>
+<dt><strong>h: NDArray[np.float64]</strong></dt><dd><p>Array of enthalpy of axial mass source terms [J/kg].</p>
+</dd>
+<dt><strong>Y: NDArray[np.float64, np.float64]</strong></dt><dd><p>Array of mass fractions of axial mass source terms [-].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowAxialSources.Q">
+<span class="sig-name descname"><span class="pre">Q</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowAxialSources.Q" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowAxialSources.Y">
+<span class="sig-name descname"><span class="pre">Y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowAxialSources.Y" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowAxialSources.h">
+<span class="sig-name descname"><span class="pre">h</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowAxialSources.h" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowAxialSources.m">
+<span class="sig-name descname"><span class="pre">m</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowAxialSources.m" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.reactor.PlugFlowAxialSources.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#majordome.reactor.PlugFlowAxialSources.reset" title="Link to this definition">#</a></dt>
+<dd><p>Reset values of all arrays to zero.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="majordome.reactor.get_reactor_data">
+<span class="sig-prename descclassname"><span class="pre">majordome.reactor.</span></span><span class="sig-name descname"><span class="pre">get_reactor_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pfr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#majordome.reactor.PlugFlowChainCantera" title="majordome.reactor.PlugFlowChainCantera"><span class="pre">PlugFlowChainCantera</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#majordome.reactor.PlugFlowAxialSources" title="majordome.reactor.PlugFlowAxialSources"><span class="pre">PlugFlowAxialSources</span></a></span></span><a class="headerlink" href="#majordome.reactor.get_reactor_data" title="Link to this definition">#</a></dt>
+<dd><p>Wrapper to allocate properly dimensioned solver data.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plotting.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">majordome.plotting</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="transport.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">majordome.transport</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-utilities">General utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.TPX"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.TPX</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.density"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.new_from_solution"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.new_from_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.NormalFlowRate.report"><code class="docutils literal notranslate"><span class="pre">NormalFlowRate.report()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.toggle_reactor_warnings"><code class="docutils literal notranslate"><span class="pre">toggle_reactor_warnings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.composition_to_dict"><code class="docutils literal notranslate"><span class="pre">composition_to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.composition_to_array"><code class="docutils literal notranslate"><span class="pre">composition_to_array()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.solution_report"><code class="docutils literal notranslate"><span class="pre">solution_report()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.copy_solution"><code class="docutils literal notranslate"><span class="pre">copy_solution()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.copy_quantity"><code class="docutils literal notranslate"><span class="pre">copy_quantity()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plug-flow-reactors-pfr">Plug-flow reactors (PFR)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.contents"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.contents</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.failures"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.failures</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.loop"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.loop()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.n_reactors"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.n_reactors</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.n_species"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.n_species</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.network"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.network</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.quick_plot"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.quick_plot()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.register_heat_flow"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.register_heat_flow()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.states"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.states</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.update"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.update()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.use_cantera_steady_solver"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.use_cantera_steady_solver()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowChainCantera.use_smooth_flux"><code class="docutils literal notranslate"><span class="pre">PlugFlowChainCantera.use_smooth_flux()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pfr-utilities">PFR utilities</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.Q"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.Q</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.Y"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.Y</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.h"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.h</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.m"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.m</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.PlugFlowAxialSources.reset"><code class="docutils literal notranslate"><span class="pre">PlugFlowAxialSources.reset()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.reactor.get_reactor_data"><code class="docutils literal notranslate"><span class="pre">get_reactor_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
