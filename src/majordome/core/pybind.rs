@@ -1,61 +1,47 @@
 use pyo3::prelude::*;
 
-pub use super::declarations::*;
-
 #[pymodule]
 pub mod constants {
     use pyo3::prelude::*;
 
-    use super::{
-        PI              as RUST_PI,
-        AVOGADRO        as RUST_AVOGADRO,
-        BOLTZMANN       as RUST_BOLTZMANN,
-        ELECTRON_CHARGE as RUST_ELECTRON_CHARGE,
-        FARADAY         as RUST_FARADAY,
-        GAS_CONSTANT    as RUST_GAS_CONSTANT,
-        GRAVITY         as RUST_GRAVITY,
-        PLANCK          as RUST_PLANCK,
-        SPEED_OF_LIGHT  as RUST_SPEED_OF_LIGHT,
-        T_REFERENCE     as RUST_T_REFERENCE,
-        T_NORMAL        as RUST_T_NORMAL,
-        P_NORMAL        as RUST_P_NORMAL,
-    };
+    #[pymodule_export]
+    pub const PI: f64 = std::f64::consts::PI;
 
     #[pymodule_export]
-    pub const PI: f64 = RUST_PI;
+    pub const AVOGADRO: f64 = 6.022_140_76e23;
 
     #[pymodule_export]
-    pub const AVOGADRO: f64 = RUST_AVOGADRO;
+    pub const BOLTZMANN: f64 = 1.38_064_9e-23;
 
     #[pymodule_export]
-    pub const BOLTZMANN: f64 = RUST_BOLTZMANN;
+    pub const ELECTRON_CHARGE: f64 = 1.602_176_634e-19;
 
     #[pymodule_export]
-    pub const ELECTRON_CHARGE: f64 = RUST_ELECTRON_CHARGE;
+    pub const FARADAY: f64 = 96_485.33_212;
 
     #[pymodule_export]
-    pub const FARADAY: f64 = RUST_FARADAY;
+    pub const GAS_CONSTANT: f64 = 8.314_462_618_153_24;
 
     #[pymodule_export]
-    pub const GAS_CONSTANT: f64 = RUST_GAS_CONSTANT;
+    pub const GRAVITY: f64 = 9.806_65;
 
     #[pymodule_export]
-    pub const GRAVITY: f64 = RUST_GRAVITY;
+    pub const PLANCK: f64 = 6.626_070_15e-34;
 
     #[pymodule_export]
-    pub const PLANCK: f64 = RUST_PLANCK;
+    pub const SPEED_OF_LIGHT: f64 = 299_792_458.0;
 
     #[pymodule_export]
-    pub const SPEED_OF_LIGHT: f64 = RUST_SPEED_OF_LIGHT;
+    pub const STEFAN_BOLTZMANN: f64 = 5.670_374_419e-08;
 
     #[pymodule_export]
-    pub const T_REFERENCE: f64 = RUST_T_REFERENCE;
+    pub const T_REFERENCE: f64 = 298.15;
 
     #[pymodule_export]
-    pub const T_NORMAL: f64 = RUST_T_NORMAL;
+    pub const T_NORMAL: f64 = 273.15;
 
     #[pymodule_export]
-    pub const P_NORMAL: f64 = RUST_P_NORMAL;
+    pub const P_NORMAL: f64 = 101_325.0;
 
     /// Mathematical constant π (pi).
     ///
@@ -110,6 +96,12 @@ pub mod constants {
     /// Functional alias for constants.SPEED_OF_LIGHT.
     #[pyfunction]
     fn speed_of_light() -> f64 { SPEED_OF_LIGHT }
+
+    /// Stefan-Boltzmann constant [W/(m²·K⁴)].
+    ///
+    /// Functional alias for constants.STEFAN_BOLTZMANN.
+    #[pyfunction]
+    fn stefan_boltzmann() -> f64 { STEFAN_BOLTZMANN }
 
     /// Thermodynamic reference temperature [K].
     ///

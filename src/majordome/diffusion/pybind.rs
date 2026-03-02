@@ -4,7 +4,7 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyList};
 
-use crate::core::declarations::GAS_CONSTANT;
+use crate::core::constants::GAS_CONSTANT;
 
 fn validate_callback_xt(callback: &Bound<'_, PyAny>) -> PyResult<()> {
     if !callback.is_callable() {

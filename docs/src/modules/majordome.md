@@ -25,6 +25,7 @@ Provides various physical and mathematical constants.
 .. autofunction:: majordome._majordome.constants.gas_constant
 .. autofunction:: majordome._majordome.constants.planck
 .. autofunction:: majordome._majordome.constants.speed_of_light
+.. autofunction:: majordome._majordome.constants.stefan_boltzmann
 ```
 
 ### Engineering conventions
