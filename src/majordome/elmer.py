@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
 from numpy.typing import NDArray
@@ -8,30 +9,133 @@ import pandas as pd
 from .plotting import MajordomePlot
 
 
-class TimeStepAccumulator:
-    """ Helper for checking cumulative time steps. """
-    def __init__(self, time_step: float, num_steps: int):
-        self.time_step = time_step
-        self.num_steps = num_steps
+@dataclass
+class ConstantTimeStepInterval:
+    """ Create a constant time step interval for a simulation."""
+    intervals: int
+    save_every: int
+    time_step: float
+    duration: float
 
-    @property
-    def total_time(self) -> float:
-        """ Total time covered by the time steps. """
-        return self.time_step * self.num_steps
+    def __init__(self, duration: float, time_step: float | None = None,
+                 save_interval: float | None = None, *,
+                 min_steps: int = 2) -> None:
+
+        if duration <= 0:
+            raise ValueError(
+                f"Duration must be positive ({duration})")
+
+        if (time_step is None or time_step <= 0) and min_steps < 1:
+            raise ValueError(
+                f"Minimum steps must be at least 1 ({min_steps})")
+
+
+        if time_step is None:
+            time_step = duration / min_steps
+
+        if save_interval is None:
+            save_interval = time_step
+
+
+        if time_step <= 0:
+            raise ValueError(
+                f"Time step must be positive ({time_step})")
+
+        if save_interval <= 0:
+            raise ValueError(
+                f"Save interval must be positive ({save_interval})")
+
+        if time_step > duration:
+            raise ValueError(
+                f"Time step cannot be greater than duration "
+                f"({time_step} > {duration})")
+
+        if save_interval > duration:
+            raise ValueError(
+                f"Save interval cannot be greater than duration "
+                f"({save_interval} > {duration})")
+
+        if save_interval < time_step:
+            raise ValueError(
+                f"Save interval cannot be smaller than time step "
+                f"({save_interval} < {time_step})")
+
+
+        self.intervals = int(round(duration / time_step))
+        self.save_every = int(round(save_interval / time_step))
+
+        self.duration = duration
+        self.time_step = duration / self.intervals
 
     def __repr__(self) -> str:
-        """ Standard representation of the object. """
-        return (f"TimeStepCalculator(total_time={self.total_time})")
+        return (f"ConstantTimeStep(duration={self.duration}, "
+                f"time_step={self.time_step}, "
+                f"intervals={self.intervals}, "
+                f"save_every={self.save_every})")
 
-    def __add__(self, other: Self) -> Self:
-        """ Support addition of two TimeStepAccumulator instances. """
-        if not isinstance(other, TimeStepAccumulator):
-            return NotImplemented
+    def into_formatted_data(self) -> list[str]:
+        return [
+            f"{self.duration:>13g}",
+            f"{self.time_step:>13.6e}",
+            f"{self.intervals:>13d}",
+            f"{self.save_every:>13d}",
+        ]
 
-        total_time = self.total_time + other.total_time
-        total_steps = self.num_steps + other.num_steps
 
-        return self.__class__(total_time / total_steps, total_steps)
+class TimeStepAccumulator:
+    """ Helper for checking cumulative time steps. """
+    __slots__ = ("_time_steps",)
+
+    def __init__(self, *time_steps: ConstantTimeStepInterval) -> None:
+        self._time_steps = list(time_steps)
+
+    def __repr__(self) -> str:
+        """ String representation for debugging. """
+        return (f"TimeStepAccumulator(duration={self.duration})")
+
+    def __str__(self) -> str:
+        """ String representation formatted for Elmer SIF file. """
+        text = f"! >> Total duration: {self.duration:.6g} << !\n"
+
+        for k, row in self.to_dataframe().iterrows():
+            text += " ".join(map(str, row)) + "\n"
+
+        return text
+
+    @property
+    def duration(self) -> float:
+        """ Duration of the accumulated time steps. """
+        return sum(ts.duration for ts in self._time_steps)
+
+    def add_block(self, duration: float, **kws) -> None:
+        """ Add a new block of time steps with the given parameters. """
+        self.append(ConstantTimeStepInterval(duration, **kws))
+
+    def append(self, time_step: ConstantTimeStepInterval) -> None:
+        """ Append a new time step to the accumulator. """
+        self._time_steps.append(time_step)
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """ Convert the accumulated time steps into a table. """
+        headers = ["! Step Duration", "Timestep Sizes",
+                   "Timestep Intervals", "Output Intervals"]
+
+        data = [ts.into_formatted_data() for ts in self._time_steps]
+        df = pd.DataFrame(data, columns=headers)
+
+        # Format to get aligned equal signs in SIF:
+        n = len(data)
+        columns = [f"{c}({n})" for c in headers]
+        fmt = f"{{:<{1 + max(map(len, columns))}}} ="
+
+        # Transpose for printing in Elmer SIF:
+        df = df.T.reset_index()
+        df.columns = range(len(df.columns))
+
+        # Labels for Elmer SIF:
+        df[0] = [fmt.format(c) for c in columns]
+
+        return df
 
 
 class ElmerConvergenceData:
