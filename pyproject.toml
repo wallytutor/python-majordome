@@ -16,10 +16,8 @@ dependencies = [
     "cantera>=3",
     "casadi>=3.7.2",
     "exifread>=3.5.1",
-    "folium",
     "gmsh>=4.15,<5",
     "gradio>=6.3.0",
-    "gpxpy",
     "hyperspy>=2.3.0",
     "ipython>=9.4.0,<=9.6.0",
     "matplotlib>=3",
@@ -92,7 +90,9 @@ include-package-data = true
 version = {attr = "version.__version__"}
 
 ##############################################################################
-# PEP621
+# PEP621: notice that in the future as majordome (core) becomes a metapackage
+# all sub-packages will provide their dependencies here. There might be some
+# duplicate dependencies that SHALL agree between themselves.
 ##############################################################################
 
 [project.optional-dependencies]
@@ -109,6 +109,13 @@ docs = [
 extras = [
     "jupyterlab>=4.4.6",
     "jupytext>=1.17.3",
+]
+cartography = [
+    "branca",
+    "folium",
+    "gpxpy",
+    "numpy",
+    "pandas",
 ]
 
 ##############################################################################

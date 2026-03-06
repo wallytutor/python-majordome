@@ -99,6 +99,7 @@ param (
     [switch]$Help
 )
 
+$PACKAGE   = "$PSScriptRoot[docs,extras,cartography]"
 $PATH_CORE =  "Cargo.toml"
 $VENV_PATH =  "venv"
 
@@ -151,7 +152,7 @@ function Invoke-VenvActivation {
         & python -m pip install --upgrade --force-reinstall build wheel
         & python -m pip install --upgrade --force-reinstall setuptools
         & python -m pip install --upgrade --force-reinstall setuptools_rust
-        & python -m pip install -e '.[devel,test]'
+        & python -m pip install -e $PACKAGE
     }
 
     if (-not $env:VIRTUAL_ENV) {
@@ -218,9 +219,9 @@ function Install-PythonPackage {
     # UPDATE: the project venv was missing setuptools-rust (which was
     # being used from elswhere), reasong why it was not working!
     $opts = @("--no-deps", "--no-build-isolation")
-    $pkg  = "$PSScriptRoot[docs,extras]"
+
     if ($FlagRelease) { $opts += "--config-settings=rust.debug=false" }
-    & python -m pip install -e $pkg @opts
+    & python -m pip install -e $PACKAGE @opts
 
     if ($PackageDist) {
         & python -m build --wheel
