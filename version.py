@@ -5,6 +5,8 @@ from subprocess import run, CalledProcessError
 from pathlib import Path
 import tomllib
 
+CARGO_TOML = Path(__file__).resolve().parent / "Cargo.toml"
+
 
 def build_version() -> str:
     """ Get the built-time version of the package.
@@ -57,10 +59,7 @@ def get_git_output() -> str:
 
 def get_cargo_version() -> str:
     """ Get the version from Cargo.toml. """
-    root = Path(__file__).resolve().parent
-    cargo_toml = root / "Cargo.toml"
-
-    with open(cargo_toml, "rb") as fp:
+    with open(CARGO_TOML, "rb") as fp:
         data = tomllib.load(fp)
 
     return data["package"]["version"]

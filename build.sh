@@ -5,6 +5,8 @@
 # sudo restorecon -Rv "$(realpath $PWD)"
 ##############################################################################
 
+# FIXME this script is currently broken!
+
 CONTAINER=/usr/bin/podman
 
 FLAG_BUILD_PY312=true

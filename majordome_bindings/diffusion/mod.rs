@@ -4,7 +4,7 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyList};
 
-use crate::core::constants::GAS_CONSTANT;
+use crate::constants::GAS_CONSTANT;
 
 fn validate_callback_xt(callback: &Bound<'_, PyAny>) -> PyResult<()> {
     if !callback.is_callable() {
@@ -39,19 +39,19 @@ type PyObject = Py<PyAny>;
 
 pub type RustCallback = fn(&[f64], f64) -> f64;
 
-#[pyclass]
+#[pyclass(skip_from_py_object)]
 pub struct PreExponentialFactor {
     callback: Option<PyObject>,
     rust_callback: Option<RustCallback>,
 }
 
-#[pyclass]
+#[pyclass(skip_from_py_object)]
 pub struct ActivationEnergy {
     callback: Option<PyObject>,
     rust_callback: Option<RustCallback>,
 }
 
-#[pyclass]
+#[pyclass(skip_from_py_object)]
 pub struct ArrheniusModifiedDiffusivity {
     pre_exponential: PreExponentialFactor,
     activation_energy: ActivationEnergy,

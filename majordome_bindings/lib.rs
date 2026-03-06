@@ -1,5 +1,36 @@
 use pyo3::prelude::*;
 
+// region: macros_colored_printing
+#[macro_export]
+macro_rules! print_header {
+    ($($arg:tt)*) => {
+        println!("\x1b[34m{}\x1b[0m", format!($($arg)*))
+    };
+}
+
+#[macro_export]
+macro_rules! print_success {
+    ($($arg:tt)*) => {
+        eprintln!("\x1b[32msuccess: {}\x1b[0m", format!($($arg)*))
+    };
+}
+
+#[macro_export]
+macro_rules! print_warning {
+    ($($arg:tt)*) => {
+        eprintln!("\x1b[33mwarning: {}\x1b[0m", format!($($arg)*))
+    };
+}
+
+#[macro_export]
+macro_rules! print_error {
+    ($($arg:tt)*) => {
+        eprintln!("\x1b[31merror: {}\x1b[0m", format!($($arg)*))
+    };
+}
+// endregion: macros_colored_printing
+
+// region: constants
 #[pymodule]
 pub mod constants {
     use pyo3::prelude::*;
@@ -122,3 +153,27 @@ pub mod constants {
     fn p_normal() -> f64 { P_NORMAL }
 
 }
+// endregion: constants
+
+// region: modules
+pub mod calphad;
+pub mod diffusion;
+pub mod utils;
+// endregion: modules
+
+// region: pybind
+#[pymodule(name = "_majordome")]
+pub mod handlers {
+    use pyo3::prelude::*;
+
+    #[pymodule_export]
+    pub const VERSION: &str = env!("GIT_VERSION");
+
+    /// Version of majordome.
+    #[pyfunction]
+    fn version() -> String { format!("{}", VERSION) }
+
+    #[pymodule_export]
+    use super::constants;
+}
+// endregion: pybind

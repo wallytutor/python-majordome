@@ -1,0 +1,27 @@
+[package]
+name = "majordome"
+version = "0.9.0"
+edition = "2024"
+build = "majordome_bindings/build.rs"
+
+[dependencies.pyo3]
+version = "0.28.2"
+features = ["multiple-pymethods"]
+
+# [dependencies.mlua]
+# version = "0.11"
+# features = ["lua54", "vendored"]
+
+[lib]
+name = "majordome"
+crate-type = ["cdylib", "rlib"]
+path = "majordome_bindings/lib.rs"
+
+# XXX: multiple binaries in a single crate, just add [[bin]] sections.
+[[bin]]
+name = "containerize"
+path = "majordome_bindings/scripts/containerize.rs"
+
+[[bin]]
+name = "majordome"
+path = "majordome_bindings/scripts/majordome.rs"

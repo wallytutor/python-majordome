@@ -69,9 +69,9 @@ Repository = "https://github.com/wallytutor/python-majordome.git"
 Issues = "https://github.com/wallytutor/python-majordome/issues"
 
 [tool.setuptools.packages.find]
-where = ["src"]
-include = ["majordome*", "walang*"]
-exclude = []
+where = ["."]
+include = ["majordome*"]
+exclude = ["majordome_bindings"]
 namespaces = false
 
 ##############################################################################
@@ -120,11 +120,11 @@ bindings = "bin"
 
 [[tool.setuptools-rust.bins]]
 target = "containerize"
-path = "src/Cargo.toml"
+path = "Cargo.toml"
 
 [[tool.setuptools-rust.bins]]
 target = "majordome"
-path = "src/Cargo.toml"
+path = "Cargo.toml"
 
 ##############################################################################
 # CRATES (MODULES)
@@ -132,7 +132,7 @@ path = "src/Cargo.toml"
 
 [[tool.setuptools-rust.ext-modules]]
 target = "majordome._majordome"
-path = "src/Cargo.toml"
+path = "Cargo.toml"
 binding = "PyO3"
 
 ##############################################################################
