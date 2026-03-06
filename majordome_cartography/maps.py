@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from branca.colormap import LinearColormap
 from folium import Map, ColorLine
 from folium.plugins import MarkerCluster
+from .gpx import GpxManager
 
 
 @dataclass
