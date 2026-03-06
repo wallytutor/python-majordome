@@ -1,0 +1,1097 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>majordome.energy &#8212; Majordome  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/energy';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="majordome.fluent" href="fluent.html" />
+    <link rel="prev" title="majordome.common" href="common.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Majordome  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Majordome</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/common_.html">Common utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/energy_.html">Energy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/fluent_.html">Fluent files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/pdftools_.html">PDF text extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/reactor_.html">Reactor models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/transport_.html">Transport properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/onkwargs_.html">A note on <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> parsing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Docs</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="common.html">majordome.common</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">majordome.energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fluent.html">majordome.fluent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="latex.html">majordome.latex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdftools.html">majordome.pdftools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">majordome.plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reactor.html">majordome.reactor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transport.html">majordome.transport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vision.html">majordome.vision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="majordome.html">corelib (crate)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/modules/energy.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>majordome.energy</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#process-setup">Process setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.equivalence"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.equivalence</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.fuel_state"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.fuel_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.oxid_state"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.oxid_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.power"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.power</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.fuel_state"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.fuel_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.fuel_xdot"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.fuel_xdot</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.mode"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.mode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.oxid_state"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.oxid_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.oxid_xdot"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.oxid_xdot</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.power"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.production_carbon_dioxide"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_carbon_dioxide</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.production_water"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_water</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.report"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.report_data"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.report_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combustion-analysis">Combustion analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.combustion_setup"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.combustion_setup()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_density()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.normal_flow"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_flow()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.solution_heating_value"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.solution_heating_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereMixer"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereMixer.add_quantity"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.add_quantity()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereMixer.solution"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.solution</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-sources">Energy sources</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource.power"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource.report"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource.report_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.fluid"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.fluid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.phase"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.phase</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.power"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.solution"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.solution</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.source"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.source</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.flue"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.flue</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.mass_flow_rate"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.mass_flow_rate</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.momentum_flux"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.momentum_flux</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.volume_flow_rate"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.volume_flow_rate</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.HeatedGasEnergySource"><code class="docutils literal notranslate"><span class="pre">HeatedGasEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.HeatedGasEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">HeatedGasEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.HeatedGasEnergySource.solution"><code class="docutils literal notranslate"><span class="pre">HeatedGasEnergySource.solution</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.fuel"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.fuel</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.oxidizer"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.oxidizer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.solution"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.solution</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="majordome-energy">
+<h1>majordome.energy<a class="headerlink" href="#majordome-energy" title="Link to this heading">#</a></h1>
+<section id="process-setup">
+<h2>Process setup<a class="headerlink" href="#process-setup" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerOp">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">CombustionPowerOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equivalence</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxid_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.CombustionPowerOp" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>Combustion power operation parameters.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerOp.equivalence">
+<span class="sig-name descname"><span class="pre">equivalence</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerOp.equivalence" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerOp.fuel_state">
+<span class="sig-name descname"><span class="pre">fuel_state</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span><a class="headerlink" href="#majordome.energy.CombustionPowerOp.fuel_state" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerOp.oxid_state">
+<span class="sig-name descname"><span class="pre">oxid_state</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span><a class="headerlink" href="#majordome.energy.CombustionPowerOp.oxid_state" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerOp.power">
+<span class="sig-name descname"><span class="pre">power</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerOp.power" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.CombustionFlowOp">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">CombustionFlowOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_xdot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxid_xdot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxid_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.CombustionFlowOp" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
+<p>Combustion flow operation parameters.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionFlowOp.fuel_state">
+<span class="sig-name descname"><span class="pre">fuel_state</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span><a class="headerlink" href="#majordome.energy.CombustionFlowOp.fuel_state" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionFlowOp.fuel_xdot">
+<span class="sig-name descname"><span class="pre">fuel_xdot</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionFlowOp.fuel_xdot" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionFlowOp.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#majordome.energy.CombustionFlowOp.mode" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionFlowOp.oxid_state">
+<span class="sig-name descname"><span class="pre">oxid_state</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="common.html#majordome.common.StateType" title="majordome.common.StateType"><span class="pre">StateType</span></a></span><a class="headerlink" href="#majordome.energy.CombustionFlowOp.oxid_state" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="majordome.energy.CombustionFlowOp.oxid_xdot">
+<span class="sig-name descname"><span class="pre">oxid_xdot</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionFlowOp.oxid_xdot" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">CombustionPowerSupply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="common.html#majordome.common.AbstractReportable" title="majordome.common.AbstractReportable"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractReportable</span></code></a></p>
+<p>Provides combustion calculations for given power supply.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>power: float</strong></dt><dd><p>Total supplied power [kW]</p>
+</dd>
+<dt><strong>equivalence: float</strong></dt><dd><p>Oxidizer-fuel equivalence ratio.</p>
+</dd>
+<dt><strong>fuel: CompositionType</strong></dt><dd><p>Composition of fuel in species mole fractions.</p>
+</dd>
+<dt><strong>oxidizer: CompositionType</strong></dt><dd><p>Composition of oxidizer in species mole fractions.</p>
+</dd>
+<dt><strong>mechanism: str</strong></dt><dd><p>Kinetics mechanism/database to use in computations.</p>
+</dd>
+<dt><strong>species: str = “O2”</strong></dt><dd><p>Reference species for oxidizer mass balance.</p>
+</dd>
+<dt><strong>emissions: bool = True</strong></dt><dd><p>If true, compute emissions of water and carbon dioxide.</p>
+</dd>
+<dt><strong>basis: str = “mass”</strong></dt><dd><p>Basis on which to compute equivalence ratio.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.fuel">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fuel</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.fuel" title="Link to this definition">#</a></dt>
+<dd><p>Access to fuel mole fractions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.fuel_mass">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fuel_mass</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.fuel_mass" title="Link to this definition">#</a></dt>
+<dd><p>Access to fuel mass flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.fuel_normal_density">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fuel_normal_density</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.fuel_normal_density" title="Link to this definition">#</a></dt>
+<dd><p>Fuel normal density.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.fuel_volume">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fuel_volume</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.fuel_volume" title="Link to this definition">#</a></dt>
+<dd><p>Access to fuel volume flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.oxidizer">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">oxidizer</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.oxidizer" title="Link to this definition">#</a></dt>
+<dd><p>Access to oxidizer mole fractions.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.oxidizer_mass">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">oxidizer_mass</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.oxidizer_mass" title="Link to this definition">#</a></dt>
+<dd><p>Access to oxidizer mass flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.oxidizer_normal_density">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">oxidizer_normal_density</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.oxidizer_normal_density" title="Link to this definition">#</a></dt>
+<dd><p>Oxidizer normal density.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.oxidizer_volume">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">oxidizer_volume</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.oxidizer_volume" title="Link to this definition">#</a></dt>
+<dd><p>Access to oxidizer volume flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.power">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">power</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.power" title="Link to this definition">#</a></dt>
+<dd><p>Access to combustion power [kW].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.production_carbon_dioxide">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">production_carbon_dioxide</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.production_carbon_dioxide" title="Link to this definition">#</a></dt>
+<dd><p>Access to complete combustion CO2 mass flow rate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.production_water">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">production_water</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.production_water" title="Link to this definition">#</a></dt>
+<dd><p>Access to complete combustion H2O mass flow rate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.report" title="Link to this definition">#</a></dt>
+<dd><p>Provides a report of the energy source.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionPowerSupply.report_data">
+<span class="sig-name descname"><span class="pre">report_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.energy.CombustionPowerSupply.report_data" title="Link to this definition">#</a></dt>
+<dd><p>Provides data for assemblying the object report.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="combustion-analysis">
+<h2>Combustion analysis<a class="headerlink" href="#combustion-analysis" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereCHON">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">CombustionAtmosphereCHON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mass'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereCHON" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Combustion atmosphere calculations for CHON system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mechanism: str</strong></dt><dd><p>Kinetics mechanism/database to use in computations.</p>
+</dd>
+<dt><strong>basis: str = “mass”</strong></dt><dd><p>Basis on which to compute equivalence ratio.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereCHON.combustion_setup">
+<span class="sig-name descname"><span class="pre">combustion_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxidizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'O2'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereCHON.combustion_setup" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates combustion setup for given quantities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>power: float</strong></dt><dd><p>Total supplied power [kW]</p>
+</dd>
+<dt><strong>phi: float</strong></dt><dd><p>Oxidizer-fuel equivalence ratio.</p>
+</dd>
+<dt><strong>fuel: CompositionType</strong></dt><dd><p>Composition of fuel in species mole fractions.</p>
+</dd>
+<dt><strong>oxidizer: CompositionType</strong></dt><dd><p>Composition of oxidizer in species mole fractions.</p>
+</dd>
+<dt><strong>species: str = “O2”</strong></dt><dd><p>Reference species for oxidizer mass balance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereCHON.normal_density">
+<span class="sig-name descname"><span class="pre">normal_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereCHON.normal_density" title="Link to this definition">#</a></dt>
+<dd><p>Compute solution normal density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>X: CompositionType</strong></dt><dd><p>Composition of solution in species mole fractions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Solution density under standard state [kg/Nm³].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereCHON.normal_flow">
+<span class="sig-name descname"><span class="pre">normal_flow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereCHON.normal_flow" title="Link to this definition">#</a></dt>
+<dd><p>Computes volume flow rate from mass flow and composition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mdot: float</strong></dt><dd><p>Solution mass flow rate [kg/s].</p>
+</dd>
+<dt><strong>X: CompositionType</strong></dt><dd><p>Composition of solution in species mole fractions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Volume flow rate under standard state [Nm³/h].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereCHON.solution_heating_value">
+<span class="sig-name descname"><span class="pre">solution_heating_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fuel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oxidizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereCHON.solution_heating_value" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate lower heating value of mixture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fuel: CompositionType</strong></dt><dd><p>Composition of fuel in species mole fractions.</p>
+</dd>
+<dt><strong>oxidizer: CompositionType</strong></dt><dd><p>Composition of oxidizer in species mole fractions.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Lower heating value of provided mixture [MJ/kg].</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereMixer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">CombustionAtmosphereMixer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mechanism</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mole'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereMixer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Provides addition of thermochemical quantities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mechanism: str</strong></dt><dd><p>Kinetics mechanism/database to use in computations.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereMixer.add_quantity">
+<span class="sig-name descname"><span class="pre">add_quantity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">101325.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereMixer.add_quantity" title="Link to this definition">#</a></dt>
+<dd><p>Add quantity at given state to global mixture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mass: float</strong></dt><dd><p>Amount of matter in kilograms.</p>
+</dd>
+<dt><strong>X: CompositionType</strong></dt><dd><p>Composition of quantity in mole fractions.</p>
+</dd>
+<dt><strong>T: float = 273.15</strong></dt><dd><p>Solution temperature in kelvin.</p>
+</dd>
+<dt><strong>P: float = ct.one_atm</strong></dt><dd><p>Solution pressure in pascal.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionAtmosphereMixer.solution">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">solution</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Quantity</span></span><a class="headerlink" href="#majordome.energy.CombustionAtmosphereMixer.solution" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to computed solution, if any.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="energy-sources">
+<h2>Energy sources<a class="headerlink" href="#energy-sources" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.AbstractEnergySource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">AbstractEnergySource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.AbstractEnergySource" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="common.html#majordome.common.AbstractReportable" title="majordome.common.AbstractReportable"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractReportable</span></code></a></p>
+<p>Abstract base class for energy sources.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.AbstractEnergySource.power">
+<span class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">power</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.AbstractEnergySource.power" title="Link to this definition">#</a></dt>
+<dd><p>Energy source provided power [W].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.AbstractEnergySource.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#majordome.energy.AbstractEnergySource.report" title="Link to this definition">#</a></dt>
+<dd><p>Provides a report of the energy source.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.AbstractEnergySource.report_data">
+<span class="sig-name descname"><span class="pre">report_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.energy.AbstractEnergySource.report_data" title="Link to this definition">#</a></dt>
+<dd><p>Provides data for assemblying the object report.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.CanteraEnergySource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">CanteraEnergySource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.CanteraEnergySource" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#majordome.energy.AbstractEnergySource" title="majordome.energy.AbstractEnergySource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractEnergySource</span></code></a></p>
+<p>An abstract Cantera based energy source.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CanteraEnergySource.fluid">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fluid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Solution</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Quantity</span></span><a class="headerlink" href="#majordome.energy.CanteraEnergySource.fluid" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to the internal Cantera solution object.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CanteraEnergySource.phase">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">phase</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#majordome.energy.CanteraEnergySource.phase" title="Link to this definition">#</a></dt>
+<dd><p>Access to the phase object.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CanteraEnergySource.power">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">power</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.CanteraEnergySource.power" title="Link to this definition">#</a></dt>
+<dd><p>Energy source provided power [W].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CanteraEnergySource.report_data">
+<span class="sig-name descname"><span class="pre">report_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.energy.CanteraEnergySource.report_data" title="Link to this definition">#</a></dt>
+<dd><p>Provides data for assemblying the object report.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CanteraEnergySource.solution">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">solution</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Solution</span></span><a class="headerlink" href="#majordome.energy.CanteraEnergySource.solution" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to a new Cantera solution object.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CanteraEnergySource.source">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#majordome.energy.CanteraEnergySource.source" title="Link to this definition">#</a></dt>
+<dd><p>Access to the source object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.GasFlowEnergySource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">GasFlowEnergySource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.GasFlowEnergySource" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#majordome.energy.CanteraEnergySource" title="majordome.energy.CanteraEnergySource"><code class="xref py py-class docutils literal notranslate"><span class="pre">CanteraEnergySource</span></code></a></p>
+<p>An abstract gas flow energy source.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.GasFlowEnergySource.flue">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">flue</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Solution</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Quantity</span></span><a class="headerlink" href="#majordome.energy.GasFlowEnergySource.flue" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to flue gas.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.GasFlowEnergySource.mass_flow_rate">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mass_flow_rate</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.GasFlowEnergySource.mass_flow_rate" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to mass flow rate [kg/s].</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.GasFlowEnergySource.momentum_flux">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">momentum_flux</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.GasFlowEnergySource.momentum_flux" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to momentum flux in burner [kg.m/s²].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.GasFlowEnergySource.report_data">
+<span class="sig-name descname"><span class="pre">report_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.energy.GasFlowEnergySource.report_data" title="Link to this definition">#</a></dt>
+<dd><p>Provides data for assemblying the object report.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.GasFlowEnergySource.volume_flow_rate">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">volume_flow_rate</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#majordome.energy.GasFlowEnergySource.volume_flow_rate" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to volume flow rate [m³/s].</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.HeatedGasEnergySource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">HeatedGasEnergySource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.HeatedGasEnergySource" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#majordome.energy.GasFlowEnergySource" title="majordome.energy.GasFlowEnergySource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GasFlowEnergySource</span></code></a></p>
+<p>Non-reacting heated gas flow energy source.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.HeatedGasEnergySource.report_data">
+<span class="sig-name descname"><span class="pre">report_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.energy.HeatedGasEnergySource.report_data" title="Link to this definition">#</a></dt>
+<dd><p>Provides data for assemblying the object report.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.HeatedGasEnergySource.solution">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">solution</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Solution</span></span><a class="headerlink" href="#majordome.energy.HeatedGasEnergySource.solution" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to a new Cantera solution object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="majordome.energy.CombustionEnergySource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">majordome.energy.</span></span><span class="sig-name descname"><span class="pre">CombustionEnergySource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#majordome.energy.CombustionEnergySource" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#majordome.energy.GasFlowEnergySource" title="majordome.energy.GasFlowEnergySource"><code class="xref py py-class docutils literal notranslate"><span class="pre">GasFlowEnergySource</span></code></a></p>
+<p>Combustion based energy source.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionEnergySource.fuel">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fuel</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.energy.CombustionEnergySource.fuel" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to used fuel.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionEnergySource.oxidizer">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">oxidizer</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#majordome.energy.CombustionEnergySource.oxidizer" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to used oxidizer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="majordome.energy.CombustionEnergySource.report_data">
+<span class="sig-name descname"><span class="pre">report_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#majordome.energy.CombustionEnergySource.report_data" title="Link to this definition">#</a></dt>
+<dd><p>Provides data for assemblying the object report.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="majordome.energy.CombustionEnergySource.solution">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">solution</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Solution</span></span><a class="headerlink" href="#majordome.energy.CombustionEnergySource.solution" title="Link to this definition">#</a></dt>
+<dd><p>Provides access to a new Cantera solution object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="common.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">majordome.common</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="fluent.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">majordome.fluent</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#process-setup">Process setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.equivalence"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.equivalence</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.fuel_state"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.fuel_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.oxid_state"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.oxid_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerOp.power"><code class="docutils literal notranslate"><span class="pre">CombustionPowerOp.power</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.fuel_state"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.fuel_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.fuel_xdot"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.fuel_xdot</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.mode"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.mode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.oxid_state"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.oxid_state</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionFlowOp.oxid_xdot"><code class="docutils literal notranslate"><span class="pre">CombustionFlowOp.oxid_xdot</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.fuel_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.fuel_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer_mass"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_mass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer_normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_normal_density</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.oxidizer_volume"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.oxidizer_volume</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.power"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.production_carbon_dioxide"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_carbon_dioxide</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.production_water"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.production_water</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.report"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionPowerSupply.report_data"><code class="docutils literal notranslate"><span class="pre">CombustionPowerSupply.report_data()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combustion-analysis">Combustion analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.combustion_setup"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.combustion_setup()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.normal_density"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_density()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.normal_flow"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.normal_flow()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereCHON.solution_heating_value"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereCHON.solution_heating_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereMixer"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereMixer.add_quantity"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.add_quantity()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionAtmosphereMixer.solution"><code class="docutils literal notranslate"><span class="pre">CombustionAtmosphereMixer.solution</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-sources">Energy sources</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource.power"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource.report"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource.report()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.AbstractEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">AbstractEnergySource.report_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.fluid"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.fluid</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.phase"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.phase</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.power"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.power</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.solution"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.solution</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CanteraEnergySource.source"><code class="docutils literal notranslate"><span class="pre">CanteraEnergySource.source</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.flue"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.flue</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.mass_flow_rate"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.mass_flow_rate</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.momentum_flux"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.momentum_flux</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.GasFlowEnergySource.volume_flow_rate"><code class="docutils literal notranslate"><span class="pre">GasFlowEnergySource.volume_flow_rate</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.HeatedGasEnergySource"><code class="docutils literal notranslate"><span class="pre">HeatedGasEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.HeatedGasEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">HeatedGasEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.HeatedGasEnergySource.solution"><code class="docutils literal notranslate"><span class="pre">HeatedGasEnergySource.solution</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.fuel"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.fuel</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.oxidizer"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.oxidizer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.report_data"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.report_data()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#majordome.energy.CombustionEnergySource.solution"><code class="docutils literal notranslate"><span class="pre">CombustionEnergySource.solution</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Walter Dal'Maz Silva
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, Walter Dal&#39;Maz Silva.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
