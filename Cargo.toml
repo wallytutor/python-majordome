@@ -23,8 +23,8 @@ path = "majordome_bindings/lib.rs"
 # XXX: multiple binaries in a single crate, just add [[bin]] sections.
 [[bin]]
 name = "containerize"
-path = "majordome_bindings/scripts/containerize.rs"
+path = "scripts/containerize.rs"
 
 [[bin]]
 name = "majordome"
-path = "majordome_bindings/scripts/majordome.rs"
+path = "scripts/majordome.rs"
