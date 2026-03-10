@@ -37,6 +37,13 @@ log.*
 # Dowloaded references:
 docs/references.bib
 
+# Quarto artifacts:
+/.quarto/
+**/*.quarto_ipynb
+reference/*
+objects.json
+_site/
+
 ##############################################################################
 # PYTHON
 ##############################################################################

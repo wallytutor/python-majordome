@@ -1,0 +1,33 @@
+project:
+  type: website
+
+metadata-files:
+  - reference/_sidebar.yml
+
+format:
+  html:
+    css:
+      - reference/_styles-quartodoc.css
+
+quartodoc:
+  package: majordome
+
+  sidebar: reference/_sidebar.yml
+  css: reference/_styles-quartodoc.css
+
+  sections:
+    - title: Simulation
+      desc: Functions to inspect docstrings.
+      contents:
+        - simulation.ConstantTimeStepInterval
+        - simulation.TimeStepAccumulator
+        - simulation.ElmerConvergenceData
+        - simulation.ElmerTabularMetadata
+        - simulation.ElmerTabularData
+
+    - title: Utilities
+      desc: Functions to inspect docstrings.
+      contents:
+        - utilities.MajordomePlot
+        - utilities.PowerFormatter
+        - utilities.centered_colormap
