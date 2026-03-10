@@ -68,6 +68,9 @@ version = {attr = "version.__version__"}
 
 [project.optional-dependencies]
 docs = [
+    "docstring_parser>=0.17.0",
+    "pygments>=2.19.2",
+
     # "quartodoc",
     # "griffe<0.40",
     # "jupytext>=1.17.3",

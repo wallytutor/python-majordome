@@ -1,0 +1,39 @@
+# majordome_utilities.plotting
+
+```{python}
+from majordome_utilities.documents import *
+from majordome_utilities import plotting
+```
+
+```{python}
+f = plotting.MajordomePlot
+
+name = f.__name__
+docs = {p.arg_name: p for p in parse(f.__doc__).params}
+
+values = []
+text = []
+
+sig = inspect.signature(f)
+for param_name, param in sig.parameters.items():
+    # print(param_name, docs[param_name])
+
+    entry = handle_entry(param)
+    colored = highlight(entry, PythonLexer(), Terminal256Formatter())
+    values.append("    " + colored.strip())
+
+returns = sig.return_annotation
+
+if returns is not inspect.Signature.empty:
+    if isinstance(returns, type):
+        returns = returns.__name__
+    else:
+        returns = str(returns)
+
+signature = f"{name}(\n{',\n'.join(values)}\n) -> {returns}"
+print(signature)
+```
+
+```{python}
+
+```

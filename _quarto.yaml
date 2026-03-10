@@ -1,0 +1,40 @@
+project:
+  type: book
+
+index: README.md
+
+execute:
+  cache:   true
+  echo:    false
+  warning: false
+
+# bibliography: references.bib
+
+book:
+  title: "Majordome"
+  author: "Walter Dal'Maz Silva"
+  date: "today"
+  sidebar:
+    collapse-level: 1
+
+  chapters:
+    - index.qmd
+
+    - part: "Utilities"
+      chapters:
+        - majordome_utilities/plotting.qmd
+
+format:
+  html:
+    highlight-style: github
+    theme:
+      - sandstone
+
+  pdf:
+    highlight-style: github
+    documentclass: scrreprt
+    papersize: a4
+    mainfont: "Latin Modern Sans"
+    sansfont: "Latin Modern Sans"
+    geometry:
+      - margin=20mm
