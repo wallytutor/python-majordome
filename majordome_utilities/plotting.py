@@ -86,11 +86,11 @@ class MajordomePlot:
 
     def savefig(self, filename: str | Path, **kwargs) -> None:
         """ Wrapper for saving a figure to file. """
-        self._fig.savefig(filename, **kwargs)
+        self._fig.savefig(Path(filename).as_posix(), **kwargs)
 
     @property
     def figure(self) -> Figure:
-        """ Provides access to undelining figure. """
+        """ Provides access to underlying figure. """
         return self._fig
 
     @property
