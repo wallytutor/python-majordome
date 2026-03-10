@@ -7,35 +7,40 @@ from pygments.lexers import PythonLexer
 from pygments.formatters import Terminal256Formatter
 
 
+@dataclass
 class FunctionEntry:
-    def __init__(self, name, annotation, default):
-        self.name = name
-        self.annotation = annotation
-        self.default = default
+    name: str
+    annotation: str = "Any"
+    default: str = ""
 
+    def __init__(self, param: inspect.Parameter) -> None:
+        self.name = param.name
+        self.annotation = self._get_annotation(param)
+        self.default = self._get_default(param)
 
-def handle_annotation(param):
-    if param.annotation is inspect.Parameter.empty:
-        annotation = "Any"
-    elif isinstance(param.annotation, type):
-        annotation = param.annotation.__name__
-    else:
-        annotation = str(param.annotation)
+    def __str__(self) -> str:
+        annotated = f"{self.name} : {self.annotation}"
 
-    return f"{param.name} : {annotation}"
+        if not self.default:
+            return annotated
 
+        return f"{annotated} = {self.default}"
 
-def handle_entry(param):
-    annotated = handle_annotation(param)
+    def _get_annotation(self, param: inspect.Parameter) -> str:
+        if param.annotation is inspect.Parameter.empty:
+            return "Any"
+        elif isinstance(param.annotation, type):
+            return param.annotation.__name__
+        else:
+            return str(param.annotation)
 
-    if param.default is inspect.Parameter.empty:
-        entry = annotated
-    elif isinstance(param.default, str):
-        entry = f"{annotated} = '{param.default}'"
-    else:
-        entry = f"{annotated} = {param.default}"
-
-    return entry
+    def _get_default(self, param: inspect.Parameter) -> str:
+        if param.default is inspect.Parameter.empty:
+            return ""
+        elif isinstance(param.default, str):
+            return f"'{param.default}'"
+        else:
+            return f"{param.default}"
 
 
 def is_method(f, n):

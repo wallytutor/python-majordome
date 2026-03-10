@@ -18,8 +18,8 @@ sig = inspect.signature(f)
 for param_name, param in sig.parameters.items():
     # print(param_name, docs[param_name])
 
-    entry = handle_entry(param)
-    colored = highlight(entry, PythonLexer(), Terminal256Formatter())
+    entry = FunctionEntry(param)
+    colored = highlight(str(entry), PythonLexer(), Terminal256Formatter())
     values.append("    " + colored.strip())
 
 returns = sig.return_annotation
