@@ -26,6 +26,20 @@ python -m pip install --upgrade pip
 pip install -e .[docs,extras]
 ```
 
+To register `majordome.exe` as a Jupyter kernel, run:
+
+```bash
+majordome --install-kernel
+```
+
+You can customize the kernel identity if needed:
+
+```bash
+majordome --install-kernel `
+    --kernel-name majordome-dev `
+    --display-name "Majordome (dev)"
+```
+
 During development it is highly recommended to verify documentation build succeeds; in practice it is automatically generated and deployed by a [GitHub workflow](https://github.com/wallytutor/python-majordome/blob/main/.github/workflows/documentation.yml). From within a development environment created as per the previous section (and containing the package installed at least in development mode), run the following:
 
 ```bash

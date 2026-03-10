@@ -8,6 +8,9 @@ build = "majordome_bindings/build.rs"
 version = "0.28.2"
 features = ["multiple-pymethods", "auto-initialize"]
 
+[dependencies.serde_json]
+version = "1"
+
 # [dependencies.mlua]
 # version = "0.11"
 # features = ["lua54", "vendored"]

@@ -160,6 +160,7 @@ pub mod constants {
 // region: modules
 pub mod calphad;
 pub mod diffusion;
+pub mod kernels;
 pub mod utils;
 // endregion: modules
 
