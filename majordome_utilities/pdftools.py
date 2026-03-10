@@ -6,7 +6,6 @@ from pypdf import PdfReader
 from pdf2image import convert_from_path
 from pytesseract import pytesseract, image_to_string
 import os
-import shutil
 import warnings
 
 from .common import PathLike, MaybePath, program_path

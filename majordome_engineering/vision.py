@@ -35,8 +35,11 @@ with warnings.catch_warnings():
     from hyperspy.api import load as hs_load
     from hyperspy.signals import Signal2D
 
-from .common import bounds
-from .plotting import MajordomePlot, PowerFormatter
+from majordome_utilities.common import bounds
+from majordome_utilities.plotting import (
+    MajordomePlot,
+    PowerFormatter,
+)
 
 CropTuple = tuple[Number, Number, Number, Number]
 

@@ -99,7 +99,17 @@ param (
     [switch]$Help
 )
 
-$PACKAGE   = "$PSScriptRoot[docs,extras,cartography]"
+$submodules = @(
+    "docs",
+    "extras",
+    "cartography",
+    "engineering",
+    "simulation",
+    "utilities",
+    "utilities_pdftools"
+) -join ","
+
+$PACKAGE   = "$PSScriptRoot[$submodules]"
 $PATH_CORE =  "Cargo.toml"
 $VENV_PATH =  "venv"
 

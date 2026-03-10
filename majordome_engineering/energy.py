@@ -5,11 +5,19 @@ from typing import Any, NamedTuple
 from cantera.composite import Solution
 import cantera as ct
 
-from ._majordome import constants
-from .common import AbstractReportable
-from .common import CompositionType, SolutionLikeType, StateType
-from .reactor import NormalFlowRate, solution_report, copy_quantity
-from .parsing import FuncArguments
+from majordome_utilities.common import (
+    AbstractReportable,
+    CompositionType,
+    SolutionLikeType,
+    StateType,
+    constants,
+)
+from majordome_utilities.reactor import (
+    NormalFlowRate,
+    solution_report,
+    copy_quantity
+)
+from majordome_utilities.parsing import FuncArguments
 
 
 class CombustionPowerOp(NamedTuple):

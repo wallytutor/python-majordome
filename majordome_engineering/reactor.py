@@ -9,10 +9,13 @@ import numpy as np
 import pandas as pd
 import warnings
 
-from ._majordome import constants
-from .common import CompositionType, SolutionLikeType
-from .common import safe_remove
-from .plotting import MajordomePlot
+from majordome_utilities.common import (
+    CompositionType,
+    SolutionLikeType,
+    constants,
+    safe_remove,
+)
+from majordome_utilities.plotting import MajordomePlot
 
 
 WARN_CANTERA_NON_KEY_VALUE = True

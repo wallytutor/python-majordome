@@ -33,6 +33,9 @@ fn start_globals(py: Python<'_>) -> PyResult<Py<PyDict>> {
 
     builtins.add_function(wrap_pyfunction!(hello, py)?)?;
 
+    let py_majordome = PyModule::import(py, "majordome")?;
+    globals.set_item("mj", py_majordome)?;
+
     globals.set_item("PI",               majordome::constants::PI)?;
     globals.set_item("AVOGADRO",         majordome::constants::AVOGADRO)?;
     globals.set_item("BOLTZMANN",        majordome::constants::BOLTZMANN)?;

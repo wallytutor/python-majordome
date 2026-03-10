@@ -5,7 +5,6 @@ from string import Template
 from typing import Any
 import subprocess
 import warnings
-import yaml
 
 from .common import DATA, first_in_path
 

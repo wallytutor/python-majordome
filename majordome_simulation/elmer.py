@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 import numpy as np
 import pandas as pd
 
-from .plotting import MajordomePlot
+from majordome_utilities.plotting import MajordomePlot
 
 
 @dataclass
