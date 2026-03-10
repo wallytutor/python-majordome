@@ -38,12 +38,17 @@ def __dir__():
     return sorted(names)
 
 
-from majordome_utilities._majordome import (
-    VERSION as __version__,
+from .utilities import (
+    __version__,
     constants,
+    MajordomePlot
 )
 
-__all__ += ["__version__", "constants"]
+__all__ += [
+    "__version__",
+    "constants",
+    "MajordomePlot",
+]
 
 _import_subpackage("utilities")
 _import_subpackage("cartography")

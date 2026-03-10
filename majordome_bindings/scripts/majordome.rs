@@ -3,9 +3,11 @@ use pyo3::types::{PyDict, PyModule};
 use pyo3::types::{IntoPyDict};
 use std::env;
 
+use majordome::{print_header, VERSION};
+use majordome::constants::*;
+
 fn main() -> PyResult<()> {
-    majordome::print_header!("Majordome IPython Shell: {}\n",
-                             majordome::handlers::VERSION);
+    print_header!("Majordome IPython Shell: {}\n", VERSION);
 
     let mut args: Vec<String> = env::args().skip(1).collect();
 
@@ -36,19 +38,19 @@ fn start_globals(py: Python<'_>) -> PyResult<Py<PyDict>> {
     let py_majordome = PyModule::import(py, "majordome")?;
     globals.set_item("mj", py_majordome)?;
 
-    globals.set_item("PI",               majordome::constants::PI)?;
-    globals.set_item("AVOGADRO",         majordome::constants::AVOGADRO)?;
-    globals.set_item("BOLTZMANN",        majordome::constants::BOLTZMANN)?;
-    globals.set_item("ELECTRON_CHARGE",  majordome::constants::ELECTRON_CHARGE)?;
-    globals.set_item("FARADAY",          majordome::constants::FARADAY)?;
-    globals.set_item("GAS_CONSTANT",     majordome::constants::GAS_CONSTANT)?;
-    globals.set_item("GRAVITY",          majordome::constants::GRAVITY)?;
-    globals.set_item("PLANCK",           majordome::constants::PLANCK)?;
-    globals.set_item("SPEED_OF_LIGHT",   majordome::constants::SPEED_OF_LIGHT)?;
-    globals.set_item("STEFAN_BOLTZMANN", majordome::constants::STEFAN_BOLTZMANN)?;
-    globals.set_item("T_REFERENCE",      majordome::constants::T_REFERENCE)?;
-    globals.set_item("T_NORMAL",         majordome::constants::T_NORMAL)?;
-    globals.set_item("P_NORMAL",         majordome::constants::P_NORMAL)?;
+    globals.set_item("PI",               PI)?;
+    globals.set_item("AVOGADRO",         AVOGADRO)?;
+    globals.set_item("BOLTZMANN",        BOLTZMANN)?;
+    globals.set_item("ELECTRON_CHARGE",  ELECTRON_CHARGE)?;
+    globals.set_item("FARADAY",          FARADAY)?;
+    globals.set_item("GAS_CONSTANT",     GAS_CONSTANT)?;
+    globals.set_item("GRAVITY",          GRAVITY)?;
+    globals.set_item("PLANCK",           PLANCK)?;
+    globals.set_item("SPEED_OF_LIGHT",   SPEED_OF_LIGHT)?;
+    globals.set_item("STEFAN_BOLTZMANN", STEFAN_BOLTZMANN)?;
+    globals.set_item("T_REFERENCE",      T_REFERENCE)?;
+    globals.set_item("T_NORMAL",         T_NORMAL)?;
+    globals.set_item("P_NORMAL",         P_NORMAL)?;
 
     Ok(globals.into())
 }

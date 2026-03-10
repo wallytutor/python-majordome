@@ -1,5 +1,7 @@
 use pyo3::prelude::*;
 
+pub const VERSION: &str = env!("GIT_VERSION");
+
 // region: macros_colored_printing
 #[macro_export]
 macro_rules! print_header {
@@ -167,11 +169,11 @@ pub mod handlers {
     use pyo3::prelude::*;
 
     #[pymodule_export]
-    pub const VERSION: &str = env!("GIT_VERSION");
+    pub const __version__: &str = super::VERSION;
 
     /// Version of majordome.
     #[pyfunction]
-    fn version() -> String { format!("{}", VERSION) }
+    fn version() -> String { format!("{}", super::VERSION) }
 
     #[pymodule_export]
     use super::constants;
