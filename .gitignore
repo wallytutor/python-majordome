@@ -40,9 +40,13 @@ docs/references.bib
 # Quarto artifacts:
 /.quarto/
 **/*.quarto_ipynb
+_site/
+_book/
 reference/*
 objects.json
-_site/
+
+# Jupyter cache
+.jupyter_cache/
 
 ##############################################################################
 # PYTHON
