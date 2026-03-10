@@ -6,7 +6,7 @@ build = "majordome_bindings/build.rs"
 
 [dependencies.pyo3]
 version = "0.28.2"
-features = ["multiple-pymethods"]
+features = ["multiple-pymethods", "auto-initialize"]
 
 # [dependencies.mlua]
 # version = "0.11"
