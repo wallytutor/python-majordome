@@ -48,6 +48,10 @@ fn parse_mode(args: Vec<String>) -> RunMode {
         return RunMode::Kernel(kernel_args);
     }
 
+    if args.iter().any(|arg| arg == "--help" || arg == "-h") {
+        print_usage();
+    }
+
     let mut ipython_args = args;
     if !ipython_args.iter().any(|arg| arg == "--no-banner") {
         ipython_args.push("--no-banner".to_string());
@@ -107,7 +111,15 @@ fn parse_install_mode(args: Vec<String>) -> RunMode {
 
 fn print_usage() {
     println!(
-        "Usage:\n  majordome [IPYTHON_ARGS...]\n  majordome --kernel -f {{connection_file}}\n  majordome --install-kernel [--kernel-name NAME] [--display-name NAME]"
+        concat!(
+            "Usage:\n",
+            "  majordome [IPYTHON_ARGS...]\n",
+            "  majordome --kernel -f <connection_file>\n",
+            "  majordome --install-kernel",
+            " [--kernel-name NAME]",
+            " [--display-name NAME]",
+            "\n\n---\n\n"
+        )
     );
 }
 // #endregion: main and mode parsing
