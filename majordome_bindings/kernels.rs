@@ -73,9 +73,12 @@ fn create_temp_kernel_spec(
         ],
         "display_name": display_name,
         "language": "python",
+        "env": {
+            "MPLBACKEND": "module://matplotlib_inline.backend_inline"
+        },
         "metadata": {
             "debugger": true
-        }
+        },
     });
 
     let kernel_path = directory.join("kernel.json");
