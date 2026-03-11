@@ -29,29 +29,30 @@ class MajordomePlot:
     ----------
     shape : tuple[int, int]
         Shape of the plot as (n_rows, n_cols).
-    style : str, optional
-        Matplotlib style to use for the plot. By default "classic".
-    size : tuple[float, float] | None, optional
+    style : str
+        Matplotlib style to use for the plot.
+    size : tuple[float, float] | None
         Size of the plot in inches as (width, height). If None, the
-        default size will be used. By default None.
-    xlabel : str | list[str] | None, optional
+        default size will be used.
+    xlabel : str | list[str] | None
         Label(s) for the x-axis. If a list is provided, each subplot
-        will get its own label. By default None.
-    ylabel : str | list[str] | None, optional
+        will get its own label.
+    ylabel : str | list[str] | None
         Label(s) for the y-axis. If a list is provided, each subplot
-        will get its own label. By default None.
-    opts : dict[str, Any], optional
-        Additional options to pass to `plt.subplots()`, by default {}.
+        will get its own label.
+    opts : dict[str, Any]
+        Additional options to pass to `plt.subplots()`.
     """
     __slots__ = ("_fig", "_ax", "_xlabel", "_ylabel")
 
     def __init__(self,
-                 shape: tuple[int, int],
+                 shape: tuple[int, int] = (1, 1),
                  style: str = "classic",
+                 *,
                  size: tuple[float, float] | None = None,
                  xlabel: str | list[str] | None = None,
                  ylabel: str | list[str] | None = None,
-                 opts: dict[str, Any] = {},
+                 opts: dict[str, Any] = {"facecolor": "white"},
                  ) -> None:
         n_rows, n_cols = shape
 
@@ -67,7 +68,7 @@ class MajordomePlot:
         if size is not None:
             self.resize(*size)
 
-    def get_label(self, name: str, k: int) -> str:
+    def _get_label(self, name: str, k: int) -> str:
         """ Get label for axis at the k-th subplot, if any.
 
         Parameters
@@ -79,9 +80,9 @@ class MajordomePlot:
         """
         match name:
             case "x":
-                label = self._xlabel if self._xlabel is not None else "X-axis"
+                label = self._xlabel or "X-axis"
             case "y":
-                label = self._ylabel if self._ylabel is not None else "Y-axis"
+                label = self._ylabel or "Y-axis"
             case _:
                 raise ValueError(f"Unknown label name `{name}`.")
 
@@ -178,12 +179,13 @@ class MajordomePlot:
                     raise ValueError("The `plot` keyword argument is reserved "
                                      "for `MajordomePlot.new` decorator.")
 
-                kwargs["plot"] = obj = cls(shape, style, opts, size=size,
-                                           xlabel=xlabel, ylabel=ylabel)
+                kwargs["plot"] = obj = cls(shape, style, size=size,
+                                           xlabel=xlabel, ylabel=ylabel,
+                                           opts=opts)
 
                 for k, ax in enumerate(obj.axes):
-                    ax.set_xlabel(obj.get_label("x", k))
-                    ax.set_ylabel(obj.get_label("y", k))
+                    ax.set_xlabel(obj._get_label("x", k))
+                    ax.set_ylabel(obj._get_label("y", k))
 
                     if grid:
                         ax.grid(linestyle=":")

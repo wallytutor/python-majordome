@@ -8,7 +8,7 @@ execute:
   echo:    false
   warning: false
 
-# bibliography: references.bib
+bibliography: _docs/references.bib
 
 book:
   title: "Majordome"
@@ -24,6 +24,8 @@ book:
       chapters:
         - majordome_utilities/documents.qmd
         - majordome_utilities/plotting.qmd
+
+    - _docs/references.qmd
 
 format:
   # Reactivate when finished the prototype

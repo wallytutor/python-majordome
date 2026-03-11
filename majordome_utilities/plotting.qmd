@@ -7,15 +7,50 @@ from majordome_utilities.plotting import (
     PowerFormatter,
     centered_colormap,
 )
+import numpy as np
 ```
+
+## MajordomePlot
+
+One might ask why a wrapper around Matplotlib's `Figure` and `Axes` is necessary, and I would strongly agree that it isn't. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That's the main goal of `MajordomePlot`.
 
 ```{python}
 doc = DocumentedClass(MajordomePlot)
-```
-
-```{python}
 doc.constructor()
 ```
+
+Let's see how one would expect to use it from the above constructor signature. This is in fact almost the same as calling `plt.subplots()`, and that is what the constructor does under the hood. This is a *negative* example actually, the author has *never* used the constructor directly, but instead uses the `new` classmethod, which is a much more convenient way to create a plot. More on that later.
+
+```{python}
+#| echo: true
+x = np.linspace(0, 10, 100)
+mp = MajordomePlot(shape=(1, 1), size=(5, 4))
+mp.axes[0].plot(x, np.sin(x))
+mp.axes[0].set_xlabel("x")
+mp.axes[0].set_ylabel("sin(x)")
+pass
+```
+
+The story behind this class dates a few years back, when I was learning about Python decorators. As an exercise, I coded what later became the `new` classmethod, which is a decorator that creates a new `MajordomePlot` and passes it to the decorated function. This is a very convenient way to create plots, as it allows you to focus on the plotting code and not worry about the boilerplate of creating the plot and setting the labels.
+
+```{python}
+doc.classmethods()
+```
+
+In the following example, we make use of this decorator to parametrize the labels of the plot. Internally, we must expect a *keyword-only* argument `plot`, which is the `MajordomePlot` instance created by the decorator, from which we can access the `Figure` and `Axes` objects as usual. The rest of the code is just standard Matplotlib code, with the exeption that the axes is raveled, so we can access it with `ax[0]` instead of `ax[0, 0]`. Returning `plot` is optional (it is done by the decorator already), but it avoids linting errors if you want to annotate the return type as `MajordomePlot`.
+
+```{python}
+#| echo: true
+@MajordomePlot.new(size=(5, 4), xlabel="x", ylabel="sin(x)")
+def plot_sin(x, *, plot, **kwargs) -> MajordomePlot:
+    _, ax = plot.subplots()
+    ax[0].plot(x, np.sin(x))
+    return plot
+
+plot = plot_sin(np.linspace(0, 10, 100))
+```
+
+The following elements document the members and properties of the class.
 
 ```{python}
 doc.members()
@@ -25,13 +60,7 @@ doc.members()
 doc.properties()
 ```
 
-```{python}
-doc.classmethods()
-```
-
-```{python}
-doc.staticmethods()
-```
+## PowerFormatter
 
 ```{python}
 entry = SignatureEntry(PowerFormatter)

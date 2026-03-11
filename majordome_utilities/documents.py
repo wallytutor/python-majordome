@@ -326,18 +326,17 @@ class SignatureEntry:
             The title to use for the section header and callout. By
             default, the function name is used.
         """
-        some_class = inspect.isclass(self.fn)
-        section_lv = 2 if some_class else 3
-
-        add_section = kwargs.get("add_section", some_class)
-        section_lv = kwargs.get("section_lv", section_lv)
+        # some_class = inspect.isclass(self.fn)
+        # section_lv = 2 if some_class else 3
+        # add_section = kwargs.get("add_section", some_class)
+        # section_lv = kwargs.get("section_lv", section_lv)
         title = kwargs.get("title", self.fn.__name__)
 
         text = ""
 
-        if add_section:
-            level = "#" * section_lv
-            text = f"{level} {title}\n\n"
+        # if add_section:
+        #     level = "#" * section_lv
+        #     text = f"{level} {title}\n\n"
 
         text += f"""::: {{.callout-note title="{title}"}}\n\n"""
         text += self.code_fences(self._sig_text) + "\n\n"
