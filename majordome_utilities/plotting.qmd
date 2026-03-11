@@ -8,6 +8,10 @@ from majordome_utilities.plotting import (
     centered_colormap,
 )
 import numpy as np
+import pyvista as pv
+
+pv.set_plot_theme("document")
+pv.set_jupyter_backend("static")
 ```
 
 ## MajordomePlot
@@ -67,9 +71,53 @@ entry = SignatureEntry(PowerFormatter)
 entry.documentation()
 ```
 
+```{python}
+def saddle(X, Y):
+    return 2 * (X - 5) * (Y - 5)
+
+
+@MajordomePlot.new(size=(5, 4), xlabel="x", ylabel="exp(x)")
+def plot_saddle(x, *, plot, **kwargs) -> MajordomePlot:
+    X, Y = np.meshgrid(x, x)
+    Z = 0 + saddle(X, Y)
+
+    zmin, zmax = Z.min(), Z.max()
+    zstep = (zmax - zmin) / 10
+
+    ticks = np.round(np.arange(zmin, zmax + 1, zstep))
+    extend = (x.min(), x.max(), x.min(), x.max())
+
+    fig, ax = plot.subplots()
+    im = ax[0].imshow(Z, extent=extend, cmap="seismic")
+
+    cbar = fig.colorbar(im, ax=ax[0], shrink=0.95)
+    cbar.set_label("Dummy Spectral Density", rotation=270, labelpad=15)
+    cbar.set_ticks(ticks)
+    cbar.ax.yaxis.set_major_formatter(PowerFormatter())
+
+    return plot
+
+plot = plot_saddle(np.linspace(0, 10, 100))
+```
+
 ## General utilities
 
 ```{python}
 entry = SignatureEntry(centered_colormap)
 entry.documentation()
+```
+
+```{python}
+cmap = centered_colormap("seismic", vmin=0, vmax=1, vcenter=0.75)
+
+obj = pv.Sphere(radius=1, center=(0, 0, 0))
+x, y, z = obj.points.T
+
+f = 5 * x * y * z
+f -= f.min()
+f = f / (f.max() - f.min())
+
+p = pv.Plotter()
+p.add_mesh(obj, scalars=f, cmap=cmap)
+p.show()
 ```
