@@ -2,5 +2,42 @@
 
 ```{python}
 from majordome_utilities.documents import *
-from majordome_utilities import plotting
+from majordome_utilities.plotting import (
+    MajordomePlot,
+    PowerFormatter,
+    centered_colormap,
+)
+```
+
+```{python}
+entry = SignatureEntry(MajordomePlot)
+entry.documentation()
+```
+
+```{python}
+document_class_members(MajordomePlot)
+```
+
+```{python}
+document_class_members(MajordomePlot,
+                       disable_normal_methods=True,
+                       include_properties=True)
+```
+
+```{python}
+document_class_members(MajordomePlot,
+                       disable_normal_methods=True,
+                       include_class_methods=True)
+```
+
+```{python}
+entry = SignatureEntry(PowerFormatter)
+entry.documentation()
+```
+
+## General utilities
+
+```{python}
+entry = SignatureEntry(centered_colormap)
+entry.documentation()
 ```

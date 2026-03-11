@@ -27,10 +27,10 @@ book:
 
 format:
   # Reactivate when finished the prototype
-  # html:
-  #   highlight-style: github
-  #   theme:
-  #     - sandstone
+  html:
+    highlight-style: github
+    theme:
+      - sandstone
 
   pdf:
     highlight-style: github

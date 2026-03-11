@@ -31,8 +31,6 @@ class MajordomePlot:
         Shape of the plot as (n_rows, n_cols).
     style : str, optional
         Matplotlib style to use for the plot. By default "classic".
-    opts : dict[str, Any], optional
-        Additional options to pass to `plt.subplots()`, by default {}.
     size : tuple[float, float] | None, optional
         Size of the plot in inches as (width, height). If None, the
         default size will be used. By default None.
@@ -42,16 +40,18 @@ class MajordomePlot:
     ylabel : str | list[str] | None, optional
         Label(s) for the y-axis. If a list is provided, each subplot
         will get its own label. By default None.
+    opts : dict[str, Any], optional
+        Additional options to pass to `plt.subplots()`, by default {}.
     """
     __slots__ = ("_fig", "_ax", "_xlabel", "_ylabel")
 
     def __init__(self,
                  shape: tuple[int, int],
                  style: str = "classic",
-                 opts: dict[str, Any] = {},
                  size: tuple[float, float] | None = None,
                  xlabel: str | list[str] | None = None,
                  ylabel: str | list[str] | None = None,
+                 opts: dict[str, Any] = {},
                  ) -> None:
         n_rows, n_cols = shape
 
@@ -68,7 +68,15 @@ class MajordomePlot:
             self.resize(*size)
 
     def get_label(self, name: str, k: int) -> str:
-        """ Get label for axis at the k-th subplot, if any. """
+        """ Get label for axis at the k-th subplot, if any.
+
+        Parameters
+        ----------
+        name : str
+            Name of the axis, either "x" or "y".
+        k : int
+            Index of the subplot for which to get the label.
+        """
         match name:
             case "x":
                 label = self._xlabel if self._xlabel is not None else "X-axis"
@@ -80,13 +88,33 @@ class MajordomePlot:
         return label if isinstance(label, str) else label[k]
 
     def resize(self, w: float, h: float) -> None:
-        """ Resize a plot with width and height in inches. """
+        """ Resize a plot with width and height in inches.
+
+        Parameters
+        ----------
+        w : float
+            Width of the plot in inches.
+        h : float
+            Height of the plot in inches.
+        """
         self._fig.set_size_inches(w, h)
         self._fig.tight_layout()
 
     def savefig(self, filename: str | Path, **kwargs) -> None:
-        """ Wrapper for saving a figure to file. """
+        """ Wrapper for saving a figure to file.
+
+        Parameters
+        ----------
+        filename : str | Path
+            Path to save the figure to.
+        kwargs
+            Additional keyword arguments to pass to `Figure.savefig()`.
+        """
         self._fig.savefig(Path(filename).as_posix(), **kwargs)
+
+    def subplots(self) -> tuple[Figure, list[Axes]]:
+        """ Provides access to underlying figure and axes. """
+        return self._fig, self._ax
 
     @property
     def figure(self) -> Figure:
@@ -97,10 +125,6 @@ class MajordomePlot:
     def axes(self) -> list[Axes]:
         """ Provides access to underlying axes. """
         return self._ax
-
-    def subplots(self) -> tuple[Figure, list[Axes]]:
-        """ Provides access to underlying figure and axes. """
-        return self._fig, self._ax
 
     @classmethod
     def new(cls,
@@ -114,7 +138,37 @@ class MajordomePlot:
             xlabel: str | list[str] | None = None,
             ylabel: str | list[str] | None = None
         ) -> Callable[[SigIn], Any]:
-        """ Wraps a function for ensuring a standardized plot. """
+        """ Wraps a function for ensuring a standardized plot.
+
+        Parameters
+        ----------
+        _func : SigIn | None
+            Function to wrap, if any.
+        shape : tuple[int, int]
+            Shape of the plot as (n_rows, n_cols).
+        style : str, optional
+            Matplotlib style to use for the plot. By default "classic".
+        sharex : bool
+            Whether to share x-axis among subplots.
+        size : tuple[float, float] | None, optional
+            Size of the plot in inches as (width, height). If None, the
+            default size will be used. By default None.
+        xlabel : str | list[str] | None, optional
+            Label(s) for the x-axis. If a list is provided, each subplot
+            will get its own label. By default None.
+        ylabel : str | list[str] | None, optional
+            Label(s) for the y-axis. If a list is provided, each subplot
+            will get its own label. By default None.
+        facecolor : str
+            Face color of the figure.
+        grid : bool
+            Whether to display grid lines.
+
+        Returns
+        -------
+        Callable[[SigIn], Any]
+            Decorated function.
+        """
         opts = dict(sharex=sharex, facecolor=facecolor)
 
         def decorator(func: SigIn) -> SigOut:
@@ -142,7 +196,17 @@ class MajordomePlot:
 
 
 class PowerFormatter(FuncFormatter):
-    """ Formatter for power of ten in numerical axes. """
+    """ Formatter for power of ten in numerical axes.
+
+    Parameters
+    ----------
+    values : str
+        String of characters to be replaced by their superscript
+        counterparts. By default "0123456789-".
+    supers : str
+        String of superscript characters corresponding to `values`. By
+        default "⁰¹²³⁴⁵⁶⁷⁸⁹⁻".
+    """
     __slots__ = ("_superscripts",)
 
     def __init__(self, **kwargs) -> None:
@@ -170,7 +234,7 @@ def centered_colormap(name: str, vmin: float, vmax: float,
         Minimum value of the data range.
     vmax : float
         Maximum value of the data range.
-    vcenter : float, optional
+    vcenter : float
         Center value of the colormap, by default 0.
 
     Returns

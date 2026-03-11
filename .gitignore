@@ -42,8 +42,13 @@ docs/references.bib
 **/*.quarto_ipynb
 _site/
 _book/
+site_libs/
 reference/*
 objects.json
+*.html
+index.tex
+index.aux
+
 
 # Jupyter cache
 .jupyter_cache/

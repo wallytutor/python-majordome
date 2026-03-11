@@ -6,16 +6,106 @@ from majordome_utilities.documents import *
 warnings.filterwarnings("ignore")
 ```
 
-## Internals
-
 ```{python}
 entry = SignatureEntry(SignatureEntry)
 entry.documentation()
 ```
 
+```{python}
+document_class_members(SignatureEntry, method="dict")
+```
+
+## Tutorial
 
 ```{python}
+#| echo: true
+class Dummy:
+    def method(self, a, b):
+        """ This is a method.
 
+        Parameters
+        ----------
+        a : int
+            This is the first parameter.
+        b : int
+            This is the second parameter.
+        """
+        pass
+
+    @staticmethod
+    def static_method(a, b):
+        """ This is a static method.
+
+        Parameters
+        ----------
+        a : int
+            This is the first parameter.
+        b : int
+            This is the second parameter.
+        """
+        pass
+
+    @classmethod
+    def class_method(cls, a, b):
+        """ This is a class method.
+
+        Parameters
+        ----------
+        a : int
+            This is the first parameter.
+        b : int
+            This is the second parameter.
+        """
+        pass
+
+    @property
+    def prop(self) -> int:
+        """ This is a property. """
+        return 42
+```
+
+Documentation of all members at once is discouraged, but it is possible to do so by calling `document_class_members` with the appropriate options:
+
+```python
+document_class_members(Dummy,
+    disable_normal_methods = False,
+    include_dunder_methods = False,
+    include_static_methods = True,
+    include_class_methods  = True,
+    include_properties     = True,
+)
+```
+
+For generating more organized documentation, it is possible to selectively include or exclude static methods, class methods and properties. This allows to generate separate sections for each type of member, which can be more readable and easier to navigate.
+
+Only normal methods:
+
+```{python}
+document_class_members(Dummy,)
+```
+
+Only static methods:
+
+```{python}
+document_class_members(Dummy,
+                       disable_normal_methods=True,
+                       include_static_methods=True)
+```
+
+Only class methods:
+
+```{python}
+document_class_members(Dummy,
+                       disable_normal_methods=True,
+                       include_class_methods=True)
+```
+
+Only properties:
+
+```{python}
+document_class_members(Dummy,
+                       disable_normal_methods=True,
+                       include_properties=True)
 ```
 
 ## Examples

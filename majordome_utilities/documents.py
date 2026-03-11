@@ -13,11 +13,7 @@ import inspect
 import textwrap
 import warnings
 
-
-def code_fences(code: str) -> str:
-    return f"```python\n{code.rstrip()}\n```"
-
-
+# region: public
 class SignatureEntry:
     """ Builds the representation of a function signature.
 
@@ -72,6 +68,12 @@ class SignatureEntry:
         # keyword-only parameter is expected to be documented (count 2).
         # In this situation, no error is raised here but may be later when
         # scanning the signature.
+
+        if n_sig > 0 and inspect.isfunction(self.fn):
+            maybe_self = next(iter(self.sig.parameters.keys()))
+            if maybe_self in ("self", "cls"):
+                n_sig -= 1
+
         if n_doc < n_sig:
             self._handle_greedy(
                 f"Function '{self.fn.__name__}' has {n_doc} "
@@ -181,6 +183,9 @@ class SignatureEntry:
         annotated = self._represent(p)
         entry = {"annotated": annotated, "description": ""}
 
+        if p.name in ("self", "cls"):
+            return
+
         if p.name not in self._buffer:
             self._handle_greedy(
                 f"Parameter '{p.name}' not found in docstring for "
@@ -228,12 +233,30 @@ class SignatureEntry:
 
     @staticmethod
     def get_annotated(p: Parameter) -> str:
+        """ Returns the annotated version of the parameter.
+
+        Parameters
+        ----------
+        p : Parameter
+            The parameter to annotate.
+        """
         annotated = (f"{SignatureEntry.get_name(p)} : "
                      f"{SignatureEntry.get_annotation(p)}")
         return annotated
 
     @staticmethod
     def get_name(p: Parameter) -> str:
+        """ Returns the name of the parameter.
+
+        Notice that this handles the special cases of stars in variadic
+        parameters (e.g. *args, **kwargs), which are not directly
+        represented in the parameter name.
+
+        Parameters
+        ----------
+        p : Parameter
+            The parameter to get the name of.
+        """
         if p.kind == Parameter.VAR_POSITIONAL:
             return f"*{p.name}"
 
@@ -243,24 +266,50 @@ class SignatureEntry:
         return p.name
 
     @staticmethod
-    def get_annotation(param: Parameter) -> str:
-        if param.annotation is Parameter.empty:
+    def get_annotation(p: Parameter) -> str:
+        """ Returns the annotation of the parameter.
+
+        Parameters
+        ----------
+        p : Parameter
+            The parameter to retrieve the annotation from.
+        """
+        if p.annotation is Parameter.empty:
             return "Any"
-        elif isinstance(param.annotation, type):
-            return param.annotation.__name__
+        elif isinstance(p.annotation, type):
+            return p.annotation.__name__
         else:
-            return str(param.annotation)
+            return str(p.annotation)
 
     @staticmethod
-    def get_default(param: Parameter) -> str:
-        if param.default is Parameter.empty:
+    def get_default(p: Parameter) -> str:
+        """ Returns the default value of the parameter.
+
+        Parameters
+        ----------
+        p : Parameter
+            The parameter to retrieve the default value from.
+        """
+        if p.default is Parameter.empty:
             return ""
-        elif isinstance(param.default, str):
-            return f"'{param.default}'"
+        elif isinstance(p.default, str):
+            return f"'{p.default}'"
         else:
-            return f"{param.default}"
+            return f"{p.default}"
 
     def documentation(self, **kwargs) -> None:
+        """ Generates the markdown documentation for the function.
+
+        Parameters
+        ----------
+        add_section : bool
+            Whether to add a section header for the function. By default, a
+            section header is added if the function is a method (i.e. it is a class member) and not added otherwise.
+        section_lv : int
+            The level of the section header to add (e.g. 2 for '##', 3 for '###', etc.). By default, the level is determined based on whether the function is a method or not (see `add_section`).
+        title : str
+            The title to use for the section header and callout. By default, the function name is used.
+        """
         some_class = inspect.isclass(self.fn)
         section_lv = 2 if some_class else 3
 
@@ -303,10 +352,73 @@ class SignatureEntry:
 
         display(Markdown(text))
 
-    def print_console(self, width: int | None = None) -> None:
-        syntax = Syntax(self._sig_text, "python")
-        console = Console(width=width, soft_wrap=True)
-        console.print(syntax)
+
+def document_class_members(cls: type, **kwargs) -> None:
+    method = kwargs.pop("method", "dict")
+
+    match method:
+        case "dict":
+            _members_from_dict(cls, **kwargs)
+        case "inspect":
+            _members_from_inspect(cls, **kwargs)
+        case _:
+            raise ValueError(f"Unknown method '{method}' for class "
+                             f"members documentation!")
+# endregion: public
+
+# region: internals
+def _doc_it(fn):
+    entry = SignatureEntry(fn)
+    entry.documentation()
+
+
+def _members_from_inspect(cls: type, **kwargs):
+    for name, func in inspect.getmembers(cls):
+        is_public   = not name.startswith("_")
+        is_callable = callable(func)
+
+        if is_public and is_callable:
+            _doc_it(func)
+
+
+def _members_from_dict(cls: type, **kwargs):
+    disable_normal = kwargs.pop("disable_normal_methods", False)
+    keep_dunder    = kwargs.pop("include_dunder_methods", False)
+    keep_static    = kwargs.pop("include_static_methods", False)
+    keep_member    = kwargs.pop("include_class_methods", False)
+    keep_property  = kwargs.pop("include_properties", False)
+
+    for name, func in cls.__dict__.items():
+        is_dunder = name.startswith("__") and name.endswith("__")
+
+        if is_dunder and keep_dunder:
+            _doc_it(func)
+            continue
+
+        if not (_is_public := not name.startswith("_")):
+            continue
+
+        if isinstance(func, staticmethod) and keep_static:
+            _doc_it(func.__func__)
+            continue
+
+        if isinstance(func, classmethod) and keep_member:
+            _doc_it(func.__func__)
+            continue
+
+        if isinstance(func, property) and keep_property:
+            _doc_it(func.fget)
+            continue
+
+        if isinstance(func, (staticmethod, classmethod, property)):
+            continue
+
+        if not disable_normal and callable(func):
+            _doc_it(func)
+
+
+def code_fences(code: str) -> str:
+    return f"```python\n{code.rstrip()}\n```"
 
 
 def with_attrs(**attrs):
@@ -323,7 +435,11 @@ def with_attrs(**attrs):
 
 
 @with_attrs(console=True)
-def print_signature(signature: str, width: int | None = None):
+def print_signature(
+        signature: str,
+        width: int | None = None,
+        parse_syntax: bool = False
+    ) -> None:
     """ Print a function signature with syntax highlighting.
 
     This function is required as the default printing will strip colors
@@ -337,23 +453,12 @@ def print_signature(signature: str, width: int | None = None):
         return
 
     console = Console(width=width, soft_wrap=True)
-    console.print(signature, markup=False)
 
-
-def is_method(f, n):
-    return n[:1].isalpha() and callable(getattr(f, n))
-
-
-def is_property(f, n):
-    return n[:1].isalpha() and isinstance(getattr(f, n), property)
-
-
-def get_methods(f):
-    return sorted([n for n in f.__dict__.keys() if is_method(f, n)])
-
-
-def get_properties(f):
-    return sorted([n for n in f.__dict__.keys() if is_property(f, n)])
+    if parse_syntax:
+        syntax = Syntax(signature, "python")
+        console.print(syntax)
+    else:
+        console.print(signature)
 
 
 def test_for_func(f, *, greedy=False):
@@ -364,9 +469,4 @@ def test_for_func(f, *, greedy=False):
         SignatureEntry(f, greedy=True)
     except ValueError:
         pass
-
-
-# Check using inspect directly!
-# inspect.getmembers(plotting.MajordomePlot)
-# get_properties(plotting.MajordomePlot)
-# get_methods(plotting.MajordomePlot)
+# endregion: internals
