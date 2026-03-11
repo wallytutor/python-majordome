@@ -1,0 +1,73 @@
+# majordome_utilities.documents
+
+```{python}
+from majordome_utilities.documents import *
+```
+
+```{python}
+def f():
+    pass
+
+
+print_signature(SignatureEntry(f, greedy=False))
+
+try:
+    SignatureEntry(f, greedy=True)
+except ValueError as e:
+    print(e)
+```
+
+```{python}
+def f(*args, **kwargs):
+    """ Example function for testing. """
+    pass
+
+
+print_signature(SignatureEntry(f, greedy=False))
+
+try:
+    SignatureEntry(f, greedy=True)
+except ValueError as e:
+    print(e)
+```
+
+
+```{python}
+def f(a: int, /, b, **kwargs):
+    """ Example function for testing. """
+    pass
+
+print_signature(SignatureEntry(f, greedy=False))
+
+try:
+    SignatureEntry(f, greedy=True)
+except ValueError as e:
+    print(e)
+```
+
+
+```{python}
+def f(x, /, y: int = 0, *, z: int = 0, **kwargs) -> None:
+    """ xx.
+
+    Parameters
+    ----------
+    x : int
+        xx
+    y : int
+        xx
+    z : int
+        xx
+    xx : int
+        xx
+    """
+    pass
+
+
+print_signature(SignatureEntry(f, greedy=False))
+
+try:
+    SignatureEntry(f, greedy=True)
+except ValueError as e:
+    print(e)
+```
