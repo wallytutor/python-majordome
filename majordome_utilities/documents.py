@@ -12,60 +12,6 @@ import textwrap
 import warnings
 
 
-class FunctionEntry:
-    """ Builds the representation of a function parameter.
-
-    Parameters
-    ----------
-    param : inspect.Parameter
-        The parameter to build the entry for.
-    """
-    def __init__(self, param: Parameter) -> None:
-        self.param = param
-
-    def __str__(self) -> str:
-        annotated = self.get_annotated(self.param)
-
-        if not (default := self.get_default(self.param)):
-            return annotated
-
-        return f"{annotated} = {default}"
-
-    @staticmethod
-    def get_annotated(p: Parameter) -> str:
-        annotated = (f"{FunctionEntry.get_name(p)} : "
-                     f"{FunctionEntry.get_annotation(p)}")
-        return annotated
-
-    @staticmethod
-    def get_name(p: Parameter) -> str:
-        if p.kind == Parameter.VAR_POSITIONAL:
-            return f"*{p.name}"
-
-        if p.kind == Parameter.VAR_KEYWORD:
-            return f"**{p.name}"
-
-        return p.name
-
-    @staticmethod
-    def get_annotation(param: Parameter) -> str:
-        if param.annotation is Parameter.empty:
-            return "Any"
-        elif isinstance(param.annotation, type):
-            return param.annotation.__name__
-        else:
-            return str(param.annotation)
-
-    @staticmethod
-    def get_default(param: Parameter) -> str:
-        if param.default is Parameter.empty:
-            return ""
-        elif isinstance(param.default, str):
-            return f"'{param.default}'"
-        else:
-            return f"{param.default}"
-
-
 class SignatureEntry:
     """ Builds the representation of a function signature.
 
@@ -73,17 +19,20 @@ class SignatureEntry:
     ----------
     fn : object
         The function to build the signature for.
-    greedy : bool, optional
+    greedy : bool
         Whether to raise errors for missing docstrings or parameters.
+    style : str
+        The Pygments style to use for syntax highlighting.
     """
-    def __init__(self, fn: type, *, greedy: bool = True) -> None:
+    def __init__(self, fn: type, *, greedy: bool = True,
+                 style: str = "vs") -> None:
         self.fn = fn
         self.doc = docstring_parser.parse(self.fn.__doc__ or "")
         self.sig = inspect.signature(fn)
 
         self.greedy = greedy
         self.lexer = PythonLexer()
-        self.termf = Terminal256Formatter()
+        self.termf = Terminal256Formatter(style=style)
 
         self._vals = []
         self._docs = []
@@ -100,15 +49,19 @@ class SignatureEntry:
         self._scan()
 
     def __str__(self) -> str:
-        return self._sig_text
+        return self._sig_text + "\n\n" + self._doc_text
 
     def _checks(self):
         n_doc = len(self.doc.params)
         n_sig = len(self.sig.parameters.items())
 
-        if not self.doc or not self.doc.short_description:
+        if not self.doc:
             self._handle_greedy(
                 f"Function '{self.fn.__name__}' has no docstring!")
+
+        if self.doc and not self.doc.short_description:
+            self._handle_greedy(
+                f"Function '{self.fn.__name__}' has no summary!")
 
         # XXX: there is a special case where the signature contains only
         # starred parameters. The variadic parameters are expected to be
@@ -150,17 +103,14 @@ class SignatureEntry:
 
     def _handle_greedy(self, msg: str) -> None:
         if not self.greedy:
-            warnings.warn(msg, stacklevel=2)
+            warnings.warn(msg)
         else:
             raise ValueError(f"{msg} (greedy mode enabled)")
 
     def _handle_entry(self, p: Parameter) -> None:
         self._handle_positional_only(p)
         self._handle_keyword_only(p)
-
-        entry = FunctionEntry(p)
-        output = highlight(str(entry), self.lexer, self.termf)
-        self._vals.append(f"    {output.strip()}")
+        self._vals.append(f"    {self._represent(p)}")
 
         if p.kind != Parameter.VAR_KEYWORD:
             self._add_param_doc(p)
@@ -195,31 +145,37 @@ class SignatureEntry:
         else:
             signature = f"{signature} -> {str(returns)}:"
 
-        return signature
+        return self._highlight(signature)
 
     def _handle_docstring(self) -> str:
         width = 66
         spaces = " " * 4
+        docs = "\n(missing summary)"
 
-        docs = f"\n{self.doc.short_description}"
-        docs += "\n\nParameters\n----------"
+        if self.doc and self.doc.short_description:
+            docs = f"\n{self.doc.short_description}"
 
-        for entry in self._docs:
-            head = entry["annotated"]
-            body = entry["description"]
+        # TODO handle long description!
 
-            body = textwrap.fill(
-                text             = body,
-                width            = width,
-                initial_indent   = spaces,
-                subsequent_indent= spaces
-            )
-            docs += f"\n{head}\n{body}"
+        if self._docs:
+            docs += "\n\n\nParameters\n----------"
+
+            for entry in self._docs:
+                head = entry["annotated"]
+                body = entry["description"]
+
+                body = textwrap.fill(
+                    text             = body,
+                    width            = width,
+                    initial_indent   = spaces,
+                    subsequent_indent= spaces
+                )
+                docs += f"\n{head}\n{body}"
 
         return docs
 
     def _add_param_doc(self, p: Parameter) -> None:
-        annotated = str(FunctionEntry(p))
+        annotated = self._highlight(self._represent(p))
         entry = {"annotated": annotated, "description": ""}
 
         if p.name not in self._buffer:
@@ -232,7 +188,7 @@ class SignatureEntry:
                 descr = " ".join(doc.description.split("\n"))
                 entry["description"] = descr
         except KeyError:
-            pass
+            entry["description"] = "(missing description)"
 
         self._docs.append(entry)
 
@@ -253,6 +209,53 @@ class SignatureEntry:
                       annotation=annotation, default=default)
 
         self._add_param_doc(p)
+
+    def _highlight(self, text: str) -> str:
+        return highlight(text, self.lexer, self.termf)
+
+    def _represent(self, p: Parameter) -> str:
+        annotated = self.get_annotated(p)
+
+        if not (default := self.get_default(p)):
+            entry = annotated
+        else:
+            entry = f"{annotated} = {default}"
+
+        return entry.strip()
+
+    @staticmethod
+    def get_annotated(p: Parameter) -> str:
+        annotated = (f"{SignatureEntry.get_name(p)} : "
+                     f"{SignatureEntry.get_annotation(p)}")
+        return annotated
+
+    @staticmethod
+    def get_name(p: Parameter) -> str:
+        if p.kind == Parameter.VAR_POSITIONAL:
+            return f"*{p.name}"
+
+        if p.kind == Parameter.VAR_KEYWORD:
+            return f"**{p.name}"
+
+        return p.name
+
+    @staticmethod
+    def get_annotation(param: Parameter) -> str:
+        if param.annotation is Parameter.empty:
+            return "Any"
+        elif isinstance(param.annotation, type):
+            return param.annotation.__name__
+        else:
+            return str(param.annotation)
+
+    @staticmethod
+    def get_default(param: Parameter) -> str:
+        if param.default is Parameter.empty:
+            return ""
+        elif isinstance(param.default, str):
+            return f"'{param.default}'"
+        else:
+            return f"{param.default}"
 
 
 def with_attrs(**attrs):
@@ -278,7 +281,7 @@ def print_signature(signature: str, width: int | None = None):
     If soft_wrap fails for some reason, try setting width to a large
     number (e.g. 200, accounting for ANSI color codes).
     """
-    if not getattr(print_signature, "console", False):
+    if not getattr(print_signature, "console", True):
         print(signature)
         return
 
@@ -302,6 +305,15 @@ def get_properties(f):
     return sorted([n for n in f.__dict__.keys() if is_property(f, n)])
 
 
+def test_for_func(f, *, greedy=False):
+    entry = SignatureEntry(f, greedy=greedy)
+    print_signature(str(entry))
+
+    try:
+        SignatureEntry(f, greedy=True)
+    except ValueError:
+        pass
+
 # Check using inspect directly!
 # inspect.getmembers(plotting.MajordomePlot)
 # get_properties(plotting.MajordomePlot)
@@ -309,7 +321,6 @@ def get_properties(f):
 
 
 # console = Console()
-# f = plotting.MajordomePlot
 # console.print(Syntax(plotting.MajordomePlot.__doc__, "python"))
 # console.print(Syntax(plotting.MajordomePlot.__doc__, "markdown"))
 # display(highlight(f.__doc__, HtmlLexer(), Terminal256Formatter()))

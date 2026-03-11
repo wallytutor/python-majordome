@@ -3,15 +3,11 @@
 ```{python}
 from majordome_utilities.documents import *
 
-print_signature.console = False
+warnings.filterwarnings("ignore")
+print_signature.console = True
 ```
 
 ## Internals
-
-```{python}
-entry = SignatureEntry(FunctionEntry)
-print_signature(entry)
-```
 
 ```{python}
 entry = SignatureEntry(SignatureEntry)
@@ -20,90 +16,73 @@ print_signature(entry)
 
 ## Examples
 
+A minimal function with no parameters and no docstring:
+
 ```{python}
-def f():
+def awesome_useless():
     pass
 
-
-print_signature(SignatureEntry(f, greedy=False))
-
-try:
-    SignatureEntry(f, greedy=True)
-except ValueError as e:
-    print(e)
+test_for_func(awesome_useless, greedy=False)
 ```
 
+A function with variadic parameters and no documented parameters:
+
 ```{python}
-def f(*args, **kwargs):
-    """ Example function for testing. """
+def awesome_useless(*args, **kwargs):
+    """ Some useless function. """
     pass
 
-
-print_signature(SignatureEntry(f, greedy=False))
-
-try:
-    SignatureEntry(f, greedy=True)
-except ValueError as e:
-    print(e)
+test_for_func(awesome_useless, greedy=False)
 ```
 
+A function with variadic parameters with type annotation and explictly documented keyword parameter:
+
 ```{python}
-def f(*args: tuple[int, ...], **kwargs):
-    """ Example function for testing.
+def awesome_useless(*args: tuple[int, ...], **kwargs):
+    """ Some useless function.
 
     Parameters
     ----------
     args : tuple
-        Positional arguments. This is intended to be a catch-all for any
-        number of positional arguments. Let's write a long text.
+        Positional arguments. This is intended to be a catch-all for
+        any number of positional arguments. Let's write a long text.
     some_kwarg : int = 1
-        Keyword argument. This is intended to be a catch-all for any number
-        of keyword arguments. Let's write a long text.
+        Keyword argument. This is intended to be a catch-all for any
+        number of keyword arguments. Let's write a long text.
     """
     pass
 
-
-entry = SignatureEntry(f, greedy=True)
-print_signature(entry)
-print_signature(entry._doc_text)
-
+test_for_func(awesome_useless, greedy=False)
 ```
 
+A function with a positional-only parameter, a keyword-only parameter and variadic parameters:
+
 ```{python}
-def f(a: int, /, b, **kwargs):
-    """ Example function for testing. """
+def awesome_useless(a: int, /, b, **kwargs):
+    """ Some useless function. """
     pass
 
-print_signature(SignatureEntry(f, greedy=False))
-
-try:
-    SignatureEntry(f, greedy=True)
-except ValueError as e:
-    print(e)
+test_for_func(awesome_useless, greedy=False)
 ```
 
+Function with all kinds of parameters:
+
 ```{python}
-def f(x, /, y: int = 0, *, z: int = 0, **kwargs) -> None:
-    """ xx.
+def awesome_useless(x, /, y: int = 0, *, z: int = 0, **kwargs) -> None:
+    """ Some useless function.
 
     Parameters
     ----------
     x : int
-        xx
+        Nothing to say about this.
     y : int
-        xx
+        Nothing to say about this.
     z : int
-        xx
+        Nothing to say about this.
     xx : int
-        xx
+        Nothing to say about this.
     """
     pass
 
-
-print_signature(SignatureEntry(f, greedy=False))
-
-try:
-    SignatureEntry(f, greedy=True)
-except ValueError as e:
-    print(e)
+test_for_func(awesome_useless, greedy=False)
 ```
