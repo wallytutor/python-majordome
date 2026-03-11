@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from inspect import Parameter, Signature
-from pydoc import text
 from rich.console import Console
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import Terminal256Formatter
+from docstring_parser.common import DocstringParam
 import docstring_parser
+import functools
 import inspect
+import textwrap
+import warnings
 
 
 class FunctionEntry:
@@ -30,7 +33,7 @@ class FunctionEntry:
 
     @staticmethod
     def get_annotated(p: Parameter) -> str:
-        annotated = (f"{FunctionEntry.get_name(p)} :"
+        annotated = (f"{FunctionEntry.get_name(p)} : "
                      f"{FunctionEntry.get_annotation(p)}")
         return annotated
 
@@ -91,6 +94,8 @@ class SignatureEntry:
         self._seek_slashed = False
         self._seek_starred = False
 
+        self._buffer = {}
+
         self._checks()
         self._scan()
 
@@ -98,17 +103,12 @@ class SignatureEntry:
         return self._sig_text
 
     def _checks(self):
-        if not self.greedy:
-            return
-
         n_doc = len(self.doc.params)
         n_sig = len(self.sig.parameters.items())
 
         if not self.doc or not self.doc.short_description:
-            raise ValueError(
-                f"Function '{self.fn.__name__}' has no docstring, but "
-                f"greedy mode is enabled!"
-            )
+            self._handle_greedy(
+                f"Function '{self.fn.__name__}' has no docstring!")
 
         # XXX: there is a special case where the signature contains only
         # starred parameters. The variadic parameters are expected to be
@@ -117,52 +117,44 @@ class SignatureEntry:
         # In this situation, no error is raised here but may be later when
         # scanning the signature.
         if n_doc < n_sig:
-            raise ValueError(
-                f"Function '{self.fn.__name__}' has {n_doc} documented "
-                f"parameters, but {n_sig} parameters!"
-            )
+            self._handle_greedy(
+                f"Function '{self.fn.__name__}' has {n_doc} "
+                f"documented parameters, but {n_sig} parameters!")
 
     def _scan(self):
-        docs = {p.arg_name: p for p in self.doc.params}
-        needs_docs = self._docs_needed()
+        # Build a buffer of the docstring parameters for retrieval
+        # during signature scanning. Values are popped from the buffer.
+        self._buffer = {p.arg_name: p for p in self.doc.params}
 
-        for pname, p in self.sig.parameters.items():
+        # Iterate through the signature parameters and build the
+        # signature text for each parameter not hidden in **kwargs.
+        for p in self.sig.parameters.values():
             self._handle_entry(p)
 
-            if self.greedy and pname in needs_docs:
-                try:
-                    self._docs.append(self._get_doc(p, docs))
-                except KeyError:
-                    raise ValueError(
-                        f"Parameter '{pname}' not found in docstring "
-                        f"for function '{self.fn.__name__}'!"
-                    )
+        # Handle the remaining **kwargs doc here. This assumes that
+        # the author maybe documented some of the variadic parameters
+        # in the docstring (and maybe not all of them).
+        for pdoc in self._buffer.copy().values():
+            self._add_kward_doc(pdoc)
 
-        # TODO handle the remaining **kwargs doc here and raise
-        # if missing and greedy is enabled
+        # If there are any remaining parameters, they were not
+        # documented (we should never end here as per above!)
+        if self._buffer:
+            names = list(self._buffer.keys())
+            self._handle_greedy(
+                f"Function '{self.fn.__name__}' has {len(names)} "
+                f"undocumented parameters: {', '.join(names)}!")
 
         self._sig_text = self._handle_signature()
-        self._doc_text = self.doc.short_description
-        # TODO continue formatting docs with self._docs here.
+        self._doc_text = self._handle_docstring()
 
-    def _docs_needed(self) -> list[str]:
-        # starred = [Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD]
-        starred = [Parameter.VAR_KEYWORD]
-        allpars = self.sig.parameters.values()
-
-        needs_docs = filter(lambda p: p.kind not in starred, allpars)
-        needs_docs = [p.name for p in needs_docs]
-
-        return needs_docs
+    def _handle_greedy(self, msg: str) -> None:
+        if not self.greedy:
+            warnings.warn(msg, stacklevel=2)
+        else:
+            raise ValueError(f"{msg} (greedy mode enabled)")
 
     def _handle_entry(self, p: Parameter) -> None:
-        # if p.kind == Parameter.VAR_POSITIONAL:
-        #     self._vals.append(f"    *{p.name}")
-
-        # elif p.kind == Parameter.VAR_KEYWORD:
-        #     self._vals.append(f"    **{p.name}")
-
-        # else:
         self._handle_positional_only(p)
         self._handle_keyword_only(p)
 
@@ -170,6 +162,8 @@ class SignatureEntry:
         output = highlight(str(entry), self.lexer, self.termf)
         self._vals.append(f"    {output.strip()}")
 
+        if p.kind != Parameter.VAR_KEYWORD:
+            self._add_param_doc(p)
 
     def _handle_positional_only(self, p: Parameter) -> None:
         if p.kind == Parameter.POSITIONAL_ONLY:
@@ -203,21 +197,78 @@ class SignatureEntry:
 
         return signature
 
-    def _get_doc(self, p: Parameter, docs: dict) -> dict:
-        annotated = (f"{FunctionEntry.get_name(p)} :"
-                     f"{FunctionEntry.get_annotation(p)}")
+    def _handle_docstring(self) -> str:
+        width = 66
+        spaces = " " * 4
+
+        docs = f"\n{self.doc.short_description}"
+        docs += "\n\nParameters\n----------"
+
+        for entry in self._docs:
+            head = entry["annotated"]
+            body = entry["description"]
+
+            body = textwrap.fill(
+                text             = body,
+                width            = width,
+                initial_indent   = spaces,
+                subsequent_indent= spaces
+            )
+            docs += f"\n{head}\n{body}"
+
+        return docs
+
+    def _add_param_doc(self, p: Parameter) -> None:
+        annotated = str(FunctionEntry(p))
         entry = {"annotated": annotated, "description": ""}
 
+        if p.name not in self._buffer:
+            self._handle_greedy(
+                f"Parameter '{p.name}' not found in docstring for "
+                f"function '{self.fn.__name__}'!")
+
         try:
-            doc = docs.pop(p.name)
-            descr = " ".join(doc.description.split("\n"))
-            entry["description"] = descr
-            return entry
+            if (doc := self._buffer.pop(p.name)).description:
+                descr = " ".join(doc.description.split("\n"))
+                entry["description"] = descr
         except KeyError:
-            return entry
+            pass
+
+        self._docs.append(entry)
+
+    def _add_kward_doc(self, pdoc: DocstringParam) -> None:
+        annotation = pdoc.type_name
+        default = None
+
+        if annotation and "=" in annotation:
+            try:
+                annotation, default = annotation.split("=")
+                default = default.strip()
+            except ValueError:
+                pass
+
+        # TODO: notice that no matter what the type of the annotation,
+        # it is always treated as a string. Find a way around sometime...
+        p = Parameter(pdoc.arg_name, Parameter.KEYWORD_ONLY,
+                      annotation=annotation, default=default)
+
+        self._add_param_doc(p)
 
 
+def with_attrs(**attrs):
+    def wrap(fn):
+        for k, v in attrs.items():
+            setattr(fn, k, v)
 
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return inner
+    return wrap
+
+
+@with_attrs(console=True)
 def print_signature(signature: str, width: int | None = None):
     """ Print a function signature with syntax highlighting.
 
@@ -227,6 +278,10 @@ def print_signature(signature: str, width: int | None = None):
     If soft_wrap fails for some reason, try setting width to a large
     number (e.g. 200, accounting for ANSI color codes).
     """
+    if not getattr(print_signature, "console", False):
+        print(signature)
+        return
+
     console = Console(width=width, soft_wrap=True)
     console.print(signature)
 
