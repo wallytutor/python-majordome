@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
 from docstring_parser import parse
-import inspect
+from rich.console import Console
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import Terminal256Formatter
+import inspect
 
 
 @dataclass
@@ -43,6 +44,19 @@ class FunctionEntry:
             return f"{param.default}"
 
 
+def print_signature(signature: str, width: int | None = None):
+    """ Print a function signature with syntax highlighting.
+
+    This function is required as the default printing will strip colors
+    and without configuration, rich.print will wrap long lines (from the
+    standpoint of ANSI color codes) which can lead to broken formatting.
+    If soft_wrap fails for some reason, try setting width to a large
+    number (e.g. 200, accounting for ANSI color codes).
+    """
+    console = Console(width=width, soft_wrap=True)
+    console.print(signature)
+
+
 def is_method(f, n):
     return n[:1].isalpha() and callable(getattr(f, n))
 
@@ -63,9 +77,6 @@ def get_properties(f):
 # inspect.getmembers(plotting.MajordomePlot)
 # get_properties(plotting.MajordomePlot)
 # get_methods(plotting.MajordomePlot)
-
-
-
 
 
 # import black

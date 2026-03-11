@@ -25,10 +25,11 @@ book:
         - majordome_utilities/plotting.qmd
 
 format:
-  html:
-    highlight-style: github
-    theme:
-      - sandstone
+  # Reactivate when finished the prototype
+  # html:
+  #   highlight-style: github
+  #   theme:
+  #     - sandstone
 
   pdf:
     highlight-style: github

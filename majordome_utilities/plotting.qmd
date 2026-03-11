@@ -6,34 +6,62 @@ from majordome_utilities import plotting
 ```
 
 ```{python}
+def extract_signature(
+        f,
+        greedy = True,
+        lexer = PythonLexer(),
+        termf = Terminal256Formatter(),
+    ):
+    name = f.__name__
+    docs = {p.arg_name: p for p in parse(f.__doc__).params}
+
+    values = []
+    text = []
+
+    sig = inspect.signature(f)
+
+    # file = Path(inspect.getsourcefile(f)).relative_to(Path.cwd()).as_posix()
+    # lines = inspect.getsourcelines(f)
+
+    # print(f"""\
+    #     - {file}:{lines}
+    #     """)
+
+    for param_name, param in sig.parameters.items():
+        if greedy and param_name not in docs:
+            raise ValueError(
+                f"Parameter '{param_name}' not found in docstring "
+                f"for function '{name}'! Stopping documentation!"
+            )
+
+        entry = FunctionEntry(param)
+        output = highlight(str(entry), lexer, termf)
+        values.append(f"    {output.strip()}")
+
+    returns = sig.return_annotation
+
+    if returns is not inspect.Signature.empty:
+        if isinstance(returns, type):
+            returns = returns.__name__
+        else:
+            returns = str(returns)
+
+    signature = f"{name}(\n{',\n'.join(values)}\n) -> {returns}"
+    return signature
+```
+```{python}
 f = plotting.MajordomePlot
 
-name = f.__name__
-docs = {p.arg_name: p for p in parse(f.__doc__).params}
-
-values = []
-text = []
-
-sig = inspect.signature(f)
-for param_name, param in sig.parameters.items():
-    # print(param_name, docs[param_name])
-
-    entry = FunctionEntry(param)
-    colored = highlight(str(entry), PythonLexer(), Terminal256Formatter())
-    values.append("    " + colored.strip())
-
-returns = sig.return_annotation
-
-if returns is not inspect.Signature.empty:
-    if isinstance(returns, type):
-        returns = returns.__name__
-    else:
-        returns = str(returns)
-
-signature = f"{name}(\n{',\n'.join(values)}\n) -> {returns}"
-print(signature)
+signature = extract_signature(f)
+print_signature(signature)
 ```
 
 ```{python}
+inspect.ismethod(plotting.MajordomePlot)
+inspect.isfunction(plotting.MajordomePlot)
+inspect.ismethod(plotting.MajordomePlot.new)
+```
 
+```{python}
+inspect.getdoc(f)
 ```
