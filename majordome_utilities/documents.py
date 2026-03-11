@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from inspect import Parameter, Signature
+from IPython.display import Markdown, display
 from rich.console import Console
+from rich.syntax import Syntax
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import Terminal256Formatter
@@ -12,6 +14,10 @@ import textwrap
 import warnings
 
 
+def code_fences(code: str) -> str:
+    return f"```python\n{code.rstrip()}\n```"
+
+
 class SignatureEntry:
     """ Builds the representation of a function signature.
 
@@ -21,18 +27,15 @@ class SignatureEntry:
         The function to build the signature for.
     greedy : bool
         Whether to raise errors for missing docstrings or parameters.
-    style : str
-        The Pygments style to use for syntax highlighting.
     """
-    def __init__(self, fn: type, *, greedy: bool = True,
-                 style: str = "vs") -> None:
+    def __init__(self, fn: type, *, greedy: bool = True) -> None:
         self.fn = fn
         self.doc = docstring_parser.parse(self.fn.__doc__ or "")
         self.sig = inspect.signature(fn)
 
         self.greedy = greedy
         self.lexer = PythonLexer()
-        self.termf = Terminal256Formatter(style=style)
+        self.termf = Terminal256Formatter()
 
         self._vals = []
         self._docs = []
@@ -145,7 +148,7 @@ class SignatureEntry:
         else:
             signature = f"{signature} -> {str(returns)}:"
 
-        return self._highlight(signature)
+        return signature
 
     def _handle_docstring(self) -> str:
         width = 66
@@ -175,7 +178,7 @@ class SignatureEntry:
         return docs
 
     def _add_param_doc(self, p: Parameter) -> None:
-        annotated = self._highlight(self._represent(p))
+        annotated = self._represent(p)
         entry = {"annotated": annotated, "description": ""}
 
         if p.name not in self._buffer:
@@ -257,6 +260,54 @@ class SignatureEntry:
         else:
             return f"{param.default}"
 
+    def documentation(self, **kwargs) -> None:
+        some_class = inspect.isclass(self.fn)
+        section_lv = 2 if some_class else 3
+
+        add_section = kwargs.get("add_section", some_class)
+        section_lv = kwargs.get("section_lv", section_lv)
+        title = kwargs.get("title", self.fn.__name__)
+
+        text = ""
+
+        if add_section:
+            level = "#" * section_lv
+            text = f"{level} {title}\n\n"
+
+        text += f"""::: {{.callout-note title="{title}"}}\n\n"""
+        text += code_fences(self._sig_text) + "\n\n"
+
+        if self.doc:
+            if short := self.doc.short_description:
+                text += f"{short}\n\n"
+            else:
+                text += "(missing summary)\n\n"
+
+            if long := self.doc.long_description:
+                text += f"{long}\n\n"
+
+        if self._docs:
+            text += "\n\n---\n\n"
+            text += f"**Parameters**\n\n"
+
+            for entry in self._docs:
+                head = entry["annotated"]
+                body = entry["description"]
+
+                text += code_fences(head) + "\n\n"
+                text += "<p>&nbsp;&nbsp;&nbsp;&nbsp;"
+                text += body + "</p>\n\n"
+
+        text += f":::\n\n"
+        # print(text)
+
+        display(Markdown(text))
+
+    def print_console(self, width: int | None = None) -> None:
+        syntax = Syntax(self._sig_text, "python")
+        console = Console(width=width, soft_wrap=True)
+        console.print(syntax)
+
 
 def with_attrs(**attrs):
     def wrap(fn):
@@ -286,7 +337,7 @@ def print_signature(signature: str, width: int | None = None):
         return
 
     console = Console(width=width, soft_wrap=True)
-    console.print(signature)
+    console.print(signature, markup=False)
 
 
 def is_method(f, n):
@@ -307,24 +358,15 @@ def get_properties(f):
 
 def test_for_func(f, *, greedy=False):
     entry = SignatureEntry(f, greedy=greedy)
-    print_signature(str(entry))
+    entry.documentation()
 
     try:
         SignatureEntry(f, greedy=True)
     except ValueError:
         pass
 
+
 # Check using inspect directly!
 # inspect.getmembers(plotting.MajordomePlot)
 # get_properties(plotting.MajordomePlot)
 # get_methods(plotting.MajordomePlot)
-
-
-# console = Console()
-# console.print(Syntax(plotting.MajordomePlot.__doc__, "python"))
-# console.print(Syntax(plotting.MajordomePlot.__doc__, "markdown"))
-# display(highlight(f.__doc__, HtmlLexer(), Terminal256Formatter()))
-
-# doc = parse(f.__doc__)
-# console = Console()
-# console.print(doc)

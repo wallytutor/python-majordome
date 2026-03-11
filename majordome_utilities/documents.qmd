@@ -4,14 +4,18 @@
 from majordome_utilities.documents import *
 
 warnings.filterwarnings("ignore")
-print_signature.console = True
 ```
 
 ## Internals
 
 ```{python}
 entry = SignatureEntry(SignatureEntry)
-print_signature(entry)
+entry.documentation()
+```
+
+
+```{python}
+
 ```
 
 ## Examples
@@ -19,25 +23,32 @@ print_signature(entry)
 A minimal function with no parameters and no docstring:
 
 ```{python}
+#| echo: true
 def awesome_useless():
     pass
+```
 
+```{python}
 test_for_func(awesome_useless, greedy=False)
 ```
 
 A function with variadic parameters and no documented parameters:
 
 ```{python}
+#| echo: true
 def awesome_useless(*args, **kwargs):
     """ Some useless function. """
     pass
+```
 
+```{python}
 test_for_func(awesome_useless, greedy=False)
 ```
 
 A function with variadic parameters with type annotation and explictly documented keyword parameter:
 
 ```{python}
+#| echo: true
 def awesome_useless(*args: tuple[int, ...], **kwargs):
     """ Some useless function.
 
@@ -51,23 +62,29 @@ def awesome_useless(*args: tuple[int, ...], **kwargs):
         number of keyword arguments. Let's write a long text.
     """
     pass
+```
 
+```{python}
 test_for_func(awesome_useless, greedy=False)
 ```
 
 A function with a positional-only parameter, a keyword-only parameter and variadic parameters:
 
 ```{python}
+#| echo: true
 def awesome_useless(a: int, /, b, **kwargs):
     """ Some useless function. """
     pass
+```
 
+```{python}
 test_for_func(awesome_useless, greedy=False)
 ```
 
 Function with all kinds of parameters:
 
 ```{python}
+#| echo: true
 def awesome_useless(x, /, y: int = 0, *, z: int = 0, **kwargs) -> None:
     """ Some useless function.
 
@@ -83,6 +100,8 @@ def awesome_useless(x, /, y: int = 0, *, z: int = 0, **kwargs) -> None:
         Nothing to say about this.
     """
     pass
+```
 
+```{python}
 test_for_func(awesome_useless, greedy=False)
 ```
