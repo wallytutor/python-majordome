@@ -7,12 +7,15 @@ warnings.filterwarnings("ignore")
 ```
 
 ```{python}
-entry = SignatureEntry(SignatureEntry)
-entry.documentation()
+doc = DocumentedClass(SignatureEntry)
 ```
 
 ```{python}
-document_class_members(SignatureEntry, method="dict")
+doc.constructor()
+```
+
+```{python}
+doc.members()
 ```
 
 ## Tutorial
@@ -20,6 +23,7 @@ document_class_members(SignatureEntry, method="dict")
 ```{python}
 #| echo: true
 class Dummy:
+    """ A dummy class for testing purposes. """
     def method(self, a, b):
         """ This is a method.
 
@@ -64,48 +68,48 @@ class Dummy:
         return 42
 ```
 
-Documentation of all members at once is discouraged, but it is possible to do so by calling `document_class_members` with the appropriate options:
+Documentation of all members at once is discouraged, but it is possible to do so by calling all methods of ``DocumentedClass`:
 
 ```python
-document_class_members(Dummy,
-    disable_normal_methods = False,
-    include_dunder_methods = False,
-    include_static_methods = True,
-    include_class_methods  = True,
-    include_properties     = True,
-)
+doc = DocumentedClass(Dummy)
+doc.constructor()
+doc.members()
+doc.properties()
+doc.classmethods()
+doc.staticmethods()
 ```
 
 For generating more organized documentation, it is possible to selectively include or exclude static methods, class methods and properties. This allows to generate separate sections for each type of member, which can be more readable and easier to navigate.
 
+The constructor:
+
+```{python}
+doc = DocumentedClass(Dummy)
+doc.constructor()
+```
+
 Only normal methods:
 
 ```{python}
-document_class_members(Dummy,)
+doc.members()
 ```
 
 Only static methods:
 
 ```{python}
-document_class_members(Dummy,
-                       disable_normal_methods=True,
-                       include_static_methods=True)
+doc.staticmethods()
 ```
 
 Only class methods:
 
 ```{python}
-document_class_members(Dummy,
-                       disable_normal_methods=True,
-                       include_class_methods=True)
+doc.classmethods()
 ```
 
 Only properties:
 
 ```{python}
-document_class_members(Dummy,
-                       disable_normal_methods=True,
-                       include_properties=True)
+doc.properties()
 ```
 
 ## Examples

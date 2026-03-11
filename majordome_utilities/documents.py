@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from inspect import Parameter, Signature
+from typing import Callable
 from IPython.display import Markdown, display
 from rich.console import Console
 from rich.syntax import Syntax
@@ -232,6 +233,17 @@ class SignatureEntry:
         return entry.strip()
 
     @staticmethod
+    def code_fences(code: str) -> str:
+        """ Wraps a piece of code in markdown code fences.
+
+        Parameters
+        ----------
+        code : str
+            The code to wrap in markdown code fences.
+        """
+        return f"```python\n{code.rstrip()}\n```"
+
+    @staticmethod
     def get_annotated(p: Parameter) -> str:
         """ Returns the annotated version of the parameter.
 
@@ -303,12 +315,16 @@ class SignatureEntry:
         Parameters
         ----------
         add_section : bool
-            Whether to add a section header for the function. By default, a
-            section header is added if the function is a method (i.e. it is a class member) and not added otherwise.
+            Whether to add a section header for the function. By default,
+            a section header is added if the function is a method (i.e.
+            it is a class member) and not added otherwise.
         section_lv : int
-            The level of the section header to add (e.g. 2 for '##', 3 for '###', etc.). By default, the level is determined based on whether the function is a method or not (see `add_section`).
+            The level of the section header to add (e.g. 2 for '##', 3
+            for '###', etc.). By default, the level is determined based
+            on whether the function is a method or not (see `add_section`).
         title : str
-            The title to use for the section header and callout. By default, the function name is used.
+            The title to use for the section header and callout. By
+            default, the function name is used.
         """
         some_class = inspect.isclass(self.fn)
         section_lv = 2 if some_class else 3
@@ -324,7 +340,7 @@ class SignatureEntry:
             text = f"{level} {title}\n\n"
 
         text += f"""::: {{.callout-note title="{title}"}}\n\n"""
-        text += code_fences(self._sig_text) + "\n\n"
+        text += self.code_fences(self._sig_text) + "\n\n"
 
         if self.doc:
             if short := self.doc.short_description:
@@ -343,7 +359,7 @@ class SignatureEntry:
                 head = entry["annotated"]
                 body = entry["description"]
 
-                text += code_fences(head) + "\n\n"
+                text += self.code_fences(head) + "\n\n"
                 text += "<p>&nbsp;&nbsp;&nbsp;&nbsp;"
                 text += body + "</p>\n\n"
 
@@ -353,74 +369,80 @@ class SignatureEntry:
         display(Markdown(text))
 
 
-def document_class_members(cls: type, **kwargs) -> None:
-    method = kwargs.pop("method", "dict")
+class DocumentedClass:
+    """ Helper for documenting all members of a class. """
+    def __init__(self, cls: type) -> None:
+        self.cls = cls
 
-    match method:
-        case "dict":
-            _members_from_dict(cls, **kwargs)
-        case "inspect":
-            _members_from_inspect(cls, **kwargs)
-        case _:
-            raise ValueError(f"Unknown method '{method}' for class "
-                             f"members documentation!")
+    @staticmethod
+    def _doc_it(fn, **kwargs):
+        entry = SignatureEntry(fn, **kwargs)
+        entry.documentation(**kwargs)
+
+    @staticmethod
+    def _members_from_dict(
+            objcls: type,
+            predicate: Callable[[str, object], None],
+            **kwargs
+        ) -> None:
+        public_only = kwargs.get("public_only", True)
+
+        for name, func in objcls.__dict__.items():
+            if public_only and DocumentedClass._is_private(name):
+                continue
+
+            predicate(name, func, **kwargs)
+
+    @staticmethod
+    def _is_private(name: str) -> bool:
+        private = name.startswith("_")
+        dunder = DocumentedClass._is_dunder(name)
+        return private and not dunder
+
+    @staticmethod
+    def _is_dunder(name: str) -> bool:
+        return name.startswith("__") and name.endswith("__")
+
+    def _members(self, name, func, **kwargs) -> None:
+        disallow = (staticmethod, classmethod, property)
+
+        is_callable = callable(func)
+        is_allowed  = not isinstance(func, disallow)
+        is_dunder = DocumentedClass._is_dunder(name)
+
+        if is_allowed and is_callable and not is_dunder:
+            DocumentedClass._doc_it(func, **kwargs)
+
+    def _properties(self, name, func, **kwargs) -> None:
+        if isinstance(func, property):
+            DocumentedClass._doc_it(func.fget, **kwargs)
+
+    def _classmethods(self, name, func, **kwargs) -> None:
+        if isinstance(func, classmethod):
+            DocumentedClass._doc_it(func.__func__, **kwargs)
+
+    def _staticmethods(self, name, func, **kwargs) -> None:
+        if isinstance(func, staticmethod):
+            DocumentedClass._doc_it(func.__func__, **kwargs)
+
+    def constructor(self, **kwargs) -> None:
+        entry = SignatureEntry(self.cls)
+        entry.documentation(**kwargs)
+
+    def members(self, **kwargs) -> None:
+        self._members_from_dict(self.cls, self._members, **kwargs)
+
+    def properties(self, **kwargs) -> None:
+        self._members_from_dict(self.cls, self._properties, **kwargs)
+
+    def classmethods(self, **kwargs) -> None:
+        self._members_from_dict(self.cls, self._classmethods, **kwargs)
+
+    def staticmethods(self, **kwargs) -> None:
+        self._members_from_dict(self.cls, self._staticmethods, **kwargs)
 # endregion: public
 
 # region: internals
-def _doc_it(fn):
-    entry = SignatureEntry(fn)
-    entry.documentation()
-
-
-def _members_from_inspect(cls: type, **kwargs):
-    for name, func in inspect.getmembers(cls):
-        is_public   = not name.startswith("_")
-        is_callable = callable(func)
-
-        if is_public and is_callable:
-            _doc_it(func)
-
-
-def _members_from_dict(cls: type, **kwargs):
-    disable_normal = kwargs.pop("disable_normal_methods", False)
-    keep_dunder    = kwargs.pop("include_dunder_methods", False)
-    keep_static    = kwargs.pop("include_static_methods", False)
-    keep_member    = kwargs.pop("include_class_methods", False)
-    keep_property  = kwargs.pop("include_properties", False)
-
-    for name, func in cls.__dict__.items():
-        is_dunder = name.startswith("__") and name.endswith("__")
-
-        if is_dunder and keep_dunder:
-            _doc_it(func)
-            continue
-
-        if not (_is_public := not name.startswith("_")):
-            continue
-
-        if isinstance(func, staticmethod) and keep_static:
-            _doc_it(func.__func__)
-            continue
-
-        if isinstance(func, classmethod) and keep_member:
-            _doc_it(func.__func__)
-            continue
-
-        if isinstance(func, property) and keep_property:
-            _doc_it(func.fget)
-            continue
-
-        if isinstance(func, (staticmethod, classmethod, property)):
-            continue
-
-        if not disable_normal and callable(func):
-            _doc_it(func)
-
-
-def code_fences(code: str) -> str:
-    return f"```python\n{code.rstrip()}\n```"
-
-
 def with_attrs(**attrs):
     def wrap(fn):
         for k, v in attrs.items():

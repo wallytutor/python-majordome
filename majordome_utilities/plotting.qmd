@@ -10,24 +10,27 @@ from majordome_utilities.plotting import (
 ```
 
 ```{python}
-entry = SignatureEntry(MajordomePlot)
-entry.documentation()
+doc = DocumentedClass(MajordomePlot)
 ```
 
 ```{python}
-document_class_members(MajordomePlot)
+doc.constructor()
 ```
 
 ```{python}
-document_class_members(MajordomePlot,
-                       disable_normal_methods=True,
-                       include_properties=True)
+doc.members()
 ```
 
 ```{python}
-document_class_members(MajordomePlot,
-                       disable_normal_methods=True,
-                       include_class_methods=True)
+doc.properties()
+```
+
+```{python}
+doc.classmethods()
+```
+
+```{python}
+doc.staticmethods()
 ```
 
 ```{python}
