@@ -22,6 +22,7 @@ book:
 
     - part: "Utilities"
       chapters:
+        - majordome_utilities/documents.qmd
         - majordome_utilities/plotting.qmd
 
 format:

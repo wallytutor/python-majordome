@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass
 from inspect import Parameter, Signature
+from pydoc import text
 from rich.console import Console
 from pygments import highlight
 from pygments.lexers import PythonLexer
@@ -9,26 +9,43 @@ import docstring_parser
 import inspect
 
 
-@dataclass
 class FunctionEntry:
-    name: str
-    annotation: str = "Any"
-    default: str = ""
+    """ Builds the representation of a function parameter.
 
+    Parameters
+    ----------
+    param : inspect.Parameter
+        The parameter to build the entry for.
+    """
     def __init__(self, param: Parameter) -> None:
-        self.name = param.name
-        self.annotation = self._get_annotation(param)
-        self.default = self._get_default(param)
+        self.param = param
 
     def __str__(self) -> str:
-        annotated = f"{self.name} : {self.annotation}"
+        annotated = self.get_annotated(self.param)
 
-        if not self.default:
+        if not (default := self.get_default(self.param)):
             return annotated
 
-        return f"{annotated} = {self.default}"
+        return f"{annotated} = {default}"
 
-    def _get_annotation(self, param: Parameter) -> str:
+    @staticmethod
+    def get_annotated(p: Parameter) -> str:
+        annotated = (f"{FunctionEntry.get_name(p)} :"
+                     f"{FunctionEntry.get_annotation(p)}")
+        return annotated
+
+    @staticmethod
+    def get_name(p: Parameter) -> str:
+        if p.kind == Parameter.VAR_POSITIONAL:
+            return f"*{p.name}"
+
+        if p.kind == Parameter.VAR_KEYWORD:
+            return f"**{p.name}"
+
+        return p.name
+
+    @staticmethod
+    def get_annotation(param: Parameter) -> str:
         if param.annotation is Parameter.empty:
             return "Any"
         elif isinstance(param.annotation, type):
@@ -36,7 +53,8 @@ class FunctionEntry:
         else:
             return str(param.annotation)
 
-    def _get_default(self, param: Parameter) -> str:
+    @staticmethod
+    def get_default(param: Parameter) -> str:
         if param.default is Parameter.empty:
             return ""
         elif isinstance(param.default, str):
@@ -46,19 +64,23 @@ class FunctionEntry:
 
 
 class SignatureEntry:
-    def __init__(self,
-                 fn: object, *,
-                 greedy: bool = False,
-                 lexer = PythonLexer(),
-                 termf = Terminal256Formatter()
-                 ) -> None:
+    """ Builds the representation of a function signature.
+
+    Parameters
+    ----------
+    fn : object
+        The function to build the signature for.
+    greedy : bool, optional
+        Whether to raise errors for missing docstrings or parameters.
+    """
+    def __init__(self, fn: type, *, greedy: bool = True) -> None:
         self.fn = fn
         self.doc = docstring_parser.parse(self.fn.__doc__ or "")
         self.sig = inspect.signature(fn)
 
         self.greedy = greedy
-        self.lexer = lexer
-        self.termf = termf
+        self.lexer = PythonLexer()
+        self.termf = Terminal256Formatter()
 
         self._vals = []
         self._docs = []
@@ -71,6 +93,9 @@ class SignatureEntry:
 
         self._checks()
         self._scan()
+
+    def __str__(self) -> str:
+        return self._sig_text
 
     def _checks(self):
         if not self.greedy:
@@ -85,6 +110,12 @@ class SignatureEntry:
                 f"greedy mode is enabled!"
             )
 
+        # XXX: there is a special case where the signature contains only
+        # starred parameters. The variadic parameters are expected to be
+        # documented in the docstring (count 1) and at least one individual
+        # keyword-only parameter is expected to be documented (count 2).
+        # In this situation, no error is raised here but may be later when
+        # scanning the signature.
         if n_doc < n_sig:
             raise ValueError(
                 f"Function '{self.fn.__name__}' has {n_doc} documented "
@@ -92,36 +123,31 @@ class SignatureEntry:
             )
 
     def _scan(self):
-        name = self.fn.__name__
         docs = {p.arg_name: p for p in self.doc.params}
-
         needs_docs = self._docs_needed()
 
         for pname, p in self.sig.parameters.items():
-            if self._is_starred(p):
-                continue
-
-            self._handle_positional_only(p)
-            self._handle_keyword_only(p)
+            self._handle_entry(p)
 
             if self.greedy and pname in needs_docs:
                 try:
-                    docs[pname]
+                    self._docs.append(self._get_doc(p, docs))
                 except KeyError:
                     raise ValueError(
                         f"Parameter '{pname}' not found in docstring "
-                        f"for function '{name}'!"
+                        f"for function '{self.fn.__name__}'!"
                     )
 
-            entry = FunctionEntry(p)
-            output = highlight(str(entry), self.lexer, self.termf)
-            self._vals.append(f"    {output.strip()}")
+        # TODO handle the remaining **kwargs doc here and raise
+        # if missing and greedy is enabled
 
         self._sig_text = self._handle_signature()
-        # self._doc_text = self.doc.short_description
+        self._doc_text = self.doc.short_description
+        # TODO continue formatting docs with self._docs here.
 
     def _docs_needed(self) -> list[str]:
-        starred = [Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD]
+        # starred = [Parameter.VAR_POSITIONAL, Parameter.VAR_KEYWORD]
+        starred = [Parameter.VAR_KEYWORD]
         allpars = self.sig.parameters.values()
 
         needs_docs = filter(lambda p: p.kind not in starred, allpars)
@@ -129,16 +155,21 @@ class SignatureEntry:
 
         return needs_docs
 
-    def _is_starred(self, p: Parameter) -> bool:
-        # TODO handle documentation of *args here.
-        if p.kind == Parameter.VAR_POSITIONAL:
-            self._vals.append(f"    *{p.name}")
-            return True
-        elif p.kind == Parameter.VAR_KEYWORD:
-            self._vals.append(f"    **{p.name}")
-            return True
+    def _handle_entry(self, p: Parameter) -> None:
+        # if p.kind == Parameter.VAR_POSITIONAL:
+        #     self._vals.append(f"    *{p.name}")
 
-        return False
+        # elif p.kind == Parameter.VAR_KEYWORD:
+        #     self._vals.append(f"    **{p.name}")
+
+        # else:
+        self._handle_positional_only(p)
+        self._handle_keyword_only(p)
+
+        entry = FunctionEntry(p)
+        output = highlight(str(entry), self.lexer, self.termf)
+        self._vals.append(f"    {output.strip()}")
+
 
     def _handle_positional_only(self, p: Parameter) -> None:
         if p.kind == Parameter.POSITIONAL_ONLY:
@@ -172,8 +203,19 @@ class SignatureEntry:
 
         return signature
 
-    def __str__(self) -> str:
-        return self._sig_text
+    def _get_doc(self, p: Parameter, docs: dict) -> dict:
+        annotated = (f"{FunctionEntry.get_name(p)} :"
+                     f"{FunctionEntry.get_annotation(p)}")
+        entry = {"annotated": annotated, "description": ""}
+
+        try:
+            doc = docs.pop(p.name)
+            descr = " ".join(doc.description.split("\n"))
+            entry["description"] = descr
+            return entry
+        except KeyError:
+            return entry
+
 
 
 def print_signature(signature: str, width: int | None = None):
