@@ -1,10 +1,8 @@
 project:
   type: book
 
-index: README.md
-
 execute:
-  cache:   false
+  cache:   true
   echo:    false
   warning: false
 
@@ -15,16 +13,14 @@ book:
   author: "Walter Dal'Maz Silva"
   date: "today"
   sidebar:
+    style: "docked"
+    search: true
     collapse-level: 1
 
   chapters:
     - index.qmd
-
-    - part: "Utilities"
-      chapters:
-        - majordome_utilities/documents.qmd
-        - majordome_utilities/plotting.qmd
-
+    - majordome_utilities/documents.qmd
+    - majordome_utilities/plotting.qmd
     - _docs/developers.qmd
     - _docs/references.qmd
 
@@ -32,7 +28,7 @@ format:
   html:
     highlight-style: github
     theme:
-      - sandstone
+      - pulse
 
   pdf:
     highlight-style: github

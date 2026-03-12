@@ -1,4 +1,6 @@
-# majordome_utilities.plotting
+# Plotting
+
+*aka majordome_utilities.plotting*
 
 ```{python}
 from majordome_utilities.documents import *

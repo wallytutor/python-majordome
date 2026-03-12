@@ -11,3 +11,16 @@ Distribution builds:
 ``` bash
 ./build.ps1 -FromPip -PackageDist -FlagRelease
 ```
+
+Documentation builds:
+
+``` bash
+# Only HTML documentation:
+./build.ps1 -PackageDocs
+
+# Also generate PDF documentation:
+./build.ps1 -PackageDocs -DocsPdf
+
+# Erase everything and do not use any cached files:
+./build.ps1 -PackageDocs -FreshDocs
+```

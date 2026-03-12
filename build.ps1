@@ -32,6 +32,9 @@
 .PARAMETER PackageDocs
     Build the Sphinx documentation in HTML format.
 
+.PARAMETER DocsPdf
+    Build the Sphinx documentation in PDF format.
+
 .PARAMETER PackageDist
     Create a wheel distribution package for the Python package.
 
@@ -47,12 +50,6 @@
 
 .PARAMETER TestPython
     Run Python tests using pytest with verbose output.
-
-.PARAMETER AllLibs
-    Build all Rust libraries (core and proc).
-
-.PARAMETER AllTests
-    Run all tests (both Rust and Python). Currently not implemented.
 
 .PARAMETER Help
     Display this help message and exit.
@@ -70,32 +67,63 @@
     Run Python tests.
 
 .EXAMPLE
-    .\build.ps1 -AllLibs -FlagRelease
-    Build all Rust libraries in release mode.
-
-.EXAMPLE
     .\build.ps1 -RustCheck -FlagBacktrace
     Check Rust code with backtraces enabled.
 #>
+
 param (
+    [Parameter(Mandatory=$false, ParameterSetName="Flags")]
     [switch]$FlagRelease,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Flags")]
     [switch]$FlagBacktrace,
 
-    [switch]$FromPip,
+    [Parameter(Mandatory=$false, ParameterSetName="Devel")]
     [switch]$RustCheck,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Devel")]
     [switch]$RustCore,
 
-    [switch]$FreshDocs,
-    [switch]$PackageDocs,
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
+    [switch]$FromPip,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
+    [ValidateScript({
+        if (-not $FromPip) { throw "-PackageDist requires -FromPip." }
+        $true
+    })]
     [switch]$PackageDist,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Docs")]
+    [switch]$PackageDocs,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Docs")]
+    [ValidateScript({
+        if (-not $PackageDocs) { throw "-FreshDocs requires -PackageDocs." }
+        $true
+    })]
+    [switch]$FreshDocs,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Docs")]
+    [ValidateScript({
+        if (-not $PackageDocs) { throw "-DocsPdf requires -PackageDocs." }
+        $true
+    })]
+    [switch]$DocsPdf,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Clean")]
     [switch]$Clean,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Clean")]
     [switch]$DistClean,
 
+    [Parameter(Mandatory=$false, ParameterSetName="Test")]
     [switch]$TestRust,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Test")]
     [switch]$TestPython,
 
-    [switch]$AllLibs,
-    [switch]$AllTests,
+    [Parameter(Mandatory=$false, ParameterSetName="Help")]
     [switch]$Help
 )
 
@@ -235,21 +263,28 @@ function Install-PythonPackage {
     & python -m pip install -e $env:MAJORDOME_INSTALL @opts
 
     if ($PackageDist) {
-        Write-Host "Building wheel distribution..."
         & python -m build --wheel
         Invoke-InspectWheel
     }
 
-    if ($PackageDocs) {
-        Write-Host "Building documentation is broken, skipping..."
-        exit 1
+    exit 0
+}
 
-        # $opts = @("-b", "html")
-        # if ($FreshDocs) { $opts = $opts + "-E" }
+function Invoke-BuildDocs {
+    $opts = @()
 
-        # $what = @("docs/", "docs/src/", "docs/_build/")
-        # & sphinx-build @opts -c $what > log.docs 2>&1
+    if ($FreshDocs) {
+        $opts = $opts + "--no-cache"
+        Remove-Hard $(Join-Path $PSScriptRoot "_book")
+        Remove-Hard $(Join-Path $PSScriptRoot "_site")
     }
+
+    & quarto render --to html @opts
+
+    if ($DocsPdf) {
+        & quarto render --to pdf @opts
+    }
+
     exit 0
 }
 
@@ -276,13 +311,13 @@ function Main {
     Set-EnvironmentVariables
     Invoke-VenvActivation
 
-    if ($FromPip)                  { Install-PythonPackage }
-    if ($RustCheck)                { Invoke-CheckRustLibs }
+    if ($RustCore)    { Build-RustLib -path $PATH_CORE }
+    if ($RustCheck)   { Invoke-CheckRustLibs }
+    if ($FromPip)     { Install-PythonPackage }
 
-    if ($TestRust)                 { Invoke-TestRustLibs }
-    if ($TestPython)               { Invoke-TestPythonLibs }
-
-    if ($AllLibs -or $RustCore)    { Build-RustLib -path $PATH_CORE }
+    if ($TestRust)    { Invoke-TestRustLibs }
+    if ($TestPython)  { Invoke-TestPythonLibs }
+    if ($PackageDocs) { Invoke-BuildDocs }
 
     Write-Host "No build option specified."
 }

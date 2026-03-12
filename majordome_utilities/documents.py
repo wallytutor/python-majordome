@@ -383,7 +383,7 @@ class SignatureEntry:
 
         text += f":::\n\n"
 
-        print(text)
+        # print(text)
         display(Markdown(text))
 
 
