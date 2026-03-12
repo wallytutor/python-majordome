@@ -169,6 +169,7 @@ pub mod utils;
 pub mod handlers {
     use pyo3::prelude::*;
 
+    #[allow(non_upper_case_globals)]
     #[pymodule_export]
     pub const __version__: &str = super::VERSION;
 

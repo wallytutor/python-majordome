@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyModule, IntoPyDict};
+use pyo3::types::{PyDict, PyModule};
 
 use majordome::{print_header, VERSION};
 use majordome::constants::*;
@@ -32,7 +32,7 @@ fn main() -> PyResult<()> {
         RunMode::InstallKernel { kernel_name, display_name } => {
             install_jupyter_kernel(py, &kernel_name, &display_name)
         }
-    });
+    })?;
 
     Ok(())
 }
@@ -130,7 +130,7 @@ fn start_globals(py: Python<'_>) -> PyResult<Py<PyDict>> {
     // into the Python environment and import builtins to add the new
     // functions to it.
     let globals = PyDict::new(py);
-    let builtins = PyModule::import(py, "builtins")?;
+    // let builtins = PyModule::import(py, "builtins")?;
 
     // #[pyfunction]
     // fn hello() -> &'static str { "hello from rust" }
