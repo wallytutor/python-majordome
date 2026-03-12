@@ -191,7 +191,6 @@ def solution_report(sol: SolutionLikeType,
                             selected_species, **kwargs)
 
 
-
 def copy_solution(sol: ct.composite.Solution) -> ct.composite.Solution:
     """ Makes a hard copy of a Solution object. """
     new_sol = ct.composite.Solution(sol.source, sol.name)
