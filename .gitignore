@@ -46,8 +46,9 @@ site_libs/
 reference/*
 objects.json
 *.html
-index.tex
-index.aux
+index.*
+!index.qmd
+cell-*-output-*.png
 
 
 # Jupyter cache

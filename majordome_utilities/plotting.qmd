@@ -79,7 +79,7 @@ def saddle(X, Y):
 @MajordomePlot.new(size=(5, 4), xlabel="x", ylabel="exp(x)")
 def plot_saddle(x, *, plot, **kwargs) -> MajordomePlot:
     X, Y = np.meshgrid(x, x)
-    Z = 0 + saddle(X, Y)
+    Z = saddle(X, Y)
 
     zmin, zmax = Z.min(), Z.max()
     zstep = (zmax - zmin) / 10

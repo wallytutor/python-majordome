@@ -28,7 +28,6 @@ book:
     - _docs/references.qmd
 
 format:
-  # Reactivate when finished the prototype
   html:
     highlight-style: github
     theme:
@@ -41,4 +40,4 @@ format:
     mainfont: "Latin Modern Sans"
     sansfont: "Latin Modern Sans"
     geometry:
-      - margin=20mm
+      - margin=25mm

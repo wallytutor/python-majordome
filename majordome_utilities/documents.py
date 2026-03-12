@@ -241,7 +241,7 @@ class SignatureEntry:
         code : str
             The code to wrap in markdown code fences.
         """
-        return f"```python\n{code.rstrip()}\n```"
+        return f"\n\n```python\n{code.rstrip()}\n```\n\n"
 
     @staticmethod
     def get_annotated(p: Parameter) -> str:
@@ -309,62 +309,81 @@ class SignatureEntry:
         else:
             return f"{p.default}"
 
+    def _fmt_description(self) -> str:
+        text = ""
+
+        if short := self.doc.short_description:
+            text += f"{short}\n\n"
+        else:
+            text += "(missing summary)\n\n"
+
+        if long := self.doc.long_description:
+            text += f"{long}\n\n"
+
+        return text
+
+    def _fmt_parameter(self, entry: dict) -> str:
+        spaces = "&nbsp;" * 4
+
+        head = entry["annotated"]
+        body = entry["description"]
+
+        # text = self.code_fences(head)
+        # text += f"<p>{spaces}{body}</p>\n\n"
+
+        text = "\n".join([
+            r'<div class="row" style="font-size: 0.8em;">',
+            self.code_fences(head),
+            r'</div>',
+            r'<div class="row" style="margin-top: -2em; font-size: 0.8em;">',
+            f'  <div class="col-2">{spaces}</div>',
+            f'  <div class="col-10">{body}</div>',
+            r'</div>',
+        ])
+
+        return text
+
+    def _fmt_parameters_section(self) -> str:
+        text = "\n***\n\n**Parameters**\n"
+
+        for entry in self._docs:
+            text += self._fmt_parameter(entry)
+
+        return text
+
     def documentation(self, **kwargs) -> None:
         """ Generates the markdown documentation for the function.
 
         Parameters
         ----------
-        add_section : bool
-            Whether to add a section header for the function. By default,
-            a section header is added if the function is a method (i.e.
-            it is a class member) and not added otherwise.
-        section_lv : int
-            The level of the section header to add (e.g. 2 for '##', 3
-            for '###', etc.). By default, the level is determined based
-            on whether the function is a method or not (see `add_section`).
         title : str
             The title to use for the section header and callout. By
             default, the function name is used.
         """
-        # some_class = inspect.isclass(self.fn)
-        # section_lv = 2 if some_class else 3
-        # add_section = kwargs.get("add_section", some_class)
-        # section_lv = kwargs.get("section_lv", section_lv)
         title = kwargs.get("title", self.fn.__name__)
 
+        # <div class="callout callout-note">
+        #   <div class="callout-header">
+        #     <div class="callout-title">My Title</div>
+        #   </div>
+        #   <div class="callout-body">
+        #     <p>Content here.</p>
+        #   </div>
+        # </div>
+
         text = ""
-
-        # if add_section:
-        #     level = "#" * section_lv
-        #     text = f"{level} {title}\n\n"
-
-        text += f"""::: {{.callout-note title="{title}"}}\n\n"""
-        text += self.code_fences(self._sig_text) + "\n\n"
+        text += f"""::: {{.callout-note title="{title}"}}"""
+        text += self.code_fences(self._sig_text)
 
         if self.doc:
-            if short := self.doc.short_description:
-                text += f"{short}\n\n"
-            else:
-                text += "(missing summary)\n\n"
-
-            if long := self.doc.long_description:
-                text += f"{long}\n\n"
+            text += self._fmt_description()
 
         if self._docs:
-            text += "\n\n---\n\n"
-            text += f"**Parameters**\n\n"
-
-            for entry in self._docs:
-                head = entry["annotated"]
-                body = entry["description"]
-
-                text += self.code_fences(head) + "\n\n"
-                text += "<p>&nbsp;&nbsp;&nbsp;&nbsp;"
-                text += body + "</p>\n\n"
+            text += self._fmt_parameters_section()
 
         text += f":::\n\n"
-        # print(text)
 
+        print(text)
         display(Markdown(text))
 
 
