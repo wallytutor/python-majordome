@@ -109,7 +109,8 @@ $submodules = @(
     "utilities_pdftools"
 ) -join ","
 
-$PACKAGE   = "$PSScriptRoot[$submodules]"
+$env:MAJORDOME_INSTALL = "$PSScriptRoot[$submodules]"
+
 $PATH_CORE =  "Cargo.toml"
 $VENV_PATH =  "venv"
 
@@ -162,7 +163,7 @@ function Invoke-VenvActivation {
         & python -m pip install --upgrade --force-reinstall build wheel
         & python -m pip install --upgrade --force-reinstall setuptools
         & python -m pip install --upgrade --force-reinstall setuptools_rust
-        & python -m pip install -e $PACKAGE
+        & python -m pip install -e "$env:MAJORDOME_INSTALL"
     }
 
     if (-not $env:VIRTUAL_ENV) {
@@ -231,19 +232,23 @@ function Install-PythonPackage {
     $opts = @("--no-deps", "--no-build-isolation")
 
     if ($FlagRelease) { $opts += "--config-settings=rust.debug=false" }
-    & python -m pip install -e $PACKAGE @opts
+    & python -m pip install -e $env:MAJORDOME_INSTALL @opts
 
     if ($PackageDist) {
+        Write-Host "Building wheel distribution..."
         & python -m build --wheel
         Invoke-InspectWheel
     }
 
     if ($PackageDocs) {
-        $opts = @("-b", "html")
-        if ($FreshDocs) { $opts = $opts + "-E" }
+        Write-Host "Building documentation is broken, skipping..."
+        exit 1
 
-        $what = @("docs/", "docs/src/", "docs/_build/")
-        & sphinx-build @opts -c $what > log.docs 2>&1
+        # $opts = @("-b", "html")
+        # if ($FreshDocs) { $opts = $opts + "-E" }
+
+        # $what = @("docs/", "docs/src/", "docs/_build/")
+        # & sphinx-build @opts -c $what > log.docs 2>&1
     }
     exit 0
 }

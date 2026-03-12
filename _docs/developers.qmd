@@ -1,0 +1,13 @@
+# Developer Guide
+
+Developments builds:
+
+``` bash
+./build.ps1 -FromPip
+```
+
+Distribution builds:
+
+``` bash
+./build.ps1 -FromPip -PackageDist -FlagRelease
+```
