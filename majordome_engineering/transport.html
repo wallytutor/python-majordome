@@ -263,14 +263,8 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../_docs/todolists.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Todo lists</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../_docs/references.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">References</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">References</span></span></a>
   </div>
 </li>
     </ul>
@@ -320,11 +314,11 @@ window.Quarto = {
 <section id="effectivethermalconductivity" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="effectivethermalconductivity"><span class="header-section-number">4.1</span> EffectiveThermalConductivity</h2>
 <p>Class <code>EffectiveThermalConductivity</code> implements static methods for the evaluation of properties; its name is quite long, let’s start by getting an alias before evaluating the desired models:</p>
-<div id="9f128aa4" class="cell" data-execution_count="3">
+<div id="0941dc78" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>etc <span class="op">=</span> EffectiveThermalConductivity()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Using <a href="https://en.wikipedia.org/wiki/Effective_medium_approximations">Maxwell</a> approximation, we could estimate the the effective thermal conductivity of a packed bed of particles in a <em>matrix</em> of air; assume particles loosly embeded in air and the following properties; the computed effective thermal conductivity is shown to approach the air limit:</p>
-<div id="f9292f85" class="cell" data-execution_count="4">
+<div id="40de461d" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>phi <span class="op">=</span> <span class="fl">0.30</span>   <span class="co"># Loosely packed solids [30%v]</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>k_g <span class="op">=</span> <span class="fl">0.025</span>  <span class="co"># Air thermal conductivity [W/(m.K)]</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>k_s <span class="op">=</span> <span class="fl">1.000</span>  <span class="co"># Solids thermal conductivity [W/(m.K)]</span></span>
@@ -336,7 +330,7 @@ window.Quarto = {
 </div>
 <p>For the limit of high temperatures, it is usually important to account for particle-particle radiation heat transfer; this introduces a <span class="math inline">\(T^3\)</span> dependence on temperature, as one should expect by linearizing Stefan-Boltzmann law.</p>
 <p>Please notice that these models compute different things; while Maxwell approximation computes the medium properties (to approximate matrix-inclusion as a single domain), Singh’s model accounts only for solids properties. One might wish to combine them (warning: unverified validity!) to evaluate overall medium thermal conductivity. See the references in the class documentation for further discussion, specially the extension proposed by Kiradjiev (2019), which leads to a result similar to the assymptotic behavior displayed below.</p>
-<div id="bc1724ec" class="cell" data-execution_count="6">
+<div id="aaf008ac" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d_p <span class="op">=</span> <span class="fl">0.005</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>eps <span class="op">=</span> <span class="fl">0.9</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -354,7 +348,7 @@ window.Quarto = {
 </div>
 </div>
 <p>Due to kinetic theory implications, gas thermal conductivity tend to have a positive slope in temperature; the following illustrates how this can be accounted for and the roughly linear behaviour introduced when computing medium properties within air.</p>
-<div id="3bc9a2b0" class="cell" data-execution_count="8">
+<div id="39be6151" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gas <span class="op">=</span> ct.Solution(<span class="st">"airish.yaml"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sol <span class="op">=</span> ct.SolutionArray(gas, (T.shape[<span class="dv">0</span>],))</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>sol.TP <span class="op">=</span> T, <span class="va">None</span></span>
@@ -382,7 +376,7 @@ window.Quarto = {
 <li>(optional) displaying a report</li>
 </ol>
 <p>The meaning of the tuple of arguments provided to <code>set_state</code> is specified by <code>tuple_name="TPX"</code>, which defaults to temperature, pressure, and molar proportions. Any triplet allowed by <a href="https://cantera.org/stable/python/thermo.html#id3">Cantera</a> can be specified here.</p>
-<div id="b199151d" class="cell" data-execution_count="9">
+<div id="0599c3cd" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Tw <span class="op">=</span> <span class="fl">1000.0</span>  <span class="co"># Wall temperature [K]</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> <span class="fl">10.0</span>     <span class="co"># Characteristic velocity [m/s]</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>D <span class="op">=</span> <span class="fl">0.05</span>     <span class="co"># Pipe diameter [m]</span></span>
@@ -404,7 +398,7 @@ Schmidt       0.761752  mix_diff_coeffs
 </div>
 </div>
 <p>If you prefer to have direct access to the internal solution, you can set properties as usual in Cantera, but you need to keep in mind to call <code>update()</code> to refresh the internal state of the calculator. Every time the properties are updated, the internal buffer of computed dimensionless numbers is refreshed, as you migth notice in the following table.</p>
-<div id="0df1e451" class="cell" data-execution_count="10">
+<div id="c47a10f3" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>calculator.solution.TPX <span class="op">=</span> <span class="fl">300.0</span>, <span class="fl">101325.0</span>, <span class="st">"N2: 1"</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>calculator.update()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -426,7 +420,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 <section id="sutherlandfitting" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="sutherlandfitting"><span class="header-section-number">4.3</span> SutherlandFitting</h2>
 <p>To the author’s knowledge, there is no standard tool to convert Cantera transport data to Sutherland parameters for use with OpenFOAM, what led to the motivation to develop <code>SutherlandFitting</code>. This simple class wraps a Cantera solution object, which it makes use for fitting Sutherland parameters to export as a table (to be used elswhere), and also allows for retrieving a converted database in OpenFOAM compatible format. The following example should be self-explanatory:</p>
-<div id="c8c1a4ac" class="cell" data-execution_count="11">
+<div id="3472292a" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> np.linspace(<span class="dv">500</span>, <span class="dv">2500</span>, <span class="dv">100</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>sutherland <span class="op">=</span> SutherlandFitting(<span class="st">"airish.yaml"</span>)</span>
@@ -470,7 +464,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 </div>
 </div>
 <p>If needed, it is also possible to have direct access to the viscosity data used in parameter fitting:</p>
-<div id="26e2ebf6" class="cell" data-execution_count="12">
+<div id="e10c30fd" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>sutherland.viscosity.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
 <div>
@@ -523,7 +517,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 </div>
 </div>
 <p>Because RMSE compresses all the error in a single value, you can check graphically where the deviations happen in the interval:</p>
-<div id="eeb044e8" class="cell" data-execution_count="13">
+<div id="8230353d" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plot <span class="op">=</span> sutherland.plot_species(<span class="st">"N2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -534,7 +528,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 </div>
 </div>
 <p>Finally, it <em>also</em> responds to its initial goal of exporting values in OpenFOAM format:</p>
-<div id="7f1a234d" class="cell" data-execution_count="14">
+<div id="fc075478" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sutherland.to_openfoam())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -562,7 +556,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 <section id="wsggradlibbordbar2020" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="wsggradlibbordbar2020"><span class="header-section-number">4.4</span> WSGGRadlibBordbar2020</h2>
 <p>Radiative properties of gases are often required when participating media characteristics imply so. Here we implement the WSGG model of <span class="citation" data-cites="Sadeghi2021">Sadeghi et al. (<a href="#ref-Sadeghi2021" role="doc-biblioref">2021</a>)</span> in class <code>WSGGRadlibBordbar2020</code>. The basic usage of the model to estimate total emissivity is done as follows:</p>
-<div id="d13f71c5" class="cell" data-execution_count="15">
+<div id="9d919777" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> WSGGRadlibBordbar2020()</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>model(L<span class="op">=</span><span class="dv">1</span>, T<span class="op">=</span><span class="dv">1000</span>, P<span class="op">=</span><span class="dv">101325</span>, x_h2o<span class="op">=</span><span class="fl">0.18</span>, x_co2<span class="op">=</span><span class="fl">0.08</span>, fvsoot<span class="op">=</span><span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
@@ -572,7 +566,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 <section id="validation-of-bordbar-wsgg-implementation" class="level3" data-number="4.4.1">
 <h3 data-number="4.4.1" class="anchored" data-anchor-id="validation-of-bordbar-wsgg-implementation"><span class="header-section-number">4.4.1</span> Validation of Bordbar WSGG implementation</h3>
 <p>Evaluation of the model against original source of Bordbar (2014) is satisfactory, as follows:</p>
-<div id="70d71993" class="cell" data-execution_count="17">
+<div id="3782a729" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -582,14 +576,14 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 </div>
 </div>
 <p>Absorption coefficients for pure substances only reproduce approximately values reported by Bordbar (2020).</p>
-<div id="a39e56b7" class="cell" data-execution_count="18">
+<div id="bc836bf6" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>model(L<span class="op">=</span><span class="dv">1</span>, T<span class="op">=</span><span class="dv">300</span>, P<span class="op">=</span><span class="dv">101325</span>, x_h2o<span class="op">=</span><span class="dv">0</span>, x_co2<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>model.absorption_coefs[<span class="dv">1</span>:]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>array([3.388079e-02, 4.544269e-01, 4.680226e+00, 1.038439e+02])</code></pre>
 </div>
 </div>
-<div id="a69ca59f" class="cell" data-execution_count="19">
+<div id="e58243ba" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>model(L<span class="op">=</span><span class="dv">1</span>, T<span class="op">=</span><span class="dv">300</span>, P<span class="op">=</span><span class="dv">101325</span>, x_h2o<span class="op">=</span><span class="dv">1</span>, x_co2<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>model.absorption_coefs[<span class="dv">1</span>:]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
@@ -600,7 +594,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 <section id="application-to-radiative-combustion" class="level3" data-number="4.4.2">
 <h3 data-number="4.4.2" class="anchored" data-anchor-id="application-to-radiative-combustion"><span class="header-section-number">4.4.2</span> Application to radiative combustion</h3>
 <p>Below we illustrate the application of <code>WSGGRadlibBordbar2020</code> to predict the emissivity of <span class="math inline">\(x\mathrm{H_2O}-(1-x)\mathrm{CO_2}\)</span> mixtures over a broad temperature range applicable to the analysis of combustion processes. One observes an important participation of flue gases, especially at lower temperatures.</p>
-<div id="e6f815b9" class="cell" data-execution_count="21">
+<div id="89f5f879" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>wsgg <span class="op">=</span> WSGGRadlibBordbar2020()</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="at">@np.vectorize</span></span>
