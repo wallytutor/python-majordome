@@ -1,1 +1,17 @@
 # Majordome Home
+
+## Getting Started
+
+To register `majordome` as a Jupyter kernel, run:
+
+```bash
+majordome --install-kernel
+```
+
+You can customize the kernel identity if needed:
+
+```bash
+majordome --install-kernel `
+    --kernel-name majordome-dev `
+    --display-name "Majordome (dev)"
+```
