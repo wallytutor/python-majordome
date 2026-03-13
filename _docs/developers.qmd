@@ -2,10 +2,11 @@
 
 ## Prerequisites
 
-The environment for developing Majordome requires at least a reasonably mondern version of Python and Rust. The exact versions may change over time, but as of the last update, the following (minimum) versions are recommended:
+The environment for developing Majordome requires at least a reasonably mondern version of Python and Rust. Documentation depends on Quarto. The exact versions may change over time, but as of the last update, the following (minimum) versions are recommended:
 
 - Python 3.12
 - Rust 1.90
+- Quarto 1.8
 
 The development focuses on portability and ease of setup, so by default any dependency relying on a C/C++ compiler is forbidden. This means that the development environment can be set up on any platform without needing to install additional compilers or tools.
 
@@ -122,3 +123,21 @@ def gen_full_deps(project="pyproject.toml", output="sandbox-deps.toml"):
 
 gen_full_deps()
 ```
+
+## Todo lists
+
+### Quick needs
+
+- Automate documentation builds with GitHub actions.
+
+- Update and simplify containerized builds for Linux.
+
+### Wishlist
+
+- Implement diffusional Grashof number in `majordome_engineering.transport.SutherlandFitting`, which is related to mass transfer arising because of the buoyant force caused by the concentration inhomogeneities.
+
+- Create a data converter to create Ansys Fluent SCM files directly from Cantera YAML (species data and reactions).
+
+- Add generation of TUI commands for Fluent expression generator (and further expand to general Fluent setup).
+
+- Migrate `gpxpy` usage to plain XML for better maintainability.

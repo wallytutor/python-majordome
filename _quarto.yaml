@@ -29,7 +29,6 @@ book:
     - majordome_utilities/pdftools.qmd
     - majordome_utilities/plotting.qmd
     - _docs/developers.qmd
-    - _docs/todolists.qmd
     - _docs/references.qmd
 
 format:
