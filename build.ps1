@@ -15,28 +15,34 @@
 .PARAMETER FlagBacktrace
     Enable Rust backtraces by setting RUST_BACKTRACE=1. Useful for debugging.
 
-.PARAMETER FromPip
-    Install the Python package using pip with editable mode. This builds the Rust
-    extensions and links the package for development.
-
 .PARAMETER RustCheck
     Run cargo check on all Rust libraries to verify compilation without building.
 
 .PARAMETER RustCore
     Build only the core Rust library (crates/core).
 
-.PARAMETER FreshDocs
-    Force a fresh build of the Sphinx documentation by clearing the cache.
-    Used with -PackageDocs.
+.PARAMETER TestRust
+    Run Rust tests using cargo test on the test crate.
+
+.PARAMETER TestPython
+    Run Python tests using pytest with verbose output.
+
+.PARAMETER FromPip
+    Install the Python package using pip with editable mode. This builds the Rust
+    extensions and links the package for development.
+
+.PARAMETER PackageDist
+    Create a wheel distribution package for the Python package.
 
 .PARAMETER PackageDocs
     Build the Sphinx documentation in HTML format.
 
+.PARAMETER FreshDocs
+    Force a fresh build of the Sphinx documentation by clearing the cache.
+    Used with -PackageDocs.
+
 .PARAMETER DocsPdf
     Build the Sphinx documentation in PDF format.
-
-.PARAMETER PackageDist
-    Create a wheel distribution package for the Python package.
 
 .PARAMETER Clean
     Remove build artifacts and log files (build/, target/, log.*).
@@ -45,44 +51,30 @@
     Perform a full clean including virtual environments, distribution files, and
     documentation builds (venv/, dist/, docs/_build/).
 
-.PARAMETER TestRust
-    Run Rust tests using cargo test on the test crate.
-
-.PARAMETER TestPython
-    Run Python tests using pytest with verbose output.
-
 .PARAMETER Help
     Display this help message and exit.
-
-.EXAMPLE
-    .\build.ps1 -FromPip
-    Install the Python package in development mode.
-
-.EXAMPLE
-    .\build.ps1 -FromPip -FlagRelease
-    Install the Python package with release optimizations.
-
-.EXAMPLE
-    .\build.ps1 -TestPython
-    Run Python tests.
-
-.EXAMPLE
-    .\build.ps1 -RustCheck -FlagBacktrace
-    Check Rust code with backtraces enabled.
 #>
 
 param (
-    [Parameter(Mandatory=$false, ParameterSetName="Flags")]
+    # -- Build options
+
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
     [switch]$FlagRelease,
 
-    [Parameter(Mandatory=$false, ParameterSetName="Flags")]
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
     [switch]$FlagBacktrace,
 
-    [Parameter(Mandatory=$false, ParameterSetName="Devel")]
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
     [switch]$RustCheck,
 
-    [Parameter(Mandatory=$false, ParameterSetName="Devel")]
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
     [switch]$RustCore,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
+    [switch]$TestRust,
+
+    [Parameter(Mandatory=$false, ParameterSetName="Build")]
+    [switch]$TestPython,
 
     [Parameter(Mandatory=$false, ParameterSetName="Build")]
     [switch]$FromPip,
@@ -93,6 +85,8 @@ param (
         $true
     })]
     [switch]$PackageDist,
+
+    # -- Documentation options
 
     [Parameter(Mandatory=$false, ParameterSetName="Docs")]
     [switch]$PackageDocs,
@@ -111,17 +105,15 @@ param (
     })]
     [switch]$DocsPdf,
 
+    # -- Clean options
+
     [Parameter(Mandatory=$false, ParameterSetName="Clean")]
     [switch]$Clean,
 
     [Parameter(Mandatory=$false, ParameterSetName="Clean")]
     [switch]$DistClean,
 
-    [Parameter(Mandatory=$false, ParameterSetName="Test")]
-    [switch]$TestRust,
-
-    [Parameter(Mandatory=$false, ParameterSetName="Test")]
-    [switch]$TestPython,
+    # -- Help
 
     [Parameter(Mandatory=$false, ParameterSetName="Help")]
     [switch]$Help
