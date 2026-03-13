@@ -1,0 +1,49 @@
+# Plug-flow reactor computational graph
+
+```{python}
+from casadi import SX, Function
+import majordome as mj
+import cantera as ct
+import casadi as cs
+```
+
+```{python}
+gas = ct.Solution("gri30.yaml")
+```
+
+```{python}
+T_symbol = SX.sym("T")
+P_symbol = SX.sym("P")
+Y_symbol = SX.sym("Y", gas.n_species)
+```
+
+## Species thermodynamics
+
+```{python}
+species = gas.species()[0]
+species
+```
+
+## Mixture thermodynamics
+
+```{python}
+
+```
+
+## Reaction kinetics
+
+```{python}
+
+```
+
+## Reactor model
+
+```{python}
+
+```
+
+## Simulation
+
+```{python}
+
+```
