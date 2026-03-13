@@ -44,6 +44,9 @@
 .PARAMETER DocsPdf
     Build the Sphinx documentation in PDF format.
 
+.PARAMETER PublishDocs
+    Publish the built documentation to GitHub Pages using quarto publish.
+
 .PARAMETER Clean
     Remove build artifacts and log files (build/, target/, log.*).
 
@@ -105,6 +108,10 @@ param (
     })]
     [switch]$DocsPdf,
 
+    # Separate set: publish only if it works!
+    [Parameter(Mandatory=$false, ParameterSetName="PublishDocs")]
+    [switch]$PublishDocs,
+
     # -- Clean options
 
     [Parameter(Mandatory=$false, ParameterSetName="Clean")]
@@ -116,13 +123,18 @@ param (
     # -- Help
 
     [Parameter(Mandatory=$false, ParameterSetName="Help")]
-    [switch]$Help
+    [switch]$Help,
+
+    # Just so that it runs...
+    [Parameter(Mandatory=$false, ParameterSetName="Dummy")]
+    [switch]$Dummy
 )
 
-$env:MAJORDOME_INSTALL = "$PSScriptRoot[full]"
+$PATH_CORE =  "$PSScriptRoot\Cargo.toml"
+$VENV_PATH =  "$PSScriptRoot\venv"
 
-$PATH_CORE =  "Cargo.toml"
-$VENV_PATH =  "venv"
+$env:MAJORDOME_INSTALL = "$PSScriptRoot[full]"
+$env:QUARTO_PYTHON = "$VENV_PATH\Scripts\python.exe"
 
 function Remove-Hard {
     param (
@@ -155,25 +167,40 @@ function Set-EnvironmentVariables {
     Write-Host ""
 }
 
-function Invoke-VenvActivation {
-    Write-Host "`nChecking for Cargo (Rust)..."
-    $cargoVersion = cargo --version 2>$null
-
+function Test-ToolStatus {
+    param (
+        [string]$ToolName,
+        [string]$Result
+    )
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "Cargo found: $cargoVersion"
+        Write-Host "$ToolName found: $Result"
     } else {
-        Write-Host "Cargo not found! Please install Rust..."
+        Write-Host "$ToolName not found! Please install $ToolName..."
         exit 1
     }
+}
+
+function Invoke-VenvActivation {
+    $cargoVersion = cargo --version 2>$null
+    Test-ToolStatus -ToolName "Cargo" -Result $cargoVersion
+
+    $quartoVersion = quarto --version 2>$null
+    Test-ToolStatus -ToolName "Quarto" -Result $quartoVersion
+
+
 
     if (-not (Test-Path $VENV_PATH)) {
         & python -m venv $VENV_PATH
         & "$VENV_PATH\Scripts\Activate.ps1"
+
         & python -m pip install --upgrade pip
         & python -m pip install --upgrade --force-reinstall build wheel
         & python -m pip install --upgrade --force-reinstall setuptools
         & python -m pip install --upgrade --force-reinstall setuptools_rust
         & python -m pip install -e "$env:MAJORDOME_INSTALL"
+
+        & quarto install tinytex
+        & quarto check
     }
 
     if (-not $env:VIRTUAL_ENV) {
@@ -270,6 +297,11 @@ function Invoke-BuildDocs {
     exit 0
 }
 
+function Invoke-PublishDocs {
+    & quarto publish gh-pages --no-prompt --no-browser
+    exit 0
+}
+
 function Main {
     if ($Help) {
         Get-Help $PSCommandPath
@@ -281,13 +313,15 @@ function Main {
         Remove-Hard $(Join-Path $PSScriptRoot "build")
         Remove-Hard $(Join-Path $PSScriptRoot "target")
         Remove-Hard $(Join-Path $PSScriptRoot "log.*")
-    }
 
-    if ($DistClean) {
-        Write-Warn "Cleaning distribution and environment..."
-        Remove-Hard $(Join-Path $PSScriptRoot "venv")
-        Remove-Hard $(Join-Path $PSScriptRoot "dist")
-        Remove-Hard $(Join-Path $PSScriptRoot "docs\_build")
+        if ($DistClean) {
+            Write-Warn "Cleaning distribution and environment..."
+            Remove-Hard $(Join-Path $PSScriptRoot "venv")
+            Remove-Hard $(Join-Path $PSScriptRoot "dist")
+            Remove-Hard $(Join-Path $PSScriptRoot "docs\_build")
+        }
+
+        exit 0
     }
 
     Set-EnvironmentVariables
@@ -299,7 +333,9 @@ function Main {
 
     if ($TestRust)    { Invoke-TestRustLibs }
     if ($TestPython)  { Invoke-TestPythonLibs }
+
     if ($PackageDocs) { Invoke-BuildDocs }
+    if ($PublishDocs) { Invoke-PublishDocs }
 
     Write-Host "No build option specified."
 }

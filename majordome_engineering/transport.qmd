@@ -180,7 +180,7 @@ print(sutherland.to_openfoam())
 
 ## WSGGRadlibBordbar2020
 
-Radiative properties of gases are often required when participating media characteristics imply so. Here we implement the WSGG model of @Bordbar2020 in class `WSGGRadlibBordbar2020`. The basic usage of the model to estimate total emissivity is done as follows:
+Radiative properties of gases are often required when participating media characteristics imply so. Here we implement the WSGG model of @Sadeghi2021 in class `WSGGRadlibBordbar2020`. The basic usage of the model to estimate total emissivity is done as follows:
 
 ```{python}
 #| echo: true

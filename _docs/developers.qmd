@@ -47,6 +47,10 @@ Documentation builds:
 
 # Erase everything and do not use any cached files:
 ./build.ps1 -PackageDocs -FreshDocs
+
+# XXX Must be used alone, as build might fail.
+# Publish the documentation to GitHub Pages:
+./build.ps1 -PublishDocs
 ```
 
 ## Command reference (shell)

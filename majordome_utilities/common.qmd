@@ -21,10 +21,10 @@ import numpy as np
 Simplest of relaxation methods; assume you have a new updated solution $A_{new}^{\star}$ for a problem whose past state was $A_{old}$, then the manager will ensure the following relaxation will be applied to compute the next solution state $A_{new}$ to be used in whatever you are computing:
 
 $$
-\begin{align}
+\begin{aligned}
 A_{new} &= \alpha{}A_{old} + (1-\alpha)A_{new}^{\star}\\
 A_{old} &= A_{new}
-\end{align}
+\end{aligned}
 $$
 
 Notice that in this formulation, $\alpha$ (or `alpha` in the API) represents the fraction of old solution to be used in the *smearing* process. Below we illustrate the effect of a step function $H$ valued at `10` from the begining over consecutive updates (here we do not test for convergence, as that is problem specific and for this simple case the required number of steps could be evaluated by hand, take some time to try!).

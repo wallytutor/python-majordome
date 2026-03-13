@@ -38,21 +38,17 @@ log.*
 docs/references.bib
 
 # Quarto artifacts:
-/.quarto/
-**/*.quarto_ipynb
+.quarto/
+.jupyter_cache/
 _site/
 _book/
 site_libs/
-reference/*
-objects.json
+**/*.quarto_ipynb
+**/*_files/
 *.html
 index.*
 !index.qmd
-cell-*-output-*.png
-
-
-# Jupyter cache
-.jupyter_cache/
+# cell-*-output-*.png
 
 ##############################################################################
 # PYTHON
@@ -232,3 +228,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+/.quarto/
