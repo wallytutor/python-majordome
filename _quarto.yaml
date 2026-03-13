@@ -19,7 +19,14 @@ book:
 
   chapters:
     - index.qmd
+    - majordome_engineering/energy.qmd
+    - majordome_engineering/reactor.qmd
+    - majordome_engineering/transport.qmd
+    - majordome_simulation/fluent.qmd
+    - majordome_utilities/common.qmd
     - majordome_utilities/documents.qmd
+    - majordome_utilities/parsing.qmd
+    - majordome_utilities/pdftools.qmd
     - majordome_utilities/plotting.qmd
     - _docs/developers.qmd
     - _docs/todolists.qmd

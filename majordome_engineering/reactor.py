@@ -28,22 +28,27 @@ WARN_UNKNOWN_SPECIES = True
 """ If true, warns about unknown species found in composition. """
 
 
-def toggle_reactor_warnings(*,
-        toggle_non_key_value: bool = True,
-        toggle_missing_species_name: bool = True,
-        toggle_unknown_species: bool = True,
-        **kwargs
-    ) -> None:
-    """ Reverse truth value of warning flags. """
-    if toggle_non_key_value:
+def toggle_reactor_warnings(**kwargs) -> None:
+    """ Reverse truth value of warning flags.
+
+    Parameters
+    ----------
+    toggle_non_key_value: bool | None
+        If true, reverse truth value of warning about non key-value composition.
+    toggle_missing_species_name: bool | None
+        If true, reverse truth value of warning about missing species name.
+    toggle_unknown_species: bool | None
+        If true, reverse truth value of warning about unknown species.
+    """
+    if kwargs.get("toggle_non_key_value", None) is not None:
         global WARN_CANTERA_NON_KEY_VALUE
         WARN_CANTERA_NON_KEY_VALUE = not WARN_CANTERA_NON_KEY_VALUE
 
-    if toggle_missing_species_name:
+    if kwargs.get("toggle_missing_species_name", None) is not None:
         global WARN_MISSING_SPECIES_NAME
         WARN_MISSING_SPECIES_NAME = not WARN_MISSING_SPECIES_NAME
 
-    if toggle_unknown_species:
+    if kwargs.get("toggle_unknown_species", None) is not None:
         global WARN_UNKNOWN_SPECIES
         WARN_UNKNOWN_SPECIES = not WARN_UNKNOWN_SPECIES
 
@@ -71,7 +76,17 @@ def _split_composition(species):
 
 def composition_to_dict(Y: str, species_names: list[str] = []
                         ) -> dict[str, float]:
-    """ Convert a Cantera composition string to dictionary. """
+    """ Convert a Cantera composition string to dictionary.
+
+    Parameters
+    ----------
+    Y: str
+        Composition specification string, *e.g.* "O2: 1, N2: 3".
+    species_names: list[str], optional
+        List of valid species names for validation. If provided, only
+        species in this list will be included in the output dictionary.
+        If not provided, all species will be included.
+    """
     Y_dict = dict()
 
     for species in Y.split(","):
@@ -113,11 +128,11 @@ def composition_to_array(Y: str, species_names: list[str]
 
 def _solution_report(sol: ct.composite.Solution,
                      qty: ct.composite.Quantity | None = None,
-                    specific_props: bool = True,
-                    composition_spec: str = "mass",
-                    selected_species: list[str] = [],
-                    **kwargs,
-                    ) -> list[tuple[str, str, Any]]:
+                     specific_props: bool = True,
+                     composition_spec: str = "mass",
+                     selected_species: list[str] = [],
+                     **kwargs,
+                     ) -> list[tuple[str, str, Any]]:
     """ Generate a solution report for tabulation, see `solution_report`. """
     report = [("Temperature", "K", sol.T), ("Pressure", "Pa",sol.P),
               ("Density", "kg/m³", sol.density_mass)]
@@ -168,6 +183,9 @@ def solution_report(sol: SolutionLikeType,
     selected_species: list[str] = []
         Selected species to display; return all if a composition
         specification was provided.
+    show_mass: bool = False
+        If true, add mass of quantity to report if `sol` is a
+        `ct.composite.Quantity`.
 
     Raises
     ------
@@ -192,14 +210,26 @@ def solution_report(sol: SolutionLikeType,
 
 
 def copy_solution(sol: ct.composite.Solution) -> ct.composite.Solution:
-    """ Makes a hard copy of a Solution object. """
+    """ Makes a hard copy of a Solution object.
+
+    Parameters
+    ----------
+    sol: ct.composite.Solution
+        Solution to be copied.
+    """
     new_sol = ct.composite.Solution(sol.source, sol.name)
     new_sol.TPY = sol.TPY
     return new_sol
 
 
 def copy_quantity(qty: ct.composite.Quantity) -> ct.composite.Quantity:
-    """ Makes a hard copy of a ct.composite.Quantity object. """
+    """ Makes a hard copy of a ct.composite.Quantity object.
+
+    Parameters
+    ----------
+    qty: ct.composite.Quantity
+        Quantity to be copied.
+    """
     sol = copy_solution(qty.phase)
     return ct.composite.Quantity(sol, mass=qty.mass, constant=qty.constant)
 
@@ -725,6 +755,13 @@ class PlugFlowChainCantera:
         ax[1].legend(loc=kwargs.get("loc_T", 1))
 
 
+#TODO make this a classmethod of the above:
 def get_reactor_data(pfr: PlugFlowChainCantera) -> PlugFlowAxialSources:
-    """ Wrapper to allocate properly dimensioned solver data. """
+    """ Wrapper to allocate properly dimensioned solver data.
+
+    Parameters
+    ----------
+    pfr: PlugFlowChainCantera
+        Reactor for which data is to be allocated.
+    """
     return PlugFlowAxialSources(pfr.n_reactors, pfr.n_species)

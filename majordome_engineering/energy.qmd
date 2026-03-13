@@ -1,69 +1,64 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.17.3
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
+# Energy sources
 
-# # Energy models
+*aka majordome_engineering.energy*
 
-# This module is concerned with providing classes for computation of energy sources; these are mostly related to estimation of fuel consumption or integration to another simulation modules. Hereafter we illustrate the in cascading complexity the available energy sources. Some of these are simple wrapper around features provided by the combustion utilities.
+```{python}
+from majordome_utilities.documents import *
+from majordome_engineering.energy import *
+```
 
-# %load_ext autoreload
-# %autoreload 2
+This module is concerned with providing classes for computation of energy sources; these are mostly related to estimation of fuel consumption or integration to another simulation modules. Hereafter we illustrate the in cascading complexity the available energy sources. Some of these are simple wrapper around features provided by the combustion utilities.
 
-from majordome import (
-    StateType,
-    NormalFlowRate,
-    CombustionPowerOp,
-    CombustionFlowOp,
-    CombustionAtmosphereCHON,
-    CombustionPowerSupply,
-    HeatedGasEnergySource,
-    CombustionEnergySource,
-)
+## CombustionAtmosphereCHON
 
-# +
-# import majordome.walang
-# ct = __builtins__.cantera
-# -
+A common need in industry is to evaluate the real heating value from a gas composition reported by the supplier. This is the main goal of `CombustionAtmosphereCHON`, which has a very simple API provided below:
 
-# ## Combustion setup utilities
-
-# A common need in industry is to evaluate the real heating value from a gas composition reported by the supplier. This is the main goal of `CombustionAtmosphereCHON`, which has a very simple API provided below:
-
+```{python}
+#| echo: true
 gas = CombustionAtmosphereCHON("gri30.yaml")
 lhv = gas.solution_heating_value("CH4: 1", "O2: 1")
 print(f"Solution heating value: {lhv:.2f} MJ/kg")
+```
 
-# Built upon it, `CombustionPowerSupply` performs the basic calculations for retrieving required flow rates from a given power specification; this proves very handy for the CFD engineer.
+## CombustionPowerSupply
 
+Built upon `CombustionAtmosphereCHON`, `CombustionPowerSupply` performs the basic calculations for retrieving required flow rates from a given power specification; this proves very handy for the CFD engineer.
+
+```{python}
+#| echo: true
 supply = CombustionPowerSupply(500.0, 1.0, "CH4: 1", "O2: 1", "gri30.yaml")
 print(supply.report())
+```
 
-# **TODO:** missing a sample with `CombustionAtmosphereMixer`!
+<!-- **TODO:** missing a sample with `CombustionAtmosphereMixer`! -->
 
-# ## Energy sources
+## Energy sources
 
+### HeatedGasEnergySource
+
+```{python}
+#| echo: true
 source = HeatedGasEnergySource("airish.yaml", 500.0, mass_flow_rate=1.0)
 print(source.report())
+```
 
+```{python}
+#| echo: true
 source = HeatedGasEnergySource("airish.yaml", 500.0, mass_flow_rate=1.0,
                                cross_area=0.1, Y="N2: 0.79, O2: 0.21")
 print(source.report())
+```
 
+### CombustionEnergySource
+
+```{python}
+#| echo: true
 fuel_state = StateType("CH4: 1",             300, 101325)
 oxid_state = StateType("N2: 0.79, O2: 0.21", 300, 101325)
+```
 
-# +
+```{python}
+#| echo: true
 ops = CombustionPowerOp(500.0, 1.0, fuel_state, oxid_state)
 source = CombustionEnergySource("ch4/bfer.yaml", operation=ops, cross_area=0.1)
 
@@ -79,12 +74,18 @@ qdot_fuel = 3600 * mdot_fuel / nfr_fuel.density
 qdot_oxid = 3600 * mdot_oxid / nfr_oxid.density
 
 print(source.report())
-# -
+```
 
+```{python}
+#| echo: true
 ops = CombustionFlowOp("mass", mdot_fuel, mdot_oxid, fuel_state, oxid_state)
 source = CombustionEnergySource("ch4/bfer.yaml", operation=ops, cross_area=0.1)
 print(source.report())
+```
 
+```{python}
+#| echo: true
 ops = CombustionFlowOp("volume", qdot_fuel, qdot_oxid, fuel_state, oxid_state)
 source = CombustionEnergySource("ch4/bfer.yaml", operation=ops, cross_area=0.1)
 print(source.report())
+```

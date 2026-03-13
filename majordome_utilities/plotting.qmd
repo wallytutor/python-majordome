@@ -4,11 +4,7 @@
 
 ```{python}
 from majordome_utilities.documents import *
-from majordome_utilities.plotting import (
-    MajordomePlot,
-    PowerFormatter,
-    centered_colormap,
-)
+from majordome_utilities.plotting import *
 import numpy as np
 import pyvista as pv
 
@@ -18,7 +14,7 @@ pv.set_jupyter_backend("static")
 
 ## MajordomePlot
 
-One might ask why a wrapper around Matplotlib's `Figure` and `Axes` is necessary, and I would strongly agree that it isn't. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That's the main goal of `MajordomePlot`.
+One might ask why a wrapper around Matplotlib's `Figure` and `Axes` is necessary, and I would strongly agree that it isn't. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That's the main goal of `MajordomePlot`: simplifying the plotting of publication-quality figures across Majordome (and beyond!). Below we illustrate how to use this functionality to ensure all the plots in a project look the same.
 
 ```{python}
 doc = DocumentedClass(MajordomePlot)
@@ -44,6 +40,14 @@ doc.classmethods()
 ```
 
 In the following example, we make use of this decorator to parametrize the labels of the plot. Internally, we must expect a *keyword-only* argument `plot`, which is the `MajordomePlot` instance created by the decorator, from which we can access the `Figure` and `Axes` objects as usual. The rest of the code is just standard Matplotlib code, with the exeption that the axes is raveled, so we can access it with `ax[0]` instead of `ax[0, 0]`. Returning `plot` is optional (it is done by the decorator already), but it avoids linting errors if you want to annotate the return type as `MajordomePlot`.
+
+Here we create a function that will be used below in the examples. In summary, to get it working, you need to:
+
+- Use decorator `@MajordomePlot.new` with all its configurable attributes; for details, please refer to its API documentation.
+
+- Have a function with signature `func(*args, plot=None, **kwargs) -> None`, where it is recommended (for linter) to provide explictly keyword `plot=None`.
+
+- Unpack `fig, ax = plot.subplots()` or just `_, ax = plot.subplots()`, as needed, inside the figure; these contain standard `matplotlib` figure and axes.
 
 ```{python}
 #| echo: true

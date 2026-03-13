@@ -1,68 +1,59 @@
-# ---
-# jupyter:
-#   jupytext:
-#     cell_metadata_filter: -all
-#     text_representation:
-#       extension: .py
-#       format_name: light
-#       format_version: '1.5'
-#       jupytext_version: 1.17.3
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
+# Argument parsing
 
-# # A note on `**kwargs` parsing
+*aka majordome_utilities.parsing*
 
-# %load_ext autoreload
-# %autoreload 2
-
+```{python}
+from majordome_utilities.documents import *
+from majordome_utilities.parsing import *
 from functools import wraps, update_wrapper
-from majordome.parsing import FuncArguments
-# import majordome.walang
+```
 
-# ## Illustrating `FuncArguments`
+## FuncArguments
 
+```{python}
+#| echo: true
 def f(*args, **kwargs):
     """ Arbitrary interface function for illustration. """
     f.parser.update(*args, **kwargs)
 
     try:
-        print(f"a = {f.parser.get("a")}, b = {f.parser.get("b")}")
+        print(f"a = {f.parser.get('a')}, b = {f.parser.get('b')}")
         f.parser.close()
     except Exception as err:
         print(err)
         pass
+```
 
+- Arguments are both positional-mandatory
 
-# - Arguments are both positional-mandatory
-
-# +
+```{python}
+#| echo: true
 f.parser = FuncArguments()
 f.parser.add("a", index=0)
 f.parser.add("b", index=1)
 
 f(3)
 f(3, 4)
-# -
+```
 
-# - Arguments are both keyword-only
+- Arguments are both keyword-only
 
-# +
+```{python}
+#| echo: true
 f.parser = FuncArguments()
-f.parser.add("a", default="aaaa")
-f.parser.add("b", default="bbbb")
+f.parser.add("a", default="foo")
+f.parser.add("b", default="bar")
 
 f(3)
 f(3, 4)
 f(3, b=4)
 f(a=3, b=4)
-# -
+```
 
-# - One positional and another (maybe) positional
+- One positional and another (maybe) positional
 
-# +
+```{python}
+#| echo: true
 f.parser = FuncArguments()
 f.parser.add("a", index=0)
 f.parser.add("b", index=1, default=6)
@@ -70,11 +61,12 @@ f.parser.add("b", index=1, default=6)
 f(3)
 f(3, 4)
 f(3, 4, b=4)
-# -
+```
 
-# - Badly configured
+- Badly configured
 
-# +
+```{python}
+#| echo: true
 f.parser = FuncArguments()
 
 try:
@@ -82,16 +74,18 @@ try:
     f.parser.add("b")
 except Exception as err:
     print(err)
+```
 
+## Creating class constructors
 
-# -
+*You should probably not do this, but it is quite fun!*
 
-# ## Creating class constructors
-
+```{python}
+#| echo: true
 def _init_some_class(cls):
     """ Decorator to enhance SomeClass with argument parsing. """
     orig_init = cls.__init__
-    
+
     # Maybe stash for later use?
     # cls.__orig_init__ = orig_init
 
@@ -116,18 +110,25 @@ def _init_some_class(cls):
 
     cls.__init__ = update_wrapper(new_init, orig_init)
     return cls
+```
 
-
+```{python}
+#| echo: true
 class BaseClass:
     def __init__(self, *args, **kwargs) -> None:
         print(f"args   = {args}")
         print(f"kwargs = {kwargs}")
+```
 
-
+```{python}
+#| echo: true
 @_init_some_class
 class SomeClass(BaseClass):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+```
 
-
+```{python}
+#| echo: true
 some = SomeClass(1, 2, 3, x=1, y=2)
+```
