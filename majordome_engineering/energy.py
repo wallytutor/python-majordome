@@ -12,12 +12,13 @@ from majordome_utilities.common import (
     StateType,
     constants,
 )
-from majordome_utilities.reactor import (
+from majordome_utilities.parsing import FuncArguments
+
+from .reactor import (
     NormalFlowRate,
     solution_report,
     copy_quantity
 )
-from majordome_utilities.parsing import FuncArguments
 
 
 class CombustionPowerOp(NamedTuple):
