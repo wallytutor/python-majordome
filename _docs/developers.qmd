@@ -9,7 +9,9 @@ The environment for developing Majordome requires at least a reasonably mondern 
 
 The development focuses on portability and ease of setup, so by default any dependency relying on a C/C++ compiler is forbidden. This means that the development environment can be set up on any platform without needing to install additional compilers or tools.
 
-## Command reference (Windows PowerShell)
+## Command reference
+
+### Windows PowerShell
 
 Windows development is performed using the `build.ps1` script, you find it in the project root. It is fully documented, but for convenience, here is a quick reference to the most common commands.
 
@@ -53,7 +55,7 @@ Documentation builds:
 ./build.ps1 -PublishDocs
 ```
 
-## Command reference (shell)
+### Unix-like shell
 
 For developing the package, consider doing so from within a virtual environment; that will makes things easier to check versions and pin them properly in package dependencies, as needed. Following the next snippet, install, activate, upgrade pip, install build tools, and install the package in editable mode with all optional dependencies:
 
@@ -101,18 +103,22 @@ python -m twine upload --repository majordome dist/*
 Generate the list of `full` dependencies using the following snipped; make sure to sanitize the outputs and update the corresponding section in `pyproject.toml`. There might be some duplicate dependencies that **shall** agree between themselves.
 
 ```python
+from textwrap import indent
 import tomllib
 
-with open("pyproject.toml", "rb") as f:
-    data = tomllib.load(f)
 
-deps = data["project"]["optional-dependencies"]
-del deps["full"]
+def get_full_deps(data):
+    deps = data["project"]["optional-dependencies"]
+    deps = [f'"{p}"' for pkgs in deps.values() for p in pkgs]
+    deps = indent(",\n".join(sorted(set(deps))), "    ")
+    return f"full = [\n{deps}\n]"
 
-alldeps = [p for pkgs in deps.values() for p in pkgs]
-alldeps = sorted(set(alldeps))
 
-with open("sandbox-deps.toml", "w") as fp:
-    for dep in alldeps:
-        fp.write(f'"{dep}",\n')
+def gen_full_deps(project="pyproject.toml", output="sandbox-deps.toml"):
+    with open(project, "rb") as fr:
+        with open(output, "w") as fp:
+            fp.write(get_full_deps(tomllib.load(fr)))
+
+
+gen_full_deps()
 ```
