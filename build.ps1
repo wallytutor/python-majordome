@@ -127,17 +127,7 @@ param (
     [switch]$Help
 )
 
-$submodules = @(
-    "docs",
-    "extras",
-    "cartography",
-    "engineering",
-    "simulation",
-    "utilities",
-    "utilities_pdftools"
-) -join ","
-
-$env:MAJORDOME_INSTALL = "$PSScriptRoot[$submodules]"
+$env:MAJORDOME_INSTALL = "$PSScriptRoot[full]"
 
 $PATH_CORE =  "Cargo.toml"
 $VENV_PATH =  "venv"
