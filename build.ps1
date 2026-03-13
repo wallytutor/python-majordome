@@ -187,8 +187,6 @@ function Invoke-VenvActivation {
     $quartoVersion = quarto --version 2>$null
     Test-ToolStatus -ToolName "Quarto" -Result $quartoVersion
 
-
-
     if (-not (Test-Path $VENV_PATH)) {
         & python -m venv $VENV_PATH
         & "$VENV_PATH\Scripts\Activate.ps1"
@@ -203,10 +201,15 @@ function Invoke-VenvActivation {
         & quarto check
     }
 
-    if (-not $env:VIRTUAL_ENV) {
+    if ($env:VIRTUAL_ENV -and $env:VIRTUAL_ENV -eq $VENV_PATH) {
+        Write-Host "Virtual environment already active: $env:VIRTUAL_ENV"
+        return
+    } else {
+        Write-Host "Activating virtual environment: $VENV_PATH"
         & "$VENV_PATH\Scripts\Activate.ps1"
-        & python -c "import setuptools, inspect; print(setuptools.__file__)"
     }
+
+    & python -c "import setuptools, inspect; print(setuptools.__file__)"
 }
 
 function Invoke-CheckRustLibs {
