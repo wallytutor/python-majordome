@@ -5,16 +5,14 @@ from typing import Any, NamedTuple
 from cantera.composite import Solution
 import cantera as ct
 
-from majordome_utilities.common import (
-    AbstractReportable,
-    CompositionType,
-    SolutionLikeType,
-    StateType,
-    constants,
-)
+from majordome_utilities import constants
+from majordome_utilities.common import AbstractReportable
 from majordome_utilities.parsing import FuncArguments
 
 from .reactor import (
+    CompositionType,
+    SolutionLikeType,
+    StateType,
     NormalFlowRate,
     solution_report,
     copy_quantity

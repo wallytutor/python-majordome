@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
+from numbers import Number
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, NamedTuple
 from numpy.typing import NDArray
 from tabulate import tabulate
 import cantera as ct
@@ -9,12 +10,8 @@ import numpy as np
 import pandas as pd
 import warnings
 
-from majordome_utilities.common import (
-    CompositionType,
-    SolutionLikeType,
-    constants,
-    safe_remove,
-)
+from majordome_utilities import constants
+from majordome_utilities.common import safe_remove
 from majordome_utilities.plotting import MajordomePlot
 
 
@@ -26,6 +23,20 @@ WARN_MISSING_SPECIES_NAME = True
 
 WARN_UNKNOWN_SPECIES = True
 """ If true, warns about unknown species found in composition. """
+
+
+CompositionType = str | dict[str, float]
+""" Input type for Cantera composition dictionaries. """
+
+SolutionLikeType = ct.composite.Solution | ct.composite.Quantity
+""" Input type for Cantera solution objects. """
+
+
+class StateType(NamedTuple):
+    """ Input type for Cantera TPX state dictionaries. """
+    X: CompositionType
+    T: int | float | Number = constants.T_NORMAL
+    P: int | float | Number = constants.P_NORMAL
 
 
 def toggle_reactor_warnings(**kwargs) -> None:
@@ -681,6 +692,10 @@ class PlugFlowChainCantera:
         """ Wraps call to `loop` when using a data structure. """
         return self.loop(source.m, source.h, source.Y, Q=source.Q, **kwargs)
 
+    def get_reactor_data(self) -> PlugFlowAxialSources:
+        """ Provides properly dimensioned data structure for sources. """
+        return get_reactor_data(self)
+
     # -----------------------------------------------------------------
     # API (properties)
     # -----------------------------------------------------------------
@@ -755,7 +770,6 @@ class PlugFlowChainCantera:
         ax[1].legend(loc=kwargs.get("loc_T", 1))
 
 
-#TODO make this a classmethod of the above:
 def get_reactor_data(pfr: PlugFlowChainCantera) -> PlugFlowAxialSources:
     """ Wrapper to allocate properly dimensioned solver data.
 
