@@ -6,7 +6,7 @@ execute:
   echo:    false
   warning: false
 
-bibliography: _docs/references.bib
+bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
 
 book:
   title: "Majordome"
