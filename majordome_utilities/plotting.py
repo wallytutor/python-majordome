@@ -14,7 +14,7 @@ import numpy as np
 
 
 Params = ParamSpec("Params")
-SigIn  = Callable[Params, None]
+SigIn  = Callable[Params, Any]
 SigOut = Callable[Params, object]
 
 
@@ -254,3 +254,10 @@ def centered_colormap(name: str, vmin: float, vmax: float,
     lut.scalar_range = (vmin, vmax)
 
     return lut
+
+
+@MajordomePlot.new(size=(5, 4))
+def plot2d(x, y, *, plot: MajordomePlot = MajordomePlot(), **kwargs):
+    _, ax = plot.subplots()
+    ax[0].plot(x, y, **kwargs)
+    return plot
