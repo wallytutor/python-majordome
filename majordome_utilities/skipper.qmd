@@ -1,0 +1,52 @@
+# Skipping execution
+
+*aka majordome_utilities.skipper*
+
+A simple extension for skipping the execution of code cells in a notebook. It does that and only that. The goal is to control notebook execution from the environment, which is useful when running notebooks with long-running cells, as numerical simulations.
+
+On top of your notebook, simply load the extension:
+
+```{python}
+#| echo: true
+%load_ext majordome_utilities.skipper
+```
+
+Here we will use `sleep` to emulate a long-running cell, and we will control its execution with an environment variable. Generally speaking, the goal is to export environment variables in the terminal before running the notebook, but for demonstration purposes, we will set it in the notebook itself.
+
+```{python}
+#| echo: true
+from time import sleep
+import os
+```
+
+The following (case insensitive) options are accepted by the `%%skipper` magic command. Please, notice that the *truthy* values mean *skip this cell* (as the extension name implies, but even myself can be confused by the double negative here).
+
+```{python}
+from majordome_utilities.skipper import LOOKUP_STR2BOOL
+print(LOOKUP_STR2BOOL)
+```
+
+Below we set the environment variable `SOLVE_LONNNNG` to `true`, which means that the cell will be skipped. You can change it to `false` to execute the cell, or even set it to any other value, as long as it is in the lookup table.
+
+```{python}
+#| echo: true
+os.environ["SOLVE_LONNNNG"] = "true"
+
+did_you_skip_it = True
+```
+
+If everything is file, the following cell will be skipped:
+
+```{python}
+#| echo: true
+%%skipper SOLVE_LONNNNG
+sleep(100)
+did_you_skip_it = False
+```
+
+And here we check if it was actually skipped:
+
+```{python}
+#| echo: true
+print("Did you skip it?", did_you_skip_it)
+```

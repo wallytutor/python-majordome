@@ -29,6 +29,7 @@ book:
     - majordome_utilities/parsing.qmd
     - majordome_utilities/pdftools.qmd
     - majordome_utilities/plotting.qmd
+    - majordome_utilities/skipper.qmd
     - _docs/developers.qmd
     - _docs/references.qmd
 
