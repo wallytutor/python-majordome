@@ -257,7 +257,12 @@ def centered_colormap(name: str, vmin: float, vmax: float,
 
 
 @MajordomePlot.new(size=(5, 4))
-def plot2d(x, y, *, plot: MajordomePlot = MajordomePlot(), **kwargs):
+def plot2d(x, y, *, plot: MajordomePlot | None = None,
+           **kwargs) -> MajordomePlot:
+    """ Quick plot 2D data using a standardized plot."""
+    if plot is None:
+        raise ValueError("`plot` keyword argument is required.")
+
     _, ax = plot.subplots()
     ax[0].plot(x, y, **kwargs)
     return plot
