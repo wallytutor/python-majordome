@@ -51,9 +51,10 @@ namespaces = false
 include-package-data = true
 
 [tool.setuptools.package-data]
-"majordome" = [
-    "data/*.yaml",
-    "data/*/*.yaml",
+"majordome_engineering" = [
+    "data/**/*.yaml",
+]
+"majordome_utilities" = [
     "data/latex/*.tex"
 ]
 
