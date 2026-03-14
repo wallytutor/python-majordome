@@ -1,17 +1,20 @@
 # Plug-flow reactor computational graph
 
 ```{python}
+from majordome_utilities.documents import *
+from majordome_engineering.symbolic import *
+from majordome_utilities.plotting import plot2d
+
 from casadi import SX, Function
 import majordome as mj
 import cantera as ct
 import casadi as cs
+import numpy as np
 ```
 
 ```{python}
 gas = ct.Solution("gri30.yaml")
-```
 
-```{python}
 T_symbol = SX.sym("T")
 P_symbol = SX.sym("P")
 Y_symbol = SX.sym("Y", gas.n_species)
@@ -20,15 +23,24 @@ Y_symbol = SX.sym("Y", gas.n_species)
 ## Species thermodynamics
 
 ```{python}
-species = gas.species()[0]
-species
+species = gas.species()[47]
+nasa7 = SymbolicThermo.from_species(species, T_symbol)
+nasa7
 ```
 
 ## Mixture thermodynamics
 
 ```{python}
-
+all_models = [s.thermo.input_data["model"] for s in gas.species()]
+np.unique(all_models).tolist()
 ```
+
+```{python}
+mixture_data = {s.name: SymbolicThermo.from_species(s, T_symbol)
+                for s in gas.species()}
+mixture_data["CH4"].cp(T_symbol)
+```
+
 
 ## Reaction kinetics
 
