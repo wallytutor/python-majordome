@@ -93,6 +93,14 @@ class AbstractSymbolicThermo(ABC):
         pass
 
 
+class AbstractSymbolicTransport(ABC):
+    pass
+
+
+class AbstractSymbolicKinetics(ABC):
+    pass
+
+
 class Nasa7Thermo(AbstractSymbolicThermo):
     """ NASA7 thermodynamic parameterization.
 
@@ -260,28 +268,74 @@ class Nasa7Thermo(AbstractSymbolicThermo):
         return cls(T, dict(species.thermo.input_data))
 
 
-class SymbolicThermo:
-    """ Factory class for parsing Cantera thermodynamic functions. """
-    @staticmethod
-    def from_species(species: ct.thermo.Species, T: SX
-                     ) -> AbstractSymbolicThermo:
-        """ Create a `Nasa7Thermo` object from a Cantera species.
+class ChapmanEnskogTransport(AbstractSymbolicTransport):
+    def __init__(self, T: SX, input_data: dict[str, Any]) -> None:
+        super().__init__()
 
-        Parameters
-        ----------
-        species : ct.thermo.Species
-            Cantera species object, with NASA7 thermodynamic data.
-        T : SX
-            Temperature variable (symbolic).
-        """
-        input_data = dict(species.thermo.input_data)
+        self.T = T
+        self.input_data = input_data
 
-        match (model := input_data["model"]):
-            case "NASA7":
-                return Nasa7Thermo(T, input_data)
-            case _:
-                raise ValueError(f"Unsupported model: {model}")
+        if self.input_data["model"] != "gas":
+            raise ValueError("Only gas transport model is supported")
 
 
-class SymbolicIdealMixture:
+def symbolic_thermo_factory(species: ct.thermo.Species, T: SX
+                            ) -> AbstractSymbolicThermo:
+    """ Create an `AbstractSymbolicThermo` object.
+
+    Parameters
+    ----------
+    species : ct.thermo.Species
+        Cantera species object, with NASA7 thermodynamic data.
+    T : SX
+        Temperature variable (symbolic).
+    """
+    input_data = dict(species.thermo.input_data)
+
+    match (model := input_data["model"]):
+        case "NASA7":
+            return Nasa7Thermo(T, input_data)
+        case _:
+            raise ValueError(f"Unsupported model: {model}")
+
+
+def symbolic_transport_factory(species: ct.thermo.Species,
+                               T: SX) -> AbstractSymbolicTransport:
+    """ Create an `AbstractSymbolicTransport` object.
+
+    Parameters
+    ----------
+    species : ct.thermo.Species
+        Cantera species object, with transport data.
+    T : SX
+        Temperature variable (symbolic).
+    """
+    input_data = dict(species.transport.input_data)
+
+    match (model := input_data["model"]):
+        case "gas":
+            return ChapmanEnskogTransport(T, input_data)
+        case _:
+            raise ValueError(f"Unsupported transport model: {model}")
+
+
+def symbolic_kinetics_factory(reaction: ct.Reaction,
+                              T: SX) -> AbstractSymbolicKinetics:
+    """ Create an `AbstractSymbolicKinetics` object. """
+    pass
+
+
+class SymbolicSpecies:
+    def __init__(self, name: str,
+                 thermo: AbstractSymbolicThermo,
+                 transport: AbstractSymbolicTransport,
+                 kinetics: AbstractSymbolicKinetics
+                 ) -> None:
+        self.name = name
+        self.thermo = thermo
+        self.transport = transport
+        self.kinetics = kinetics
+
+
+class SymbolicIdealGasSolution:
     pass

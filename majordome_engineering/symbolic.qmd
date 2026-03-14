@@ -1,8 +1,13 @@
-# Symbolic functions
+---
+title: Symbolic functions
+jupyter: python3
+---
+
 
 *aka majordome_engineering.symbolic*
 
 This module contains utilities for working with symbolic functions, especially in the context of engineering problems treated by Majordome models. It is mostly a wrapper around [CasADi](https://web.casadi.org/), organizing symbolic operations and providing additional functionality for function manipulation in a physical context.
+
 
 ```{python}
 from majordome_utilities.documents import *
@@ -60,11 +65,11 @@ plot.axes[0].set_ylim(-0.1, 1.1)
 pass
 ```
 
-## Symbolic species parameterization
+## Species thermodynamics
 
 ```{python}
-doc = DocumentedClass(SymbolicThermo)
-doc.staticmethods()
+doc = SignatureEntry(symbolic_thermo_factory)
+doc.documentation()
 ```
 
 Suppose you need to create a symbolic representation of the NASA7 thermodynamic parameterization of molecular nitrogen, species of index 47 in the GRI-Mech 3.0 mechanism shipped with Cantera. Let's start by loading and retrieving the thermodynamic data for this species.
@@ -81,7 +86,7 @@ Below we instantiate `SymbolicThermo` with the input data of the species. It is 
 ```{python}
 #| echo: true
 T = SX.sym("T")
-nasa7 = SymbolicThermo.from_species(species, T)
+nasa7 = symbolic_thermo_factory(species, T)
 ```
 
 ::: {.callout-note title="Practical usage"}
@@ -143,8 +148,31 @@ error_c, error_h, error_s
 ```{python}
 doc = DocumentedClass(Nasa7Thermo)
 doc.constructor()
+```
+
+```{python}
 doc.staticmethods()
+```
+
+```{python}
 doc.classmethods()
 ```
 
-## Symbolic mixture properties
+## Species transport
+
+```{python}
+doc = SignatureEntry(symbolic_transport_factory)
+doc.documentation()
+```
+
+## Kinetics parameterization
+
+```{python}
+pass
+```
+
+## Solution properties
+
+```{python}
+pass
+```

@@ -1,4 +1,18 @@
-# Plug-flow reactor computational graph
+---
+title: Plug-flow reactor computational graph
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.19.1
+  kernelspec:
+    display_name: Majordome
+    language: python
+    name: majordome
+---
+
 
 ```{python}
 from majordome_utilities.documents import *
@@ -13,19 +27,42 @@ import numpy as np
 ```
 
 ```{python}
-gas = ct.Solution("gri30.yaml")
+mech = "gri30.yaml"
+mech = "c2h2/graf-2007.yaml"
+
+gas = ct.Solution(mech)
+species = gas.species()[0]
 
 T_symbol = SX.sym("T")
 P_symbol = SX.sym("P")
 Y_symbol = SX.sym("Y", gas.n_species)
 ```
 
+```{python}
+# dir(species)
+```
+
+```{python}
+species.transport.input_data
+```
+
 ## Species thermodynamics
 
 ```{python}
-species = gas.species()[47]
-nasa7 = SymbolicThermo.from_species(species, T_symbol)
-nasa7
+thermo_sym = symbolic_thermo_factory(species, T_symbol)
+thermo_sym
+```
+
+```{python}
+trans_sym = symbolic_transport_factory(species, T_symbol)
+trans_sym
+```
+
+## Reaction kinetics
+
+```{python}
+reaction = gas.reactions()[3]
+reaction.input_data
 ```
 
 ## Mixture thermodynamics
@@ -36,26 +73,11 @@ np.unique(all_models).tolist()
 ```
 
 ```{python}
-mixture_data = {s.name: SymbolicThermo.from_species(s, T_symbol)
+mixture_data = {s.name: symbolic_thermo_factory(s, T_symbol)
                 for s in gas.species()}
 mixture_data["CH4"].cp(T_symbol)
 ```
 
-
-## Reaction kinetics
-
-```{python}
-
-```
-
 ## Reactor model
 
-```{python}
-
-```
-
 ## Simulation
-
-```{python}
-
-```
