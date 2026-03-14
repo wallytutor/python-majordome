@@ -1,0 +1,61 @@
+# Symbolic functions
+
+*aka majordome_engineering.symbolic*
+
+This module contains utilities for working with symbolic functions, especially in the context of engineering problems treated by Majordome models. It is mostly a wrapper around [CasADi](https://web.casadi.org/), organizing symbolic operations and providing additional functionality for function manipulation in a physical context.
+
+```{python}
+%matplotlib inline
+from majordome_utilities.documents import *
+from majordome_engineering.symbolic import *
+from majordome_utilities.plotting import plot2d
+from casadi import SX, Function, jacobian
+import numpy as np
+```
+
+## PiecewiseFunction
+
+A major issue when working with symbolic expressions and real-world data is that they do not support flow-control constructs like `if` statements. This is a problem when we want to represent functions that are defined piecewise, especially when algorithmic differentiation is involved.
+
+As an example, take the parameterization of [thermodynamic properties](https://cantera.org/stable/reference/thermo/species-thermo.html) of chemical species. For quantitative purposes, to ensure high accuracy, researchers have found that it is best to use different polynomial fits for different temperature ranges. This means that the thermodynamic properties of a species are defined as piecewise functions of temperature, which is a problem when we want to use them in a symbolic context.
+
+To tackle this issue in *certain* contexts, `PiecewiseSymbolicFunction` provides an interpolation between different ranges of the domain of a function. Internally it makes use of Heaviside functions to ensure that the function is continuous. This is not a perfect solution, as it does not guarantee differentiability at the breakpoints, but it is a good compromise between accuracy and simplicity. It is also worth noting that this class is not meant to be used in a general context, but rather in specific contexts where the function is known to be well-behaved.
+
+```{python}
+doc = DocumentedClass(PiecewiseSymbolicFunction)
+doc.constructor()
+```
+
+Let's illustrate its use with a simple example. We define two functions `f` and `g`, and we want to create a piecewise function that is equal to `f` for `x < 0.5` and equal to `g` for `x >= 0.5`. Functions have being created such that they evaluate to the same value at the breakpoint, as the practical case that led to the class development, *i.e.* NASA-parameterization of thermochemical properties. Below we show how to create the piecewise function, evaluate it numerically and symbolically, and compute its derivative symbolically.
+
+```{python}
+#| echo: true
+# Define two simple functions:
+f = lambda x: x**2
+g = lambda x: f(0.5) + (x - 0.5)
+
+# Create the piecewise function:
+F = PiecewiseSymbolicFunction([0, 0.5, 1], [f, g])
+
+# Evaluate numerically:
+x = np.linspace(-0.2, 1.2, 100)
+y = F(x)
+
+# Evaluate symbolically:
+T = SX.sym("T")
+Y = F(T)
+
+# Create a function for evaluating the derivative:
+ydot = Function("fdot", [T], [jacobian(Y, T)])
+```
+
+Below we plot the piecewise function and its derivative. The function is continuous, but the derivative is not, as expected, although the transition is handled smoothly by the Heaviside functions. The red dashed line indicates the breakpoint at `x = 0.5`, where the function transitions from `f` to `g`.
+
+```{python}
+plot = plot2d(x, y, label="Piecewise function")
+plot.axes[0].plot(x, ydot(x), label="Derivative")
+plot.axes[0].axvline(0.5, color="r", linestyle="--")
+plot.axes[0].legend(loc=2, fontsize="small")
+plot.axes[0].set_ylim(-0.1, 1.1)
+pass
+```

@@ -21,6 +21,7 @@ book:
     - index.qmd
     - majordome_engineering/energy.qmd
     - majordome_engineering/reactor.qmd
+    - majordome_engineering/symbolic.qmd
     - majordome_engineering/transport.qmd
     - majordome_simulation/fluent.qmd
     - majordome_utilities/common.qmd
