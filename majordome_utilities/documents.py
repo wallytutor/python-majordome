@@ -318,6 +318,7 @@ class SignatureEntry:
             text += "(missing summary)\n\n"
 
         if long := self.doc.long_description:
+            long = " ".join(long.split("\n"))
             text += f"{long}\n\n"
 
         return text
