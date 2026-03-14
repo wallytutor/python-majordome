@@ -422,6 +422,17 @@ class DocumentedClass:
     def _is_dunder(name: str) -> bool:
         return name.startswith("__") and name.endswith("__")
 
+    def _dunders(self, name, func, **kwargs) -> None:
+        # XXX improve these, maybe test for modules, etc...
+        is_callable = callable(func)
+        is_dunder = DocumentedClass._is_dunder(name)
+
+        # XXX notice that we skip undocumented dunders, even in
+        # greedy mode. This is because some dunders are not meant
+        # to be documented (e.g. __dict__, __weakref__, etc.)
+        if is_dunder and is_callable and func.__doc__:
+            DocumentedClass._doc_it(func, **kwargs)
+
     def _members(self, name, func, **kwargs) -> None:
         disallow = (staticmethod, classmethod, property)
 
@@ -459,6 +470,9 @@ class DocumentedClass:
 
     def staticmethods(self, **kwargs) -> None:
         self._members_from_dict(self.cls, self._staticmethods, **kwargs)
+
+    def dunders(self, **kwargs) -> None:
+        self._members_from_dict(self.cls, self._dunders, **kwargs)
 # endregion: public
 
 # region: internals
