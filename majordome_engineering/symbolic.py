@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from typing import Any
+from abc import ABC, abstractmethod
+from typing import Any, Self
 from numpy.typing import NDArray
 from casadi import Function, SX
 from casadi import heaviside, log as ln
+import cantera as ct
 import numpy as np
 
 from majordome_utilities import constants
@@ -51,7 +53,47 @@ class PiecewiseSymbolicFunction:
         return result
 
 
-class Nasa7Thermo:
+class AbstractSymbolicThermo(ABC):
+    @property
+    @abstractmethod
+    def breakpoints(self) -> list[float]:
+        """ Return the breakpoints of the piecewise functions. """
+        pass
+
+    @property
+    @abstractmethod
+    def cp(self) -> Function:
+        """ Return the specific heat function. """
+        pass
+
+    @property
+    @abstractmethod
+    def h(self) -> Function:
+        """ Return the enthalpy function. """
+        pass
+
+    @property
+    @abstractmethod
+    def s(self) -> Function:
+        """ Return the entropy function. """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def from_species(cls, species: ct.thermo.Species, T: SX) -> Self:
+        """ Create a `Nasa7Thermo` object from a Cantera species.
+
+        Parameters
+        ----------
+        species : ct.thermo.Species
+            Cantera species object, with NASA7 thermodynamic data.
+        T : SX
+            Temperature variable (symbolic).
+        """
+        pass
+
+
+class Nasa7Thermo(AbstractSymbolicThermo):
     """ NASA7 thermodynamic parameterization.
 
     This class does not implement Horner polynomial evaluation, as
@@ -74,6 +116,8 @@ class Nasa7Thermo:
     __slots__ = ("_T", "_input_data", "_cp", "_h", "_s")
 
     def __init__(self, T: SX, input_data: dict[str, Any]) -> None:
+        super().__init__()
+
         self._T = T
         self._input_data = input_data
 
@@ -201,3 +245,43 @@ class Nasa7Thermo:
             return func(T, a, symbolic=symbolic)
 
         return [evaluator(a) for a in data]
+
+    @classmethod
+    def from_species(cls, species: ct.thermo.Species, T: SX) -> Self:
+        """ Create a `Nasa7Thermo` object from a Cantera species.
+
+        Parameters
+        ----------
+        species : ct.thermo.Species
+            Cantera species object, with NASA7 thermodynamic data.
+        T : SX
+            Temperature variable (symbolic).
+        """
+        return cls(T, dict(species.thermo.input_data))
+
+
+class SymbolicThermo:
+    """ Factory class for parsing Cantera thermodynamic functions. """
+    @staticmethod
+    def from_species(species: ct.thermo.Species, T: SX
+                     ) -> AbstractSymbolicThermo:
+        """ Create a `Nasa7Thermo` object from a Cantera species.
+
+        Parameters
+        ----------
+        species : ct.thermo.Species
+            Cantera species object, with NASA7 thermodynamic data.
+        T : SX
+            Temperature variable (symbolic).
+        """
+        input_data = dict(species.thermo.input_data)
+
+        match (model := input_data["model"]):
+            case "NASA7":
+                return Nasa7Thermo(T, input_data)
+            case _:
+                raise ValueError(f"Unsupported model: {model}")
+
+
+class SymbolicIdealMixture:
+    pass

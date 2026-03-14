@@ -5,7 +5,6 @@
 This module contains utilities for working with symbolic functions, especially in the context of engineering problems treated by Majordome models. It is mostly a wrapper around [CasADi](https://web.casadi.org/), organizing symbolic operations and providing additional functionality for function manipulation in a physical context.
 
 ```{python}
-%matplotlib inline
 from majordome_utilities.documents import *
 from majordome_engineering.symbolic import *
 from majordome_utilities.plotting import plot2d
@@ -61,13 +60,11 @@ plot.axes[0].set_ylim(-0.1, 1.1)
 pass
 ```
 
-## Nasa7Thermo
+## Symbolic species parameterization
 
 ```{python}
-doc = DocumentedClass(Nasa7Thermo)
-# doc.constructor()
+doc = DocumentedClass(SymbolicThermo)
 doc.staticmethods()
-doc.classmethods()
 ```
 
 Suppose you need to create a symbolic representation of the NASA7 thermodynamic parameterization of molecular nitrogen, species of index 47 in the GRI-Mech 3.0 mechanism shipped with Cantera. Let's start by loading and retrieving the thermodynamic data for this species.
@@ -79,13 +76,26 @@ species = gas.species()[47]
 thermo = species.thermo
 ```
 
-Below we instantiate `Nasa7Thermo` with the input data of the species. It is important to emphasize here that when building more complex systems, generally one should share the symbolic variables, *e.g.* temperature, across the different components of the system. For this reason, the constructor of `Nasa7Thermo` expects the temperature symbol to be provided, instead of trying to create it internally; this is a design choice that will improve code robustness when handling mixtures and avoid many of the pitfalls of symbolic programming.
+Below we instantiate `SymbolicThermo` with the input data of the species. It is important to emphasize here that when building more complex systems, generally one should share the symbolic variables, *e.g.* temperature, across the different components of the system. For this reason, the constructor of symbolic thermodynamic classes expect the temperature symbol to be provided, instead of trying to create it internally; this is a design choice that will improve code robustness when handling mixtures and avoid many of the pitfalls of symbolic programming.
 
 ```{python}
 #| echo: true
 T = SX.sym("T")
-nasa7 = Nasa7Thermo(T, thermo.input_data)
+nasa7 = SymbolicThermo.from_species(species, T)
 ```
+
+::: {.callout-note title="Practical usage"}
+
+You could instead directly instantiate `Nasa7Thermo` with the input data,  but using the factory method `SymbolicThermo.from_species` is a better choice, as it will allow you to easily switch to a different thermodynamic model. Furthermore, it is the safe choice for loading entire databases.
+
+```python
+nasa7 = Nasa7Thermo(T, species.thermo.input_data)
+
+# This is just syntactic sugar for the above:
+nasa7 = Nasa7Thermo.from_species(species, T)
+```
+
+:::
 
 Here we illustrate the use of algorithmic differentiation to compute the derivative of the specific enthalpy with respect to temperature.
 
@@ -127,3 +137,14 @@ error_s = np.mean(np.abs(nasa7._s(T_num) - s_ct))
 
 error_c, error_h, error_s
 ```
+
+### Nasa7Thermo
+
+```{python}
+doc = DocumentedClass(Nasa7Thermo)
+doc.constructor()
+doc.staticmethods()
+doc.classmethods()
+```
+
+## Symbolic mixture properties
