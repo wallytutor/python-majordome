@@ -82,7 +82,6 @@ extras = [
     # The following are not really used, but applications often
     # require them, so pre-installing is a nice convenience.
     "beautifulsoup4>=4.12.2",
-    "casadi>=3.7.2",
     "gradio>=6.3.0",
     "meshio>=5.3.5",
     "numba>=0.63.1",
@@ -102,6 +101,7 @@ cartography = [
 
 engineering = [
     "cantera>=3",
+    "casadi>=3.7.2",
     "exifread>=3.5.1",
     "hyperspy>=2.3.0",
     "matplotlib>=3",
