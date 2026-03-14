@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from importlib import import_module
+from importlib import import_module, resources
+from pathlib import Path
 import sys
 import warnings
+import cantera as ct
 
 __all__ = []
 
@@ -26,8 +28,11 @@ def __dir__():
 
     unwanted = [
         "import_module",
+        "resources",
+        "Path",
         "sys",
         "warnings",
+        "ct",
         "_import_subpackage",
     ]
 
@@ -54,3 +59,9 @@ _import_subpackage("utilities")
 _import_subpackage("cartography")
 _import_subpackage("engineering")
 _import_subpackage("simulation")
+
+DATA = Path(str(resources.files("majordome").joinpath("data")))
+""" Path to project data folder. """
+
+# XXX: add globally to Cantera path:
+ct.add_directory(DATA)
