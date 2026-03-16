@@ -2,10 +2,26 @@
 from typing import Any, Self
 from numpy.typing import NDArray
 import gmsh
+import numpy as np
+
+# Do not annotate with numbers.Number, that always end up with some
+# linting issues. Just use a union of common numeric types instead.
+AnyNumber = int | float | np.number
+TrupleAny = tuple[AnyNumber, AnyNumber, AnyNumber]
 
 
 class GmshOCCModel:
-    """ Wrapper to manage OCC models with an OOP approach. """
+    """ Wrapper to manage OCC models with an OOP approach.
+
+    Parameters
+    ----------
+    render : bool, optional
+        Whether to launch the Gmsh GUI after building the model.
+    name : str, optional
+        Name of the Gmsh model.
+    ks : dict
+        Provide configuration for gmsh internals.
+    """
     def __init__(self, *,
             render: bool = False,
             name: str = "domain",
@@ -26,14 +42,21 @@ class GmshOCCModel:
         # Aliases for model operations:
         self.add_physical_group = model.addPhysicalGroup
 
+        # XXX: when using aliases, prefer the original name of the method
+        # if it is PEP8 compliant. If the original name uses camelCase,
+        # then the alias should be in snake_case. Otherwise, when actually
+        # wrapping a method in this class, use a new name that reflects
+        # the intent plus the original name, e.g. `transform_dilate`
+        # instead of `dilate`.
+
         # Aliases for OpenCascade geometry kernel:
         self.fragment          = occ.fragment
         self.synchronize       = occ.synchronize
-        self.new_rectangle     = occ.addRectangle
-        self.new_point         = occ.addPoint
-        self.new_line          = occ.addLine
-        self.new_curve_loop    = occ.addCurveLoop
-        self.new_plane_surface = occ.addPlaneSurface
+        self.add_rectangle     = occ.addRectangle
+        self.add_point         = occ.addPoint
+        self.add_line          = occ.addLine
+        self.add_curve_loop    = occ.addCurveLoop
+        self.add_plane_surface = occ.addPlaneSurface
         self.get_mass          = occ.getMass
 
         # Aliases for meshing operations:
@@ -102,12 +125,15 @@ class GmshOCCModel:
         self._configure_geometry(**kws)
         self._configure_mesh(**kws)
 
-    def add_points(self, x: NDArray[float], y: NDArray[float]) -> list[int]:
+    def add_points(self,
+                   x: NDArray[np.float64],
+                   y: NDArray[np.float64]
+                   ) -> list[int]:
         """ Add all points from lists to the model. """
         point_tags = []
 
         for xi, yi in zip(x, y):
-            pt = self.new_point(xi, yi, 0)
+            pt = self.add_point(xi, yi, 0)
             point_tags.append(pt)
 
         return point_tags
@@ -117,10 +143,31 @@ class GmshOCCModel:
         line_tags = []
 
         for pi, pj in zip(point_tags[:-1], point_tags[1:]):
-            line = self.new_line(pi, pj)
+            line = self.add_line(pi, pj)
             line_tags.append(line)
 
         return line_tags
+
+    def transform_dilate(self,
+            dimtags: list[tuple[int, int]],
+            factors: TrupleAny | AnyNumber,
+            origin: TrupleAny = (0, 0, 0)
+        ) -> None:
+        """ Dilate geometry entities by given factors from the origin.
+
+        Parameters
+        ----------
+        dimtags : list[tuple[int, int]]
+            List of (dimension, tag) pairs for the entities to dilate.
+        factors : TrupleAny | AnyNumber
+            Scaling factors for each axis (x, y, z) or a single uniform factor.
+        origin : TrupleAny, optional
+            Origin point for the dilation, default is (0, 0, 0).
+        """
+        if isinstance(factors, (int, float, np.number)):
+            factors = (factors, factors, factors)
+
+        self._occ.dilate(dimtags, *origin, *factors)
 
     def get_length(self, line_tag: int) -> float:
         """ Get the length of a line given its tag. """
