@@ -6,8 +6,6 @@ execute:
   echo:    false
   warning: false
 
-bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
-
 book:
   title: "Majordome"
   author: "Walter Dal'Maz Silva"
@@ -34,13 +32,17 @@ book:
     - _docs/developers.qmd
     - _docs/references.qmd
 
+bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
+
 format:
   html:
+    reference-location: document
     highlight-style: github
     theme:
       - pulse
 
   pdf:
+    reference-location: document
     highlight-style: github
     documentclass: scrreprt
     papersize: a4
