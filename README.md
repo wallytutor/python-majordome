@@ -2,8 +2,7 @@
 
 General utilities for scientific Python and numerical simulation.
 
-- [Majordome repo](https://github.com/wallytutor/python-majordome)
+Please refer to the [Majordome docs](https://wallytutor.github.io/python-majordome) for details.
 
 <!-- WIP -->
-<!-- - [Majordome docs](https://wallytutor.github.io/python-majordome) -->
 <!-- - [Majordome on PyPI](https://pypi.org/project/majordome/) -->
