@@ -1,7 +1,4 @@
----
-title: Symbolic functions
-jupyter: python3
----
+# Symbolic functions
 
 
 *aka majordome_engineering.symbolic*
