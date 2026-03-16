@@ -9,6 +9,7 @@ On top of your notebook, simply load the extension:
 ```{python}
 #| echo: true
 %load_ext majordome_utilities.skipper
+%skipper_verbosity 1
 ```
 
 Here we will use `sleep` to emulate a long-running cell, and we will control its execution with an environment variable. Generally speaking, the goal is to export environment variables in the terminal before running the notebook, but for demonstration purposes, we will set it in the notebook itself.
@@ -49,4 +50,18 @@ And here we check if it was actually skipped:
 ```{python}
 #| echo: true
 print("Did you skip it?", did_you_skip_it)
+```
+
+You can also avoid the *Skipping cell* message by setting the verbosity to `0`:
+
+```{python}
+#| echo: true
+%skipper_verbosity 0
+```
+
+```{python}
+#| echo: true
+%%skipper SOLVE_LONNNNG
+sleep(100)
+did_you_skip_it = False
 ```
