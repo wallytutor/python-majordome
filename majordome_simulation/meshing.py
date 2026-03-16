@@ -93,12 +93,16 @@ class GmshOCCModel:
 
     def _configure_mesh(self, **kws) -> None:
         """ Configure mesh display options. """
-        mesh_size_max  = kws.get("mesh_size_max", None)
-        mesh_algorithm = kws.get("mesh_algorithm", 6)
-        element_order  = kws.get("element_order", 2)
+        mesh_save_all    = kws.get("mesh_save_all", None)
+        mesh_save_groups = kws.get("mesh_save_groups", None)
+        mesh_size_max    = kws.get("mesh_size_max", None)
+        mesh_algorithm   = kws.get("mesh_algorithm", 6)
+        element_order    = kws.get("element_order", 2)
 
-        self.set_option("Mesh.MeshSizeMax",  mesh_size_max)
-        self.set_option("Mesh.Algorithm",    mesh_algorithm)
+        self.set_option("Mesh.SaveAll", mesh_save_all)
+        self.set_option("Mesh.SaveGroupsOfNodes", mesh_save_groups)
+        self.set_option("Mesh.MeshSizeMax", mesh_size_max)
+        self.set_option("Mesh.Algorithm", mesh_algorithm)
         self.set_option("Mesh.ElementOrder", element_order)
 
     def set_option(self, name: str, value: Any) -> None:
