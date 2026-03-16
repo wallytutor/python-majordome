@@ -233,44 +233,56 @@ window.Quarto = {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../majordome_simulation/meshing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Meshing helpers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/common.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Common</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Common</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/documents.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/parsing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/pdftools.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/plotting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../majordome_utilities/skipper.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Skipping execution</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/developers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/references.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">References</span></span></a>
+ <span class="menu-text">References</span></a>
   </div>
 </li>
     </ul>
@@ -561,7 +573,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 </section>
 <section id="wsggradlibbordbar2020" class="level2" data-number="5.4">
 <h2 data-number="5.4" class="anchored" data-anchor-id="wsggradlibbordbar2020"><span class="header-section-number">5.4</span> WSGGRadlibBordbar2020</h2>
-<p>Radiative properties of gases are often required when participating media characteristics imply so. Here we implement the WSGG model of <span class="citation" data-cites="Sadeghi2021">Sadeghi et al. (<a href="#ref-Sadeghi2021" role="doc-biblioref">2021</a>)</span> in class <code>WSGGRadlibBordbar2020</code>. The basic usage of the model to estimate total emissivity is done as follows:</p>
+<p>Radiative properties of gases are often required when participating media characteristics imply so. Here we implement the WSGG model of <span class="citation" data-cites="Sadeghi2021">Sadeghi et al. (<a href="../_docs/references.html#ref-Sadeghi2021" role="doc-biblioref">2021</a>)</span> in class <code>WSGGRadlibBordbar2020</code>. The basic usage of the model to estimate total emissivity is done as follows:</p>
 <div id="9d919777" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> WSGGRadlibBordbar2020()</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>model(L<span class="op">=</span><span class="dv">1</span>, T<span class="op">=</span><span class="dv">1000</span>, P<span class="op">=</span><span class="dv">101325</span>, x_h2o<span class="op">=</span><span class="fl">0.18</span>, x_co2<span class="op">=</span><span class="fl">0.08</span>, fvsoot<span class="op">=</span><span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -623,7 +635,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 </div>
 
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
 <div id="ref-Sadeghi2021" class="csl-entry" role="listitem">
 Sadeghi, Hosein, Simo Hostikka, Guilherme Crivelli Fraga, and Hadi Bordbar. 2021. <span>“Weighted-Sum-of-Gray-Gases Models for Non-Gray Thermal Radiation of Hydrocarbon Fuel Vapors, <span>CH</span>4, <span>CO</span> and Soot.”</span> <em>Fire Safety Journal</em> 125 (October): 103420. <a href="https://doi.org/10.1016/j.firesaf.2021.103420">https://doi.org/10.1016/j.firesaf.2021.103420</a>.
 </div>

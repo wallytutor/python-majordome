@@ -181,44 +181,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../majordome_simulation/meshing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Meshing helpers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/common.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Common</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Common</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/documents.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/parsing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/pdftools.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/plotting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../majordome_utilities/skipper.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Skipping execution</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/developers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/references.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">References</span></span></a>
+ <span class="menu-text">References</span></a>
   </div>
 </li>
     </ul>
@@ -232,11 +244,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#piecewisefunction" id="toc-piecewisefunction" class="nav-link active" data-scroll-target="#piecewisefunction"><span class="header-section-number">4.1</span> PiecewiseFunction</a></li>
-  <li><a href="#symbolic-species-parameterization" id="toc-symbolic-species-parameterization" class="nav-link" data-scroll-target="#symbolic-species-parameterization"><span class="header-section-number">4.2</span> Symbolic species parameterization</a>
+  <li><a href="#species-thermodynamics" id="toc-species-thermodynamics" class="nav-link" data-scroll-target="#species-thermodynamics"><span class="header-section-number">4.2</span> Species thermodynamics</a>
   <ul class="collapse">
   <li><a href="#nasa7thermo" id="toc-nasa7thermo" class="nav-link" data-scroll-target="#nasa7thermo"><span class="header-section-number">4.2.1</span> Nasa7Thermo</a></li>
   </ul></li>
-  <li><a href="#symbolic-mixture-properties" id="toc-symbolic-mixture-properties" class="nav-link" data-scroll-target="#symbolic-mixture-properties"><span class="header-section-number">4.3</span> Symbolic mixture properties</a></li>
+  <li><a href="#species-transport" id="toc-species-transport" class="nav-link" data-scroll-target="#species-transport"><span class="header-section-number">4.3</span> Species transport</a></li>
+  <li><a href="#kinetics-parameterization" id="toc-kinetics-parameterization" class="nav-link" data-scroll-target="#kinetics-parameterization"><span class="header-section-number">4.4</span> Kinetics parameterization</a></li>
+  <li><a href="#solution-properties" id="toc-solution-properties" class="nav-link" data-scroll-target="#solution-properties"><span class="header-section-number">4.5</span> Solution properties</a></li>
   </ul>
 </nav>
     </div>
@@ -269,7 +283,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A major issue when working with symbolic expressions and real-world data is that they do not support flow-control constructs like <code>if</code> statements. This is a problem when we want to represent functions that are defined piecewise, especially when algorithmic differentiation is involved.</p>
 <p>As an example, take the parameterization of <a href="https://cantera.org/stable/reference/thermo/species-thermo.html">thermodynamic properties</a> of chemical species. For quantitative purposes, to ensure high accuracy, researchers have found that it is best to use different polynomial fits for different temperature ranges. This means that the thermodynamic properties of a species are defined as piecewise functions of temperature, which is a problem when we want to use them in a symbolic context.</p>
 <p>To tackle this issue in <em>certain</em> contexts, <code>PiecewiseSymbolicFunction</code> provides an interpolation between different ranges of the domain of a function. Internally it makes use of Heaviside functions to ensure that the function is continuous. This is not a perfect solution, as it does not guarantee differentiability at the breakpoints, but it is a good compromise between accuracy and simplicity. It is also worth noting that this class is not meant to be used in a general context, but rather in specific contexts where the function is known to be well-behaved.</p>
-<div id="8032096a" class="cell" data-execution_count="3">
+<div id="6cff5f4b" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="PiecewiseSymbolicFunction">
 <div class="callout-header d-flex align-content-center">
@@ -315,7 +329,7 @@ List of functions to apply between breakpoints. The number of functions must be 
 </div>
 </div>
 <p>Let’s illustrate its use with a simple example. We define two functions <code>f</code> and <code>g</code>, and we want to create a piecewise function that is equal to <code>f</code> for <code>x &lt; 0.5</code> and equal to <code>g</code> for <code>x &gt;= 0.5</code>. Functions have being created such that they evaluate to the same value at the breakpoint, as the practical case that led to the class development, <em>i.e.</em> NASA-parameterization of thermochemical properties. Below we show how to create the piecewise function, evaluate it numerically and symbolically, and compute its derivative symbolically.</p>
-<div id="f4035154" class="cell" data-execution_count="4">
+<div id="f1a4f119" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define two simple functions:</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="kw">lambda</span> x: f(<span class="fl">0.5</span>) <span class="op">+</span> (x <span class="op">-</span> <span class="fl">0.5</span>)</span>
@@ -335,7 +349,7 @@ List of functions to apply between breakpoints. The number of functions must be 
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>ydot <span class="op">=</span> Function(<span class="st">"fdot"</span>, [T], [jacobian(Y, T)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we plot the piecewise function and its derivative. The function is continuous, but the derivative is not, as expected, although the transition is handled smoothly by the Heaviside functions. The red dashed line indicates the breakpoint at <code>x = 0.5</code>, where the function transitions from <code>f</code> to <code>g</code>.</p>
-<div id="e302b9af" class="cell" data-execution_count="5">
+<div id="1083ed00" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -345,25 +359,25 @@ List of functions to apply between breakpoints. The number of functions must be 
 </div>
 </div>
 </section>
-<section id="symbolic-species-parameterization" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="symbolic-species-parameterization"><span class="header-section-number">4.2</span> Symbolic species parameterization</h2>
-<div id="80c93270" class="cell" data-execution_count="6">
+<section id="species-thermodynamics" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="species-thermodynamics"><span class="header-section-number">4.2</span> Species thermodynamics</h2>
+<div id="ca41f7e7" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display cell-output-markdown">
-<div class="callout callout-style-default callout-note callout-titled" title="from_species">
+<div class="callout callout-style-default callout-note callout-titled" title="symbolic_thermo_factory">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>from_species
+<span class="screen-reader-only">Note</span>symbolic_thermo_factory
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>from_species(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>symbolic_thermo_factory(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    species : Species,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    T : SX</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> AbstractSymbolicThermo:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Create a <code>Nasa7Thermo</code> object from a Cantera species.</p>
+<p>Create an <code>AbstractSymbolicThermo</code> object.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
@@ -393,15 +407,15 @@ Temperature variable (symbolic).
 </div>
 </div>
 <p>Suppose you need to create a symbolic representation of the NASA7 thermodynamic parameterization of molecular nitrogen, species of index 47 in the GRI-Mech 3.0 mechanism shipped with Cantera. Let’s start by loading and retrieving the thermodynamic data for this species.</p>
-<div id="ae50d265" class="cell" data-execution_count="7">
+<div id="d4ccf974" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>gas <span class="op">=</span> ct.Solution(<span class="st">"gri30.yaml"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> gas.species()[<span class="dv">47</span>]</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>thermo <span class="op">=</span> species.thermo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we instantiate <code>SymbolicThermo</code> with the input data of the species. It is important to emphasize here that when building more complex systems, generally one should share the symbolic variables, <em>e.g.</em> temperature, across the different components of the system. For this reason, the constructor of symbolic thermodynamic classes expect the temperature symbol to be provided, instead of trying to create it internally; this is a design choice that will improve code robustness when handling mixtures and avoid many of the pitfalls of symbolic programming.</p>
-<div id="f7ddf596" class="cell" data-execution_count="8">
+<div id="93836d6f" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> SX.sym(<span class="st">"T"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>nasa7 <span class="op">=</span> SymbolicThermo.from_species(species, T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>nasa7 <span class="op">=</span> symbolic_thermo_factory(species, T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Practical usage">
 <div class="callout-header d-flex align-content-center">
@@ -421,11 +435,11 @@ Temperature variable (symbolic).
 </div>
 </div>
 <p>Here we illustrate the use of algorithmic differentiation to compute the derivative of the specific enthalpy with respect to temperature.</p>
-<div id="db39f80b" class="cell" data-execution_count="9">
+<div id="906bbe03" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>hdot <span class="op">=</span> Function(<span class="st">"hdot"</span>, [T], [jacobian(nasa7.h(T), T)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The above derivative is then confronted to the specific heat below:</p>
-<div id="69afc2ce" class="cell" data-execution_count="10">
+<div id="adabb9dd" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -435,7 +449,7 @@ Temperature variable (symbolic).
 </div>
 </div>
 <p>Finally, we compare the deviations between symbolic and numerical (Cantera) evaluation of the thermodynamic functions. This is not for error analysis, but a proof of correctness of the symbolic implementation.</p>
-<div id="10679634" class="cell" data-execution_count="11">
+<div id="b8ddd0e3" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># XXX: Cantera evaluates quantities per kmol! Divide by 1000 to get</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># per mol, as the symbolic implementation does.</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>c_ct <span class="op">=</span> np.array([<span class="fl">0.001</span> <span class="op">*</span> species.thermo.cp(T) <span class="cf">for</span> T <span class="kw">in</span> T_num])</span>
@@ -455,7 +469,7 @@ Temperature variable (symbolic).
 </div>
 <section id="nasa7thermo" class="level3" data-number="4.2.1">
 <h3 data-number="4.2.1" class="anchored" data-anchor-id="nasa7thermo"><span class="header-section-number">4.2.1</span> Nasa7Thermo</h3>
-<div id="d545fe6f" class="cell" data-execution_count="12">
+<div id="2be0f22d" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="Nasa7Thermo">
 <div class="callout-header d-flex align-content-center">
@@ -500,6 +514,8 @@ NASA7 thermodynamic data, as provided by Cantera’s <code>SpeciesThermo</code> 
 </div>
 </div>
 </div>
+</div>
+<div id="f5e41b2b" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="specific_heat">
 <div class="callout-header d-flex align-content-center">
@@ -665,6 +681,8 @@ Whether to return a symbolic expression.
 </div>
 </div>
 </div>
+</div>
+<div id="8bafd2c9" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="compose">
 <div class="callout-header d-flex align-content-center">
@@ -780,8 +798,59 @@ Temperature variable (symbolic).
 </div>
 </section>
 </section>
-<section id="symbolic-mixture-properties" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="symbolic-mixture-properties"><span class="header-section-number">4.3</span> Symbolic mixture properties</h2>
+<section id="species-transport" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="species-transport"><span class="header-section-number">4.3</span> Species transport</h2>
+<div id="7915a6f7" class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="callout callout-style-default callout-note callout-titled" title="symbolic_transport_factory">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>symbolic_transport_factory
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>symbolic_transport_factory(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    species : Species,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    T : SX</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> AbstractSymbolicTransport:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Create an <code>AbstractSymbolicTransport</code> object.</p>
+<hr>
+<strong>Parameters</strong>
+<div class="row" style="font-size: 0.8em;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>species : Species</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="row" style="margin-top: -2em; font-size: 0.8em;">
+<div class="col-2">
+&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<div class="col-10">
+Cantera species object, with transport data.
+</div>
+</div>
+<div class="row" style="font-size: 0.8em;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>T : SX</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="row" style="margin-top: -2em; font-size: 0.8em;">
+<div class="col-2">
+&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<div class="col-10">
+Temperature variable (symbolic).
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="kinetics-parameterization" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="kinetics-parameterization"><span class="header-section-number">4.4</span> Kinetics parameterization</h2>
+</section>
+<section id="solution-properties" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="solution-properties"><span class="header-section-number">4.5</span> Solution properties</h2>
 
 
 </section>

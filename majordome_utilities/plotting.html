@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>11&nbsp; Plotting – Majordome</title>
+<title>12&nbsp; Plotting – Majordome</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,7 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../_docs/developers.html" rel="next">
+<link href="../majordome_utilities/skipper.html" rel="next">
 <link href="../majordome_utilities/pdftools.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -118,7 +118,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome_utilities/plotting.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Plotting</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome_utilities/plotting.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Plotting</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -181,44 +181,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../majordome_simulation/meshing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Meshing helpers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/common.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Common</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Common</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/documents.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/parsing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/pdftools.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/plotting.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../majordome_utilities/skipper.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Skipping execution</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/developers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/references.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">References</span></span></a>
+ <span class="menu-text">References</span></a>
   </div>
 </li>
     </ul>
@@ -231,9 +243,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#majordomeplot" id="toc-majordomeplot" class="nav-link active" data-scroll-target="#majordomeplot"><span class="header-section-number">11.1</span> MajordomePlot</a></li>
-  <li><a href="#powerformatter" id="toc-powerformatter" class="nav-link" data-scroll-target="#powerformatter"><span class="header-section-number">11.2</span> PowerFormatter</a></li>
-  <li><a href="#general-utilities" id="toc-general-utilities" class="nav-link" data-scroll-target="#general-utilities"><span class="header-section-number">11.3</span> General utilities</a></li>
+  <li><a href="#majordomeplot" id="toc-majordomeplot" class="nav-link active" data-scroll-target="#majordomeplot"><span class="header-section-number">12.1</span> MajordomePlot</a></li>
+  <li><a href="#powerformatter" id="toc-powerformatter" class="nav-link" data-scroll-target="#powerformatter"><span class="header-section-number">12.2</span> PowerFormatter</a></li>
+  <li><a href="#general-utilities" id="toc-general-utilities" class="nav-link" data-scroll-target="#general-utilities"><span class="header-section-number">12.3</span> General utilities</a></li>
   </ul>
 </nav>
     </div>
@@ -242,7 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Plotting</span></h1>
+<h1 class="title"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Plotting</span></h1>
 </div>
 
 
@@ -260,8 +272,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p><em>aka majordome_utilities.plotting</em></p>
-<section id="majordomeplot" class="level2" data-number="11.1">
-<h2 data-number="11.1" class="anchored" data-anchor-id="majordomeplot"><span class="header-section-number">11.1</span> MajordomePlot</h2>
+<section id="majordomeplot" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="majordomeplot"><span class="header-section-number">12.1</span> MajordomePlot</h2>
 <p>One might ask why a wrapper around Matplotlib’s <code>Figure</code> and <code>Axes</code> is necessary, and I would strongly agree that it isn’t. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That’s the main goal of <code>MajordomePlot</code>: simplifying the plotting of publication-quality figures across Majordome (and beyond!). Below we illustrate how to use this functionality to ensure all the plots in a project look the same.</p>
 <div id="078bd5bb" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
@@ -671,8 +683,8 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </div>
 </div>
 </section>
-<section id="powerformatter" class="level2" data-number="11.2">
-<h2 data-number="11.2" class="anchored" data-anchor-id="powerformatter"><span class="header-section-number">11.2</span> PowerFormatter</h2>
+<section id="powerformatter" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="powerformatter"><span class="header-section-number">12.2</span> PowerFormatter</h2>
 <div id="3e3cf4d0" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="PowerFormatter">
@@ -725,8 +737,8 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </div>
 </div>
 </section>
-<section id="general-utilities" class="level2" data-number="11.3">
-<h2 data-number="11.3" class="anchored" data-anchor-id="general-utilities"><span class="header-section-number">11.3</span> General utilities</h2>
+<section id="general-utilities" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="general-utilities"><span class="header-section-number">12.3</span> General utilities</h2>
 <div id="ae15bfa1" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="centered_colormap">
@@ -1213,12 +1225,12 @@ Center value of the colormap, by default 0.
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../majordome_utilities/pdftools.html" class="pagination-link" aria-label="PDF Tools">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">PDF Tools</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">PDF Tools</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../_docs/developers.html" class="pagination-link" aria-label="Developer Guide">
-        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Developer Guide</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../majordome_utilities/skipper.html" class="pagination-link" aria-label="Skipping execution">
+        <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Skipping execution</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

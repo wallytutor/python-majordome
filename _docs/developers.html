@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>12&nbsp; Developer Guide – Majordome</title>
+<title>14&nbsp; Developer Guide – Majordome</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -66,7 +66,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../_docs/references.html" rel="next">
-<link href="../majordome_utilities/plotting.html" rel="prev">
+<link href="../majordome_utilities/skipper.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -118,7 +118,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../_docs/developers.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Developer Guide</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../_docs/developers.html"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Developer Guide</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -181,44 +181,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../majordome_simulation/meshing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Meshing helpers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/common.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Common</span></span></a>
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Common</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/documents.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/parsing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/pdftools.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome_utilities/plotting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../majordome_utilities/skipper.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Skipping execution</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/developers.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../_docs/references.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">References</span></span></a>
+ <span class="menu-text">References</span></a>
   </div>
 </li>
     </ul>
@@ -231,19 +243,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link active" data-scroll-target="#prerequisites"><span class="header-section-number">12.1</span> Prerequisites</a></li>
-  <li><a href="#command-reference" id="toc-command-reference" class="nav-link" data-scroll-target="#command-reference"><span class="header-section-number">12.2</span> Command reference</a>
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link active" data-scroll-target="#prerequisites"><span class="header-section-number">14.1</span> Prerequisites</a></li>
+  <li><a href="#command-reference" id="toc-command-reference" class="nav-link" data-scroll-target="#command-reference"><span class="header-section-number">14.2</span> Command reference</a>
   <ul class="collapse">
-  <li><a href="#windows-powershell" id="toc-windows-powershell" class="nav-link" data-scroll-target="#windows-powershell"><span class="header-section-number">12.2.1</span> Windows PowerShell</a></li>
-  <li><a href="#unix-like-shell" id="toc-unix-like-shell" class="nav-link" data-scroll-target="#unix-like-shell"><span class="header-section-number">12.2.2</span> Unix-like shell</a></li>
+  <li><a href="#windows-powershell" id="toc-windows-powershell" class="nav-link" data-scroll-target="#windows-powershell"><span class="header-section-number">14.2.1</span> Windows PowerShell</a></li>
+  <li><a href="#unix-like-shell" id="toc-unix-like-shell" class="nav-link" data-scroll-target="#unix-like-shell"><span class="header-section-number">14.2.2</span> Unix-like shell</a></li>
   </ul></li>
-  <li><a href="#documentation" id="toc-documentation" class="nav-link" data-scroll-target="#documentation"><span class="header-section-number">12.3</span> Documentation</a></li>
-  <li><a href="#distribution" id="toc-distribution" class="nav-link" data-scroll-target="#distribution"><span class="header-section-number">12.4</span> Distribution</a></li>
-  <li><a href="#dependency-management" id="toc-dependency-management" class="nav-link" data-scroll-target="#dependency-management"><span class="header-section-number">12.5</span> Dependency management</a></li>
-  <li><a href="#todo-lists" id="toc-todo-lists" class="nav-link" data-scroll-target="#todo-lists"><span class="header-section-number">12.6</span> Todo lists</a>
+  <li><a href="#documentation" id="toc-documentation" class="nav-link" data-scroll-target="#documentation"><span class="header-section-number">14.3</span> Documentation</a></li>
+  <li><a href="#distribution" id="toc-distribution" class="nav-link" data-scroll-target="#distribution"><span class="header-section-number">14.4</span> Distribution</a></li>
+  <li><a href="#dependency-management" id="toc-dependency-management" class="nav-link" data-scroll-target="#dependency-management"><span class="header-section-number">14.5</span> Dependency management</a></li>
+  <li><a href="#todo-lists" id="toc-todo-lists" class="nav-link" data-scroll-target="#todo-lists"><span class="header-section-number">14.6</span> Todo lists</a>
   <ul class="collapse">
-  <li><a href="#quick-needs" id="toc-quick-needs" class="nav-link" data-scroll-target="#quick-needs"><span class="header-section-number">12.6.1</span> Quick needs</a></li>
-  <li><a href="#wishlist" id="toc-wishlist" class="nav-link" data-scroll-target="#wishlist"><span class="header-section-number">12.6.2</span> Wishlist</a></li>
+  <li><a href="#quick-needs" id="toc-quick-needs" class="nav-link" data-scroll-target="#quick-needs"><span class="header-section-number">14.6.1</span> Quick needs</a></li>
+  <li><a href="#wishlist" id="toc-wishlist" class="nav-link" data-scroll-target="#wishlist"><span class="header-section-number">14.6.2</span> Wishlist</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -253,7 +265,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Developer Guide</span></h1>
+<h1 class="title"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Developer Guide</span></h1>
 </div>
 
 
@@ -270,8 +282,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="prerequisites" class="level2" data-number="12.1">
-<h2 data-number="12.1" class="anchored" data-anchor-id="prerequisites"><span class="header-section-number">12.1</span> Prerequisites</h2>
+<section id="prerequisites" class="level2" data-number="14.1">
+<h2 data-number="14.1" class="anchored" data-anchor-id="prerequisites"><span class="header-section-number">14.1</span> Prerequisites</h2>
 <p>The environment for developing Majordome requires at least a reasonably mondern version of Python and Rust. Documentation depends on Quarto. The exact versions may change over time, but as of the last update, the following (minimum) versions are recommended:</p>
 <ul>
 <li>Python 3.12</li>
@@ -280,10 +292,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>The development focuses on portability and ease of setup, so by default any dependency relying on a C/C++ compiler is forbidden. This means that the development environment can be set up on any platform without needing to install additional compilers or tools.</p>
 </section>
-<section id="command-reference" class="level2" data-number="12.2">
-<h2 data-number="12.2" class="anchored" data-anchor-id="command-reference"><span class="header-section-number">12.2</span> Command reference</h2>
-<section id="windows-powershell" class="level3" data-number="12.2.1">
-<h3 data-number="12.2.1" class="anchored" data-anchor-id="windows-powershell"><span class="header-section-number">12.2.1</span> Windows PowerShell</h3>
+<section id="command-reference" class="level2" data-number="14.2">
+<h2 data-number="14.2" class="anchored" data-anchor-id="command-reference"><span class="header-section-number">14.2</span> Command reference</h2>
+<section id="windows-powershell" class="level3" data-number="14.2.1">
+<h3 data-number="14.2.1" class="anchored" data-anchor-id="windows-powershell"><span class="header-section-number">14.2.1</span> Windows PowerShell</h3>
 <p>Windows development is performed using the <code>build.ps1</code> script, you find it in the project root. It is fully documented, but for convenience, here is a quick reference to the most common commands.</p>
 <p>Building the package:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the Python package in development mode:</span></span>
@@ -314,8 +326,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Publish the documentation to GitHub Pages:</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">./build.ps1</span> <span class="at">-PublishDocs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="unix-like-shell" class="level3" data-number="12.2.2">
-<h3 data-number="12.2.2" class="anchored" data-anchor-id="unix-like-shell"><span class="header-section-number">12.2.2</span> Unix-like shell</h3>
+<section id="unix-like-shell" class="level3" data-number="14.2.2">
+<h3 data-number="14.2.2" class="anchored" data-anchor-id="unix-like-shell"><span class="header-section-number">14.2.2</span> Unix-like shell</h3>
 <p>For developing the package, consider doing so from within a virtual environment; that will makes things easier to check versions and pin them properly in package dependencies, as needed. Following the next snippet, install, activate, upgrade pip, install build tools, and install the package in editable mode with all optional dependencies:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a virtual environment</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> venv venv</span>
@@ -338,12 +350,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> .<span class="pp">[</span><span class="ss">full</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
-<section id="documentation" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="documentation"><span class="header-section-number">12.3</span> Documentation</h2>
+<section id="documentation" class="level2" data-number="14.3">
+<h2 data-number="14.3" class="anchored" data-anchor-id="documentation"><span class="header-section-number">14.3</span> Documentation</h2>
 <p>Majordome code is documented using Numpydoc style docstrings, and the documentation is generated by module <code>majordome_utilities.documents</code> using Quarto markdown. This design choice reflects the academic aim of the packaged, with reporting and notebook support as a first-class citizen. Differently from usual packages, the <code>.qmd</code> files live along the modules they document, except for the main documentation file <code>developers.qmd</code>, which is located in the <code>_docs</code> folder. This allows to keep the documentation close to the code, and to easily update it when the code changes.</p>
 </section>
-<section id="distribution" class="level2" data-number="12.4">
-<h2 data-number="12.4" class="anchored" data-anchor-id="distribution"><span class="header-section-number">12.4</span> Distribution</h2>
+<section id="distribution" class="level2" data-number="14.4">
+<h2 data-number="14.4" class="anchored" data-anchor-id="distribution"><span class="header-section-number">14.4</span> Distribution</h2>
 <p><strong>Note</strong> for now the distribution of binaries is being done only through GitHub. Once a stable version is reached, consider updating this section for PyPI.</p>
 <p>For distribution, maintainers need to do the following:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> pip install <span class="at">--upgrade</span> twine</span>
@@ -351,8 +363,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> build</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> twine upload <span class="at">--repository</span> majordome dist/<span class="pp">*</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="dependency-management" class="level2" data-number="12.5">
-<h2 data-number="12.5" class="anchored" data-anchor-id="dependency-management"><span class="header-section-number">12.5</span> Dependency management</h2>
+<section id="dependency-management" class="level2" data-number="14.5">
+<h2 data-number="14.5" class="anchored" data-anchor-id="dependency-management"><span class="header-section-number">14.5</span> Dependency management</h2>
 <p>Generate the list of <code>full</code> dependencies using the following snipped; make sure to sanitize the outputs and update the corresponding section in <code>pyproject.toml</code>. There might be some duplicate dependencies that <strong>shall</strong> agree between themselves.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> textwrap <span class="im">import</span> indent</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tomllib</span>
@@ -373,17 +385,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>gen_full_deps()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="todo-lists" class="level2" data-number="12.6">
-<h2 data-number="12.6" class="anchored" data-anchor-id="todo-lists"><span class="header-section-number">12.6</span> Todo lists</h2>
-<section id="quick-needs" class="level3" data-number="12.6.1">
-<h3 data-number="12.6.1" class="anchored" data-anchor-id="quick-needs"><span class="header-section-number">12.6.1</span> Quick needs</h3>
+<section id="todo-lists" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="todo-lists"><span class="header-section-number">14.6</span> Todo lists</h2>
+<section id="quick-needs" class="level3" data-number="14.6.1">
+<h3 data-number="14.6.1" class="anchored" data-anchor-id="quick-needs"><span class="header-section-number">14.6.1</span> Quick needs</h3>
 <ul>
 <li><p>Automate documentation builds with GitHub actions.</p></li>
 <li><p>Update and simplify containerized builds for Linux.</p></li>
 </ul>
 </section>
-<section id="wishlist" class="level3" data-number="12.6.2">
-<h3 data-number="12.6.2" class="anchored" data-anchor-id="wishlist"><span class="header-section-number">12.6.2</span> Wishlist</h3>
+<section id="wishlist" class="level3" data-number="14.6.2">
+<h3 data-number="14.6.2" class="anchored" data-anchor-id="wishlist"><span class="header-section-number">14.6.2</span> Wishlist</h3>
 <ul>
 <li><p>Implement diffusional Grashof number in <code>majordome_engineering.transport.SutherlandFitting</code>, which is related to mass transfer arising because of the buoyant force caused by the concentration inhomogeneities.</p></li>
 <li><p>Create a data converter to create Ansys Fluent SCM files directly from Cantera YAML (species data and reactions).</p></li>
@@ -798,13 +810,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../majordome_utilities/plotting.html" class="pagination-link" aria-label="Plotting">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Plotting</span></span>
+      <a href="../majordome_utilities/skipper.html" class="pagination-link" aria-label="Skipping execution">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Skipping execution</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../_docs/references.html" class="pagination-link" aria-label="References">
-        <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">References</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
