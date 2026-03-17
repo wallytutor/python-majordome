@@ -8,6 +8,7 @@ import numpy as np
 # linting issues. Just use a union of common numeric types instead.
 AnyNumber = int | float | np.number
 TrupleAny = tuple[AnyNumber, AnyNumber, AnyNumber]
+PlaneEquationAny = tuple[AnyNumber, AnyNumber, AnyNumber, AnyNumber]
 
 
 class GmshOCCModel:
@@ -58,6 +59,8 @@ class GmshOCCModel:
         self.add_curve_loop    = occ.addCurveLoop
         self.add_plane_surface = occ.addPlaneSurface
         self.get_mass          = occ.getMass
+        self.remove            = occ.remove
+        self.fuse              = occ.fuse
 
         # Aliases for meshing operations:
         self.set_transfinite_curve   = mesh.setTransfiniteCurve
@@ -172,6 +175,56 @@ class GmshOCCModel:
             factors = (factors, factors, factors)
 
         self._occ.dilate(dimtags, *origin, *factors)
+
+    def transform_symmetrize(self,
+            dimtags: list[tuple[int, int]],
+            plane_equation: PlaneEquationAny | None = None,
+            axis: str | None = None,
+            copy: bool = False
+        ) -> None:
+        """ Symmetrize geometry entities across a plane defined by its equation.
+
+        Parameters
+        ----------
+        dimtags : list[tuple[int, int]]
+            List of (dimension, tag) pairs for the entities to symmetrize.
+        plane_equation : PlaneEquationAny, optional
+            Coefficients (a, b, c, d) of the plane equation ax+by+cz+d=0.
+            If not provided, 'axis' must be specified.
+        axis : str, optional
+            Axis of symmetry ('x', 'y', or 'z'). If provided, it defines a plane perpendicular to that axis through the origin. If not
+            provided, 'plane_equation' must be specified.
+        copy : bool, optional
+            Whether to keep the original entities (True) or replace them
+            with their symmetric counterparts (False). Default is False.
+        """
+        if plane_equation is None and axis is None:
+            raise ValueError("At least one of 'plane_equation' or "
+                             "'axis' must be provided.")
+
+        if plane_equation is not None and axis is not None:
+            raise ValueError("Only one of 'plane_equation' or 'axis' "
+                             "can be provided, not both.")
+
+        if axis is not None:
+            match axis.lower():
+                case "x":
+                    plane_equation = (1, 0, 0, 0)  # x = 0 plane
+
+                case "y":
+                    plane_equation = (0, 1, 0, 0)  # y = 0 plane
+                case "z":
+                    plane_equation = (0, 0, 1, 0)  # z = 0 plane
+                case _:
+                    raise ValueError(f"Invalid axis '{axis}'. Must be "
+                                     "'x', 'y', or 'z'.")
+
+        # Should never be true?!
+        if plane_equation is None:
+            raise ValueError("Plane equation must be defined at this point.")
+
+        usedims = self._occ.copy(dimtags) if copy else dimtags
+        self._occ.symmetrize(usedims, *plane_equation)
 
     def get_length(self, line_tag: int) -> float:
         """ Get the length of a line given its tag. """
