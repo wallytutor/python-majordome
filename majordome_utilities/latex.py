@@ -6,7 +6,8 @@ from typing import Any
 import subprocess
 import warnings
 
-from .common import DATA, first_in_path
+from .data import DATA
+from .common import first_in_path
 
 ##############################################################################
 # TEMPLATING
@@ -48,6 +49,9 @@ def fill_tex_template(template: str | Template, **kw) -> str:
 
     if "userpreamble" in required and "userpreamble" not in kw:
         kw["userpreamble"] = ""
+
+    if "subtitle" in required and "subtitle" not in kw:
+        kw["subtitle"] = ""
 
     for key, value in kw.items():
         if key not in required:

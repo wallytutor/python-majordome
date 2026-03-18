@@ -2,9 +2,7 @@
 from importlib import resources
 from pathlib import Path
 
-DATA = Path(str(resources.files("majordome_utilities").joinpath("data")))
-""" Path to project data folder. """
-
+from .data import DATA
 from ._majordome import constants
 
-__all__ = ["constants"]
+__all__ = ["constants", "DATA"]
