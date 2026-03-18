@@ -21,6 +21,7 @@ book:
     - majordome_engineering/reactor.qmd
     - majordome_engineering/symbolic.qmd
     - majordome_engineering/transport.qmd
+    - majordome_simulation/elmer.qmd
     - majordome_simulation/fluent.qmd
     - majordome_simulation/meshing.qmd
     - majordome_utilities/common.qmd

@@ -11,7 +11,22 @@ from majordome_utilities.plotting import MajordomePlot
 
 @dataclass
 class ConstantTimeStepInterval:
-    """ Create a constant time step interval for a simulation."""
+    """ Create a constant time step interval for a simulation.
+
+    Parameters
+    ----------
+    duration : float
+        Total duration of the time step interval.
+    time_step : float | None, optional
+        Size of each time step. If not provided, it will be calculated
+        based on the `duration` and `min_steps` parameters.
+    save_interval : float | None, optional
+        Interval at which to save results. If not provided, it will be
+        set equal to `time_step`.
+    min_steps : int, optional
+        Minimum number of time steps to use if `time_step` is not provided.
+        Must be at least 1. Default is 2.
+    """
     intervals: int
     save_every: int
     time_step: float
@@ -74,6 +89,7 @@ class ConstantTimeStepInterval:
                 f"save_every={self.save_every})")
 
     def into_formatted_data(self) -> list[str]:
+        """ Format the time step data for output in an Elmer SIF file. """
         return [
             f"{self.duration:>13g}",
             f"{self.time_step:>13.6e}",
@@ -83,7 +99,13 @@ class ConstantTimeStepInterval:
 
 
 class TimeStepAccumulator:
-    """ Helper for checking cumulative time steps. """
+    """ Helper for creating cumulative time steps in Elmer SIF files.
+
+    Parameters
+    ----------
+    time_steps : ConstantTimeStepInterval
+        Variable number of time step intervals to accumulate.
+    """
     __slots__ = ("_time_steps",)
 
     def __init__(self, *time_steps: ConstantTimeStepInterval) -> None:
@@ -107,12 +129,46 @@ class TimeStepAccumulator:
         """ Duration of the accumulated time steps. """
         return sum(ts.duration for ts in self._time_steps)
 
-    def add_block(self, duration: float, **kws) -> None:
-        """ Add a new block of time steps with the given parameters. """
+    def add_block(self, *, duration: float | None = None,
+                  end_time: float | None = None,
+                  **kws) -> None:
+        """ Add a new block of time steps with the given parameters.
+
+        Parameters
+        ----------
+        duration : float
+            Duration of the new time step block. If not provided, then
+            `end_time` must be provided.
+        end_time : float
+            End time of the new time step block. If not provided, then
+            `duration` must be provided. If provided, the duration of
+            the new block will be calculated as `end_time - self.duration`.
+        kws:
+            Additional keyword arguments to pass to the
+            `ConstantTimeStepInterval` constructor.
+        """
+        if duration is None and end_time is None:
+            raise ValueError("Either provide 'duration' or 'end_time'.")
+
+        if duration is not None and end_time is not None:
+            raise ValueError("Provide only 'duration' or 'end_time'.")
+
+        if end_time is not None:
+            duration = end_time - self.duration
+
+        if duration is None:
+            raise ValueError("Duration could not be determined.")
+
         self.append(ConstantTimeStepInterval(duration, **kws))
 
     def append(self, time_step: ConstantTimeStepInterval) -> None:
-        """ Append a new time step to the accumulator. """
+        """ Append a new time step to the accumulator.
+
+        Parameters
+        ----------
+        time_step : ConstantTimeStepInterval
+            The time step interval to append to the accumulator.
+        """
         self._time_steps.append(time_step)
 
     def to_dataframe(self) -> pd.DataFrame:
@@ -130,7 +186,7 @@ class TimeStepAccumulator:
 
         # Transpose for printing in Elmer SIF:
         df = df.T.reset_index()
-        df.columns = range(len(df.columns))
+        df.columns = list(range(len(df.columns)))
 
         # Labels for Elmer SIF:
         df[0] = [fmt.format(c) for c in columns]
@@ -139,7 +195,14 @@ class TimeStepAccumulator:
 
 
 class ElmerConvergenceData:
-    """ Class for handling convergence data from Elmer simulations. """
+    """ Class for handling convergence data from Elmer simulations.
+
+    Parameters
+    ----------
+    file_path : str | Path
+        Path to the file containing convergence data, typically output
+        by Elmer's SaveLine solver.
+    """
     __slots__ = ("_data", "_solvers")
 
     def __init__(self, file_path: str | Path) -> None:
@@ -147,12 +210,12 @@ class ElmerConvergenceData:
         self._solvers = self._data["solver"].unique().tolist()
 
     @staticmethod
-    def load_convergence_data(file_path: str) -> pd.DataFrame:
+    def load_convergence_data(file_path: str | Path) -> pd.DataFrame:
         """ Load convergence data from a text file.
 
         Parameters
         ----------
-        file_path : str
+        file_path : str | Path
             Path to the file containing convergence data.
 
         Returns
@@ -201,7 +264,7 @@ class ElmerConvergenceData:
             solver_id: int,
             final_iter: bool = False,
             time_axis: NDArray | None = None,
-            plot: MajordomePlot
+            plot: MajordomePlot | None = None,
         ) -> MajordomePlot:
         """ Plot convergence data for a specific solver.
 
@@ -209,6 +272,12 @@ class ElmerConvergenceData:
         ----------
         solver_id : int
             The ID of the solver to plot.
+        final_iter : bool, optional
+            If True, only plot the final iteration for each timestep.
+        time_axis : NDArray | None, optional
+            Optional array of time values to use as the x-axis. If not provided, the timestep numbers will be used.
+        plot : MajordomePlot | None, optional
+            Placeholder for plot object provided by decorator.
 
         Returns
         -------
@@ -230,8 +299,13 @@ class ElmerConvergenceData:
         x = df["timestep"].to_numpy()
         y = np.log10(df["change"].to_numpy())
 
-        fig, ax = plot.subplots()
+
+        if plot is None:
+            raise ValueError("Plot object must be provided.")
+
+        _, ax = plot.subplots()
         ax[0].plot(x, y, c="k")
+        return plot
 
 
 class ElmerTabularMetadata:
