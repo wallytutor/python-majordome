@@ -3,9 +3,8 @@ from importlib import resources
 from pathlib import Path
 import cantera as ct
 
-__all__ = []
+from .data import DATA
 
-DATA = Path(str(resources.files("majordome_engineering").joinpath("data")))
-""" Path to project data folder. """
+__all__ = ["DATA"]
 
 ct.add_directory(DATA)
