@@ -26,6 +26,7 @@ book:
     - majordome_simulation/meshing.qmd
     - majordome_utilities/common.qmd
     - majordome_utilities/documents.qmd
+    - majordome_utilities/latex.qmd
     - majordome_utilities/parsing.qmd
     - majordome_utilities/pdftools.qmd
     - majordome_utilities/plotting.qmd

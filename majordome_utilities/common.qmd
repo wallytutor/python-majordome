@@ -10,5 +10,15 @@ from majordome_utilities.common import *
 import numpy as np
 ```
 
+## ColorPrint
+
+```{python}
+ColorPrint.red("This is a red message.")
+ColorPrint.green("This is a green message.")
+ColorPrint.blue("This is a blue message.")
+ColorPrint.yellow("This is a yellow message.")
+ColorPrint.cyan("This is a cyan message.")
+```
+
 <!-- ## *ReadTextData* -->
 <!-- ## *InteractiveSession* -->

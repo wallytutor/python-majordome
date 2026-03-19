@@ -128,6 +128,46 @@ class Capturing(list):
         sys.stderr = self._stderr
 
 
+class ColorPrint:
+    """ Helper to print colored text in terminal. """
+    R = "\033[31m"
+    G = "\033[32m"
+    B = "\033[34m"
+    Y = "\033[33m"
+    C = "\033[36m"
+    K = "\033[0m"
+
+    @staticmethod
+    def _print(text, color_code):
+        """ Print text in given color. """
+        print(f"{color_code}{text}{ColorPrint.K}")
+
+    @staticmethod
+    def red(text):
+        """ Print text in red color. """
+        ColorPrint._print(text, ColorPrint.R)
+
+    @staticmethod
+    def green(text):
+        """ Print text in green color. """
+        ColorPrint._print(text, ColorPrint.G)
+
+    @staticmethod
+    def blue(text):
+        """ Print text in blue color. """
+        ColorPrint._print(text, ColorPrint.B)
+
+    @staticmethod
+    def yellow(text):
+        """ Print text in yellow color. """
+        ColorPrint._print(text, ColorPrint.Y)
+
+    @staticmethod
+    def cyan(text):
+        """ Print text in cyan color. """
+        ColorPrint._print(text, ColorPrint.C)
+
+
 def has_program(name: str) -> bool:
     """ Test if a program is available in system path. """
     return True if shutil.which(name) else False

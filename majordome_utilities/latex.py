@@ -7,6 +7,7 @@ import subprocess
 import warnings
 
 from .data import DATA
+from .common import ColorPrint
 from .common import first_in_path
 
 ##############################################################################
@@ -279,6 +280,8 @@ class BeamerSlides:
         slides_dir = slides_tex.parent
 
         if not slides_dir.exists():
+            ColorPrint.red(f"Project directory does not exist. "
+                           f"Creating '{slides_dir}' for dumping.")
             slides_dir.mkdir(parents=True, exist_ok=True)
 
         cmd = [

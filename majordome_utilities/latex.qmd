@@ -1,0 +1,8 @@
+# LaTeX Helpers
+
+*aka majordome_utilities.latex*
+
+```{python}
+from majordome_utilities.documents import *
+from majordome_utilities.latex import *
+```
