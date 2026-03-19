@@ -1,0 +1,148 @@
+% ----------------------------------------------------------------------
+% beamer-minimal.tex
+% ----------------------------------------------------------------------
+
+\documentclass[aspectratio=1610]{beamer}
+\usepackage[english,french]{babel}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{chemformula}
+\usepackage{graphicx}
+\usepackage{siunitx}
+
+% For colorboxes and related.
+\usepackage{color}
+\usepackage[most]{tcolorbox}
+
+% Comes last (interact with other packages)
+\usepackage{hyperref}
+
+% ----------------------------------------------------------------------
+% Colors
+% ----------------------------------------------------------------------
+
+\definecolor{CfdBlue}{RGB}{6, 2, 112}
+\definecolor{PurpleHeart}{RGB}{78, 41, 213}
+
+% ----------------------------------------------------------------------
+% General configurations
+% ----------------------------------------------------------------------
+
+\hypersetup{
+  colorlinks = true,
+  urlcolor   = PurpleHeart,  % external links
+  linkcolor  = CfdBlue,      % internal links
+  citecolor  = CfdBlue       % citation links
+}
+
+% ----------------------------------------------------------------------
+% Beamer overrides
+% ----------------------------------------------------------------------
+
+\definecolor{themeColor}{RGB}{  1,  33, 105}
+\definecolor{themeOrang}{RGB}{255, 130,   0}
+
+\setbeamertemplate{section page}
+{%
+  \begin{centering}%
+    \vfill%
+    \begin{beamercolorbox}[sep=12pt,center]{section title}%
+      \usebeamerfont{section title}\insertsection%
+    \end{beamercolorbox}%
+    \vfill%
+  \end{centering}%
+}
+
+\usecolortheme[named=themeColor]{structure}
+\setbeamercolor{structure}{fg=CfdBlue}
+
+\setbeamertemplate{footnote}{
+  \parindent 0pt%
+  \noindent%
+  \raggedright%
+  \hbox to 1em{\insertfootnotemark\hfil}\insertfootnotetext
+}
+
+\AtBeginSection{\frame{\sectionpage}}
+\AtBeginSubsection{\frame{\subsectionpage}}
+
+\makeatletter
+\renewcommand\footnotesize{\scriptsize}
+\makeatother
+
+% ----------------------------------------------------------------------
+% Additional units
+% ----------------------------------------------------------------------
+
+\DeclareSIPrefix{\normal}{N}{1}
+
+% ----------------------------------------------------------------------
+% Warning box
+% ----------------------------------------------------------------------
+
+\newtcolorbox[auto counter,number within=section]{caja}[1][]{
+  enhanced jigsaw,%
+  sharp corners,%
+  detach title,%
+  breakable,%
+  colback      = white,%
+  colframe     = themeOrang,%
+  coltitle     = themeOrang,%
+  fonttitle    = \bfseries\sffamily,%
+  leftrule     = 22mm,%
+  pad at break = 1mm,%
+  underlay unbroken and first = {%
+    \node[below,text=black,anchor=east]%
+      at ([xshift=-22.5pt]interior.base west)%
+      {\Huge\textbf{!}};%
+  },%
+  code = {%
+    \ifdefempty{\tcbtitletext}%
+    {}%
+    {\tcbset{before upper={\tcbtitle\par\medskip}}}%
+  },%
+  #1,%
+}
+
+% ----------------------------------------------------------------------
+% User commands
+% ----------------------------------------------------------------------
+
+$userpreamble
+
+% ----------------------------------------------------------------------
+% graphicspath customization
+% ----------------------------------------------------------------------
+
+\graphicspath{$graphicspath}
+
+% ----------------------------------------------------------------------
+% titlepage customization
+% ----------------------------------------------------------------------
+
+\title{$title}
+\subtitle{$subtitle}
+\author{$author}
+\date{$date}
+
+% ----------------------------------------------------------------------
+% Start document
+% ----------------------------------------------------------------------
+
+\begin{document}
+\frame{\titlepage}
+\frame{\tableofcontents}
+
+% ----------------------------------------------------------------------
+% User provided contents
+% ----------------------------------------------------------------------
+
+$contents
+
+% ----------------------------------------------------------------------
+% Close document
+% ----------------------------------------------------------------------
+
+\frame{\centering{EOF}}
+\end{document}%
+\endinput%
