@@ -1,0 +1,8 @@
+# Computer vision
+
+*aka majordome_engineering.vision*
+
+```{python}
+from majordome_utilities.documents import *
+from majordome_engineering.vision import *
+```
