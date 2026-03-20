@@ -193,7 +193,9 @@ def first_in_path(path_list: list[str | Path]) -> Path | None:
 def normalize_string(s: str) -> str:
     """ Normalize strings to be used as valid Python code. """
     # Normalize accented characters (e.g. é → e):
-    s = unicodedata.normalize("NFKD", s).encode("ASCII", "ignore").decode("ASCII")
+    s = unicodedata.normalize("NFKD", s)\
+        .encode("ASCII", "ignore")\
+        .decode("ASCII")
 
     # Replace non-alphanumeric characters with underscores:
     s = re.sub(r"[^a-zA-Z0-9]+", "_", s)
