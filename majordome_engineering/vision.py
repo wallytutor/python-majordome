@@ -351,15 +351,22 @@ class LabelizeRegions:
         Binary mask where regions of interest are marked as 1.
     clean_border : bool, optional
         Whether to remove objects touching the border, by default True.
-    min_size : int | None, optional
-        Minimum size of objects to keep, by default None
+    max_size : int | None, optional
+        Remove objects whose contiguous area (or volume, in N-D) contains
+        this number of pixels or fewer. See `remove_small_objects` in
+        `skimage.morphology` for details.
+    max_ratio : float | None, optional
+        Remove elongated objects based on their eccentricity. Objects with
+        eccentricity above the threshold corresponding to this ratio will
+        be removed. For example, a max_ratio of 10 corresponds to an
+        eccentricity threshold of sqrt(1 - (1/10)^2) ≈ 0.995.
     """
     __slots__ = ("_mask", "_labels", "_contours", "_regions", "_table")
 
     def __init__(self,
             mask: NDArray,
             clean_border: bool = True,
-            min_size: int | None = None,
+            max_size: int | None = None,
             max_ratio: float | None = None,
             properties: list[str] | None = None
         ) -> None:
@@ -368,8 +375,9 @@ class LabelizeRegions:
         if clean_border:
             labels = segmentation.clear_border(labels)
 
-        if min_size is not None and min_size > 0:
-            labels = morphology.remove_small_objects(labels, min_size)
+        if max_size is not None and max_size > 0:
+            labels = morphology.remove_small_objects(labels,
+                                                     max_size=max_size)
 
         self._mask = mask.copy()
         self._labels = labels
