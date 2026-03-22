@@ -376,8 +376,7 @@ class LabelizeRegions:
             labels = segmentation.clear_border(labels)
 
         if max_size is not None and max_size > 0:
-            labels = morphology.remove_small_objects(labels,
-                                                     max_size=max_size)
+            labels = morphology.remove_small_objects(labels, max_size)
 
         self._mask = mask.copy()
         self._labels = labels
