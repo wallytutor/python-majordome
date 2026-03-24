@@ -404,6 +404,12 @@ class ElmerTabularData:
     def __init__(self,
                  fname: str | Path, *,
                  fmeta: str | Path | None = None):
+        # XXX idea, if the following line is present in metadata, then
+        # use it to find the data file. Maybe write a function that takes
+        # the metadata file and finds the data file, instead of the other
+        # way around. This would be more robust...
+        # Metadata for SaveScalars file:
+
         # Internally we require it to be a Path:
         fname = Path(fname)
         fmeta = Path(fmeta) if fmeta is not None else None
