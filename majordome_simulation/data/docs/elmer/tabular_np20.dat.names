@@ -1,0 +1,18 @@
+Metadata for SaveScalars file: results/tabular_np20.dat
+Elmer version: 26.1
+Elmer revision: Release
+Elmer compilation date: 2026-03-02
+Solver input file: case.sif
+File started at: 2026/03/18 16:03:05
+
+Variables in columns of matrix:
+   1: value: time scalar variable
+   2: nonlin converged: temperature
+   3: boundary sum: temperature loads over bc externalmask : mpi_sum
+   4: body mean: temperature mask bodymolten
+   5: body mean: temperature mask bodymould
+   6: body int: internal energy mask bodymolten : mpi_sum
+   7: body int: internal energy mask bodymould : mpi_sum
+   8: body volume: temperature mask bodymolten : mpi_sum
+   9: body int: density mask bodymolten : mpi_sum
+  10: body mean: density mask bodymolten
