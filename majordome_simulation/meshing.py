@@ -10,6 +10,19 @@ AnyNumber = int | float | np.number
 TrupleAny = tuple[AnyNumber, AnyNumber, AnyNumber]
 PlaneEquationAny = tuple[AnyNumber, AnyNumber, AnyNumber, AnyNumber]
 
+CUSTOM_DEFAULT_OPTIONS = {
+    "Mesh.CharacteristicLengthMin": None,
+    "Mesh.CharacteristicLengthMax": None,
+    "Mesh.SaveAll": None,
+    "Mesh.SaveGroupsOfNodes": None,
+    "Mesh.MeshSizeMax": None,
+    "Mesh.Algorithm": 6,
+    "Mesh.ElementOrder": 2,
+    "Geometry.Points": False,
+    "Geometry.Lines": True,
+    "Geometry.Surfaces": True,
+}
+
 
 class GmshOCCModel:
     """ Wrapper to manage OCC models with an OOP approach.
@@ -23,11 +36,8 @@ class GmshOCCModel:
     ks : dict
         Provide configuration for gmsh internals.
     """
-    def __init__(self, *,
-            render: bool = False,
-            name: str = "domain",
-            **kws
-        ) -> None:
+    def __init__(self, *, render: bool = False, name: str = "domain",
+                 **kws) -> None:
         self._render = render
 
         if gmsh.is_initialized():
@@ -51,24 +61,39 @@ class GmshOCCModel:
         # instead of `dilate`.
 
         # Aliases for OpenCascade geometry kernel:
-        self.fragment          = occ.fragment
-        self.synchronize       = occ.synchronize
-        self.add_rectangle     = occ.addRectangle
+        # - basic geometry entities:
         self.add_point         = occ.addPoint
         self.add_line          = occ.addLine
+
+        # - construction geometry entities:
+        self.add_circle_arc    = occ.addCircleArc
+        self.add_rectangle     = occ.addRectangle
+
+        # - add higher-level geometry entities:
         self.add_curve_loop    = occ.addCurveLoop
         self.add_plane_surface = occ.addPlaneSurface
-        self.get_mass          = occ.getMass
-        self.remove            = occ.remove
+
+        # - operations on geometry entities:
         self.fuse              = occ.fuse
+        self.remove            = occ.remove
+        self.fragment          = occ.fragment
+        self.extrude           = occ.extrude
+        self.synchronize       = occ.synchronize
+
+        # - query geometry properties:
+        self.get_mass          = occ.getMass
 
         # Aliases for meshing operations:
         self.set_transfinite_curve   = mesh.setTransfiniteCurve
         self.set_transfinite_surface = mesh.setTransfiniteSurface
+        self.set_recombine           = mesh.setRecombine
+        self.set_size                = mesh.setSize
         self.generate_mesh           = mesh.generate
 
         # Configure with custom options:
-        self.configure(**kws)
+        options = CUSTOM_DEFAULT_OPTIONS.copy()
+        options.update(kws)
+        self.configure(**options)
 
     def __enter__(self) -> Self:
         return self
@@ -83,30 +108,6 @@ class GmshOCCModel:
             gmsh.fltk.run()
 
         gmsh.finalize()
-
-    def _configure_geometry(self, **kws) -> None:
-        """ Configure geometry display options. """
-        show_points   = kws.get("show_points", False)
-        show_lines    = kws.get("show_lines", True)
-        show_surfaces = kws.get("show_surfaces", True)
-
-        self.set_option("Geometry.Points", show_points)
-        self.set_option("Geometry.Lines",  show_lines)
-        self.set_option("Geometry.Surfaces", show_surfaces)
-
-    def _configure_mesh(self, **kws) -> None:
-        """ Configure mesh display options. """
-        mesh_save_all    = kws.get("mesh_save_all", None)
-        mesh_save_groups = kws.get("mesh_save_groups", None)
-        mesh_size_max    = kws.get("mesh_size_max", None)
-        mesh_algorithm   = kws.get("mesh_algorithm", 6)
-        element_order    = kws.get("element_order", 2)
-
-        self.set_option("Mesh.SaveAll", mesh_save_all)
-        self.set_option("Mesh.SaveGroupsOfNodes", mesh_save_groups)
-        self.set_option("Mesh.MeshSizeMax", mesh_size_max)
-        self.set_option("Mesh.Algorithm", mesh_algorithm)
-        self.set_option("Mesh.ElementOrder", element_order)
 
     def set_option(self, name: str, value: Any) -> None:
         """ Set a raw Gmsh option. """
@@ -129,8 +130,8 @@ class GmshOCCModel:
 
     def configure(self, **kws) -> None:
         """ Configure mesh parameters and display options. """
-        self._configure_geometry(**kws)
-        self._configure_mesh(**kws)
+        for key, value in kws.items():
+            self.set_option(key, value)
 
     def add_points(self,
                    x: NDArray[np.float64],
@@ -255,10 +256,16 @@ class GmshOCCModel:
 
     def mesh_and_save(self, filename: str, *, dim: int, **kws) -> None:
         """ Generate mesh and save to file. """
-        self._configure_mesh(**kws)
         self.synchronize()
         self.generate_mesh(dim)
         gmsh.write(filename)
+
+    def dump(self, *args):
+        """" Dump the mesh to files with given names. """
+        self.synchronize()
+
+        for arg in args:
+            gmsh.write(arg)
 
 
 class GeometricProgression:
