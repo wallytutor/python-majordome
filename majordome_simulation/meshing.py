@@ -344,3 +344,55 @@ class GeometricProgression:
 
         best_n = min(range(min_nodes, max_nodes), key=loss)
         return best_n, cls.ratio(best_n, d0, d1)
+
+    @classmethod
+    def fit_bump(cls,
+            length: float,
+            d_end: float,
+            d_mid: float,
+            *,
+            min_nodes: int = 4,
+            max_nodes: int = 1000,
+            tol: float = 1.0e-12,
+            rtol: float = 1.0e-9
+        ) -> tuple[int, float]:
+        """ Best number of segments to fit a bump within a radius.
+
+        Please notice that a Gmsh bump coefficient is symmetric on both
+        ends, so a single `d_end` value is used for both the start and end of the curve. This returns `(n, coef)` for:
+        `setTransfiniteCurve(curve, n + 1, "Bump", coef)`.
+
+        Parameters
+        ----------
+        length : float
+            Total curve length.
+        d_end : float
+            Target edge cell size at the end.
+        d_mid : float
+            Target cell size near curve middle.
+        min_nodes : int
+            Minimum number of segments to consider.
+        max_nodes : int
+            Maximum number of segments to consider.
+        tol : float
+            Absolute tolerance used in progression sums.
+        """
+        if min_nodes < 2:
+            raise ValueError("min_nodes must be >= 2")
+
+        if max_nodes <= min_nodes:
+            raise ValueError("max_nodes must be > min_nodes")
+
+        if d_end <= 0 or d_mid <= 0:
+            raise ValueError("Cell sizes must be positive.")
+
+        def bump_sum(n: int) -> float:
+            left_count = n // 2 + n % 2
+            q = cls.ratio(left_count, d_end, d_mid)
+            half = cls(left_count, d_end, q=q, tol=tol).sum()
+            return 2.0 * half - (d_mid if n % 2 else 0.0)
+
+        best_n = min(range(min_nodes, max_nodes),
+                     key=lambda n: abs(length - bump_sum(n)))
+
+        return best_n, d_end / d_mid
