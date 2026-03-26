@@ -259,3 +259,81 @@ class GmshOCCModel:
         self.synchronize()
         self.generate_mesh(dim)
         gmsh.write(filename)
+
+
+class GeometricProgression:
+    """ Create a geometric progression for meshing control.
+
+    Parameters
+    ----------
+    n : int
+        Number of segments.
+    d0 : float
+        First segment length.
+    d1 : float
+        Last segment length. If not provided, `q` must be provided.
+    q : float
+        Geometric progression ratio. If `d1` is provided, `q` is
+        computed to fit `n` segments from `d0` to `d1`.
+    tol : float
+            Tolerance for detecting q ≈ 1 when computing progression sum.
+    """
+    def __init__(self, n: int, d0: float, *, d1: float | None = None,
+                 q: float | None = None, tol: float = 1e-14):
+        if q is None and d1 is not None:
+            q = self.ratio(n, d0, d1)
+        elif q is None:
+            raise ValueError("Either q or d1 must be provided")
+
+        self.n = n
+        self.q = q
+        self.d0 = d0
+        self.tol = tol
+
+    def sum(self) -> float:
+        """ Sum of geometric progression series. """
+        if abs(1.0 - self.q) < self.tol:
+            return self.n * self.d0
+        return self.d0 * (1.0 - self.q**self.n) / (1.0 - self.q)
+
+    @staticmethod
+    def ratio(n: int, d0: float, d1: float) -> float:
+        """ Geometric progression ratio for `n` segments from `d0` to `d1`.
+
+        Parameters
+        ----------
+        n : int
+            Number of segments.
+        d0 : float
+            First segment length.
+        d1 : float
+            Last segment length.
+        """
+        return (d1 / d0) ** (1.0 / (n - 1))
+
+    @classmethod
+    def fit(cls, radius: float, d0: float, d1: float,
+            min_nodes: int = 2, max_nodes: int = 1000,
+            tol: float = 1.0e-15) -> tuple[int, float]:
+        """ Best number of segments to fit a progression within a radius.
+
+        Parameters
+        ----------
+        radius : float
+            Target total length to fit.
+        d0 : float
+            First segment length.
+        d1 : float
+            Last segment length.
+        min_nodes : int
+            Minimum number of segments to consider.
+        max_nodes : int
+            Maximum number of segments to consider.
+        tol : float
+            Tolerance for detecting q ≈ 1 when computing progression sum.
+        """
+        def loss(n: int) -> float:
+            return abs(radius - cls(n, d0, d1=d1, tol=tol).sum())
+
+        best_n = min(range(min_nodes, max_nodes), key=loss)
+        return best_n, cls.ratio(best_n, d0, d1)
