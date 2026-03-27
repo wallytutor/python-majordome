@@ -1,14 +1,23 @@
-# Skipping execution
+# Majordome extensions
 
-*aka majordome_utilities.skipper*
-
-A simple extension for skipping the execution of code cells in a notebook. It does that and only that. The goal is to control notebook execution from the environment, which is useful when running notebooks with long-running cells, as numerical simulations.
+*aka majordome.magic*
 
 On top of your notebook, simply load the extension:
 
 ```{python}
 #| echo: true
-%load_ext majordome_utilities.skipper
+# XXX: the following was replaced by `majordome.magic`.
+# %load_ext majordome_utilities.skipper
+
+%load_ext majordome.magic
+```
+
+## Skipping execution
+
+The module provides a simple extension for skipping the execution of code cells in a notebook. It does that and only that. The goal is to control notebook execution from the environment, which is useful when running notebooks with long-running cells, as numerical simulations.
+
+```{python}
+#| echo: true
 %skipper_verbosity 1
 ```
 
@@ -23,8 +32,8 @@ import os
 The following (case insensitive) options are accepted by the `%%skipper` magic command. Please, notice that the *truthy* values mean *skip this cell* (as the extension name implies, but even myself can be confused by the double negative here).
 
 ```{python}
-from majordome_utilities.skipper import LOOKUP_STR2BOOL
-print(LOOKUP_STR2BOOL)
+from majordome.magic import _LOOKUP_STR2BOOL
+print(_LOOKUP_STR2BOOL)
 ```
 
 Below we set the environment variable `SOLVE_LONNNNG` to `true`, which means that the cell will be skipped. You can change it to `false` to execute the cell, or even set it to any other value, as long as it is in the lookup table.
@@ -64,4 +73,38 @@ You can also avoid the *Skipping cell* message by setting the verbosity to `0`:
 %%skipper SOLVE_LONNNNG
 sleep(100)
 did_you_skip_it = False
+```
+
+## Markdown and LaTeX interpolation
+
+Cell magic extension to interpolate Markdown and LaTeX.
+
+- Variables are interpolated from the IPython user namespace using Python format placeholders, e.g. ``{variable}``.
+
+- Curly braces inside LaTeX math blocks (``$...$`` or ``$$...$$``) are automatically escaped before interpolation so expressions such as ``$x_{i}$`` render correctly.
+
+Declare some values in the user namespace:
+
+```{python}
+#| echo: true
+variable = "hello"
+some_value = 12.2
+```
+
+Below we have a Markdown cell with some variables and LaTeX expressions. The variables will be replaced by their values, and the LaTeX will be rendered correctly.
+
+```{python}
+#| echo: true
+%%md
+I have this string with a variable: {variable}.
+
+There is also some latex: $\int_a^b f(x) \; dx$.
+
+- Some formatter value {some_value:.2f}
+
+- Some block math:
+
+$$
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+$$
 ```
