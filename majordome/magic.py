@@ -13,6 +13,8 @@ _LOOKUP_STR2BOOL = {"true": True,   "1": True,  "yes": True,
 
 _MATH_BLOCKS_RE = re.compile(r"(\$\$.*?\$\$|\$.*?\$)", flags=re.DOTALL)
 
+_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
+
 #region: skipper
 def _str_to_bool(s: str) -> bool:
     """ Convert allowed values to boolean. """
@@ -47,17 +49,40 @@ def _skipper(flag: str, cell: str | None = None) -> None:
             print(f"Skipping cell: {flag}={value}")
         return
 
-    if (shell := get_ipython()) is not None:
-        shell.run_cell(cell)
-    else:
+    if (shell := get_ipython()) is None:
         raise RuntimeError("Not running inside an IPython environment.")
+
+    shell.run_cell(cell)
 #endregion: skipper
 
 #region: md
-_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
+def _split_unescaped_colon(content: str) -> tuple[str, str | None]:
+    """ Split ``content`` at first unescaped ``:``.
+
+    ``\:`` is treated as a literal colon and does not split.
+    """
+    for index, char in enumerate(content):
+        if char != ":":
+            continue
+
+        backslashes = 0
+        cursor = index - 1
+
+        while cursor >= 0 and content[cursor] == "\\":
+            backslashes += 1
+            cursor -= 1
+
+        if backslashes % 2 == 0:
+            return content[:index], content[index + 1 :]
+
+    return content, None
 
 
-def _eval_placeholder(content: str, namespace: dict) -> str:
+def _eval_placeholder(
+        content: str,
+        namespace: dict,
+        require_spec: bool = False,
+    ) -> str:
     """ Evaluate a placeholder expression with an optional format spec.
 
     Supports:
@@ -67,9 +92,11 @@ def _eval_placeholder(content: str, namespace: dict) -> str:
         {10*d:.1f}          -> format(eval('10*d'), '.1f')
 
     Falls back to the original ``{content}`` if evaluation fails.
-    # TODO support formatted expressions in LaTeX math blocks.
     """
-    expr, _, spec = content.partition(":")
+    expr, spec = _split_unescaped_colon(content)
+    if require_spec and spec is None:
+        return "{" + content + "}"
+
     try:
         value = eval(expr.strip(), namespace)  # noqa: S307
         return format(value, spec) if spec else str(value)
@@ -77,21 +104,34 @@ def _eval_placeholder(content: str, namespace: dict) -> str:
         return "{" + content + "}"
 
 
-def _interpolate(text: str, namespace: dict) -> str:
-    """Substitute every ``{expr}`` / ``{expr:spec}`` placeholder in *text*."""
+def _interpolate(text: str, namespace: dict, require_spec: bool = False) -> str:
+    """ Substitute every ``{expr}`` / ``{expr:spec}`` placeholder in *text*. """
     return _PLACEHOLDER_RE.sub(
-        lambda m: _eval_placeholder(m.group(1), namespace), text
+        lambda m: _eval_placeholder(m.group(1), namespace, require_spec), text
     )
 
 
+def _assembly_math_block(math_block: str, namespace: dict) -> str:
+    """ Interpolate math block content with format spec required. """
+    delimiter = "$$" if math_block.startswith("$$") else "$"
+    inner_math = math_block[len(delimiter) : -len(delimiter)]
+    rendered_math = _interpolate(inner_math, namespace, require_spec=True)
+    return f"{delimiter}{rendered_math}{delimiter}"
+
+
 def _render_cell(cell: str, namespace: dict) -> str:
-    """Interpolate *cell*, leaving LaTeX math blocks ($…$ / $$…$$) intact."""
+    """ Interpolate text and math blocks with distinct rules.
+
+    - Outside math blocks: ``{expr}`` and ``{expr:spec}`` are supported.
+    - Inside math blocks: only ``{expr:spec}`` is supported.
+        Plain ``{expr}`` and escaped-colon forms (e.g. ``{d\:f}``) are untouched.
+    """
     parts: list[str] = []
     last = 0
 
     for match in _MATH_BLOCKS_RE.finditer(cell):
         parts.append(_interpolate(cell[last:match.start()], namespace))
-        parts.append(match.group(0))   # math block kept verbatim
+        parts.append(_assembly_math_block(match.group(0), namespace))
         last = match.end()
 
     parts.append(_interpolate(cell[last:], namespace))
@@ -99,10 +139,10 @@ def _render_cell(cell: str, namespace: dict) -> str:
 
 
 def _md(_line: str, cell: str) -> None:
-    if (shell := get_ipython()) is not None:
-        display(Markdown(_render_cell(cell, shell.user_ns)))
-    else:
+    if (shell := get_ipython()) is None:
         raise RuntimeError("Not running inside an IPython environment.")
+
+    display(Markdown(_render_cell(cell, shell.user_ns)))
 #endregion: md
 
 
