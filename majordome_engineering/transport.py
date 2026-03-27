@@ -11,8 +11,9 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from majordome_utilities.common import DATA, constants
+from majordome_utilities import constants
 from majordome_utilities.plotting import MajordomePlot
+from .data import DATA
 
 
 class EffectiveThermalConductivity:
