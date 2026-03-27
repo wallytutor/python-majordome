@@ -54,27 +54,53 @@ def _skipper(flag: str, cell: str | None = None) -> None:
 #endregion: skipper
 
 #region: md
-class _SafeFormatDict(dict):
-    """ Preserve unknown placeholders instead of failing formatting. """
-    def __missing__(self, key: str) -> str:
-        return "{" + key + "}"
+_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
 
 
-def _escape_latex_braces(text: str) -> str:
-    """ Escape braces inside LaTeX math blocks so str.format_map is safe. """
-    def _escape(match: re.Match[str]) -> str:
-        math_text = match.group(0)
-        return math_text.replace("{", "{{").replace("}", "}}")
+def _eval_placeholder(content: str, namespace: dict) -> str:
+    """ Evaluate a placeholder expression with an optional format spec.
 
-    return _MATH_BLOCKS_RE.sub(_escape, text)
+    Supports:
+        {variable}          -> str(variable)
+        {expr}              -> str(eval(expr))
+        {expr:spec}         -> format(eval(expr), spec)
+        {10*d:.1f}          -> format(eval('10*d'), '.1f')
+
+    Falls back to the original ``{content}`` if evaluation fails.
+    # TODO support formatted expressions in LaTeX math blocks.
+    """
+    expr, _, spec = content.partition(":")
+    try:
+        value = eval(expr.strip(), namespace)  # noqa: S307
+        return format(value, spec) if spec else str(value)
+    except Exception:
+        return "{" + content + "}"
+
+
+def _interpolate(text: str, namespace: dict) -> str:
+    """Substitute every ``{expr}`` / ``{expr:spec}`` placeholder in *text*."""
+    return _PLACEHOLDER_RE.sub(
+        lambda m: _eval_placeholder(m.group(1), namespace), text
+    )
+
+
+def _render_cell(cell: str, namespace: dict) -> str:
+    """Interpolate *cell*, leaving LaTeX math blocks ($…$ / $$…$$) intact."""
+    parts: list[str] = []
+    last = 0
+
+    for match in _MATH_BLOCKS_RE.finditer(cell):
+        parts.append(_interpolate(cell[last:match.start()], namespace))
+        parts.append(match.group(0))   # math block kept verbatim
+        last = match.end()
+
+    parts.append(_interpolate(cell[last:], namespace))
+    return "".join(parts)
 
 
 def _md(_line: str, cell: str) -> None:
     if (shell := get_ipython()) is not None:
-        namespace = _SafeFormatDict(shell.user_ns)
-        escaped_cell = _escape_latex_braces(cell)
-        rendered = escaped_cell.format_map(namespace)
-        display(Markdown(rendered))
+        display(Markdown(_render_cell(cell, shell.user_ns)))
     else:
         raise RuntimeError("Not running inside an IPython environment.")
 #endregion: md
