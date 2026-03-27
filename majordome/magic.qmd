@@ -108,3 +108,20 @@ $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 $$
 ```
+
+
+```{python}
+#| echo: true
+%%md
+This is also possible in math blocks:
+
+$$
+F(x) = {some_value:.2f} \cdot x^2
+$$
+
+But there is not way to use the plain `some_value` without a format specifier, as it would be indistinguishable from a regular LaTeX expression.
+
+$$
+F(x) = {some_value} \cdot x^2
+$$
+```

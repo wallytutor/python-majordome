@@ -59,7 +59,7 @@ def _skipper(flag: str, cell: str | None = None) -> None:
 def _split_unescaped_colon(content: str) -> tuple[str, str | None]:
     """ Split ``content`` at first unescaped ``:``.
 
-    ``\:`` is treated as a literal colon and does not split.
+    ``\\:`` is treated as a literal colon and does not split.
     """
     for index, char in enumerate(content):
         if char != ":":
@@ -124,7 +124,7 @@ def _render_cell(cell: str, namespace: dict) -> str:
 
     - Outside math blocks: ``{expr}`` and ``{expr:spec}`` are supported.
     - Inside math blocks: only ``{expr:spec}`` is supported.
-        Plain ``{expr}`` and escaped-colon forms (e.g. ``{d\:f}``) are untouched.
+        Plain ``{expr}`` and escaped-colon forms (e.g. ``{d\\:f}``) are untouched.
     """
     parts: list[str] = []
     last = 0

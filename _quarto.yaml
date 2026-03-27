@@ -17,6 +17,7 @@ book:
 
   chapters:
     - index.qmd
+    - majordome/magic.qmd
     - majordome_engineering/energy.qmd
     - majordome_engineering/reactor.qmd
     - majordome_engineering/symbolic.qmd
