@@ -35,14 +35,14 @@
     Create a wheel distribution package for the Python package.
 
 .PARAMETER PackageDocs
-    Build the Sphinx documentation in HTML format.
+    Build the documentation in HTML format.
 
 .PARAMETER FreshDocs
-    Force a fresh build of the Sphinx documentation by clearing the cache.
+    Force a fresh build of the documentation by clearing the cache.
     Used with -PackageDocs.
 
 .PARAMETER DocsPdf
-    Build the Sphinx documentation in PDF format.
+    Build the documentation in PDF format.
 
 .PARAMETER PublishDocs
     Publish the built documentation to GitHub Pages using quarto publish.
