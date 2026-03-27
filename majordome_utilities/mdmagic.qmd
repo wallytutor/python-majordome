@@ -1,0 +1,36 @@
+# Skipping execution
+
+*aka majordome_utilities.mdmagic*
+
+Cell magic extension to interpolate Markdown and LaTeX.
+
+- Variables are interpolated from the IPython user namespace using Python format placeholders, e.g. ``{variable}``.
+
+- Curly braces inside LaTeX math blocks (``$...$`` or ``$$...$$``) are automatically escaped before interpolation so expressions such as ``$x_{i}$`` render correctly.
+
+```{python}
+%load_ext majordome_utilities.mdmagic
+```
+
+```{python}
+#| echo: true
+variable = "hello"
+some_value = 12.2
+```
+
+
+```{python}
+#| echo: true
+%%md
+I have this string with a variable: {variable}.
+
+There is also some latex: $\int_a^b f(x) \; dx$.
+
+- Some formatter value {some_value:.2f}
+
+- Some block math:
+
+$$
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+$$
+```
