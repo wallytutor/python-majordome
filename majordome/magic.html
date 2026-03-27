@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>9&nbsp; Meshing helpers – Majordome</title>
+<title>2&nbsp; Majordome extensions – Majordome</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../majordome_utilities/common.html" rel="next">
-<link href="../majordome_simulation/fluent.html" rel="prev">
+<link href="../majordome_engineering/energy.html" rel="next">
+<link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -106,6 +106,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -118,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome_simulation/meshing.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Meshing helpers</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome/magic.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -151,7 +180,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link">
+  <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span></a>
   </div>
 </li>
@@ -193,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome_simulation/meshing.html" class="sidebar-item-text sidebar-link active">
+  <a href="../majordome_simulation/meshing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Meshing helpers</span></span></a>
   </div>
 </li>
@@ -255,7 +284,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#gmshoccmodel" id="toc-gmshoccmodel" class="nav-link active" data-scroll-target="#gmshoccmodel"><span class="header-section-number">9.1</span> GmshOCCModel</a></li>
+  <li><a href="#skipping-execution" id="toc-skipping-execution" class="nav-link active" data-scroll-target="#skipping-execution"><span class="header-section-number">2.1</span> Skipping execution</a></li>
+  <li><a href="#markdown-and-latex-interpolation" id="toc-markdown-and-latex-interpolation" class="nav-link" data-scroll-target="#markdown-and-latex-interpolation"><span class="header-section-number">2.2</span> Markdown and LaTeX interpolation</a></li>
   </ul>
 </nav>
     </div>
@@ -264,7 +294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Meshing helpers</span></h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></h1>
 </div>
 
 
@@ -281,68 +311,128 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><em>aka majordome_simulation.meshing</em></p>
-<section id="gmshoccmodel" class="level2" data-number="9.1">
-<h2 data-number="9.1" class="anchored" data-anchor-id="gmshoccmodel"><span class="header-section-number">9.1</span> GmshOCCModel</h2>
-<div id="30eecabb" class="cell" data-execution_count="3">
+<p><em>aka majordome.magic</em></p>
+<p>On top of your notebook, simply load the extension:</p>
+<div id="436caf95" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># XXX: the following was replaced by `majordome.magic`.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># %load_ext majordome_utilities.skipper</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext majordome.magic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="skipping-execution" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="skipping-execution"><span class="header-section-number">2.1</span> Skipping execution</h2>
+<p>The module provides a simple extension for skipping the execution of code cells in a notebook. It does that and only that. The goal is to control notebook execution from the environment, which is useful when running notebooks with long-running cells, as numerical simulations.</p>
+<div id="57cd8423" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Setting skipper verbosity to 1</code></pre>
+</div>
+</div>
+<p>Here we will use <code>sleep</code> to emulate a long-running cell, and we will control its execution with an environment variable. Generally speaking, the goal is to export environment variables in the terminal before running the notebook, but for demonstration purposes, we will set it in the notebook itself.</p>
+<div id="3ad4d557" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> sleep</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The following (case insensitive) options are accepted by the <code>%%skipper</code> magic command. Please, notice that the <em>truthy</em> values mean <em>skip this cell</em> (as the extension name implies, but even myself can be confused by the double negative here).</p>
+<div id="b7f46576" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-stdout">
+<pre><code>{'true': True, '1': True, 'yes': True, 'false': False, '0': False, 'no': False}</code></pre>
+</div>
+</div>
+<p>Below we set the environment variable <code>SOLVE_LONNNNG</code> to <code>true</code>, which means that the cell will be skipped. You can change it to <code>false</code> to execute the cell, or even set it to any other value, as long as it is in the lookup table.</p>
+<div id="98946cd6" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"SOLVE_LONNNNG"</span>] <span class="op">=</span> <span class="st">"true"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>If everything is file, the following cell will be skipped:</p>
+<div id="65be4d24" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Skipping cell: SOLVE_LONNNNG=True</code></pre>
+</div>
+</div>
+<p>And here we check if it was actually skipped:</p>
+<div id="884f4b73" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Did you skip it?"</span>, did_you_skip_it)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Did you skip it? True</code></pre>
+</div>
+</div>
+<p>You can also avoid the <em>Skipping cell</em> message by setting the verbosity to <code>0</code>:</p>
+<div id="aef85904" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="32f4e55d" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="markdown-and-latex-interpolation" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="markdown-and-latex-interpolation"><span class="header-section-number">2.2</span> Markdown and LaTeX interpolation</h2>
+<p>Cell magic extension to interpolate Markdown and LaTeX.</p>
+<ul>
+<li><p>Variables are interpolated from the IPython user namespace using Python format placeholders, e.g.&nbsp;<code>{variable}</code>.</p></li>
+<li><p>Curly braces inside LaTeX math blocks (<code>$...$</code> or <code>$$...$$</code>) are automatically escaped before interpolation so expressions such as <code>$x_{i}$</code> render correctly.</p></li>
+</ul>
+<p>Declare some values in the user namespace:</p>
+<div id="cea3cae9" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>variable <span class="op">=</span> <span class="st">"hello"</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>some_value <span class="op">=</span> <span class="fl">12.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Below we have a Markdown cell with some variables and LaTeX expressions. The variables will be replaced by their values, and the LaTeX will be rendered correctly.</p>
+<div id="bca824ac" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>I have this string <span class="cf">with</span> a variable: {variable}.</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>There <span class="kw">is</span> also some latex: $\int_a<span class="op">^</span>b f(x) \<span class="op">;</span> dx$.</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Some formatter value {some_value:<span class="fl">.2</span><span class="er">f</span>}</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Some block math:</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>\int_0<span class="op">^</span>\infty e<span class="op">^</span>{<span class="op">-</span>x<span class="op">^</span><span class="dv">2</span>} dx <span class="op">=</span> \frac{\sqrt{\pi}}{<span class="dv">2</span>}</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown">
-<div class="callout callout-style-default callout-note callout-titled" title="GmshOCCModel">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>GmshOCCModel
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>GmshOCCModel(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    render : <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    name : <span class="bu">str</span> <span class="op">=</span> <span class="st">'domain'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kws : Any</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Wrapper to manage OCC models with an OOP approach.</p>
-<hr>
-<strong>Parameters</strong>
-<div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>render : <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="row" style="margin-top: -2em; font-size: 0.8em;">
-<div class="col-2">
-&nbsp;&nbsp;&nbsp;&nbsp;
-</div>
-<div class="col-10">
-Whether to launch the Gmsh GUI after building the model.
+<p>I have this string with a variable: hello.</p>
+<p>There is also some latex: <span class="math inline">\(\int_a^b f(x) \; dx\)</span>.</p>
+<ul>
+<li><p>Some formatter value 12.20</p></li>
+<li><p>Some block math:</p></li>
+</ul>
+<p><span class="math display">\[
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+\]</span></p>
 </div>
 </div>
-<div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>name : <span class="bu">str</span> <span class="op">=</span> <span class="st">'domain'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="row" style="margin-top: -2em; font-size: 0.8em;">
-<div class="col-2">
-&nbsp;&nbsp;&nbsp;&nbsp;
-</div>
-<div class="col-10">
-Name of the Gmsh model.
-</div>
-</div>
-<div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ks : <span class="bu">dict</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="row" style="margin-top: -2em; font-size: 0.8em;">
-<div class="col-2">
-&nbsp;&nbsp;&nbsp;&nbsp;
-</div>
-<div class="col-10">
-Provide configuration for gmsh internals.
-</div>
-</div>
-</div>
-</div>
+<div id="1ac18b36" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>This <span class="kw">is</span> also possible <span class="kw">in</span> math blocks:</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>F(x) <span class="op">=</span> {some_value:<span class="fl">.2</span><span class="er">f</span>} \cdot x<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>But there <span class="kw">is</span> <span class="kw">not</span> way to use the plain `some_value` without a <span class="bu">format</span> specifier, <span class="im">as</span> it would be indistinguishable <span class="im">from</span> a regular LaTeX expression.</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>F(x) <span class="op">=</span> {some_value} \cdot x<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>This is also possible in math blocks:</p>
+<p><span class="math display">\[
+F(x) = 12.20 \cdot x^2
+\]</span></p>
+<p>But there is not way to use the plain <code>some_value</code> without a format specifier, as it would be indistinguishable from a regular LaTeX expression.</p>
+<p><span class="math display">\[
+F(x) = {some_value} \cdot x^2
+\]</span></p>
 </div>
 </div>
-<!-- TODO document members -->
 
 
 </section>
@@ -750,13 +840,13 @@ Provide configuration for gmsh internals.
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../majordome_simulation/fluent.html" class="pagination-link" aria-label="Fluent files">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fluent files</span></span>
+      <a href="../index.html" class="pagination-link" aria-label="Majordome Home">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Majordome Home</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../majordome_utilities/common.html" class="pagination-link" aria-label="Common">
-        <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Common</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../majordome_engineering/energy.html" class="pagination-link" aria-label="Energy sources">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Energy sources</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
