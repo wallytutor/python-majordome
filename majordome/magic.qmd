@@ -2,6 +2,11 @@
 
 *aka majordome.magic*
 
+```{python}
+from majordome_utilities.documents import *
+from majordome.magic import *
+```
+
 On top of your notebook, simply load the extension:
 
 ```{python}
@@ -13,6 +18,11 @@ On top of your notebook, simply load the extension:
 ```
 
 ## Skipping execution
+
+```{python}
+doc = DocumentedClass(SkipperMagic)
+doc.constructor()
+```
 
 The module provides a simple extension for skipping the execution of code cells in a notebook. It does that and only that. The goal is to control notebook execution from the environment, which is useful when running notebooks with long-running cells, as numerical simulations.
 
@@ -32,8 +42,7 @@ import os
 The following (case insensitive) options are accepted by the `%%skipper` magic command. Please, notice that the *truthy* values mean *skip this cell* (as the extension name implies, but even myself can be confused by the double negative here).
 
 ```{python}
-from majordome.magic import _LOOKUP_STR2BOOL
-print(_LOOKUP_STR2BOOL)
+print(SkipperMagic.LOOKUP_STR2BOOL)
 ```
 
 Below we set the environment variable `SOLVE_LONNNNG` to `true`, which means that the cell will be skipped. You can change it to `false` to execute the cell, or even set it to any other value, as long as it is in the lookup table.
@@ -77,11 +86,10 @@ did_you_skip_it = False
 
 ## Markdown and LaTeX interpolation
 
-Cell magic extension to interpolate Markdown and LaTeX.
-
-- Variables are interpolated from the IPython user namespace using Python format placeholders, e.g. ``{variable}``.
-
-- Curly braces inside LaTeX math blocks (``$...$`` or ``$$...$$``) are automatically escaped before interpolation so expressions such as ``$x_{i}$`` render correctly.
+```{python}
+doc = DocumentedClass(MdMagic)
+doc.constructor()
+```
 
 Declare some values in the user namespace:
 
@@ -109,11 +117,11 @@ $$
 $$
 ```
 
+The following is also possible in math blocks:
 
 ```{python}
 #| echo: true
 %%md
-This is also possible in math blocks:
 
 $$
 F(x) = {some_value:.2f} \cdot x^2
@@ -124,4 +132,10 @@ But there is not way to use the plain `some_value` without a format specifier, a
 $$
 F(x) = {some_value} \cdot x^2
 $$
+```
+
+
+```{python}
+doc = MarkdownFormatting.normalize_wrapping(MdMagic.__doc__);
+print(doc)
 ```

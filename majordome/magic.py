@@ -1,164 +1,204 @@
 # -*- coding: utf-8 -*-
 import os
 import re
+import warnings
 
 from IPython.core.getipython import get_ipython
 from IPython.display import Markdown, display
 
 
-_VERBOSITY = 0
+class SkipperMagic:
+    """ An extension for skipping the execution of code cells. """
+    VERBOSITY = 0
 
-_LOOKUP_STR2BOOL = {"true": True,   "1": True,  "yes": True,
-                    "false": False, "0": False, "no": False}
+    LOOKUP_STR2BOOL = {
+        "true": True,   "1": True,  "yes": True,
+        "false": False, "0": False, "no": False
+    }
 
-_MATH_BLOCKS_RE = re.compile(r"(\$\$.*?\$\$|\$.*?\$)", flags=re.DOTALL)
+    @staticmethod
+    def str_to_bool(s: str) -> bool:
+        """ Convert allowed values to boolean. """
+        if (key := s.strip().lower()) in SkipperMagic.LOOKUP_STR2BOOL:
+            return SkipperMagic.LOOKUP_STR2BOOL[key]
 
-_PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
+        warnings.warn(f"Unknown boolean string '{key}'")
+        return False
 
-#region: skipper
-def _str_to_bool(s: str) -> bool:
-    """ Convert allowed values to boolean. """
-    if (key := s.strip().lower()) not in _LOOKUP_STR2BOOL:
-        raise ValueError(f"Unknown boolean string '{key}'")
-    return _LOOKUP_STR2BOOL[key]
+    @staticmethod
+    def get_environment_flag(flag: str, default: str = "true") -> bool:
+        """ Manage retrieval of environment flag. """
+        # XXX: default value true ensures cell is skipped.
+        return SkipperMagic.str_to_bool(os.environ.get(flag, default))
+
+    @staticmethod
+    def skipper_verbosity(line):
+        try:
+            SkipperMagic.VERBOSITY = int(line.strip())
+        except ValueError:
+            print(f"Invalid verbosity level: '{line}'")
+            SkipperMagic.VERBOSITY = 0
+
+        if SkipperMagic.VERBOSITY > 0:
+            print(f"Setting skipper verbosity to {SkipperMagic.VERBOSITY}")
+
+    @staticmethod
+    def skipper(flag: str, cell: str | None = None) -> None:
+        """ Skip cell is environment variable is set to True. """
+        if (value := SkipperMagic.get_environment_flag(flag)):
+            if SkipperMagic.VERBOSITY > 0:
+                print(f"Skipping cell: {flag}={value}")
+            return
+
+        if (shell := get_ipython()) is None:
+            raise RuntimeError("Not running inside an IPython environment.")
+
+        shell.run_cell(cell)
 
 
-def _get_environment_flag(flag: str, default: str = "true") -> bool:
-    """ Manage retrieval of environment flag. """
-    # XXX: default value true ensures cell is skipped.
-    return _str_to_bool(os.environ.get(flag, default))
+class MdMagic:
+    """ An extension for interpolating code in Markdown.
 
+    Cell magic extension to interpolate Markdown and LaTeX. It must be
+    used from code cells and the content is rendered as Markdown. As
+    such, it is expected to be used only when required, as without some
+    frontend tweaks you will have undesirable syntax highlighting in the
+    cell, as it is not interpreted as text. Nonetheless, this proves very
+    useful for complex reporting with dynamic values.
 
-def _skipper_verbosity(line):
-    global _VERBOSITY
+    - Variables are interpolated from the IPython user namespace using
+      Python format placeholders, e.g. `{variable}`.
 
-    try:
-        _VERBOSITY = int(line.strip())
-    except ValueError:
-        print(f"Invalid verbosity level: '{line}'")
-        _VERBOSITY = 0
+    - If a variable is not found or evaluation fails, the original
+      placeholder is left unchanged in the output, e.g. `{variable}`.
+      For details, check `eval_placeholder` method.
 
-    if _VERBOSITY > 0:
-        print(f"Setting skipper verbosity to {_VERBOSITY}")
+    - Curly braces inside LaTeX math blocks (`$...$` or `$$...$$`)
+      are automatically escaped before interpolation so expressions
+      such as `$x_{i}$` render correctly.
 
-
-def _skipper(flag: str, cell: str | None = None) -> None:
-    """ Skip cell is environment variable is set to True. """
-    if (value := _get_environment_flag(flag)):
-        if _VERBOSITY > 0:
-            print(f"Skipping cell: {flag}={value}")
-        return
-
-    if (shell := get_ipython()) is None:
-        raise RuntimeError("Not running inside an IPython environment.")
-
-    shell.run_cell(cell)
-#endregion: skipper
-
-#region: md
-def _split_unescaped_colon(content: str) -> tuple[str, str | None]:
-    """ Split ``content`` at first unescaped ``:``.
-
-    ``\\:`` is treated as a literal colon and does not split.
+    - You can override the interpretation of curly braces inside LaTex
+      math blocks by providing a format spec, e.g. `{variable:.2f}`.
     """
-    for index, char in enumerate(content):
-        if char != ":":
-            continue
+    MATH_BLOCKS_RE = re.compile(r"(\$\$.*?\$\$|\$.*?\$)", flags=re.DOTALL)
 
-        backslashes = 0
-        cursor = index - 1
+    PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
 
-        while cursor >= 0 and content[cursor] == "\\":
-            backslashes += 1
-            cursor -= 1
+    @staticmethod
+    def split_unescaped_colon(content: str) -> tuple[str, str | None]:
+        """ Split ``content`` at first unescaped ``:``.
 
-        if backslashes % 2 == 0:
-            return content[:index], content[index + 1 :]
+        ``\\:`` is treated as a literal colon and does not split.
+        """
+        for index, char in enumerate(content):
+            if char != ":":
+                continue
 
-    return content, None
+            backslashes = 0
+            cursor = index - 1
 
+            while cursor >= 0 and content[cursor] == "\\":
+                backslashes += 1
+                cursor -= 1
 
-def _eval_placeholder(
-        content: str,
-        namespace: dict,
-        require_spec: bool = False,
-    ) -> str:
-    """ Evaluate a placeholder expression with an optional format spec.
+            if backslashes % 2 == 0:
+                return content[:index], content[index + 1 :]
 
-    Supports:
-        {variable}          -> str(variable)
-        {expr}              -> str(eval(expr))
-        {expr:spec}         -> format(eval(expr), spec)
-        {10*d:.1f}          -> format(eval('10*d'), '.1f')
+        return content, None
 
-    Falls back to the original ``{content}`` if evaluation fails.
-    """
-    expr, spec = _split_unescaped_colon(content)
-    if require_spec and spec is None:
-        return "{" + content + "}"
+    @staticmethod
+    def eval_placeholder(
+            content: str,
+            namespace: dict,
+            require_spec: bool = False,
+        ) -> str:
+        """ Evaluate a placeholder expression with optional formatting.
 
-    try:
-        value = eval(expr.strip(), namespace)  # noqa: S307
-        return format(value, spec) if spec else str(value)
-    except Exception:
-        return "{" + content + "}"
+        Supports the following forms:
 
+        - `{variable}`  -> `str(variable)`
+        - `{expr}`      -> `str(eval(expr))`
+        - `{expr:spec}` -> `format(eval(expr), spec)`
+        - `{10*d:.1f}`  -> `format(eval('10*d'), '.1f')`
 
-def _interpolate(text: str, namespace: dict, require_spec: bool = False) -> str:
-    """ Substitute every ``{expr}`` / ``{expr:spec}`` placeholder in *text*. """
-    return _PLACEHOLDER_RE.sub(
-        lambda m: _eval_placeholder(m.group(1), namespace, require_spec), text
-    )
+        Falls back to the original ``{content}`` if evaluation fails.
+        """
+        expr, spec = MdMagic.split_unescaped_colon(content)
+        if require_spec and spec is None:
+            return "{" + content + "}"
 
+        try:
+            value = eval(expr.strip(), namespace)  # noqa: S307
+            return format(value, spec) if spec else str(value)
+        except Exception:
+            return "{" + content + "}"
 
-def _assembly_math_block(math_block: str, namespace: dict) -> str:
-    """ Interpolate math block content with format spec required. """
-    delimiter = "$$" if math_block.startswith("$$") else "$"
-    inner_math = math_block[len(delimiter) : -len(delimiter)]
-    rendered_math = _interpolate(inner_math, namespace, require_spec=True)
-    return f"{delimiter}{rendered_math}{delimiter}"
+    @staticmethod
+    def interpolate(text: str, namespace: dict,
+                    require_spec: bool = False) -> str:
+        """ Substitute ``{expr}`` / ``{expr:spec}`` placeholder in text. """
+        return MdMagic.PLACEHOLDER_RE.sub(
+            lambda m: MdMagic.eval_placeholder(m.group(1), namespace, require_spec), text
+        )
 
+    @staticmethod
+    def assembly_math_block(math_block: str, namespace: dict) -> str:
+        """ Interpolate math block content with format spec required. """
+        delimiter = "$$" if math_block.startswith("$$") else "$"
 
-def _render_cell(cell: str, namespace: dict) -> str:
-    """ Interpolate text and math blocks with distinct rules.
+        rendered_math = MdMagic.interpolate(
+            math_block[len(delimiter):-len(delimiter)],
+            namespace, require_spec=True)
 
-    - Outside math blocks: ``{expr}`` and ``{expr:spec}`` are supported.
-    - Inside math blocks: only ``{expr:spec}`` is supported.
-        Plain ``{expr}`` and escaped-colon forms (e.g. ``{d\\:f}``) are untouched.
-    """
-    parts: list[str] = []
-    last = 0
+        return f"{delimiter}{rendered_math}{delimiter}"
 
-    for match in _MATH_BLOCKS_RE.finditer(cell):
-        parts.append(_interpolate(cell[last:match.start()], namespace))
-        parts.append(_assembly_math_block(match.group(0), namespace))
-        last = match.end()
+    @staticmethod
+    def render_cell(cell: str, namespace: dict) -> str:
+        """ Interpolate text and math blocks with distinct rules.
 
-    parts.append(_interpolate(cell[last:], namespace))
-    return "".join(parts)
+        - Outside math blocks: ``{expr}`` and ``{expr:spec}`` are supported.
 
+        - Inside math blocks: only ``{expr:spec}`` is supported (as you
+          cannot distinguish plain expressions from LaTeX). Plain ``{expr}``
+          and escaped-colon forms (e.g. ``{d\\:f}``) are untouched.
+        """
+        parts: list[str] = []
+        last = 0
 
-def _md(_line: str, cell: str) -> None:
-    if (shell := get_ipython()) is None:
-        raise RuntimeError("Not running inside an IPython environment.")
+        for match in MdMagic.MATH_BLOCKS_RE.finditer(cell):
+            line = MdMagic.interpolate(cell[last:match.start()], namespace)
+            parts.append(line)
 
-    display(Markdown(_render_cell(cell, shell.user_ns)))
-#endregion: md
+            line = MdMagic.assembly_math_block(match.group(0), namespace)
+            parts.append(line)
+            last = match.end()
+
+        line = MdMagic.interpolate(cell[last:], namespace)
+        parts.append(line)
+
+        return "".join(parts)
+
+    @staticmethod
+    def md(_line: str, cell: str) -> None:
+        if (shell := get_ipython()) is None:
+            raise RuntimeError("Not running inside an IPython environment.")
+
+        display(Markdown(MdMagic.render_cell(cell, shell.user_ns)))
 
 
 def load_ipython_extension(shell) -> None:
     """ Handle to load extension to session. """
     conf = {
         "skipper_verbosity": {
-            "func": _skipper_verbosity,
+            "func": SkipperMagic.skipper_verbosity,
             "kind": "line"
         },
         "skipper": {
-            "func": _skipper,
+            "func": SkipperMagic.skipper,
             "kind": "cell"
         },
         "md": {
-            "func": _md,
+            "func": MdMagic.md,
             "kind": "cell"
         },
     }
