@@ -11,10 +11,134 @@ from docstring_parser.common import DocstringParam
 import docstring_parser
 import functools
 import inspect
+import re
 import textwrap
 import warnings
 
 # region: public
+class MarkdownFormatting:
+    """ Helper for formatting markdown text. """
+    @staticmethod
+    def is_markdown_block_line(line: str) -> bool:
+        stripped = line.lstrip()
+
+        if not stripped:
+            return True
+
+        patterns = (
+            r"#{1,6}\s",
+            r">",
+            r"([-*_])\1{2,}\s*$",
+            r"(```|~~~)",
+            r"(:::)\s*",
+            r"([-+*]|\d+\.)\s",
+            r"\|",
+            r"<[^>]+>",
+        )
+
+        if any(re.match(pattern, stripped) for pattern in patterns):
+            return True
+
+        indent = len(line) - len(line.lstrip(" "))
+        return indent >= 4
+
+    @staticmethod
+    def parse_list_item(line: str) -> tuple[str, str] | None:
+        """ Determine if a line is a list item and return its elements. """
+        if not (match := re.match(r"^(\s*)([-+*]|\d+\.)(\s+).*$", line)):
+            return None
+
+        leading, marker, spacing = match.groups()
+        prefix = f"{leading}{' ' * (len(marker) + len(spacing))}"
+
+        return leading, prefix
+
+    @staticmethod
+    def normalize_wrapping(text: str) -> str:
+        lines = text.splitlines()
+        normalized   = []
+        paragraph    = []
+        in_fence     = False
+        fence_marker = None
+        list_continuation_prefix = None
+
+        def is_aligned_with_list(line: str, prefix: str) -> bool:
+            return line.startswith(prefix)
+
+        def flush_paragraph() -> None:
+            if paragraph:
+                normalized.append(" ".join(p.strip() for p in paragraph))
+                paragraph.clear()
+
+        for line in lines:
+            stripped = line.lstrip()
+            fence_match = re.match(r"(```|~~~)", stripped)
+
+            if fence_match:
+                flush_paragraph()
+                marker = fence_match.group(1)
+                list_continuation_prefix = None
+
+                if in_fence and marker == fence_marker:
+                    in_fence = False
+                    fence_marker = None
+                else:
+                    in_fence = True
+                    fence_marker = marker
+
+                normalized.append(line)
+                continue
+
+            if in_fence:
+                normalized.append(line)
+                continue
+
+            if not line.strip():
+                flush_paragraph()
+                list_continuation_prefix = None
+
+                if normalized and normalized[-1] != "":
+                    normalized.append("")
+
+                continue
+
+            if list_match := MarkdownFormatting.parse_list_item(line):
+                flush_paragraph()
+                _, list_continuation_prefix = list_match
+                normalized.append(line)
+                continue
+
+            if list_continuation_prefix:
+                is_block = MarkdownFormatting.is_markdown_block_line(line)
+                is_align = is_aligned_with_list(
+                    line, list_continuation_prefix)
+
+                if is_block and not is_align:
+                    list_continuation_prefix = None
+                else:
+                    flush_paragraph()
+
+                    if is_align:
+                        normalized.append(line)
+                    else:
+                        new_line = f"{list_continuation_prefix}{line.strip()}"
+                        normalized.append(new_line)
+
+                    continue
+
+            if MarkdownFormatting.is_markdown_block_line(line):
+                flush_paragraph()
+                list_continuation_prefix = None
+                normalized.append(line)
+                continue
+
+            list_continuation_prefix = None
+            paragraph.append(line)
+
+        flush_paragraph()
+        return "\n".join(normalized).strip()
+
+
 class SignatureEntry:
     """ Builds the representation of a function signature.
 
@@ -318,7 +442,7 @@ class SignatureEntry:
             text += "(missing summary)\n\n"
 
         if long := self.doc.long_description:
-            long = " ".join(long.split("\n"))
+            long = MarkdownFormatting.normalize_wrapping(long)
             text += f"{long}\n\n"
 
         return text
@@ -476,6 +600,8 @@ class DocumentedClass:
 # endregion: public
 
 # region: internals
+
+
 def with_attrs(**attrs):
     def wrap(fn):
         for k, v in attrs.items():
