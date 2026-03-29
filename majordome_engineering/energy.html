@@ -292,7 +292,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="combustionatmospherechon" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="combustionatmospherechon"><span class="header-section-number">3.1</span> CombustionAtmosphereCHON</h2>
 <p>A common need in industry is to evaluate the real heating value from a gas composition reported by the supplier. This is the main goal of <code>CombustionAtmosphereCHON</code>, which has a very simple API provided below:</p>
-<div id="0298d685" class="cell" data-execution_count="3">
+<div id="c3bf450a" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>gas <span class="op">=</span> CombustionAtmosphereCHON(<span class="st">"gri30.yaml"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>lhv <span class="op">=</span> gas.solution_heating_value(<span class="st">"CH4: 1"</span>, <span class="st">"O2: 1"</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Solution heating value: </span><span class="sc">{</span>lhv<span class="sc">:.2f}</span><span class="ss"> MJ/kg"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -304,7 +304,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="combustionpowersupply" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="combustionpowersupply"><span class="header-section-number">3.2</span> CombustionPowerSupply</h2>
 <p>Built upon <code>CombustionAtmosphereCHON</code>, <code>CombustionPowerSupply</code> performs the basic calculations for retrieving required flow rates from a given power specification; this proves very handy for the CFD engineer.</p>
-<div id="ff6ad819" class="cell" data-execution_count="4">
+<div id="aae5b5f5" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>supply <span class="op">=</span> CombustionPowerSupply(<span class="fl">500.0</span>, <span class="fl">1.0</span>, <span class="st">"CH4: 1"</span>, <span class="st">"O2: 1"</span>, <span class="st">"gri30.yaml"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(supply.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -329,7 +329,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="3.3" class="anchored" data-anchor-id="energy-sources"><span class="header-section-number">3.3</span> Energy sources</h2>
 <section id="heatedgasenergysource" class="level3" data-number="3.3.1">
 <h3 data-number="3.3.1" class="anchored" data-anchor-id="heatedgasenergysource"><span class="header-section-number">3.3.1</span> HeatedGasEnergySource</h3>
-<div id="168b3ab0" class="cell" data-execution_count="5">
+<div id="01ac78a8" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> HeatedGasEnergySource(<span class="st">"airish.yaml"</span>, <span class="fl">500.0</span>, mass_flow_rate<span class="op">=</span><span class="fl">1.0</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -355,7 +355,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 | mass: O2               | -        | 0.23194960303762516   |</code></pre>
 </div>
 </div>
-<div id="6eb094bf" class="cell" data-execution_count="6">
+<div id="c1caaaaa" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> HeatedGasEnergySource(<span class="st">"airish.yaml"</span>, <span class="fl">500.0</span>, mass_flow_rate<span class="op">=</span><span class="fl">1.0</span>,</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                               cross_area<span class="op">=</span><span class="fl">0.1</span>, Y<span class="op">=</span><span class="st">"N2: 0.79, O2: 0.21"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -384,11 +384,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="combustionenergysource" class="level3" data-number="3.3.2">
 <h3 data-number="3.3.2" class="anchored" data-anchor-id="combustionenergysource"><span class="header-section-number">3.3.2</span> CombustionEnergySource</h3>
-<div id="2c9cf976" class="cell" data-execution_count="7">
+<div id="4b607c23" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fuel_state <span class="op">=</span> StateType(<span class="st">"CH4: 1"</span>,             <span class="dv">300</span>, <span class="dv">101325</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>oxid_state <span class="op">=</span> StateType(<span class="st">"N2: 0.79, O2: 0.21"</span>, <span class="dv">300</span>, <span class="dv">101325</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="b074167a" class="cell" data-execution_count="8">
+<div id="9b9c22b8" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ops <span class="op">=</span> CombustionPowerOp(<span class="fl">500.0</span>, <span class="fl">1.0</span>, fuel_state, oxid_state)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> CombustionEnergySource(<span class="st">"ch4/bfer.yaml"</span>, operation<span class="op">=</span>ops, cross_area<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -444,7 +444,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 | mass: O2               | -        | 0.2329092179584231     |</code></pre>
 </div>
 </div>
-<div id="536da71a" class="cell" data-execution_count="9">
+<div id="7b3a3108" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ops <span class="op">=</span> CombustionFlowOp(<span class="st">"mass"</span>, mdot_fuel, mdot_oxid, fuel_state, oxid_state)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> CombustionEnergySource(<span class="st">"ch4/bfer.yaml"</span>, operation<span class="op">=</span>ops, cross_area<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -488,7 +488,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 | mass: O2               | -        | 0.2329092179584231     |</code></pre>
 </div>
 </div>
-<div id="cd0a7564" class="cell" data-execution_count="10">
+<div id="2d9407a9" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ops <span class="op">=</span> CombustionFlowOp(<span class="st">"volume"</span>, qdot_fuel, qdot_oxid, fuel_state, oxid_state)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> CombustionEnergySource(<span class="st">"ch4/bfer.yaml"</span>, operation<span class="op">=</span>ops, cross_area<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
