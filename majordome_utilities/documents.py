@@ -107,7 +107,10 @@ class MarkdownFormatting:
 
         self._flush_paragraph()
 
-        marker = re.match(r"(```|~~~)", line.lstrip()).group(1)
+        if not (matches := re.match(r"(```|~~~)", line.lstrip())):
+            return False
+
+        marker = matches.group(1)
         self.list_continuation_prefix = None
         self.blank_count = 0
 
