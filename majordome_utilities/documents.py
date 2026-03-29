@@ -54,30 +54,34 @@ class MarkdownFormatting:
         return leading, prefix
 
     @staticmethod
-    def normalize_wrapping(text: str) -> str:
+    def flush_paragraph(paragraph: list[str], normalized: list[str]) -> None:
+        """ Flush the current paragraph into the normalized list. """
+        if paragraph:
+            normalized.append(" ".join(p.strip() for p in paragraph))
+            paragraph.clear()
+
+    @classmethod
+    def normalize_wrapping(cls, text: str) -> str:
         lines = text.splitlines()
         normalized   = []
         paragraph    = []
         in_fence     = False
         fence_marker = None
         list_continuation_prefix = None
+        blank_count = 0
 
         def is_aligned_with_list(line: str, prefix: str) -> bool:
             return line.startswith(prefix)
-
-        def flush_paragraph() -> None:
-            if paragraph:
-                normalized.append(" ".join(p.strip() for p in paragraph))
-                paragraph.clear()
 
         for line in lines:
             stripped = line.lstrip()
             fence_match = re.match(r"(```|~~~)", stripped)
 
             if fence_match:
-                flush_paragraph()
+                cls.flush_paragraph(paragraph, normalized)
                 marker = fence_match.group(1)
                 list_continuation_prefix = None
+                blank_count = 0
 
                 if in_fence and marker == fence_marker:
                     in_fence = False
@@ -94,40 +98,48 @@ class MarkdownFormatting:
                 continue
 
             if not line.strip():
-                flush_paragraph()
-                list_continuation_prefix = None
+                cls.flush_paragraph(paragraph, normalized)
+                blank_count += 1
+
+                if blank_count >= 2:
+                    list_continuation_prefix = None
 
                 if normalized and normalized[-1] != "":
                     normalized.append("")
 
                 continue
 
-            if list_match := MarkdownFormatting.parse_list_item(line):
-                flush_paragraph()
+            blank_count = 0
+
+            if list_match := cls.parse_list_item(line):
+                cls.flush_paragraph(paragraph, normalized)
                 _, list_continuation_prefix = list_match
                 normalized.append(line)
                 continue
 
             if list_continuation_prefix:
-                is_block = MarkdownFormatting.is_markdown_block_line(line)
+                is_block = cls.is_markdown_block_line(line)
                 is_align = is_aligned_with_list(
                     line, list_continuation_prefix)
 
                 if is_block and not is_align:
                     list_continuation_prefix = None
                 else:
-                    flush_paragraph()
+                    cls.flush_paragraph(paragraph, normalized)
 
-                    if is_align:
-                        normalized.append(line)
+                    if normalized:
+                        previous = normalized[-1].rstrip()
+                        continuation = line.strip()
+
+                        if continuation:
+                            normalized[-1] = f"{previous} {continuation}"
                     else:
                         new_line = f"{list_continuation_prefix}{line.strip()}"
                         normalized.append(new_line)
-
                     continue
 
-            if MarkdownFormatting.is_markdown_block_line(line):
-                flush_paragraph()
+            if cls.is_markdown_block_line(line):
+                cls.flush_paragraph(paragraph, normalized)
                 list_continuation_prefix = None
                 normalized.append(line)
                 continue
@@ -135,7 +147,7 @@ class MarkdownFormatting:
             list_continuation_prefix = None
             paragraph.append(line)
 
-        flush_paragraph()
+        cls.flush_paragraph(paragraph, normalized)
         return "\n".join(normalized).strip()
 
 
