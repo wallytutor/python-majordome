@@ -133,9 +133,3 @@ $$
 F(x) = {some_value} \cdot x^2
 $$
 ```
-
-
-```{python}
-doc = MarkdownFormatting.normalize_wrapping(MdMagic.__doc__);
-print(doc)
-```

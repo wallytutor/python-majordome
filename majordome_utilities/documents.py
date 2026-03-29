@@ -18,6 +18,37 @@ import warnings
 # region: public
 class MarkdownFormatting:
     """ Helper for formatting markdown text. """
+    __slots__ = (
+        # Original text to be formatted:
+        "text",
+        # Lines of the original text:
+        "lines",
+        # Normalized lines after processing:
+        "normalized",
+        # Current paragraph being built:
+        "paragraph",
+        # Whether we are currently inside a code fence:
+        "in_fence",
+        # Marker used for the current code fence (e.g. ``` or ~~~):
+        "fence_marker",
+        # Prefix used for list continuations (e.g. "    " for a nested list):
+        "list_continuation_prefix",
+        # Count of consecutive blank lines:
+        "blank_count"
+    )
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+        self.lines = text.splitlines()
+
+        self.normalized = []
+        self.paragraph = []
+
+        self.in_fence = False
+        self.fence_marker = None
+        self.list_continuation_prefix = None
+        self.blank_count = 0
+
     @staticmethod
     def is_markdown_block_line(line: str) -> bool:
         stripped = line.lstrip()
@@ -25,15 +56,16 @@ class MarkdownFormatting:
         if not stripped:
             return True
 
+
         patterns = (
-            r"#{1,6}\s",
-            r">",
-            r"([-*_])\1{2,}\s*$",
-            r"(```|~~~)",
-            r"(:::)\s*",
-            r"([-+*]|\d+\.)\s",
-            r"\|",
-            r"<[^>]+>",
+            r"#{1,6}\s",           # ATX headings: #, ##, ..., ######
+            r">",                  # Blockquotes
+            r"([-*_])\1{2,}\s*$",  # Thematic breaks: ---, ***, ___
+            r"(```|~~~)",          # Fenced code block delimiters
+            r"(:::)\s*",           # Quarto callout/admonition fences
+            r"([-+*]|\d+\.)\s",    # Unordered and ordered list items
+            r"\|",                 # Table rows using pipe syntax
+            r"<[^>]+>",            # HTML block lines/tags
         )
 
         if any(re.match(pattern, stripped) for pattern in patterns):
@@ -53,102 +85,139 @@ class MarkdownFormatting:
 
         return leading, prefix
 
-    @staticmethod
-    def flush_paragraph(paragraph: list[str], normalized: list[str]) -> None:
+    def _flush_paragraph(self) -> None:
         """ Flush the current paragraph into the normalized list. """
-        if paragraph:
-            normalized.append(" ".join(p.strip() for p in paragraph))
-            paragraph.clear()
+        if self.paragraph:
+            stripped = (p.strip() for p in self.paragraph)
+            self.normalized.append(" ".join(stripped))
+            self.paragraph.clear()
 
-    @classmethod
-    def normalize_wrapping(cls, text: str) -> str:
-        lines = text.splitlines()
-        normalized   = []
-        paragraph    = []
-        in_fence     = False
-        fence_marker = None
-        list_continuation_prefix = None
-        blank_count = 0
+    def _is_aligned_with_list(self, line: str) -> bool:
+        if self.list_continuation_prefix is None:
+            return False
 
-        def is_aligned_with_list(line: str, prefix: str) -> bool:
-            return line.startswith(prefix)
+        return line.startswith(self.list_continuation_prefix)
 
-        for line in lines:
-            stripped = line.lstrip()
-            fence_match = re.match(r"(```|~~~)", stripped)
+    def _is_fence_line(self, line: str) -> bool:
+        return re.match(r"(```|~~~)", line.lstrip()) is not None
 
-            if fence_match:
-                cls.flush_paragraph(paragraph, normalized)
-                marker = fence_match.group(1)
-                list_continuation_prefix = None
-                blank_count = 0
+    def _handle_fence_line(self, line: str) -> bool:
+        if not self._is_fence_line(line):
+            return False
 
-                if in_fence and marker == fence_marker:
-                    in_fence = False
-                    fence_marker = None
-                else:
-                    in_fence = True
-                    fence_marker = marker
+        self._flush_paragraph()
 
-                normalized.append(line)
+        marker = re.match(r"(```|~~~)", line.lstrip()).group(1)
+        self.list_continuation_prefix = None
+        self.blank_count = 0
+
+        if self.in_fence and marker == self.fence_marker:
+            self.in_fence = False
+            self.fence_marker = None
+        else:
+            self.in_fence = True
+            self.fence_marker = marker
+
+        self.normalized.append(line)
+        return True
+
+    def _handle_in_fence_line(self, line: str) -> bool:
+        if not self.in_fence:
+            return False
+
+        self.normalized.append(line)
+        return True
+
+    def _handle_blank_line(self) -> bool:
+        self._flush_paragraph()
+        self.blank_count += 1
+
+        if self.blank_count >= 2:
+            self.list_continuation_prefix = None
+
+        if self.normalized and self.normalized[-1] != "":
+            self.normalized.append("")
+
+        return True
+
+    def _handle_list_item_line(self, line: str) -> bool:
+        if not (list_match := self.parse_list_item(line)):
+            return False
+
+        self._flush_paragraph()
+        _, self.list_continuation_prefix = list_match
+        self.normalized.append(line)
+        return True
+
+    def _handle_list_continuation(self, line: str) -> bool:
+        if self.list_continuation_prefix is None:
+            return False
+
+        is_block = self.is_markdown_block_line(line)
+        is_align = self._is_aligned_with_list(line)
+
+        if is_block and not is_align:
+            self.list_continuation_prefix = None
+            return False
+
+        self._flush_paragraph()
+
+        if self.normalized:
+            previous = self.normalized[-1].rstrip()
+            continuation = line.strip()
+
+            if continuation:
+                self.normalized[-1] = f"{previous} {continuation}"
+        else:
+            new_line = f"{self.list_continuation_prefix}{line.strip()}"
+            self.normalized.append(new_line)
+
+        return True
+
+    def _handle_markdown_block_line(self, line: str) -> bool:
+        if not self.is_markdown_block_line(line):
+            return False
+
+        self._flush_paragraph()
+        self.list_continuation_prefix = None
+        self.normalized.append(line)
+        return True
+
+    def _handle_paragraph_line(self, line: str) -> None:
+        self.list_continuation_prefix = None
+        self.paragraph.append(line)
+
+    def normalize(self) -> str:
+        for line in self.lines:
+            if self._handle_fence_line(line):
                 continue
 
-            if in_fence:
-                normalized.append(line)
+            if self._handle_in_fence_line(line):
                 continue
 
             if not line.strip():
-                cls.flush_paragraph(paragraph, normalized)
-                blank_count += 1
-
-                if blank_count >= 2:
-                    list_continuation_prefix = None
-
-                if normalized and normalized[-1] != "":
-                    normalized.append("")
-
+                self._handle_blank_line()
                 continue
 
-            blank_count = 0
+            self.blank_count = 0
 
-            if list_match := cls.parse_list_item(line):
-                cls.flush_paragraph(paragraph, normalized)
-                _, list_continuation_prefix = list_match
-                normalized.append(line)
+            if self._handle_list_item_line(line):
                 continue
 
-            if list_continuation_prefix:
-                is_block = cls.is_markdown_block_line(line)
-                is_align = is_aligned_with_list(
-                    line, list_continuation_prefix)
-
-                if is_block and not is_align:
-                    list_continuation_prefix = None
-                else:
-                    cls.flush_paragraph(paragraph, normalized)
-
-                    if normalized:
-                        previous = normalized[-1].rstrip()
-                        continuation = line.strip()
-
-                        if continuation:
-                            normalized[-1] = f"{previous} {continuation}"
-                    else:
-                        new_line = f"{list_continuation_prefix}{line.strip()}"
-                        normalized.append(new_line)
-                    continue
-
-            if cls.is_markdown_block_line(line):
-                cls.flush_paragraph(paragraph, normalized)
-                list_continuation_prefix = None
-                normalized.append(line)
+            if self._handle_list_continuation(line):
                 continue
 
-            list_continuation_prefix = None
-            paragraph.append(line)
+            if self._handle_markdown_block_line(line):
+                continue
 
-        cls.flush_paragraph(paragraph, normalized)
-        return "\n".join(normalized).strip()
+            self._handle_paragraph_line(line)
+
+        self._flush_paragraph()
+        return "\n".join(self.normalized).strip()
+
+    @classmethod
+    def normalize_wrapping(cls, text: str) -> str:
+        return cls(text).normalize()
 
 
 class SignatureEntry:
