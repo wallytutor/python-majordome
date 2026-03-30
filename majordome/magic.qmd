@@ -11,9 +11,6 @@ On top of your notebook, simply load the extension:
 
 ```{python}
 #| echo: true
-# XXX: the following was replaced by `majordome.magic`.
-# %load_ext majordome_utilities.skipper
-
 %load_ext majordome.magic
 ```
 
@@ -116,6 +113,17 @@ $$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 $$
 ```
+
+::: {.callout-important title="About Quarto rendering"}
+
+Please notice that when working in VSCode Jupyter extension, the following currently fails, *i.e.* it does not recognize the `%%md` magic command as it is not on the top of the cell; if you change the order, the Quarto annotation will be interpreted as markdown. For properly rendering Quarto documents, consider adding a global configuration for the echo option set to `false` and explicitly set it to `true` in the cells where you want to see the code. This is a known issue that will (maybe) be fixed in the future, but for now, it is a good workaround (that actually enforces a good practice of hiding code cells in the final document, which is what you usually want when writing reports).
+
+``` python
+#| echo: false
+%%md
+```
+
+:::
 
 The following is also possible in math blocks:
 
