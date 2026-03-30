@@ -117,6 +117,10 @@ class MajordomePlot:
         """ Provides access to underlying figure and axes. """
         return self._fig, self._ax
 
+    def show(self) -> None:
+        """ Display the plot. """
+        plt.show()
+
     @property
     def figure(self) -> Figure:
         """ Provides access to underlying figure. """
