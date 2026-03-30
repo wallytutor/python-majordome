@@ -316,6 +316,10 @@ function Main {
         Remove-Hard $(Join-Path $PSScriptRoot "build")
         Remove-Hard $(Join-Path $PSScriptRoot "target")
         Remove-Hard $(Join-Path $PSScriptRoot "log.*")
+        Remove-Hard $(Join-Path $PSScriptRoot "__pycache__")
+        Remove-Hard $(Join-Path $PSScriptRoot ".quarto")
+        Remove-Hard $(Join-Path $PSScriptRoot ".vscode")
+        Remove-Hard $(Join-Path $PSScriptRoot "_book")
 
         if ($DistClean) {
             Write-Warn "Cleaning distribution and environment..."
