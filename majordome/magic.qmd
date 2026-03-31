@@ -141,3 +141,21 @@ $$
 F(x) = {some_value} \cdot x^2
 $$
 ```
+
+SymPy expressions are also supported, and they will be rendered as LaTeX. In general rendering is done by displaying some expression as provided below:
+
+```{python}
+#| echo: true
+import sympy as sp
+
+x = sp.symbols("x")
+f_x = some_value * x**2
+f_x
+```
+
+With help of the extension we can also render it in markdown:
+
+```{python}
+%%md
+Now we can also talk about the function we just defined: {f_x}! If you need to inject the expression inside a math block, you can do so by calling `sp.latex` and using the string formatter: $f={sp.latex(f_x):s}$.
+```
