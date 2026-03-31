@@ -1,4 +1,5 @@
 node_modules/
 lib/
 tsconfig.tsbuildinfo
+!src/index.ts
 !style/index.css
