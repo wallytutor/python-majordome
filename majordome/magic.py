@@ -192,9 +192,83 @@ class MdMagic:
         display(Markdown(MdMagic.render_cell(cell, shell.user_ns)))
 
 
+def _lift_supported_cell_magic_after_quarto_preamble(
+        cell: str, supported_magics: set[str]
+    ) -> str:
+    """ Move supported ``%%magic`` above leading Quarto ``#|`` lines.
+
+    Quarto requires annotation comments (``#| ...``) at the top of the
+    cell, while IPython requires ``%%cell_magic`` to be the first
+    meaningful line. This helper reconciles both by moving a supported
+    cell magic line above the Quarto preamble *only* for parsing.
+    """
+    lines = cell.splitlines()
+
+    if not lines:
+        return cell
+
+    cursor = 0
+    preamble: list[str] = []
+    has_quarto_annotation = False
+
+    while cursor < len(lines):
+        stripped = lines[cursor].strip()
+
+        if not stripped:
+            preamble.append(lines[cursor])
+            cursor += 1
+            continue
+
+        if stripped.startswith("#|"):
+            has_quarto_annotation = True
+            preamble.append(lines[cursor])
+            cursor += 1
+            continue
+
+        break
+
+    if not has_quarto_annotation or cursor >= len(lines):
+        return cell
+
+    match = re.match(r"^\s*%%([A-Za-z_][A-Za-z0-9_]*)\b", lines[cursor])
+
+    if not match:
+        return cell
+
+    if match.group(1) not in supported_magics:
+        return cell
+
+    magic_line = lines[cursor]
+    rewritten = [magic_line, *preamble, *lines[cursor + 1:]]
+    transformed = "\n".join(rewritten)
+
+    if cell.endswith("\n"):
+        transformed += "\n"
+
+    return transformed
+
+
+def _install_quarto_magic_preamble_transform(
+        shell, supported_magics: set[str]
+    ) -> None:
+    """ Install one-time transform hook to support Quarto-first cells. """
+    if hasattr(shell, "_majordome_transform_cell_original"):
+        return
+
+    shell._majordome_transform_cell_original = shell.transform_cell
+
+    def transform_cell_with_quarto_support(cell: str) -> str:
+        adapted = _lift_supported_cell_magic_after_quarto_preamble(
+            cell, supported_magics)
+
+        return shell._majordome_transform_cell_original(adapted)
+
+    shell.transform_cell = transform_cell_with_quarto_support
+
+
 def load_ipython_extension(shell) -> None:
     """ Handle to load extension to session. """
-    conf = {
+    registry = {
         "skipper_verbosity": {
             "func": SkipperMagic.skipper_verbosity,
             "kind": "line"
@@ -209,8 +283,14 @@ def load_ipython_extension(shell) -> None:
         },
     }
 
-    for name, conf in conf.items():
+    for name, entry in registry.items():
         shell.register_magic_function(
-            conf["func"], conf["kind"], magic_name=name)
+            entry["func"], entry["kind"], magic_name=name)
+
+    supported_cell_magics = {
+        name for name, entry in registry.items() if entry["kind"] == "cell"
+    }
+
+    _install_quarto_magic_preamble_transform(shell, supported_cell_magics)
 
     shell.run_line_magic("skipper_verbosity", "0")
