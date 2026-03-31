@@ -5,7 +5,7 @@ import warnings
 import sympy as sp
 
 from IPython.core.getipython import get_ipython
-from IPython.display import Markdown, display
+from IPython.display import Markdown, Math, display
 
 
 class SkipperMagic:
@@ -189,19 +189,43 @@ class MdMagic:
         if (shell := get_ipython()) is None:
             raise RuntimeError("Not running inside an IPython environment.")
 
-        display(Markdown(MdMagic.render_cell(cell, shell.user_ns)))
+        content = _strip_leading_quarto_annotations(cell)
+        rendered = MdMagic.render_cell(content, shell.user_ns)
+        MdMagic.display_rendered(rendered)
+
+    @staticmethod
+    def display_rendered(rendered: str) -> None:
+        """Display interpolated content with robust math rendering.
+
+        Some frontends may escape markdown math delimiters in rich output.
+        To make equations reliable, we render math blocks with ``Math`` and
+        non-math regions with ``Markdown``.
+        """
+        last = 0
+
+        for match in MdMagic.MATH_BLOCKS_RE.finditer(rendered):
+            text = rendered[last:match.start()]
+            if text.strip():
+                display(Markdown(text))
+
+            block = match.group(0)
+            delimiter = "$$" if block.startswith("$$") else "$"
+            math = block[len(delimiter):-len(delimiter)].strip()
+            if math:
+                display(Math(math))
+
+            last = match.end()
+
+        tail = rendered[last:]
+        if tail.strip():
+            display(Markdown(tail))
 
 
 def _lift_supported_cell_magic_after_quarto_preamble(
-        cell: str, supported_magics: set[str]
+        cell: str,
+        supported_magics: set[str],
     ) -> str:
-    """ Move supported ``%%magic`` above leading Quarto ``#|`` lines.
-
-    Quarto requires annotation comments (``#| ...``) at the top of the
-    cell, while IPython requires ``%%cell_magic`` to be the first
-    meaningful line. This helper reconciles both by moving a supported
-    cell magic line above the Quarto preamble *only* for parsing.
-    """
+    """Move supported ``%%magic`` above leading Quarto ``#|`` lines."""
     lines = cell.splitlines()
 
     if not lines:
@@ -231,7 +255,6 @@ def _lift_supported_cell_magic_after_quarto_preamble(
         return cell
 
     match = re.match(r"^\s*%%([A-Za-z_][A-Za-z0-9_]*)\b", lines[cursor])
-
     if not match:
         return cell
 
@@ -248,10 +271,46 @@ def _lift_supported_cell_magic_after_quarto_preamble(
     return transformed
 
 
+def _strip_leading_quarto_annotations(cell: str) -> str:
+    """Remove leading Quarto ``#|`` preamble lines from magic cell body."""
+    lines = cell.splitlines()
+
+    if not lines:
+        return cell
+
+    cursor = 0
+    has_quarto_annotation = False
+
+    while cursor < len(lines):
+        stripped = lines[cursor].strip()
+
+        if not stripped:
+            cursor += 1
+            continue
+
+        if stripped.startswith("#|"):
+            has_quarto_annotation = True
+            cursor += 1
+            continue
+
+        break
+
+    if not has_quarto_annotation:
+        return cell
+
+    transformed = "\n".join(lines[cursor:])
+
+    if cell.endswith("\n") and transformed:
+        transformed += "\n"
+
+    return transformed
+
+
 def _install_quarto_magic_preamble_transform(
-        shell, supported_magics: set[str]
+        shell,
+        supported_magics: set[str],
     ) -> None:
-    """ Install one-time transform hook to support Quarto-first cells. """
+    """Install one-time transform hook for Quarto-first cell magics."""
     if hasattr(shell, "_majordome_transform_cell_original"):
         return
 
@@ -259,7 +318,9 @@ def _install_quarto_magic_preamble_transform(
 
     def transform_cell_with_quarto_support(cell: str) -> str:
         adapted = _lift_supported_cell_magic_after_quarto_preamble(
-            cell, supported_magics)
+            cell,
+            supported_magics,
+        )
 
         return shell._majordome_transform_cell_original(adapted)
 

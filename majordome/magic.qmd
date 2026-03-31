@@ -1,4 +1,8 @@
-# Extensions
+---
+title: Extensions
+jupyter: python3
+---
+
 
 *aka majordome.magic*
 
@@ -114,7 +118,7 @@ Below we have a Markdown cell with some variables and LaTeX expressions. The var
 %%md
 I have this string with a variable: {variable}.
 
-There is also some latex: $\int_a^b f(x) \; dx$.
+There is also some latex: $\int_a^b f(x) \; dx$
 
 - Some formatter value {some_value:.2f}
 
@@ -167,5 +171,6 @@ With help of the extension we can also render it in markdown:
 
 ```{python}
 %%md
-Now we can also talk about the function we just defined: {f_x}! If you need to inject the expression inside a math block, you can do so by calling `sp.latex` and using the string formatter: $f={sp.latex(f_x):s}$.
+Now we can also talk about the function we just defined: {f_x}! If you need to inject the expression inside a math block, you can do so by calling `sp.latex` and using the string formatter: $f={sp.latex(f_x):s}$
 ```
+
