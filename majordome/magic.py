@@ -2,6 +2,7 @@
 import os
 import re
 import warnings
+import sympy as sp
 
 from IPython.core.getipython import get_ipython
 from IPython.display import Markdown, display
@@ -120,6 +121,7 @@ class MdMagic:
         - `{expr}`      -> `str(eval(expr))`
         - `{expr:spec}` -> `format(eval(expr), spec)`
         - `{10*d:.1f}`  -> `format(eval('10*d'), '.1f')`
+        - `{sympy_expr}` -> ``$<latex>$`` when value is a ``sp.Basic`` instance
 
         Falls back to the original ``{content}`` if evaluation fails.
         """
@@ -129,7 +131,11 @@ class MdMagic:
 
         try:
             value = eval(expr.strip(), namespace)  # noqa: S307
-            return format(value, spec) if spec else str(value)
+            if spec:
+                return format(value, spec)
+            if isinstance(value, sp.Basic):
+                return f"${sp.latex(value)}$"
+            return str(value)
         except Exception:
             return "{" + content + "}"
 
