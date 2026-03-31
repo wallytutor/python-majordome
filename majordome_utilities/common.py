@@ -2,6 +2,8 @@
 from abc import ABC
 from abc import abstractmethod
 from collections import deque
+from decimal import Decimal, getcontext
+from numbers import Number
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
@@ -243,3 +245,32 @@ def within(x, arr):
 def apply(f, iterable):
     """ Apply unit operation over iterable items. """
     return list(map(f, iterable))
+
+
+def sci_to_latex_decimal(x: Number, sig: int = 3):
+    """ Convert a number to LaTeX scientific notation.
+
+    Parameters
+    ----------
+    x: Number
+        The number to convert.
+    sig: int
+        Number of significative digits after the dot.
+    """
+    d = Decimal(str(x))
+
+    # Handle zero explicitly
+    if d == 0:
+        return "0"
+
+    # Compute scientific exponent: floor(log10(|x|))
+    exponent = d.adjusted()
+
+    # Compute mantissa: x / 10^exponent
+    getcontext().prec = sig
+    mantissa = d.scaleb(-exponent)
+
+    # Format mantissa with sig significant digits
+    mantissa_str = f"{mantissa:.{sig}g}"
+
+    return fr"{mantissa_str}\times 10^{{{exponent}}}"
