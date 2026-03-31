@@ -1,8 +1,4 @@
----
-title: Extensions
-jupyter: python3
----
-
+# Extensions
 
 *aka majordome.magic*
 
@@ -115,10 +111,11 @@ some_value = 12.2
 Below we have a Markdown cell with some variables and LaTeX expressions. The variables will be replaced by their values, and the LaTeX will be rendered correctly.
 
 ```{python}
+#| echo: true
 %%md
 I have this string with a variable: {variable}.
 
-There is also some latex: $\int_a^b f(x) \; dx$
+There is also some latex: $\int_a^b f(x) \; dx$.
 
 - Some formatter value {some_value:.2f}
 
@@ -143,6 +140,7 @@ Please notice that when working in VSCode Jupyter extension, the following curre
 The following is also possible in math blocks:
 
 ```{python}
+#| echo: true
 %%md
 
 $$
@@ -171,6 +169,5 @@ With help of the extension we can also render it in markdown:
 
 ```{python}
 %%md
-Now we can also talk about the function we just defined: {f_x}! If you need to inject the expression inside a math block, you can do so by calling `sp.latex` and using the string formatter: $f={sp.latex(f_x):s}$
+Now we can also talk about the function we just defined: {f_x}! If you need to inject the expression inside a math block, you can do so by calling `sp.latex` and using the string formatter: $f={sp.latex(f_x):s}$.
 ```
-

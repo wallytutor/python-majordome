@@ -83,6 +83,8 @@ class MdMagic:
     """
     MATH_BLOCKS_RE = re.compile(r"(\$\$.*?\$\$|\$.*?\$)", flags=re.DOTALL)
 
+    DISPLAY_MATH_BLOCKS_RE = re.compile(r"(\$\$.*?\$\$)", flags=re.DOTALL)
+
     PLACEHOLDER_RE = re.compile(r"\{([^{}]+)\}")
 
     @staticmethod
@@ -197,35 +199,44 @@ class MdMagic:
     def display_rendered(rendered: str) -> None:
         """Display interpolated content with robust math rendering.
 
-        Some frontends may escape markdown math delimiters in rich output.
-        To make equations reliable, we render math blocks with ``Math`` and
-        non-math regions with ``Markdown``.
+        Render ``$$...$$`` blocks with ``Math`` for reliability while
+        preserving inline ``$...$`` in Markdown flow.
         """
         last = 0
+        markdown_parts: list[str] = []
 
-        for match in MdMagic.MATH_BLOCKS_RE.finditer(rendered):
+        for match in MdMagic.DISPLAY_MATH_BLOCKS_RE.finditer(rendered):
             text = rendered[last:match.start()]
-            if text.strip():
-                display(Markdown(text))
+            if text:
+                markdown_parts.append(text)
 
             block = match.group(0)
-            delimiter = "$$" if block.startswith("$$") else "$"
-            math = block[len(delimiter):-len(delimiter)].strip()
+            math = block[2:-2].strip()
+
+            pending = "".join(markdown_parts)
+            if pending.strip():
+                display(Markdown(pending))
+            markdown_parts = []
+
             if math:
                 display(Math(math))
 
             last = match.end()
 
         tail = rendered[last:]
-        if tail.strip():
-            display(Markdown(tail))
+        if tail:
+            markdown_parts.append(tail)
+
+        pending = "".join(markdown_parts)
+        if pending.strip():
+            display(Markdown(pending))
 
 
 def _lift_supported_cell_magic_after_quarto_preamble(
         cell: str,
         supported_magics: set[str],
     ) -> str:
-    """Move supported ``%%magic`` above leading Quarto ``#|`` lines."""
+    """ Move supported ``%%magic`` above leading Quarto ``#|`` lines. """
     lines = cell.splitlines()
 
     if not lines:
@@ -272,7 +283,7 @@ def _lift_supported_cell_magic_after_quarto_preamble(
 
 
 def _strip_leading_quarto_annotations(cell: str) -> str:
-    """Remove leading Quarto ``#|`` preamble lines from magic cell body."""
+    """ Remove leading Quarto ``#|`` preamble lines from magic cell body. """
     lines = cell.splitlines()
 
     if not lines:
@@ -310,7 +321,7 @@ def _install_quarto_magic_preamble_transform(
         shell,
         supported_magics: set[str],
     ) -> None:
-    """Install one-time transform hook for Quarto-first cell magics."""
+    """ Install one-time transform hook for Quarto-first cell magics. """
     if hasattr(shell, "_majordome_transform_cell_original"):
         return
 
