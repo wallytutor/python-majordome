@@ -1,0 +1,46 @@
+{
+  "name": "@majordome/jupyterlab-mdmagic",
+  "version": "0.1.0",
+  "description": "JupyterLab extension to improve %%md magic cell highlighting for Majordome",
+  "license": "MIT",
+  "author": "Walter Dal'Maz Silva",
+  "homepage": "https://github.com/wallytutor/python-majordome",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wallytutor/python-majordome.git"
+  },
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "notebook",
+    "magic"
+  ],
+  "files": [
+    "lib/**/*",
+    "src/**/*",
+    "style/**/*"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "style": "style/index.css",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rimraf lib tsconfig.tsbuildinfo",
+    "watch": "tsc -w -p tsconfig.json"
+  },
+  "dependencies": {
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.38.6",
+    "@jupyterlab/application": "^4.4.6",
+    "@jupyterlab/cells": "^4.4.6",
+    "@jupyterlab/notebook": "^4.4.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.24",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3"
+  },
+  "jupyterlab": {
+    "extension": "lib/index.js"
+  }
+}

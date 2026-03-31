@@ -1,6 +1,7 @@
-# Majordome extensions
+# Extensions
 
 *aka majordome.magic*
+
 
 ```{python}
 from majordome_utilities.documents import *
@@ -13,6 +14,17 @@ On top of your notebook, simply load the extension:
 #| echo: true
 %load_ext majordome.magic
 ```
+
+For JupyterLab 4, a dedicated frontend extension scaffold is now available in this repository at `jupyterlab/majordome-mdmagic`.
+
+```bash
+cd jupyterlab/majordome-mdmagic
+npm install
+npm run build
+jupyter labextension link .
+```
+
+After this, start JupyterLab as usual and the extension will switch `%%md` code cells to Markdown highlighting (or LaTeX for pure `$$...$$` display-math bodies).
 
 ## Skipping execution
 
@@ -99,7 +111,6 @@ some_value = 12.2
 Below we have a Markdown cell with some variables and LaTeX expressions. The variables will be replaced by their values, and the LaTeX will be rendered correctly.
 
 ```{python}
-#| echo: true
 %%md
 I have this string with a variable: {variable}.
 
@@ -128,7 +139,6 @@ Please notice that when working in VSCode Jupyter extension, the following curre
 The following is also possible in math blocks:
 
 ```{python}
-#| echo: true
 %%md
 
 $$
