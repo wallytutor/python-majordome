@@ -9,7 +9,8 @@ JupyterLab 4 frontend extension that improves editing ergonomics for Majordome's
   - `text/markdown` for general `%%md` content.
   - `text/x-latex` when the post-magic body looks like a pure `$$...$$` display-math block.
 - In `%%md` cells, CodeMirror 6 decorations highlight `{expr}` placeholders with dedicated styling.
-- If a cell is no longer a `%%md` cell, the original mime type is restored.
+- In `%%md` cells, line wrapping is forced on for easier Markdown editing.
+- If a cell is no longer a `%%md` cell, original mime and wrap settings are restored.
 
 ## Dev setup
 

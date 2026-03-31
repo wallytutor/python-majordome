@@ -15,7 +15,7 @@ On top of your notebook, simply load the extension:
 %load_ext majordome.magic
 ```
 
-For JupyterLab 4, a dedicated frontend extension scaffold is now available in this repository at `jupyterlab/majordome-mdmagic`.
+For JupyterLab 4, a dedicated frontend extension is now available in this repository at `jupyterlab/majordome-mdmagic`.
 
 ```bash
 cd jupyterlab/majordome-mdmagic
