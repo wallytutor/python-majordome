@@ -1,7 +1,7 @@
 import { JupyterFrontEnd, JupyterFrontEndPlugin } from '@jupyterlab/application';
 import { ICodeCellModel } from '@jupyterlab/cells';
 import { INotebookTracker, NotebookPanel } from '@jupyterlab/notebook';
-import { StateField } from '@codemirror/state';
+import { Range, StateField } from '@codemirror/state';
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view';
 
 const PLUGIN_ID = '@majordome/jupyterlab-mdmagic:plugin';
@@ -12,8 +12,20 @@ const MATH_RE = /\$\$[\s\S]*?\$\$|\$[^$]*?\$/g;
 // Mirrors Python MdMagic.PLACEHOLDER_RE: {content} with no nested braces
 const BRACE_RE = /\{([^{}\n]+)\}/g;
 
-const placeholderMark = Decoration.mark({
-  class: 'cm-mj-mdmagic-placeholder'
+const braceMark = Decoration.mark({
+  class: 'cm-mj-mdmagic-brace'
+});
+
+const expressionMark = Decoration.mark({
+  class: 'cm-mj-mdmagic-expression'
+});
+
+const colonMark = Decoration.mark({
+  class: 'cm-mj-mdmagic-colon'
+});
+
+const formatSpecMark = Decoration.mark({
+  class: 'cm-mj-mdmagic-format-spec'
 });
 
 /**
@@ -21,7 +33,7 @@ const placeholderMark = Decoration.mark({
  * returns true when content contains a colon not preceded by an odd number
  * of backslashes, meaning a format spec like {value:.2f} is present.
  */
-function hasFormatSpec(content: string): boolean {
+function splitUnescapedColonIndex(content: string): number {
   for (let i = 0; i < content.length; i++) {
     if (content[i] !== ':') {
       continue;
@@ -33,11 +45,53 @@ function hasFormatSpec(content: string): boolean {
     }
 
     if (backslashes % 2 === 0) {
-      return true;
+      return i;
     }
   }
 
-  return false;
+  return -1;
+}
+
+function addRange(
+  ranges: Range<Decoration>[],
+  mark: Decoration,
+  from: number,
+  to: number
+): void {
+  if (to > from) {
+    ranges.push(mark.range(from, to));
+  }
+}
+
+function addPlaceholderRanges(
+  ranges: Range<Decoration>[],
+  start: number,
+  end: number,
+  content: string,
+  requireSpec: boolean
+): void {
+  const colonIdx = splitUnescapedColonIndex(content);
+  if (requireSpec && colonIdx < 0) {
+    return;
+  }
+
+  const openBraceStart = start;
+  const openBraceEnd = start + 1;
+  const closeBraceStart = end - 1;
+  const closeBraceEnd = end;
+
+  addRange(ranges, braceMark, openBraceStart, openBraceEnd);
+  addRange(ranges, braceMark, closeBraceStart, closeBraceEnd);
+
+  if (colonIdx < 0) {
+    addRange(ranges, expressionMark, start + 1, end - 1);
+    return;
+  }
+
+  const colonPos = start + 1 + colonIdx;
+  addRange(ranges, expressionMark, start + 1, colonPos);
+  addRange(ranges, colonMark, colonPos, colonPos + 1);
+  addRange(ranges, formatSpecMark, colonPos + 1, end - 1);
 }
 
 function buildPlaceholderDecorations(doc: string): DecorationSet {
@@ -58,7 +112,7 @@ function buildPlaceholderDecorations(doc: string): DecorationSet {
     return mathRanges.some(([s, e]) => start >= s && end <= e);
   }
 
-  const ranges = [];
+  const ranges: Range<Decoration>[] = [];
   BRACE_RE.lastIndex = 0;
   let match = BRACE_RE.exec(doc);
   while (match !== null) {
@@ -69,12 +123,10 @@ function buildPlaceholderDecorations(doc: string): DecorationSet {
     if (isInsideMath(start, end)) {
       // Inside math blocks only {expr:spec} is interpolated by the backend.
       // Plain {expr} and LaTeX constructs like \frac{a}{b} are left untouched.
-      if (hasFormatSpec(content)) {
-        ranges.push(placeholderMark.range(start, end));
-      }
+      addPlaceholderRanges(ranges, start, end, content, true);
     } else {
       // Outside math blocks both {expr} and {expr:spec} are interpolated.
-      ranges.push(placeholderMark.range(start, end));
+      addPlaceholderRanges(ranges, start, end, content, false);
     }
 
     match = BRACE_RE.exec(doc);

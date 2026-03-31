@@ -1,7 +1,20 @@
-.cm-mj-mdmagic-placeholder {
+.cm-mj-mdmagic-brace {
+  color: var(--jp-mirror-editor-keyword-color);
+  font-weight: 700;
+}
+
+.cm-mj-mdmagic-expression {
+  color: var(--jp-mirror-editor-variable-color);
+  background-color: rgba(66, 133, 244, 0.10);
+}
+
+.cm-mj-mdmagic-colon {
+  color: var(--jp-mirror-editor-operator-color);
+  font-weight: 700;
+}
+
+.cm-mj-mdmagic-format-spec {
   color: var(--jp-mirror-editor-builtin-color);
-  font-weight: 600;
-  border-radius: 2px;
-  background-color: rgba(66, 133, 244, 0.14);
-  padding: 0 1px;
+  background-color: rgba(52, 168, 83, 0.12);
+  font-style: italic;
 }
