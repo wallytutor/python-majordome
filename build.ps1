@@ -1,62 +1,4 @@
-
-<#
-.SYNOPSIS
-    Build script for the majordome project with Rust and Python components.
-
-.DESCRIPTION
-    This script manages the build process for the majordome project, which
-    includes Rust libraries and Python packages. It handles virtual environment
-    setup, Rust compilation, Python package installation, and testing.
-
-.PARAMETER FlagRelease
-    Build in release mode with optimizations enabled. Sets CARGO_PROFILE to "release"
-    and adds optimization flags to RUSTFLAGS.
-
-.PARAMETER FlagBacktrace
-    Enable Rust backtraces by setting RUST_BACKTRACE=1. Useful for debugging.
-
-.PARAMETER RustCheck
-    Run cargo check on all Rust libraries to verify compilation without building.
-
-.PARAMETER RustCore
-    Build only the core Rust library (crates/core).
-
-.PARAMETER TestRust
-    Run Rust tests using cargo test on the test crate.
-
-.PARAMETER TestPython
-    Run Python tests using pytest with verbose output.
-
-.PARAMETER FromPip
-    Install the Python package using pip with editable mode. This builds the Rust
-    extensions and links the package for development.
-
-.PARAMETER PackageDist
-    Create a wheel distribution package for the Python package.
-
-.PARAMETER PackageDocs
-    Build the documentation in HTML format.
-
-.PARAMETER FreshDocs
-    Force a fresh build of the documentation by clearing the cache.
-    Used with -PackageDocs.
-
-.PARAMETER DocsPdf
-    Build the documentation in PDF format.
-
-.PARAMETER PublishDocs
-    Publish the built documentation to GitHub Pages using quarto publish.
-
-.PARAMETER Clean
-    Remove build artifacts and log files (build/, target/, log.*).
-
-.PARAMETER DistClean
-    Perform a full clean including virtual environments, distribution files, and
-    documentation builds (venv/, dist/, docs/_build/).
-
-.PARAMETER Help
-    Display this help message and exit.
-#>
+# build.ps1
 
 param (
     # -- Build options
@@ -127,44 +69,25 @@ param (
 
     # Just so that it runs...
     [Parameter(Mandatory=$false, ParameterSetName="Dummy")]
-    [switch]$Dummy
+    [switch]$Dummy,
+
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("all", "py312", "py313", "py314")]
+    [string]$PythonEnv = "all"
 )
 
-$PATH_CORE =  "$PSScriptRoot\Cargo.toml"
-$VENV_PATH =  "$PSScriptRoot\venv"
+$script:PYTHON_ENVS = @()
+$script:PATH_CORE   = "$PSScriptRoot\Cargo.toml"
+$script:DEFAULT_ENV = "py312"
 
 $env:MAJORDOME_INSTALL = "$PSScriptRoot[full]"
-$env:QUARTO_PYTHON = "$VENV_PATH\Scripts\python.exe"
+$env:QUARTO_PYTHON = ""
 
 function Remove-Hard {
     param (
         [string]$path
     )
     Remove-Item $path -Recurse -Force -ErrorAction SilentlyContinue
-}
-
-function Set-EnvironmentVariables {
-    $env:RUSTFLAGS = "-A warnings"
-    $env:RUST_BACKTRACE = 0
-    $env:SETUPTOOLS_RUST_CARGO_PROFILE = "dev"
-    $env:CARGO_INCREMENTAL = 1
-
-    if ($FlagRelease) {
-        $env:RUSTFLAGS += " -C opt-level=3"
-        $env:SETUPTOOLS_RUST_CARGO_PROFILE = "release"
-    }
-
-    if ($FlagBacktrace) {
-        $env:RUST_BACKTRACE = 1
-    }
-
-    Write-Host ""
-    Write-Host "Environment variables set:"
-    Write-Host "RUSTFLAGS ....................: $env:RUSTFLAGS"
-    Write-Host "RUST_BACKTRACE ...............: $env:RUST_BACKTRACE"
-    Write-Host "SETUPTOOLS_RUST_CARGO_PROFILE : $env:SETUPTOOLS_RUST_CARGO_PROFILE"
-    Write-Host "CARGO_INCREMENTAL ............: $env:CARGO_INCREMENTAL"
-    Write-Host ""
 }
 
 function Test-ToolStatus {
@@ -180,6 +103,49 @@ function Test-ToolStatus {
     }
 }
 
+function Initialize-PythonEnvironment {
+    param (
+        [pscustomobject]$PyEnv
+    )
+
+    if (Test-Path $PyEnv.VenvPath) {
+        Write-Host "Virtual environment already exists: $($PyEnv.VenvPath)"
+        return $false
+    }
+
+    # --seed ensures pip/setuptools/wheel are available in new uv venvs.
+    & uv venv --seed --python $PyEnv.Version $PyEnv.VenvPath
+
+    $PythonExe = $PyEnv.PythonExe
+    $Label = $PyEnv.Name
+
+    $pipVersion = & $PythonExe -m pip --version 2>$null
+    Test-ToolStatus -ToolName "[$Label] pip" -Result $pipVersion
+
+    Write-Host "[$Label] Upgrading packaging tools..."
+    & $PythonExe -m pip install --upgrade pip
+    & $PythonExe -m pip install --upgrade --force-reinstall build wheel
+    & $PythonExe -m pip install --upgrade --force-reinstall setuptools
+    & $PythonExe -m pip install --upgrade --force-reinstall setuptools_rust
+
+    Write-Host "[$Label] Installing project in editable mode..."
+    & $PythonExe -m pip install -e "$env:MAJORDOME_INSTALL"
+
+    return $true
+}
+
+function Invoke-ForEachPythonEnv {
+    param (
+        [scriptblock]$Action,
+        [string]$ActionName
+    )
+
+    foreach ($pyEnv in $script:PYTHON_ENVS) {
+        Write-Host "[$($pyEnv.Name)] $ActionName"
+        & $Action $pyEnv
+    }
+}
+
 function Invoke-VenvActivation {
     $cargoVersion = cargo --version 2>$null
     Test-ToolStatus -ToolName "Cargo" -Result $cargoVersion
@@ -188,97 +154,76 @@ function Invoke-VenvActivation {
     Test-ToolStatus -ToolName "Quarto" -Result $quartoVersion
 
     $uvVersion = uv --version 2>$null
-    $hasUv = $LASTEXITCODE -eq 0
-    if ($hasUv) {
-        Write-Host "uv found: $uvVersion"
-    } else {
-        Write-Host "uv not found. Falling back to python -m venv and python -m pip."
-        $pythonVersion = python --version 2>$null
-        Test-ToolStatus -ToolName "Python" -Result $pythonVersion
+    Test-ToolStatus -ToolName "uv" -Result $uvVersion
+
+    $script:PYTHON_ENVS = @(
+        [PSCustomObject]@{
+            Name = "py312"
+            Version = "3.12";
+            VenvPath = "$PSScriptRoot\venv312";
+        },
+        [PSCustomObject]@{
+            Name = "py313"
+            Version = "3.13";
+            VenvPath = "$PSScriptRoot\venv313";
+        },
+        [PSCustomObject]@{
+            Name = "py314"
+            Version = "3.14";
+            VenvPath = "$PSScriptRoot\venv314";
+        }
+    )
+
+    if ($PythonEnv -ne "all") {
+        $script:PYTHON_ENVS = $script:PYTHON_ENVS `
+        | Where-Object { $_.Name -eq $PythonEnv }
+
+        if (-not $script:PYTHON_ENVS) {
+            Write-Host "Invalid Python environment selection: $PythonEnv"
+            exit 1
+        }
     }
 
-    if (-not (Test-Path $VENV_PATH)) {
-        if ($hasUv) {
-            & uv venv $VENV_PATH
-        } else {
-            & python -m venv $VENV_PATH
+    foreach ($pyEnv in $script:PYTHON_ENVS) {
+        $name = "PythonExe"
+        $value = (Join-Path $pyEnv.VenvPath "Scripts\python.exe")
+        $pyEnv | Add-Member -NotePropertyName $name -NotePropertyValue $value
+    }
+
+    $hasNewVenv = $false
+
+    foreach ($pyEnv in $script:PYTHON_ENVS) {
+        if (Initialize-PythonEnvironment -PyEnv $pyEnv) {
+            $hasNewVenv = $true
         }
+    }
 
-        & "$VENV_PATH\Scripts\Activate.ps1"
+    if ($PythonEnv -eq "all") {
+        $pyEnv = $script:PYTHON_ENVS | Where-Object { $_.Name -eq $script:DEFAULT_ENV }
+    } else {
+        $pyEnv = $script:PYTHON_ENVS | Select-Object -First 1
+    }
 
-        if ($hasUv) {
-            & uv pip install --upgrade pip
-            & uv pip install --upgrade --force-reinstall build wheel
-            & uv pip install --upgrade --force-reinstall setuptools
-            & uv pip install --upgrade --force-reinstall setuptools_rust
-            & uv pip install -e "$env:MAJORDOME_INSTALL"
+    if (-not $pyEnv) {
+        Write-Host "No Python environment found for QUARTO_PYTHON"
+        if ($PythonEnv -eq "all") {
+            Write-Host "- Expected: $script:DEFAULT_ENV"
         } else {
-            & python -m pip install --upgrade pip
-            & python -m pip install --upgrade --force-reinstall build wheel
-            & python -m pip install --upgrade --force-reinstall setuptools
-            & python -m pip install --upgrade --force-reinstall setuptools_rust
-            & python -m pip install -e "$env:MAJORDOME_INSTALL"
+            Write-Host "- Expected: $PythonEnv"
         }
+        exit 1
+    }
 
+    $env:QUARTO_PYTHON = $pyEnv.PythonExe
+
+    Write-Host "QUARTO_PYTHON set to: $env:QUARTO_PYTHON"
+
+    if ($hasNewVenv) {
         & quarto install tinytex
         & quarto check
     }
 
-    if ($env:VIRTUAL_ENV -and $env:VIRTUAL_ENV -eq $VENV_PATH) {
-        Write-Host "Virtual environment already active: $env:VIRTUAL_ENV"
-        return
-    } else {
-        Write-Host "Activating virtual environment: $VENV_PATH"
-        & "$VENV_PATH\Scripts\Activate.ps1"
-    }
-
-    & python -c "import setuptools, inspect; print(setuptools.__file__)"
-}
-
-function Invoke-CheckRustLibs {
-    cargo check --manifest-path "Cargo.toml"
-    exit 0
-}
-
-function Invoke-TestRustLibs {
-    cargo test --manifest-path "Cargo.toml"
-    exit 0
-}
-
-function Invoke-TestPythonLibs {
-    pytest -v
-    exit 0
-}
-
-function Build-RustLib {
-    param (
-        [string]$path
-    )
-
-    $opts = @()
-    if ($FlagRelease) { $opts += "--release" }
-    cargo build @opts --manifest-path $path
-    exit 0
-}
-
-function Invoke-InspectWheel {
-    $distPath = Join-Path $PSScriptRoot "dist"
-
-    $latestWheel = Get-ChildItem -Path $distPath -Filter "*.whl" |
-                   Sort-Object LastWriteTime -Descending |
-                   Select-Object -First 1
-
-    if ($latestWheel) {
-        Write-Host "`nLatest wheel: $($latestWheel.Name)"
-
-        Write-Host "`nData files in wheel:"
-        python -m zipfile -l $latestWheel.FullName | Select-String "data"
-
-        Write-Host "`nRust extension modules (.pyd) in wheel:"
-        python -m zipfile -l $latestWheel.FullName | Select-String "pyd"
-    } else {
-        Write-Host "No wheel file found in dist/"
-    }
+    & $env:QUARTO_PYTHON -c "import setuptools, inspect; print(setuptools.__file__)"
 }
 
 function Install-PythonPackage {
@@ -295,36 +240,34 @@ function Install-PythonPackage {
     $opts = @("--no-deps", "--no-build-isolation")
 
     if ($FlagRelease) { $opts += "--config-settings=rust.debug=false" }
-    & python -m pip install -e $env:MAJORDOME_INSTALL @opts
 
-    if ($PackageDist) {
-        & python -m build --wheel
-        Invoke-InspectWheel
+    Invoke-ForEachPythonEnv -ActionName "Installing editable package" -Action {
+        param($pyEnv)
+        & $pyEnv.PythonExe -m pip install -e $env:MAJORDOME_INSTALL @opts
+        & majordome --install-kernel
+
+        if ($PackageDist) {
+            & $pyEnv.PythonExe -m build --wheel
+
+            $distPath = Join-Path $PSScriptRoot "dist"
+            $latestWheel = Get-ChildItem -Path $distPath -Filter "*.whl" |
+                           Sort-Object LastWriteTime -Descending |
+                           Select-Object -First 1
+
+            if ($latestWheel) {
+                Write-Host "`n[$($pyEnv.Name)] Latest wheel: $($latestWheel.Name)"
+
+                Write-Host "`nData files in wheel:"
+                & $pyEnv.PythonExe -m zipfile -l $latestWheel.FullName | Select-String "data"
+
+                Write-Host "`nRust extension modules (.pyd) in wheel:"
+                & $pyEnv.PythonExe -m zipfile -l $latestWheel.FullName | Select-String "pyd"
+            } else {
+                Write-Host "No wheel file found in dist/"
+            }
+        }
     }
 
-    exit 0
-}
-
-function Invoke-BuildDocs {
-    $opts = @()
-
-    if ($FreshDocs) {
-        $opts = $opts + "--no-cache"
-        Remove-Hard $(Join-Path $PSScriptRoot "_book")
-        Remove-Hard $(Join-Path $PSScriptRoot "_site")
-    }
-
-    & quarto render --to html @opts
-
-    if ($DocsPdf) {
-        & quarto render --to pdf @opts
-    }
-
-    exit 0
-}
-
-function Invoke-PublishDocs {
-    & quarto publish gh-pages --no-prompt --no-browser
     exit 0
 }
 
@@ -335,7 +278,7 @@ function Main {
     }
 
     if ($Clean -or $DistClean) {
-        Write-Warn "Cleaning previous builds..."
+        Write-Warning "Cleaning previous builds..."
         Remove-Hard $(Join-Path $PSScriptRoot "build")
         Remove-Hard $(Join-Path $PSScriptRoot "target")
         Remove-Hard $(Join-Path $PSScriptRoot "log.*")
@@ -345,27 +288,97 @@ function Main {
         Remove-Hard $(Join-Path $PSScriptRoot "_book")
 
         if ($DistClean) {
-            Write-Warn "Cleaning distribution and environment..."
-            Remove-Hard $(Join-Path $PSScriptRoot "venv")
+            Write-Warning "Cleaning distribution and environment..."
+            Remove-Hard $(Join-Path $PSScriptRoot "venv312")
+            Remove-Hard $(Join-Path $PSScriptRoot "venv313")
+            Remove-Hard $(Join-Path $PSScriptRoot "venv314")
             Remove-Hard $(Join-Path $PSScriptRoot "dist")
-            Remove-Hard $(Join-Path $PSScriptRoot "docs\_build")
         }
 
         exit 0
     }
 
-    Set-EnvironmentVariables
-    Invoke-VenvActivation
+    & { # Set-EnvironmentVariables
+        $env:RUSTFLAGS = "-A warnings"
+        $env:RUST_BACKTRACE = 0
+        $env:SETUPTOOLS_RUST_CARGO_PROFILE = "dev"
+        $env:CARGO_INCREMENTAL = 1
 
-    if ($RustCore)    { Build-RustLib -path $PATH_CORE }
-    if ($RustCheck)   { Invoke-CheckRustLibs }
-    if ($FromPip)     { Install-PythonPackage }
+        if ($FlagRelease) {
+            $env:RUSTFLAGS += " -C opt-level=3"
+            $env:SETUPTOOLS_RUST_CARGO_PROFILE = "release"
+        }
 
-    if ($TestRust)    { Invoke-TestRustLibs }
-    if ($TestPython)  { Invoke-TestPythonLibs }
+        if ($FlagBacktrace) {
+            $env:RUST_BACKTRACE = 1
+        }
 
-    if ($PackageDocs) { Invoke-BuildDocs }
-    if ($PublishDocs) { Invoke-PublishDocs }
+        Write-Host ""
+        Write-Host "Environment variables set:"
+        Write-Host "RUSTFLAGS ....................: $env:RUSTFLAGS"
+        Write-Host "RUST_BACKTRACE ...............: $env:RUST_BACKTRACE"
+        Write-Host "SETUPTOOLS_RUST_CARGO_PROFILE : $env:SETUPTOOLS_RUST_CARGO_PROFILE"
+        Write-Host "CARGO_INCREMENTAL ............: $env:CARGO_INCREMENTAL"
+        Write-Host ""
+    }
+
+    $needsPythonEnv = (
+        $FromPip `
+        -or $TestPython `
+        -or $PackageDocs `
+        -or $PublishDocs `
+        -or $Dummy
+    )
+
+    if ($needsPythonEnv) {
+        Invoke-VenvActivation
+    }
+
+    if ($FromPip) {
+        Install-PythonPackage
+    }
+    if ($RustCore) {
+        $opts = @()
+        if ($FlagRelease) { $opts += "--release" }
+        cargo build @opts --manifest-path $PATH_CORE
+        exit 0
+    }
+    if ($RustCheck) {
+        cargo check --manifest-path "Cargo.toml"
+        exit 0
+    }
+    if ($TestRust) {
+        cargo test --manifest-path "Cargo.toml"
+        exit 0
+    }
+    if ($TestPython) {
+        Invoke-ForEachPythonEnv -ActionName "Running pytest" -Action {
+            param($pyEnv)
+            & $pyEnv.PythonExe -m pytest -v
+        }
+        exit 0
+    }
+    if ($PackageDocs) {
+        $opts = @()
+
+        if ($FreshDocs) {
+            $opts = $opts + "--no-cache"
+            Remove-Hard $(Join-Path $PSScriptRoot "_book")
+            Remove-Hard $(Join-Path $PSScriptRoot "_site")
+        }
+
+        & quarto render --to html @opts
+
+        if ($DocsPdf) {
+            & quarto render --to pdf @opts
+        }
+
+        exit 0
+    }
+    if ($PublishDocs) {
+        & quarto publish gh-pages --no-prompt --no-browser
+        exit 0
+    }
 
     Write-Host "No build option specified."
 }

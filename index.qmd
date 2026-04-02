@@ -2,6 +2,67 @@
 
 ## Getting Started
 
+Majordome uses `build.ps1` to manage Rust, Python, and documentation workflows. The following sections outline the requirements and usage of the build script for Windows users. Building in Linux and macOS should be trivial and the users may adapt the ideas outlined in that script to their platform of choice.
+
+### Requirements
+
+- PowerShell (script runner)
+- [uv](https://docs.astral.sh/uv/) (required; virtual environments are created with `uv venv --seed`)
+- Python runtimes available to `uv` for: 3.12, 3.13, 3.14
+- Rust toolchain (`cargo`)
+- Quarto CLI (`quarto`)
+
+### Python Environment Selection
+
+Use `-PythonEnv` to choose target Python environment(s):
+
+- `all` (default)
+- `py312`
+- `py313`
+- `py314`
+
+Examples:
+
+```powershell
+# Build/install for Python 3.12 only
+.\build.ps1 -FromPip -PythonEnv py312
+
+# Run Python tests only on Python 3.13
+.\build.ps1 -TestPython -PythonEnv py313
+
+# Build wheels for all configured Python environments
+.\build.ps1 -FromPip -PackageDist -PythonEnv all
+```
+
+### Commands
+
+Build options:
+
+- `-FlagRelease`: release mode (`rust.debug=false`, optimized Rust flags)
+- `-FlagBacktrace`: enables Rust backtraces
+- `-RustCheck`: runs `cargo check`
+- `-RustCore`: builds core Rust crate
+- `-TestRust`: runs `cargo test`
+- `-TestPython`: runs `pytest` on selected Python environment(s)
+- `-FromPip`: installs package in editable mode on selected Python environment(s)
+- `-PackageDist`: builds wheel(s); requires `-FromPip`
+
+Documentation options:
+
+- `-PackageDocs`: renders docs (HTML)
+- `-FreshDocs`: clears cache/output before docs build; requires `-PackageDocs`
+- `-DocsPdf`: renders docs PDF; requires `-PackageDocs`
+- `-PublishDocs`: publishes docs with Quarto to GitHub Pages
+
+Cleanup options:
+
+- `-Clean`: removes build artifacts (`build`, `target`, logs, cache dirs)
+- `-DistClean`: includes Python venvs and `dist`
+
+**Notes:** Python environments are created under `venv312`, `venv313`, and `venv314`. `QUARTO_PYTHON` is set automatically from the selected environment (or default env when `-PythonEnv all`).
+
+### Jupyter Kernel
+
 To register `majordome` as a Jupyter kernel, run:
 
 ```bash
