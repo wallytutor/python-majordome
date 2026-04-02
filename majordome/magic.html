@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>2&nbsp; Majordome extensions – Majordome</title>
+<title>2&nbsp; Extensions – Majordome</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -147,7 +147,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome/magic.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome/magic.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -181,7 +181,7 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -294,7 +294,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></h1>
 </div>
 
 
@@ -313,15 +313,18 @@ window.Quarto = {
 
 <p><em>aka majordome.magic</em></p>
 <p>On top of your notebook, simply load the extension:</p>
-<div id="6fc029f0" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># XXX: the following was replaced by `majordome.magic`.</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># %load_ext majordome_utilities.skipper</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext majordome.magic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="ee31b41d" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext majordome.magic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>For JupyterLab 4, a dedicated frontend extension is now available in this repository at <code>jupyterlab/majordome-mdmagic</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> jupyterlab/majordome-mdmagic</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> install</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">jupyter</span> labextension link .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>After this, start JupyterLab as usual and the extension will switch <code>%%md</code> code cells to Markdown highlighting (or LaTeX for pure <code>$$...$$</code> display-math bodies).</p>
 <section id="skipping-execution" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="skipping-execution"><span class="header-section-number">2.1</span> Skipping execution</h2>
-<div id="d49f94e4" class="cell" data-execution_count="4">
+<div id="625d798b" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="SkipperMagic">
 <div class="callout-header d-flex align-content-center">
@@ -333,65 +336,65 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>SkipperMagic():</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>SkipperMagic():</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>An extension for skipping the execution of code cells.</p>
 </div>
 </div>
 </div>
 </div>
 <p>The module provides a simple extension for skipping the execution of code cells in a notebook. It does that and only that. The goal is to control notebook execution from the environment, which is useful when running notebooks with long-running cells, as numerical simulations.</p>
-<div id="533bb7d1" class="cell" data-execution_count="5">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b032dd4c" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Setting skipper verbosity to 1</code></pre>
 </div>
 </div>
 <p>Here we will use <code>sleep</code> to emulate a long-running cell, and we will control its execution with an environment variable. Generally speaking, the goal is to export environment variables in the terminal before running the notebook, but for demonstration purposes, we will set it in the notebook itself.</p>
-<div id="6f870b94" class="cell" data-execution_count="6">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> sleep</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="d9088edc" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> sleep</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The following (case insensitive) options are accepted by the <code>%%skipper</code> magic command. Please, notice that the <em>truthy</em> values mean <em>skip this cell</em> (as the extension name implies, but even myself can be confused by the double negative here).</p>
-<div id="5003fe1d" class="cell" data-execution_count="7">
+<div id="884bde05" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-stdout">
 <pre><code>{'true': True, '1': True, 'yes': True, 'false': False, '0': False, 'no': False}</code></pre>
 </div>
 </div>
 <p>Below we set the environment variable <code>SOLVE_LONNNNG</code> to <code>true</code>, which means that the cell will be skipped. You can change it to <code>false</code> to execute the cell, or even set it to any other value, as long as it is in the lookup table.</p>
-<div id="80cd4065" class="cell" data-execution_count="8">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"SOLVE_LONNNNG"</span>] <span class="op">=</span> <span class="st">"true"</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="6e500213" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"SOLVE_LONNNNG"</span>] <span class="op">=</span> <span class="st">"true"</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>If everything is file, the following cell will be skipped:</p>
-<div id="2f56f3e2" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="2924b59e" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Skipping cell: SOLVE_LONNNNG=True</code></pre>
 </div>
 </div>
 <p>And here we check if it was actually skipped:</p>
-<div id="5f368607" class="cell" data-execution_count="10">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Did you skip it?"</span>, did_you_skip_it)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="06ae87c9" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Did you skip it?"</span>, did_you_skip_it)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Did you skip it? True</code></pre>
 </div>
 </div>
 <p>You can also avoid the <em>Skipping cell</em> message by setting the verbosity to <code>0</code>:</p>
-<div id="a50dfd36" class="cell" data-execution_count="11">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="5d01278e" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="8b14880f" class="cell" data-execution_count="12">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="00c3e117" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="markdown-and-latex-interpolation" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="markdown-and-latex-interpolation"><span class="header-section-number">2.2</span> Markdown and LaTeX interpolation</h2>
-<div id="94abd5c9" class="cell" data-execution_count="13">
+<div id="588aba4b" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="MdMagic">
 <div class="callout-header d-flex align-content-center">
@@ -403,7 +406,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>MdMagic():</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>MdMagic():</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>An extension for interpolating code in Markdown.</p>
 <p>Cell magic extension to interpolate Markdown and LaTeX. It must be used from code cells and the content is rendered as Markdown. As such, it is expected to be used only when required, as without some frontend tweaks you will have undesirable syntax highlighting in the cell, as it is not interpreted as text. Nonetheless, this proves very useful for complex reporting with dynamic values.</p>
 <ul>
@@ -417,24 +420,24 @@ window.Quarto = {
 </div>
 </div>
 <p>Declare some values in the user namespace:</p>
-<div id="8b537cb7" class="cell" data-execution_count="14">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>variable <span class="op">=</span> <span class="st">"hello"</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>some_value <span class="op">=</span> <span class="fl">12.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="99cc9bad" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>variable <span class="op">=</span> <span class="st">"hello"</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>some_value <span class="op">=</span> <span class="fl">12.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we have a Markdown cell with some variables and LaTeX expressions. The variables will be replaced by their values, and the LaTeX will be rendered correctly.</p>
-<div id="41af970c" class="cell" data-execution_count="15">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>I have this string <span class="cf">with</span> a variable: {variable}.</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>There <span class="kw">is</span> also some latex: $\int_a<span class="op">^</span>b f(x) \<span class="op">;</span> dx$.</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Some formatter value {some_value:<span class="fl">.2</span><span class="er">f</span>}</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Some block math:</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>\int_0<span class="op">^</span>\infty e<span class="op">^</span>{<span class="op">-</span>x<span class="op">^</span><span class="dv">2</span>} dx <span class="op">=</span> \frac{\sqrt{\pi}}{<span class="dv">2</span>}</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="b60ea995" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>I have this string <span class="cf">with</span> a variable: {variable}.</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>There <span class="kw">is</span> also some latex: $\int_a<span class="op">^</span>b f(x) \<span class="op">;</span> dx$.</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Some formatter value {some_value:<span class="fl">.2</span><span class="er">f</span>}</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Some block math:</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>\int_0<span class="op">^</span>\infty e<span class="op">^</span>{<span class="op">-</span>x<span class="op">^</span><span class="dv">2</span>} dx <span class="op">=</span> \frac{\sqrt{\pi}}{<span class="dv">2</span>}</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p>I have this string with a variable: hello.</p>
 <p>There is also some latex: <span class="math inline">\(\int_a^b f(x) \; dx\)</span>.</p>
@@ -442,31 +445,74 @@ window.Quarto = {
 <li><p>Some formatter value 12.20</p></li>
 <li><p>Some block math:</p></li>
 </ul>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math display">\[
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
 \]</span></p>
 </div>
 </div>
+<div class="callout callout-style-default callout-important callout-titled" title="About Quarto rendering">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>About Quarto rendering
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Please notice that when working in VSCode Jupyter extension, the following currently fails, <em>i.e.</em> it does not recognize the <code>%%md</code> magic command as it is not on the top of the cell; if you change the order, the Quarto annotation will be interpreted as markdown. For properly rendering Quarto documents, consider adding a global configuration for the echo option set to <code>false</code> and explicitly set it to <code>true</code> in the cells where you want to see the code. This is a known issue that will (maybe) be fixed in the future, but for now, it is a good workaround (that actually enforces a good practice of hiding code cells in the final document, which is what you usually want when writing reports).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
 <p>The following is also possible in math blocks:</p>
-<div id="c7fa6ee5" class="cell" data-execution_count="16">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>F(x) <span class="op">=</span> {some_value:<span class="fl">.2</span><span class="er">f</span>} \cdot x<span class="op">^</span><span class="dv">2</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>But there <span class="kw">is</span> <span class="kw">not</span> way to use the plain `some_value` without a <span class="bu">format</span> specifier, <span class="im">as</span> it would be indistinguishable <span class="im">from</span> a regular LaTeX expression.</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>F(x) <span class="op">=</span> {some_value} \cdot x<span class="op">^</span><span class="dv">2</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="ff82482d" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>F(x) <span class="op">=</span> {some_value:<span class="fl">.2</span><span class="er">f</span>} \cdot x<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>But there <span class="kw">is</span> no way to use the plain `some_value` without a <span class="bu">format</span> specifier, <span class="im">as</span> it would be indistinguishable <span class="im">from</span> a regular LaTeX expression.</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>F(x) <span class="op">=</span> {some_value} \cdot x<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>$$</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math display">\[
 F(x) = 12.20 \cdot x^2
 \]</span></p>
-<p>But there is not way to use the plain <code>some_value</code> without a format specifier, as it would be indistinguishable from a regular LaTeX expression.</p>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>But there is no way to use the plain <code>some_value</code> without a format specifier, as it would be indistinguishable from a regular LaTeX expression.</p>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math display">\[
 F(x) = {some_value} \cdot x^2
+\]</span></p>
+</div>
+</div>
+<p>SymPy expressions are also supported, and they will be rendered as LaTeX. In general rendering is done by displaying some expression as provided below:</p>
+<div id="f4d7b277" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy <span class="im">as</span> sp</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> sp.symbols(<span class="st">"x"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>f_x <span class="op">=</span> some_value <span class="op">*</span> x<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>f_x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display cell-output-markdown" data-execution_count="16">
+<p><span class="math inline">\(\displaystyle 12.2 x^{2}\)</span></p>
+</div>
+</div>
+<p>With help of the extension we can also render it in markdown:</p>
+<div id="aaa6f980" class="cell" data-execution_count="18">
+<div class="cell-output cell-output-display cell-output-markdown">
+<p>Now we can also talk about the function we just defined: <span class="math inline">\(12.2 x^{2}\)</span>! If you need to inject the expression inside a math block, you can do so by calling <code>sp.latex</code> and using the string formatter: <span class="math inline">\(f=12.2 x^{2}\)</span>. It should also work with block math:</p>
+</div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<p><span class="math display">\[
+f = 12.2 x^{2}
 \]</span></p>
 </div>
 </div>

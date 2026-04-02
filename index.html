@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Walter Dal’Maz Silva">
-<meta name="dcterms.date" content="2026-03-30">
+<meta name="dcterms.date" content="2026-04-02">
 
 <title>Majordome</title>
 <style>
@@ -153,7 +153,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./majordome/magic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -258,7 +258,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#majordome-home" id="toc-majordome-home" class="nav-link active" data-scroll-target="#majordome-home"><span class="header-section-number">1</span> Majordome Home</a>
   <ul class="collapse">
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><span class="header-section-number">1.1</span> Getting Started</a></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><span class="header-section-number">1.1</span> Getting Started</a>
+  <ul class="collapse">
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements"><span class="header-section-number">1.1.1</span> Requirements</a></li>
+  <li><a href="#python-environment-selection" id="toc-python-environment-selection" class="nav-link" data-scroll-target="#python-environment-selection"><span class="header-section-number">1.1.2</span> Python Environment Selection</a></li>
+  <li><a href="#commands" id="toc-commands" class="nav-link" data-scroll-target="#commands"><span class="header-section-number">1.1.3</span> Commands</a></li>
+  <li><a href="#jupyter-kernel" id="toc-jupyter-kernel" class="nav-link" data-scroll-target="#jupyter-kernel"><span class="header-section-number">1.1.4</span> Jupyter Kernel</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -285,7 +291,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 30, 2026</p>
+      <p class="date">April 2, 2026</p>
     </div>
   </div>
   
@@ -301,14 +307,73 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="1"><span class="header-section-number">1</span> Majordome Home</h1>
 <section id="getting-started" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="getting-started"><span class="header-section-number">1.1</span> Getting Started</h2>
+<p>Majordome uses <code>build.ps1</code> to manage Rust, Python, and documentation workflows. The following sections outline the requirements and usage of the build script for Windows users. Building in Linux and macOS should be trivial and the users may adapt the ideas outlined in that script to their platform of choice.</p>
+<section id="requirements" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="requirements"><span class="header-section-number">1.1.1</span> Requirements</h3>
+<ul>
+<li>PowerShell (script runner)</li>
+<li><a href="https://docs.astral.sh/uv/">uv</a> (required; virtual environments are created with <code>uv venv --seed</code>)</li>
+<li>Python runtimes available to <code>uv</code> for: 3.12, 3.13, 3.14</li>
+<li>Rust toolchain (<code>cargo</code>)</li>
+<li>Quarto CLI (<code>quarto</code>)</li>
+</ul>
+</section>
+<section id="python-environment-selection" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="python-environment-selection"><span class="header-section-number">1.1.2</span> Python Environment Selection</h3>
+<p>Use <code>-PythonEnv</code> to choose target Python environment(s):</p>
+<ul>
+<li><code>py312</code></li>
+<li><code>py313</code></li>
+<li><code>py314</code></li>
+</ul>
+<p>Examples:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build/install for Python 3.12 only</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\build<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>FromPip <span class="op">-</span>PythonEnv py312</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run Python tests only on Python 3.13</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\build<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>TestPython <span class="op">-</span>PythonEnv py313</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Build wheels for configured Python environment</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\build<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>FromPip <span class="op">-</span>PackageDist <span class="op">-</span>PythonEnv py312</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="commands" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="commands"><span class="header-section-number">1.1.3</span> Commands</h3>
+<p>Build options:</p>
+<ul>
+<li><code>-FlagRelease</code>: release mode (<code>rust.debug=false</code>, optimized Rust flags)</li>
+<li><code>-FlagBacktrace</code>: enables Rust backtraces</li>
+<li><code>-RustCheck</code>: runs <code>cargo check</code></li>
+<li><code>-RustCore</code>: builds core Rust crate</li>
+<li><code>-TestRust</code>: runs <code>cargo test</code></li>
+<li><code>-TestPython</code>: runs <code>pytest</code> on selected Python environment(s)</li>
+<li><code>-FromPip</code>: installs package in editable mode on selected Python environment(s)</li>
+<li><code>-PackageDist</code>: builds wheel(s); requires <code>-FromPip</code></li>
+</ul>
+<p>Documentation options:</p>
+<ul>
+<li><code>-PackageDocs</code>: renders docs (HTML)</li>
+<li><code>-FreshDocs</code>: clears cache/output before docs build; requires <code>-PackageDocs</code></li>
+<li><code>-DocsPdf</code>: renders docs PDF; requires <code>-PackageDocs</code></li>
+<li><code>-PublishDocs</code>: publishes docs with Quarto to GitHub Pages</li>
+</ul>
+<p>Cleanup options:</p>
+<ul>
+<li><code>-Clean</code>: removes build artifacts (<code>build</code>, <code>target</code>, logs, cache dirs)</li>
+<li><code>-DistClean</code>: includes Python venvs and <code>dist</code></li>
+</ul>
+<p><strong>Note:</strong> Python environments are created under <code>venv312</code>, <code>venv313</code>, and <code>venv314</code> and <code>QUARTO_PYTHON</code> is set automatically from the selected environment.</p>
+</section>
+<section id="jupyter-kernel" class="level3" data-number="1.1.4">
+<h3 data-number="1.1.4" class="anchored" data-anchor-id="jupyter-kernel"><span class="header-section-number">1.1.4</span> Jupyter Kernel</h3>
 <p>To register <code>majordome</code> as a Jupyter kernel, run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">majordome</span> <span class="at">--install-kernel</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">majordome</span> <span class="at">--install-kernel</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You can customize the kernel identity if needed:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">majordome</span> <span class="at">--install-kernel</span> <span class="kw">`</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--kernel-name</span> majordome-dev <span class="kw">`</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--display-name</span> <span class="st">"Majordome (dev)"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">majordome</span> <span class="at">--install-kernel</span> <span class="kw">`</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--kernel-name</span> majordome-dev <span class="kw">`</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--display-name</span> <span class="st">"Majordome (dev)"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 </section>
 </section>
 
@@ -717,8 +782,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="nav-page nav-page-previous">
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./majordome/magic.html" class="pagination-link" aria-label="Majordome extensions">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./majordome/magic.html" class="pagination-link" aria-label="Extensions">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

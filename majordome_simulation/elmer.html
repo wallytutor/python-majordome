@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -288,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><em>aka majordome_simulation.elmer</em></p>
 <section id="timestepaccumulator" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="timestepaccumulator"><span class="header-section-number">7.1</span> TimeStepAccumulator</h2>
-<div id="c0d8f912" class="cell" data-execution_count="3">
+<div id="975085e3" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="TimeStepAccumulator">
 <div class="callout-header d-flex align-content-center">
@@ -425,7 +425,7 @@ The time step interval to append to the accumulator.
 </div>
 </div>
 <p>In general the usage of the <code>TimeStepAccumulator</code> is as follows:</p>
-<div id="d2aba572" class="cell" data-execution_count="4">
+<div id="1091479e" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-stdout">
 <pre><code>! &gt;&gt; Total duration: 0.001 &lt;&lt; !
 ! Step Duration(3)     =         1e-05         9e-05        0.0009
@@ -439,7 +439,7 @@ Output Intervals(3)    =            10             9             9
 <section id="constanttimestepinterval" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="constanttimestepinterval"><span class="header-section-number">7.2</span> ConstantTimeStepInterval</h2>
 <p>In some special cases, when using <code>TimeStepAccumulator</code> you might want to add time steps one by one, which can be done using the <code>append</code> method in combination with the <code>ConstantTimeStepInterval</code> described below.</p>
-<div id="4faceb22" class="cell" data-execution_count="5">
+<div id="a7cd9786" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ConstantTimeStepInterval">
 <div class="callout-header d-flex align-content-center">
@@ -528,7 +528,7 @@ Minimum number of time steps to use if <code>time_step</code> is not provided. M
 </section>
 <section id="elmerconvergencedata" class="level2" data-number="7.3">
 <h2 data-number="7.3" class="anchored" data-anchor-id="elmerconvergencedata"><span class="header-section-number">7.3</span> ElmerConvergenceData</h2>
-<div id="6415f9b7" class="cell" data-execution_count="6">
+<div id="3439ea0a" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ElmerConvergenceData">
 <div class="callout-header d-flex align-content-center">
@@ -540,12 +540,12 @@ Minimum number of time steps to use if <code>time_step</code> is not provided. M
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ElmerConvergenceData(file_path : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path): <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ElmerConvergenceData(file_path : <span class="bu">str</span> <span class="op">|</span> pathlib.Path): <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Class for handling convergence data from Elmer simulations.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>file_path : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>file_path : <span class="bu">str</span> <span class="op">|</span> pathlib.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -679,7 +679,7 @@ Placeholder for plot object provided by decorator.
 </section>
 <section id="elmertabulardata" class="level2" data-number="7.4">
 <h2 data-number="7.4" class="anchored" data-anchor-id="elmertabulardata"><span class="header-section-number">7.4</span> ElmerTabularData</h2>
-<div id="2c79697c" class="cell" data-execution_count="7">
+<div id="4ac4199a" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ElmerTabularData">
 <div class="callout-header d-flex align-content-center">
@@ -692,15 +692,15 @@ Placeholder for plot object provided by decorator.
 </div>
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>ElmerTabularData(</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    fname : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    fname : <span class="bu">str</span> <span class="op">|</span> pathlib.Path,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    fmeta : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    fmeta : <span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    ):</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Class to represent the data of a SaveLine results file.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fname : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fname : <span class="bu">str</span> <span class="op">|</span> pathlib.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -711,7 +711,7 @@ The path to the data file output of Elmer’s SaveLine solver.
 </div>
 </div>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fmeta : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fmeta : <span class="bu">str</span> <span class="op">|</span> pathlib.Path <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -760,7 +760,7 @@ The path to the associated metadata file. If not provided, the class will attemp
 </section>
 <section id="elmertabularmetadata" class="level2" data-number="7.5">
 <h2 data-number="7.5" class="anchored" data-anchor-id="elmertabularmetadata"><span class="header-section-number">7.5</span> ElmerTabularMetadata</h2>
-<div id="651801ca" class="cell" data-execution_count="8">
+<div id="682e2bb4" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ElmerTabularMetadata">
 <div class="callout-header d-flex align-content-center">
@@ -772,12 +772,12 @@ The path to the associated metadata file. If not provided, the class will attemp
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ElmerTabularMetadata(filepath : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path)::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ElmerTabularMetadata(filepath : <span class="bu">str</span> <span class="op">|</span> pathlib.Path)::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Class to hold metadata from Elmer SaveLine .names file.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>filepath : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>filepath : <span class="bu">str</span> <span class="op">|</span> pathlib.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">

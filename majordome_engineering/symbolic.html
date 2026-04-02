@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -295,7 +295,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A major issue when working with symbolic expressions and real-world data is that they do not support flow-control constructs like <code>if</code> statements. This is a problem when we want to represent functions that are defined piecewise, especially when algorithmic differentiation is involved.</p>
 <p>As an example, take the parameterization of <a href="https://cantera.org/stable/reference/thermo/species-thermo.html">thermodynamic properties</a> of chemical species. For quantitative purposes, to ensure high accuracy, researchers have found that it is best to use different polynomial fits for different temperature ranges. This means that the thermodynamic properties of a species are defined as piecewise functions of temperature, which is a problem when we want to use them in a symbolic context.</p>
 <p>To tackle this issue in <em>certain</em> contexts, <code>PiecewiseSymbolicFunction</code> provides an interpolation between different ranges of the domain of a function. Internally it makes use of Heaviside functions to ensure that the function is continuous. This is not a perfect solution, as it does not guarantee differentiability at the breakpoints, but it is a good compromise between accuracy and simplicity. It is also worth noting that this class is not meant to be used in a general context, but rather in specific contexts where the function is known to be well-behaved.</p>
-<div id="6cff5f4b" class="cell" data-execution_count="3">
+<div id="66a193ea" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="PiecewiseSymbolicFunction">
 <div class="callout-header d-flex align-content-center">
@@ -341,7 +341,7 @@ List of functions to apply between breakpoints. The number of functions must be 
 </div>
 </div>
 <p>Let’s illustrate its use with a simple example. We define two functions <code>f</code> and <code>g</code>, and we want to create a piecewise function that is equal to <code>f</code> for <code>x &lt; 0.5</code> and equal to <code>g</code> for <code>x &gt;= 0.5</code>. Functions have being created such that they evaluate to the same value at the breakpoint, as the practical case that led to the class development, <em>i.e.</em> NASA-parameterization of thermochemical properties. Below we show how to create the piecewise function, evaluate it numerically and symbolically, and compute its derivative symbolically.</p>
-<div id="f1a4f119" class="cell" data-execution_count="4">
+<div id="6516beb9" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define two simple functions:</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="kw">lambda</span> x: f(<span class="fl">0.5</span>) <span class="op">+</span> (x <span class="op">-</span> <span class="fl">0.5</span>)</span>
@@ -361,7 +361,7 @@ List of functions to apply between breakpoints. The number of functions must be 
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>ydot <span class="op">=</span> Function(<span class="st">"fdot"</span>, [T], [jacobian(Y, T)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we plot the piecewise function and its derivative. The function is continuous, but the derivative is not, as expected, although the transition is handled smoothly by the Heaviside functions. The red dashed line indicates the breakpoint at <code>x = 0.5</code>, where the function transitions from <code>f</code> to <code>g</code>.</p>
-<div id="1083ed00" class="cell" data-execution_count="5">
+<div id="863588e3" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -373,7 +373,7 @@ List of functions to apply between breakpoints. The number of functions must be 
 </section>
 <section id="species-thermodynamics" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="species-thermodynamics"><span class="header-section-number">5.2</span> Species thermodynamics</h2>
-<div id="ca41f7e7" class="cell" data-execution_count="6">
+<div id="3ea16af7" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="symbolic_thermo_factory">
 <div class="callout-header d-flex align-content-center">
@@ -419,13 +419,13 @@ Temperature variable (symbolic).
 </div>
 </div>
 <p>Suppose you need to create a symbolic representation of the NASA7 thermodynamic parameterization of molecular nitrogen, species of index 47 in the GRI-Mech 3.0 mechanism shipped with Cantera. Let’s start by loading and retrieving the thermodynamic data for this species.</p>
-<div id="d4ccf974" class="cell" data-execution_count="7">
+<div id="2b792852" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>gas <span class="op">=</span> ct.Solution(<span class="st">"gri30.yaml"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> gas.species()[<span class="dv">47</span>]</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>thermo <span class="op">=</span> species.thermo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we instantiate <code>SymbolicThermo</code> with the input data of the species. It is important to emphasize here that when building more complex systems, generally one should share the symbolic variables, <em>e.g.</em> temperature, across the different components of the system. For this reason, the constructor of symbolic thermodynamic classes expect the temperature symbol to be provided, instead of trying to create it internally; this is a design choice that will improve code robustness when handling mixtures and avoid many of the pitfalls of symbolic programming.</p>
-<div id="93836d6f" class="cell" data-execution_count="8">
+<div id="07e87f42" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> SX.sym(<span class="st">"T"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>nasa7 <span class="op">=</span> symbolic_thermo_factory(species, T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -447,11 +447,11 @@ Temperature variable (symbolic).
 </div>
 </div>
 <p>Here we illustrate the use of algorithmic differentiation to compute the derivative of the specific enthalpy with respect to temperature.</p>
-<div id="906bbe03" class="cell" data-execution_count="9">
+<div id="af25fcce" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>hdot <span class="op">=</span> Function(<span class="st">"hdot"</span>, [T], [jacobian(nasa7.h(T), T)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The above derivative is then confronted to the specific heat below:</p>
-<div id="adabb9dd" class="cell" data-execution_count="10">
+<div id="6afdc4e4" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -461,7 +461,7 @@ Temperature variable (symbolic).
 </div>
 </div>
 <p>Finally, we compare the deviations between symbolic and numerical (Cantera) evaluation of the thermodynamic functions. This is not for error analysis, but a proof of correctness of the symbolic implementation.</p>
-<div id="b8ddd0e3" class="cell" data-execution_count="11">
+<div id="58f14ee4" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># XXX: Cantera evaluates quantities per kmol! Divide by 1000 to get</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># per mol, as the symbolic implementation does.</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>c_ct <span class="op">=</span> np.array([<span class="fl">0.001</span> <span class="op">*</span> species.thermo.cp(T) <span class="cf">for</span> T <span class="kw">in</span> T_num])</span>
@@ -481,7 +481,7 @@ Temperature variable (symbolic).
 </div>
 <section id="nasa7thermo" class="level3" data-number="5.2.1">
 <h3 data-number="5.2.1" class="anchored" data-anchor-id="nasa7thermo"><span class="header-section-number">5.2.1</span> Nasa7Thermo</h3>
-<div id="2be0f22d" class="cell" data-execution_count="12">
+<div id="3f656170" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="Nasa7Thermo">
 <div class="callout-header d-flex align-content-center">
@@ -498,7 +498,8 @@ Temperature variable (symbolic).
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    input_data : <span class="bu">dict</span>[<span class="bu">str</span>, typing.Any]</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>NASA7 thermodynamic parameterization.</p>
-<p>This class does not implement Horner polynomial evaluation, as the main use case is to create symbolic expressions that are then evaluated by CasADi, which can handle polynomial evaluation efficiently. This is intentional and allows for easy verification. It aims at providing a similar interface as <code>SpeciesThermo</code> from Cantera, from which it retrieves the data. That means, molar properties are provided through <code>cp</code>, <code>h</code>, and <code>s</code> properties.</p>
+<p>This class does not implement Horner polynomial evaluation, as the main use case is to create symbolic expressions that are then evaluated by CasADi, which can handle polynomial evaluation efficiently. This is intentional and allows for easy verification.</p>
+<p>It aims at providing a similar interface as <code>SpeciesThermo</code> from Cantera, from which it retrieves the data. That means, molar properties are provided through <code>cp</code>, <code>h</code>, and <code>s</code> properties.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
@@ -527,7 +528,7 @@ NASA7 thermodynamic data, as provided by Cantera’s <code>SpeciesThermo</code> 
 </div>
 </div>
 </div>
-<div id="f5e41b2b" class="cell" data-execution_count="13">
+<div id="7ac70c71" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="specific_heat">
 <div class="callout-header d-flex align-content-center">
@@ -694,7 +695,7 @@ Whether to return a symbolic expression.
 </div>
 </div>
 </div>
-<div id="8bafd2c9" class="cell" data-execution_count="14">
+<div id="3098db6c" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="compose">
 <div class="callout-header d-flex align-content-center">
@@ -812,7 +813,7 @@ Temperature variable (symbolic).
 </section>
 <section id="species-transport" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="species-transport"><span class="header-section-number">5.3</span> Species transport</h2>
-<div id="7915a6f7" class="cell" data-execution_count="15">
+<div id="1d4382b0" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="symbolic_transport_factory">
 <div class="callout-header d-flex align-content-center">

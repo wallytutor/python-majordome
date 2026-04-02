@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -287,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="majordomeplot" class="level2" data-number="15.1">
 <h2 data-number="15.1" class="anchored" data-anchor-id="majordomeplot"><span class="header-section-number">15.1</span> MajordomePlot</h2>
 <p>One might ask why a wrapper around Matplotlib’s <code>Figure</code> and <code>Axes</code> is necessary, and I would strongly agree that it isn’t. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That’s the main goal of <code>MajordomePlot</code>: simplifying the plotting of publication-quality figures across Majordome (and beyond!). Below we illustrate how to use this functionality to ensure all the plots in a project look the same.</p>
-<div id="078bd5bb" class="cell" data-execution_count="3">
+<div id="3d633a32" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="MajordomePlot">
 <div class="callout-header d-flex align-content-center">
@@ -383,7 +383,7 @@ Additional options to pass to <code>plt.subplots()</code>.
 </div>
 </div>
 <p>Let’s see how one would expect to use it from the above constructor signature. This is in fact almost the same as calling <code>plt.subplots()</code>, and that is what the constructor does under the hood. This is a <em>negative</em> example actually, the author has <em>never</em> used the constructor directly, but instead uses the <code>new</code> classmethod, which is a much more convenient way to create a plot. More on that later.</p>
-<div id="6262e6fe" class="cell" data-execution_count="4">
+<div id="9aed4924" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mp <span class="op">=</span> MajordomePlot(shape<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>), size<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">4</span>))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>mp.axes[<span class="dv">0</span>].plot(x, np.sin(x))</span>
@@ -399,7 +399,7 @@ Additional options to pass to <code>plt.subplots()</code>.
 </div>
 </div>
 <p>The story behind this class dates a few years back, when I was learning about Python decorators. As an exercise, I coded what later became the <code>new</code> classmethod, which is a decorator that creates a new <code>MajordomePlot</code> and passes it to the decorated function. This is a very convenient way to create plots, as it allows you to focus on the plotting code and not worry about the boilerplate of creating the plot and setting the labels.</p>
-<div id="c461d8e8" class="cell" data-execution_count="5">
+<div id="c4a7bdf9" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="new">
 <div class="callout-header d-flex align-content-center">
@@ -413,7 +413,7 @@ Additional options to pass to <code>plt.subplots()</code>.
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>new(</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    cls : Any,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    _func : typing.Optional[typing.Callable[<span class="op">~</span>Params, NoneType]] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    _func : typing.Optional[typing.Callable[<span class="op">~</span>Params, typing.Any]] <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    shape : <span class="bu">tuple</span>[<span class="bu">int</span>, <span class="bu">int</span>] <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">1</span>),</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    style : <span class="bu">str</span> <span class="op">=</span> <span class="st">'classic'</span>,</span>
@@ -423,12 +423,12 @@ Additional options to pass to <code>plt.subplots()</code>.
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    size : <span class="bu">tuple</span>[<span class="bu">float</span>, <span class="bu">float</span>] <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    xlabel : <span class="bu">str</span> <span class="op">|</span> <span class="bu">list</span>[<span class="bu">str</span>] <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span>,</span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    ylabel : <span class="bu">str</span> <span class="op">|</span> <span class="bu">list</span>[<span class="bu">str</span>] <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> typing.Callable[[typing.Callable[<span class="op">~</span>Params, NoneType]], typing.Any]:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> typing.Callable[[typing.Callable[<span class="op">~</span>Params, typing.Any]], typing.Any]:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Wraps a function for ensuring a standardized plot.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>_func : typing.Optional[typing.Callable[<span class="op">~</span>Params, NoneType]] <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>_func : typing.Optional[typing.Callable[<span class="op">~</span>Params, typing.Any]] <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -537,7 +537,7 @@ Label(s) for the y-axis. If a list is provided, each subplot will get its own la
 <li><p>Have a function with signature <code>func(*args, plot=None, **kwargs) -&gt; None</code>, where it is recommended (for linter) to provide explictly keyword <code>plot=None</code>.</p></li>
 <li><p>Unpack <code>fig, ax = plot.subplots()</code> or just <code>_, ax = plot.subplots()</code>, as needed, inside the figure; these contain standard <code>matplotlib</code> figure and axes.</p></li>
 </ul>
-<div id="281d450e" class="cell" data-execution_count="6">
+<div id="6c1a5806" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@MajordomePlot.new</span>(size<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">4</span>), xlabel<span class="op">=</span><span class="st">"x"</span>, ylabel<span class="op">=</span><span class="st">"sin(x)"</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_sin(x, <span class="op">*</span>, plot, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> MajordomePlot:</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    _, ax <span class="op">=</span> plot.subplots()</span>
@@ -554,7 +554,7 @@ Label(s) for the y-axis. If a list is provided, each subplot will get its own la
 </div>
 </div>
 <p>The following elements document the members and properties of the class.</p>
-<div id="8b4fcbb9" class="cell" data-execution_count="7">
+<div id="019dfdc1" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="resize">
 <div class="callout-header d-flex align-content-center">
@@ -612,14 +612,14 @@ Height of the plot in inches.
 <div class="callout-body-container callout-body">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>savefig(</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span> : Any,</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    filename : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    filename : <span class="bu">str</span> <span class="op">|</span> pathlib.Path,</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs : Any</span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Wrapper for saving a figure to file.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>filename : <span class="bu">str</span> <span class="op">|</span> pathlib._local.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>filename : <span class="bu">str</span> <span class="op">|</span> pathlib.Path</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -659,8 +659,24 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </div>
 </div>
 </div>
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="callout callout-style-default callout-note callout-titled" title="show">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
-<div id="4ef0e5b4" class="cell" data-execution_count="8">
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>show
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>show(<span class="va">self</span> : Any): <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Display the plot.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="5b31130f" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="figure">
 <div class="callout-header d-flex align-content-center">
@@ -672,7 +688,7 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>figure(<span class="va">self</span> : Any): <span class="op">-&gt;</span> Figure:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>figure(<span class="va">self</span> : Any): <span class="op">-&gt;</span> Figure:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Provides access to underlying figure.</p>
 </div>
 </div>
@@ -688,7 +704,7 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>axes(<span class="va">self</span> : Any): <span class="op">-&gt;</span> <span class="bu">list</span>[matplotlib.axes._axes.Axes]:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>axes(<span class="va">self</span> : Any): <span class="op">-&gt;</span> <span class="bu">list</span>[matplotlib.axes._axes.Axes]:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Provides access to underlying axes.</p>
 </div>
 </div>
@@ -697,7 +713,7 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </section>
 <section id="powerformatter" class="level2" data-number="15.2">
 <h2 data-number="15.2" class="anchored" data-anchor-id="powerformatter"><span class="header-section-number">15.2</span> PowerFormatter</h2>
-<div id="3e3cf4d0" class="cell" data-execution_count="9">
+<div id="244bf870" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="PowerFormatter">
 <div class="callout-header d-flex align-content-center">
@@ -709,12 +725,12 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>PowerFormatter(<span class="op">**</span>kwargs : Any): <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>PowerFormatter(<span class="op">**</span>kwargs : Any): <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Formatter for power of ten in numerical axes.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>values : <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>values : <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -725,7 +741,7 @@ String of characters to be replaced by their superscript counterparts. By defaul
 </div>
 </div>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>supers : <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>supers : <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -739,7 +755,7 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </div>
 </div>
 </div>
-<div id="9239ca1e" class="cell" data-execution_count="10">
+<div id="42ecae87" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -751,7 +767,7 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </section>
 <section id="general-utilities" class="level2" data-number="15.3">
 <h2 data-number="15.3" class="anchored" data-anchor-id="general-utilities"><span class="header-section-number">15.3</span> General utilities</h2>
-<div id="ae15bfa1" class="cell" data-execution_count="11">
+<div id="feab8731" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="centered_colormap">
 <div class="callout-header d-flex align-content-center">
@@ -763,17 +779,17 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>centered_colormap(</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    name : <span class="bu">str</span>,</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    vmin : <span class="bu">float</span>,</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    vmax : <span class="bu">float</span>,</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    vcenter : <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> LookupTable:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>centered_colormap(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    name : <span class="bu">str</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    vmin : <span class="bu">float</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    vmax : <span class="bu">float</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    vcenter : <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> LookupTable:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Ensure the center of a colormap is at zero.</p>
 <hr>
 <strong>Parameters</strong>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>name : <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>name : <span class="bu">str</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -784,7 +800,7 @@ Name of the colormap to use.
 </div>
 </div>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>vmin : <span class="bu">float</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>vmin : <span class="bu">float</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -795,7 +811,7 @@ Minimum value of the data range.
 </div>
 </div>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>vmax : <span class="bu">float</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>vmax : <span class="bu">float</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -806,7 +822,7 @@ Maximum value of the data range.
 </div>
 </div>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>vcenter : <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>vcenter : <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -820,7 +836,7 @@ Center value of the colormap, by default 0.
 </div>
 </div>
 </div>
-<div id="3a628f25" class="cell" data-execution_count="12">
+<div id="7eb56388" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">

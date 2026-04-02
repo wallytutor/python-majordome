@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Majordome extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -285,7 +285,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><em>aka majordome_utilities.parsing</em></p>
 <section id="funcarguments" class="level2" data-number="13.1">
 <h2 data-number="13.1" class="anchored" data-anchor-id="funcarguments"><span class="header-section-number">13.1</span> FuncArguments</h2>
-<div id="24885703" class="cell" data-execution_count="3">
+<div id="039bcf77" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Arbitrary interface function for illustration. """</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    f.parser.update(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
@@ -300,7 +300,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>Arguments are both positional-mandatory</li>
 </ul>
-<div id="93c0552c" class="cell" data-execution_count="4">
+<div id="ad05d082" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, index<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, index<span class="op">=</span><span class="dv">1</span>)</span>
@@ -315,7 +315,7 @@ a = 3, b = 4</code></pre>
 <ul>
 <li>Arguments are both keyword-only</li>
 </ul>
-<div id="c5aae21f" class="cell" data-execution_count="5">
+<div id="9022b4c6" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, default<span class="op">=</span><span class="st">"foo"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, default<span class="op">=</span><span class="st">"bar"</span>)</span>
@@ -337,7 +337,7 @@ a = 3, b = 4</code></pre>
 <ul>
 <li>One positional and another (maybe) positional</li>
 </ul>
-<div id="5a13b404" class="cell" data-execution_count="6">
+<div id="e1f87f17" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, index<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, index<span class="op">=</span><span class="dv">1</span>, default<span class="op">=</span><span class="dv">6</span>)</span>
@@ -354,7 +354,7 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <ul>
 <li>Badly configured</li>
 </ul>
-<div id="49f36e6d" class="cell" data-execution_count="7">
+<div id="0818ad3a" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
@@ -370,7 +370,7 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <section id="creating-class-constructors" class="level2" data-number="13.2">
 <h2 data-number="13.2" class="anchored" data-anchor-id="creating-class-constructors"><span class="header-section-number">13.2</span> Creating class constructors</h2>
 <p><em>You should probably not do this, but it is quite fun!</em></p>
-<div id="dd02131a" class="cell" data-execution_count="8">
+<div id="147f5f48" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _init_some_class(cls):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Decorator to enhance SomeClass with argument parsing. """</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    orig_init <span class="op">=</span> cls.<span class="fu">__init__</span></span>
@@ -400,19 +400,19 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    cls.<span class="fu">__init__</span> <span class="op">=</span> update_wrapper(new_init, orig_init)</span>
 <span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cls</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="6c354dbd" class="cell" data-execution_count="9">
+<div id="18801a70" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaseClass:</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"args   = </span><span class="sc">{</span>args<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"kwargs = </span><span class="sc">{</span>kwargs<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="f70b02ad" class="cell" data-execution_count="10">
+<div id="2d1f90ba" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@_init_some_class</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SomeClass(BaseClass):</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="23b92456" class="cell" data-execution_count="11">
+<div id="f5961d2e" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>some <span class="op">=</span> SomeClass(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, x<span class="op">=</span><span class="dv">1</span>, y<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>args   = (1, 2, 3)
