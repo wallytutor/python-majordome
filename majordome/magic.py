@@ -5,7 +5,7 @@ import warnings
 import sympy as sp
 
 from IPython.core.getipython import get_ipython
-from IPython.display import Markdown, Math, display
+from IPython.display import Markdown, display, Math
 
 
 class SkipperMagic:
@@ -199,8 +199,9 @@ class MdMagic:
     def display_rendered(rendered: str) -> None:
         """Display interpolated content with robust math rendering.
 
-        Render ``$$...$$`` blocks with ``Math`` for reliability while
-        preserving inline ``$...$`` in Markdown flow.
+        Render ``$$...$$`` blocks as Markdown display-math to preserve
+        notebook/block alignment, while keeping inline ``$...$`` in
+        Markdown flow.
         """
         last = 0
         markdown_parts: list[str] = []
@@ -219,7 +220,7 @@ class MdMagic:
             markdown_parts = []
 
             if math:
-                display(Math(math))
+                display(Markdown(f"$$\n{math}\n$$"))
 
             last = match.end()
 
