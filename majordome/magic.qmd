@@ -147,7 +147,7 @@ $$
 F(x) = {some_value:.2f} \cdot x^2
 $$
 
-But there is not way to use the plain `some_value` without a format specifier, as it would be indistinguishable from a regular LaTeX expression.
+But there is no way to use the plain `some_value` without a format specifier, as it would be indistinguishable from a regular LaTeX expression.
 
 $$
 F(x) = {some_value} \cdot x^2
@@ -169,5 +169,9 @@ With help of the extension we can also render it in markdown:
 
 ```{python}
 %%md
-Now we can also talk about the function we just defined: {f_x}! If you need to inject the expression inside a math block, you can do so by calling `sp.latex` and using the string formatter: $f={sp.latex(f_x):s}$.
+Now we can also talk about the function we just defined: {f_x}! If you need to inject the expression inside a math block, you can do so by calling `sp.latex` and using the string formatter: $f={sp.latex(f_x):s}$. It should also work with block math:
+
+$$
+f = {sp.latex(f_x):s}
+$$
 ```
