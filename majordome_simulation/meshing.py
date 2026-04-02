@@ -283,7 +283,7 @@ class GeometricProgression:
         Geometric progression ratio. If `d1` is provided, `q` is
         computed to fit `n` segments from `d0` to `d1`.
     tol : float
-            Tolerance for detecting q ≈ 1 when computing progression sum.
+        Tolerance for detecting q ≈ 1 when computing progression sum.
     """
     def __init__(self, n: int, d0: float, *, d1: float | None = None,
                  q: float | None = None, tol: float = 1e-14):
