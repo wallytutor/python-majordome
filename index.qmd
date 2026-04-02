@@ -16,7 +16,6 @@ Majordome uses `build.ps1` to manage Rust, Python, and documentation workflows. 
 
 Use `-PythonEnv` to choose target Python environment(s):
 
-- `all` (default)
 - `py312`
 - `py313`
 - `py314`
@@ -30,8 +29,8 @@ Examples:
 # Run Python tests only on Python 3.13
 .\build.ps1 -TestPython -PythonEnv py313
 
-# Build wheels for all configured Python environments
-.\build.ps1 -FromPip -PackageDist -PythonEnv all
+# Build wheels for configured Python environment
+.\build.ps1 -FromPip -PackageDist -PythonEnv py312
 ```
 
 ### Commands
@@ -59,7 +58,7 @@ Cleanup options:
 - `-Clean`: removes build artifacts (`build`, `target`, logs, cache dirs)
 - `-DistClean`: includes Python venvs and `dist`
 
-**Notes:** Python environments are created under `venv312`, `venv313`, and `venv314`. `QUARTO_PYTHON` is set automatically from the selected environment (or default env when `-PythonEnv all`).
+**Note:** Python environments are created under `venv312`, `venv313`, and `venv314` and `QUARTO_PYTHON` is set automatically from the selected environment.
 
 ### Jupyter Kernel
 

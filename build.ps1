@@ -72,13 +72,11 @@ param (
     [switch]$Dummy,
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("all", "py312", "py313", "py314")]
-    [string]$PythonEnv = "all"
+    [string]$PythonEnv = ""
 )
 
-$script:PYTHON_ENVS = @()
+$script:PYTHON_ENV = $null
 $script:PATH_CORE   = "$PSScriptRoot\Cargo.toml"
-$script:DEFAULT_ENV = "py312"
 
 $env:MAJORDOME_INSTALL = "$PSScriptRoot[full]"
 $env:QUARTO_PYTHON = ""
@@ -134,18 +132,6 @@ function Initialize-PythonEnvironment {
     return $true
 }
 
-function Invoke-ForEachPythonEnv {
-    param (
-        [scriptblock]$Action,
-        [string]$ActionName
-    )
-
-    foreach ($pyEnv in $script:PYTHON_ENVS) {
-        Write-Host "[$($pyEnv.Name)] $ActionName"
-        & $Action $pyEnv
-    }
-}
-
 function Invoke-VenvActivation {
     $cargoVersion = cargo --version 2>$null
     Test-ToolStatus -ToolName "Cargo" -Result $cargoVersion
@@ -156,67 +142,54 @@ function Invoke-VenvActivation {
     $uvVersion = uv --version 2>$null
     Test-ToolStatus -ToolName "uv" -Result $uvVersion
 
-    $script:PYTHON_ENVS = @(
-        [PSCustomObject]@{
-            Name = "py312"
-            Version = "3.12";
-            VenvPath = "$PSScriptRoot\venv312";
-        },
-        [PSCustomObject]@{
-            Name = "py313"
-            Version = "3.13";
-            VenvPath = "$PSScriptRoot\venv313";
-        },
-        [PSCustomObject]@{
-            Name = "py314"
-            Version = "3.14";
-            VenvPath = "$PSScriptRoot\venv314";
+    switch ($PythonEnv) {
+        "py312" {
+            $script:PYTHON_ENV = [PSCustomObject]@{
+                Name = "py312";
+                Version = "3.12";
+                VenvPath = "$PSScriptRoot\venv312"
+            }
         }
-    )
-
-    if ($PythonEnv -ne "all") {
-        $script:PYTHON_ENVS = $script:PYTHON_ENVS `
-        | Where-Object { $_.Name -eq $PythonEnv }
-
-        if (-not $script:PYTHON_ENVS) {
+        "py313" {
+            $script:PYTHON_ENV = [PSCustomObject]@{
+                Name = "py313";
+                Version = "3.13";
+                VenvPath = "$PSScriptRoot\venv313"
+            }
+        }
+        "py314" {
+            $script:PYTHON_ENV = [PSCustomObject]@{
+                Name = "py314";
+                Version = "3.14";
+                VenvPath = "$PSScriptRoot\venv314"
+            }
+        }
+        default {
             Write-Host "Invalid Python environment selection: $PythonEnv"
+            Write-Host "Use: -PythonEnv py312 | py313 | py314"
             exit 1
         }
     }
 
-    foreach ($pyEnv in $script:PYTHON_ENVS) {
-        $name = "PythonExe"
-        $value = (Join-Path $pyEnv.VenvPath "Scripts\python.exe")
-        $pyEnv | Add-Member -NotePropertyName $name -NotePropertyValue $value
-    }
+    $name = "PythonExe"
+    $value = Join-Path $script:PYTHON_ENV.VenvPath "Scripts\python.exe"
+    $script:PYTHON_ENV | Add-Member -NotePropertyName $name -NotePropertyValue $value
 
-    $hasNewVenv = $false
+    $hasNewVenv = Initialize-PythonEnvironment -PyEnv $script:PYTHON_ENV
 
-    foreach ($pyEnv in $script:PYTHON_ENVS) {
-        if (Initialize-PythonEnvironment -PyEnv $pyEnv) {
-            $hasNewVenv = $true
-        }
-    }
+    $env:QUARTO_PYTHON = $script:PYTHON_ENV.PythonExe
 
-    if ($PythonEnv -eq "all") {
-        $pyEnv = $script:PYTHON_ENVS | Where-Object { $_.Name -eq $script:DEFAULT_ENV }
-    } else {
-        $pyEnv = $script:PYTHON_ENVS | Select-Object -First 1
-    }
+    Write-Host "QUARTO_PYTHON set to: $env:QUARTO_PYTHON"
 
-    if (-not $pyEnv) {
-        Write-Host "No Python environment found for QUARTO_PYTHON"
-        if ($PythonEnv -eq "all") {
-            Write-Host "- Expected: $script:DEFAULT_ENV"
-        } else {
-            Write-Host "- Expected: $PythonEnv"
-        }
+    $activateScript = Join-Path $script:PYTHON_ENV.VenvPath "Scripts\Activate.ps1"
+    if (-not (Test-Path $activateScript)) {
+        Write-Host "Could not find activation script: $activateScript"
         exit 1
     }
 
-    $env:QUARTO_PYTHON = $pyEnv.PythonExe
-
-    Write-Host "QUARTO_PYTHON set to: $env:QUARTO_PYTHON"
+    # Dot-source activation so the selected venv remains active for subsequent commands.
+    . $activateScript
+    Write-Host "Activated Python environment: $($script:PYTHON_ENV.Name)"
 
     if ($hasNewVenv) {
         & quarto install tinytex
@@ -241,30 +214,29 @@ function Install-PythonPackage {
 
     if ($FlagRelease) { $opts += "--config-settings=rust.debug=false" }
 
-    Invoke-ForEachPythonEnv -ActionName "Installing editable package" -Action {
-        param($pyEnv)
-        & $pyEnv.PythonExe -m pip install -e $env:MAJORDOME_INSTALL @opts
-        & majordome --install-kernel
+    $pyEnv = $script:PYTHON_ENV
+    Write-Host "[$($pyEnv.Name)] Installing editable package"
+    & $pyEnv.PythonExe -m pip install -e $env:MAJORDOME_INSTALL @opts
+    & majordome --install-kernel
 
-        if ($PackageDist) {
-            & $pyEnv.PythonExe -m build --wheel
+    if ($PackageDist) {
+        & $pyEnv.PythonExe -m build --wheel
 
-            $distPath = Join-Path $PSScriptRoot "dist"
-            $latestWheel = Get-ChildItem -Path $distPath -Filter "*.whl" |
-                           Sort-Object LastWriteTime -Descending |
-                           Select-Object -First 1
+        $distPath = Join-Path $PSScriptRoot "dist"
+        $latestWheel = Get-ChildItem -Path $distPath -Filter "*.whl" |
+                       Sort-Object LastWriteTime -Descending |
+                       Select-Object -First 1
 
-            if ($latestWheel) {
-                Write-Host "`n[$($pyEnv.Name)] Latest wheel: $($latestWheel.Name)"
+        if ($latestWheel) {
+            Write-Host "`n[$($pyEnv.Name)] Latest wheel: $($latestWheel.Name)"
 
-                Write-Host "`nData files in wheel:"
-                & $pyEnv.PythonExe -m zipfile -l $latestWheel.FullName | Select-String "data"
+            Write-Host "`nData files in wheel:"
+            & $pyEnv.PythonExe -m zipfile -l $latestWheel.FullName | Select-String "data"
 
-                Write-Host "`nRust extension modules (.pyd) in wheel:"
-                & $pyEnv.PythonExe -m zipfile -l $latestWheel.FullName | Select-String "pyd"
-            } else {
-                Write-Host "No wheel file found in dist/"
-            }
+            Write-Host "`nRust extension modules (.pyd) in wheel:"
+            & $pyEnv.PythonExe -m zipfile -l $latestWheel.FullName | Select-String "pyd"
+        } else {
+            Write-Host "No wheel file found in dist/"
         }
     }
 
@@ -330,6 +302,12 @@ function Main {
         -or $Dummy
     )
 
+    if ($needsPythonEnv -and [string]::IsNullOrWhiteSpace($PythonEnv)) {
+        Write-Host "Python environment is required for this operation."
+        Write-Host "Use: -PythonEnv py312 | py313 | py314"
+        exit 1
+    }
+
     if ($needsPythonEnv) {
         Invoke-VenvActivation
     }
@@ -352,10 +330,7 @@ function Main {
         exit 0
     }
     if ($TestPython) {
-        Invoke-ForEachPythonEnv -ActionName "Running pytest" -Action {
-            param($pyEnv)
-            & $pyEnv.PythonExe -m pytest -v
-        }
+        & $script:PYTHON_ENV.PythonExe -m pytest -v
         exit 0
     }
     if ($PackageDocs) {
