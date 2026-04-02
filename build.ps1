@@ -187,15 +187,38 @@ function Invoke-VenvActivation {
     $quartoVersion = quarto --version 2>$null
     Test-ToolStatus -ToolName "Quarto" -Result $quartoVersion
 
+    $uvVersion = uv --version 2>$null
+    $hasUv = $LASTEXITCODE -eq 0
+    if ($hasUv) {
+        Write-Host "uv found: $uvVersion"
+    } else {
+        Write-Host "uv not found. Falling back to python -m venv and python -m pip."
+        $pythonVersion = python --version 2>$null
+        Test-ToolStatus -ToolName "Python" -Result $pythonVersion
+    }
+
     if (-not (Test-Path $VENV_PATH)) {
-        & python -m venv $VENV_PATH
+        if ($hasUv) {
+            & uv venv $VENV_PATH
+        } else {
+            & python -m venv $VENV_PATH
+        }
+
         & "$VENV_PATH\Scripts\Activate.ps1"
 
-        & python -m pip install --upgrade pip
-        & python -m pip install --upgrade --force-reinstall build wheel
-        & python -m pip install --upgrade --force-reinstall setuptools
-        & python -m pip install --upgrade --force-reinstall setuptools_rust
-        & python -m pip install -e "$env:MAJORDOME_INSTALL"
+        if ($hasUv) {
+            & uv pip install --upgrade pip
+            & uv pip install --upgrade --force-reinstall build wheel
+            & uv pip install --upgrade --force-reinstall setuptools
+            & uv pip install --upgrade --force-reinstall setuptools_rust
+            & uv pip install -e "$env:MAJORDOME_INSTALL"
+        } else {
+            & python -m pip install --upgrade pip
+            & python -m pip install --upgrade --force-reinstall build wheel
+            & python -m pip install --upgrade --force-reinstall setuptools
+            & python -m pip install --upgrade --force-reinstall setuptools_rust
+            & python -m pip install -e "$env:MAJORDOME_INSTALL"
+        }
 
         & quarto install tinytex
         & quarto check
