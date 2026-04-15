@@ -79,6 +79,7 @@ class GmshOCCModel:
         self.fragment          = occ.fragment
         self.extrude           = occ.extrude
         self.synchronize       = occ.synchronize
+        self.translate         = occ.translate
 
         # - query geometry properties:
         self.get_mass          = occ.getMass
