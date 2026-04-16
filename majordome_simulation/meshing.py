@@ -51,6 +51,7 @@ class GmshOCCModel:
         self._mesh  = mesh  = model.mesh
 
         # Aliases for model operations:
+        self.get_boundary       = model.getBoundary
         self.add_physical_group = model.addPhysicalGroup
 
         # XXX: when using aliases, prefer the original name of the method
