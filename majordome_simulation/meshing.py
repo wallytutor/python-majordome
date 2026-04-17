@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Self
 from numpy.typing import NDArray
+import itertools
 import gmsh
 import numpy as np
 
@@ -22,7 +23,6 @@ CUSTOM_DEFAULT_OPTIONS = {
     "Geometry.Lines": True,
     "Geometry.Surfaces": True,
 }
-
 
 class GmshOCCModel:
     """ Wrapper to manage OCC models with an OOP approach.
@@ -46,6 +46,15 @@ class GmshOCCModel:
         gmsh.initialize()
         gmsh.model.add(name)
 
+        self._aliases()
+
+        # Configure with custom options:
+        options = CUSTOM_DEFAULT_OPTIONS.copy()
+        options.update(kws)
+        self.configure(**options)
+
+    def _aliases(self):
+        """ Aliases for the Gmsh API to simplify usage. """
         self._model = model = gmsh.model
         self._occ   = occ   = model.occ
         self._mesh  = mesh  = model.mesh
@@ -91,11 +100,6 @@ class GmshOCCModel:
         self.set_recombine           = mesh.setRecombine
         self.set_size                = mesh.setSize
         self.generate_mesh           = mesh.generate
-
-        # Configure with custom options:
-        options = CUSTOM_DEFAULT_OPTIONS.copy()
-        options.update(kws)
-        self.configure(**options)
 
     def __enter__(self) -> Self:
         return self
@@ -269,6 +273,130 @@ class GmshOCCModel:
         for arg in args:
             gmsh.write(arg)
 
+    #region: common geometry constructions
+    def hexagon_xy(self,
+            center_to_wall: float,
+            origin: tuple[float, float, float] | None = None,
+            rotation: float | None = None
+        ) -> int:
+        """ Create a hexagon in the XY plane. """
+        pts = hexagon_points_xy(center_to_wall, origin, rotation)
+
+        point_tags = []
+        line_tags = []
+
+        for i in range(6):
+            pt = self.add_point(*pts[i])
+            point_tags.append(pt)
+
+            if i > 0:
+                line = self.add_line(point_tags[i-1], point_tags[i])
+                line_tags.append(line)
+
+        line = self.add_line(point_tags[-1], point_tags[0])
+        line_tags.append(line)
+        self.synchronize()
+
+        loop = self.add_curve_loop(line_tags)
+        surf = self.add_plane_surface([loop])
+        self.synchronize()
+
+        return surf
+
+    def circular_cross_section(self,
+            radius: float,
+            cell_size_boundary: float,
+            cell_size_center: float,
+            num_points_angular: int | None = None,
+            square_size: float | None = None,
+            origin: tuple[float, float, float] | None = None,
+        ) -> int:
+        """ Circular cross-section with optional square inner region.
+
+        Parameters
+        ----------
+        radius : float
+            Outer radius of the circular cross-section.
+        cell_size_boundary : float
+            Target cell size near the circular boundary.
+        cell_size_center : float
+            Target cell size near the center of the cross-section.
+        num_points_angular : int, optional
+            Number of points to define the circular boundary.
+        square_size : float, optional
+            Size of the inner square region. If not provided, it defaults
+            to `radius / 4`.
+        origin : tuple[float, float, float], optional
+            Origin point for the cross-section center, default is (0, 0, 0).
+        """
+        square_size = square_size or radius / 4
+        origin = origin or (0, 0, 0)
+
+        p_origin = self.add_point(*origin)
+
+        def add_arc(p_start, p_end):
+            return self.add_circle_arc(p_start, p_origin, p_end)
+
+        # Compute the coordinates of points:
+        circular_points = points_on_circle(radius, 4, origin)
+        square_points   = square_points_xy(square_size, origin)
+
+        # Combine points and create lines:
+        p_tags_circle = []
+        p_tags_square = []
+        l_tags_circle = []
+        l_tags_square = []
+        l_tags_chords = []
+
+        # First create everything that is a multiple of 4:
+        for i in range(4):
+            pc = self.add_point(*circular_points[i])
+            ps = self.add_point(*square_points[i])
+
+            p_tags_circle.append(pc)
+            p_tags_square.append(ps)
+
+            lc = self.add_line(ps, pc)
+            l_tags_chords.append(lc)
+
+        self.synchronize()
+
+        # Now create the links between elements:
+        points_i = itertools.cycle(range(4))
+        points_j = itertools.cycle(range(4))
+        next(points_j)  # j starts one step ahead of i
+
+        for _ in range(4):
+            i = next(points_i)
+            j = next(points_j)
+
+            print(i, j)
+
+            pc_i = p_tags_circle[i]
+            pc_j = p_tags_circle[j]
+
+            ps_i = p_tags_square[i]
+            ps_j = p_tags_square[j]
+
+            lc = add_arc(pc_i, pc_j)
+            ls = self.add_line(ps_i, ps_j)
+
+            l_tags_circle.append(lc)
+            l_tags_square.append(ls)
+
+        # lc = add_arc(p_tags_circle[-1], p_tags_circle[0])
+        # ls = self.add_line(p_tags_square[-1], p_tags_square[0])
+        # l_tags_circle.append(lc)
+        # l_tags_square.append(ls)
+
+        # loop = self.add_curve_loop(line_tags)
+        # surf = self.add_plane_surface([loop])
+        self.synchronize()
+
+        # return surf
+
+    #endregion: common geometry constructions
+
 
 class GeometricProgression:
     """ Create a geometric progression for meshing control.
@@ -398,3 +526,68 @@ class GeometricProgression:
                      key=lambda n: abs(length - bump_sum(n)))
 
         return best_n, d_end / d_mid
+
+
+def points_on_circle(
+        radius: float,
+        num_points: int,
+        origin: tuple[float, float, float] | None = None,
+        rotation: float | None = None,
+    ) -> list[tuple[float, float, float]]:
+    """ Generate points evenly spaced on a circle in the XY plane. """
+    if origin is None:
+        origin = (0, 0, 0)
+
+    if rotation is None:
+        rotation = 0.0
+
+    (xc, yc, zc) = np.array(origin, dtype=np.float64)
+    points = []
+
+    for i in range(num_points):
+        angle = i * 2 * np.pi / num_points + np.deg2rad(rotation)
+        x = xc + radius * np.cos(angle)
+        y = yc + radius * np.sin(angle)
+        points.append((x, y, zc))
+
+    return points
+
+
+def hexagon_points_xy(
+        apothem: float,
+        origin: tuple[float, float, float] | None = None,
+        rotation: float | None = None
+    ) -> list[tuple[float, float, float]]:
+    """ Create the points for constructing a hexagon in the XY plane.
+
+    Parameters
+    ----------
+    apothem : float
+        Distance from the hexagon center to any of its walls (the apothem).
+    origin : tuple[float, float, float]
+        Origin point for the hexagon center, default is (0, 0, 0).
+    rotation : float
+        Rotation angle in degrees to apply to the hexagon points around
+        the Z axis, default is 0 (no rotation).
+    """
+    return points_on_circle(apothem, 6, origin, rotation)
+
+
+def square_points_xy(
+        side: float,
+        origin: tuple[float, float, float] | None = None,
+        rotation: float | None = None
+    ) -> list[tuple[float, float, float]]:
+    """ Create the points for constructing a square in the XY plane.
+
+    Parameters
+    ----------
+    side : float
+        Length of the square's side.
+    origin : tuple[float, float, float]
+        Origin point for the square center, default is (0, 0, 0).
+    rotation : float
+        Rotation angle in degrees to apply to the square points around
+        the Z axis, default is 0 (no rotation).
+    """
+    return points_on_circle(side * np.sqrt(2), 4, origin, rotation)
