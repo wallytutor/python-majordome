@@ -595,7 +595,7 @@ class CircularCrossSection:
 
         size_min = len_step
         # size_max = min(len_step * 10, self._r_in / 2)
-        size_max = self._r_in
+        size_max = 0.01
 
         dist_min = self._d1
         dist_max = self._r_in
@@ -603,9 +603,11 @@ class CircularCrossSection:
         print(f"len_arc={len_arc:.3e}, len_step={len_step:.3e}, "
               f"size_min={size_min:.3e}, size_max={size_max:.3e}, dist_max={dist_max:.3e}")
 
+        n_samples = max(100, self._n * self._n_angular)
+
         model._mesh.field.add("Distance", 1)
-        model._mesh.field.setNumbers(1, "SurfacesList", [surf_tag])
-        # model._mesh.field.setNumber(1, "Sampling", 100)
+        model._mesh.field.setNumbers(1, "CurvesList", tags_inner_lines)
+        model._mesh.field.setNumber(1, "Sampling", n_samples)
 
         model._mesh.field.add("Threshold", 2)
         model._mesh.field.setNumber(2, "InField", 1)
@@ -615,9 +617,9 @@ class CircularCrossSection:
         model._mesh.field.setNumber(2, "SizeMax", size_max)
         model._mesh.field.setNumber(2, "StopAtDistMax", 1)
 
-        model._mesh.field.add("Min", 3)
-        model._mesh.field.setNumbers(3, "FieldsList", [2])
-        model._mesh.field.setAsBackgroundMesh(3)
+        # model._mesh.field.add("Min", 3)
+        # model._mesh.field.setNumbers(3, "FieldsList", [2])
+        model._mesh.field.setAsBackgroundMesh(2)
         model.synchronize()
 
     def _create_polygonal_core(self, model: GmshOCCModel,
