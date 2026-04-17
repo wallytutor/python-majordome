@@ -303,97 +303,7 @@ class GmshOCCModel:
 
         return surf
 
-    def circular_cross_section(self,
-            radius: float,
-            cell_size_boundary: float,
-            cell_size_center: float,
-            num_points_angular: int | None = None,
-            square_size: float | None = None,
-            origin: tuple[float, float, float] | None = None,
-        ) -> int:
-        """ Circular cross-section with optional square inner region.
 
-        Parameters
-        ----------
-        radius : float
-            Outer radius of the circular cross-section.
-        cell_size_boundary : float
-            Target cell size near the circular boundary.
-        cell_size_center : float
-            Target cell size near the center of the cross-section.
-        num_points_angular : int, optional
-            Number of points to define the circular boundary.
-        square_size : float, optional
-            Size of the inner square region. If not provided, it defaults
-            to `radius / 4`.
-        origin : tuple[float, float, float], optional
-            Origin point for the cross-section center, default is (0, 0, 0).
-        """
-        square_size = square_size or radius / 4
-        origin = origin or (0, 0, 0)
-
-        p_origin = self.add_point(*origin)
-
-        def add_arc(p_start, p_end):
-            return self.add_circle_arc(p_start, p_origin, p_end)
-
-        # Compute the coordinates of points:
-        circular_points = points_on_circle(radius, 4, origin)
-        square_points   = square_points_xy(square_size, origin)
-
-        # Combine points and create lines:
-        p_tags_circle = []
-        p_tags_square = []
-        l_tags_circle = []
-        l_tags_square = []
-        l_tags_chords = []
-
-        # First create everything that is a multiple of 4:
-        for i in range(4):
-            pc = self.add_point(*circular_points[i])
-            ps = self.add_point(*square_points[i])
-
-            p_tags_circle.append(pc)
-            p_tags_square.append(ps)
-
-            lc = self.add_line(ps, pc)
-            l_tags_chords.append(lc)
-
-        self.synchronize()
-
-        # Now create the links between elements:
-        points_i = itertools.cycle(range(4))
-        points_j = itertools.cycle(range(4))
-        next(points_j)  # j starts one step ahead of i
-
-        for _ in range(4):
-            i = next(points_i)
-            j = next(points_j)
-
-            print(i, j)
-
-            pc_i = p_tags_circle[i]
-            pc_j = p_tags_circle[j]
-
-            ps_i = p_tags_square[i]
-            ps_j = p_tags_square[j]
-
-            lc = add_arc(pc_i, pc_j)
-            ls = self.add_line(ps_i, ps_j)
-
-            l_tags_circle.append(lc)
-            l_tags_square.append(ls)
-
-        # lc = add_arc(p_tags_circle[-1], p_tags_circle[0])
-        # ls = self.add_line(p_tags_square[-1], p_tags_square[0])
-        # l_tags_circle.append(lc)
-        # l_tags_square.append(ls)
-
-        # loop = self.add_curve_loop(line_tags)
-        # surf = self.add_plane_surface([loop])
-        self.synchronize()
-
-        # return surf
 
     #endregion: common geometry constructions
 
@@ -528,6 +438,271 @@ class GeometricProgression:
         return best_n, d_end / d_mid
 
 
+
+class CircularCrossSection:
+    # """ Circular cross-section with optional square inner region.
+
+    # Parameters
+    # ----------
+    # radius : float
+    #     Outer radius of the circular cross-section.
+    # cell_size_boundary : float
+    #     Target cell size near the circular boundary.
+    # cell_size_center : float
+    #     Target cell size near the center of the cross-section.
+    # num_points_angular : int, optional
+    #     Number of points to define the circular boundary.
+    # square_side : float, optional
+    #     Size of the inner square region. If not provided, it defaults
+    #     to `radius / 4`.
+    # origin : tuple[float, float, float], optional
+    #     Origin point for the cross-section center, default is (0, 0, 0).
+    # kws : dict
+    #     Additional keyword arguments for mesh configuration, passed to
+    #     `GeometricProgression.fit`.
+    # """
+    # __slots__ = (
+    #     "_radius",
+    #     "_cell_bo",
+    #     "_cell_bi",
+    #     "_num_points_angular",
+    #     "_square_side",
+    #     "_origin",
+    # )
+
+    def __init__(self,
+            radius: float,
+            boundary_thickness: float,
+            cell_size_boundary: float,
+            cell_size_center: float,
+            num_points_angular: int | None = None,
+            origin: tuple[float, float, float] | None = None,
+            n_splits: int = 8,
+            **kws
+        ) -> None:
+        if origin is None:
+            origin = (0, 0, 0)
+
+        self._n = n_splits
+
+        self._r_out  = radius
+        self._r_in   = radius - boundary_thickness
+        self._origin = origin
+
+        self._d0 = cell_size_boundary
+        self._d1 = cell_size_center
+
+        if num_points_angular is None:
+            num_points_angular = int(self._r_in // self._d1)
+
+        self._n_angular = num_points_angular
+
+    def _create_ring_boundary(self, model: GmshOCCModel):
+        ###
+        # Iteration 0: create the 0D elements
+        ###
+
+        p_origin = model.add_point(*self._origin)
+
+        p_cout = points_on_circle(self._r_out, self._n, self._origin)
+        p_cin  = points_on_circle(self._r_in,  self._n, self._origin)
+
+        p_tags_cout = [model.add_point(*pt) for pt in p_cout]
+        p_tags_cin  = [model.add_point(*pt) for pt in p_cin]
+
+        bl = self._r_out - self._r_in
+        nn, q = GeometricProgression.fit(bl, self._d0, self._d1)
+
+        def add_arc(p_start, p_end):
+            return model.add_circle_arc(p_start, p_origin, p_end)
+
+        ###
+        # Iteration 1: create the 1D elements
+        ###
+
+        points_i = itertools.cycle(range(self._n))
+        points_j = itertools.cycle(range(self._n))
+        next(points_j)  # j starts one step ahead of i
+
+        l_tags_cout   = []
+        l_tags_cin    = []
+        l_tags_chords = []
+
+        for _ in range(self._n):
+            i = next(points_i)
+            j = next(points_j)
+
+            pcout_i = p_tags_cout[i]
+            pcout_j = p_tags_cout[j]
+
+            pcin_i  = p_tags_cin[i]
+            pcin_j  = p_tags_cin[j]
+
+            l_cout  = add_arc(pcout_i, pcout_j)
+            l_cin   = add_arc(pcin_i, pcin_j)
+            l_chord = model.add_line(pcout_i, pcin_i)
+
+            l_tags_cout.append(l_cout)
+            l_tags_cin.append(l_cin)
+            l_tags_chords.append(l_chord)
+
+            model.synchronize()
+            model.set_transfinite_curve(l_cout, self._n_angular)
+            model.set_transfinite_curve(l_cin,  self._n_angular)
+            model.set_transfinite_curve(l_chord, nn, "Progression", q)
+
+        ###
+        # Iteration 2: create the 2D elements
+        ###
+
+        points_i = itertools.cycle(range(self._n))
+        points_j = itertools.cycle(range(self._n))
+        next(points_j)  # j starts one step ahead of i
+
+        surf_tags = []
+
+        for _ in range(self._n):
+            i = next(points_i)
+            j = next(points_j)
+
+            loop = [
+                l_tags_chords[i],
+                l_tags_cout[i],
+                -l_tags_chords[j],
+                -l_tags_cin[i]
+            ]
+            loop_tag = model.add_curve_loop(loop)
+            surf_tag = model.add_plane_surface([loop_tag])
+            surf_tags.append(surf_tag)
+
+            model.synchronize()
+            model.set_transfinite_surface(surf_tag)
+            model.set_recombine(2, surf_tag)
+
+        model.synchronize()
+        return surf_tags, l_tags_cin, l_tags_cout, p_tags_cin, p_tags_cout
+
+    def _create_simple_core(self, model: GmshOCCModel,
+                            tags_inner_lines: list[int]):
+        loop_tag = model.add_curve_loop(tags_inner_lines)
+        surf_tag = model.add_plane_surface([loop_tag])
+
+        model.synchronize()
+        model.set_recombine(2, surf_tag)
+
+        len_arc = 2 * np.pi * self._r_in / self._n
+        len_step = len_arc / self._n_angular
+
+        size_min = len_step
+        # size_max = min(len_step * 10, self._r_in / 2)
+        size_max = self._r_in
+
+        dist_min = self._d1
+        dist_max = self._r_in
+
+        print(f"len_arc={len_arc:.3e}, len_step={len_step:.3e}, "
+              f"size_min={size_min:.3e}, size_max={size_max:.3e}, dist_max={dist_max:.3e}")
+
+        model._mesh.field.add("Distance", 1)
+        model._mesh.field.setNumbers(1, "SurfacesList", [surf_tag])
+        # model._mesh.field.setNumber(1, "Sampling", 100)
+
+        model._mesh.field.add("Threshold", 2)
+        model._mesh.field.setNumber(2, "InField", 1)
+        model._mesh.field.setNumber(2, "DistMin", dist_min)
+        model._mesh.field.setNumber(2, "DistMax", dist_max)
+        model._mesh.field.setNumber(2, "SizeMin", size_min)
+        model._mesh.field.setNumber(2, "SizeMax", size_max)
+        model._mesh.field.setNumber(2, "StopAtDistMax", 1)
+
+        model._mesh.field.add("Min", 3)
+        model._mesh.field.setNumbers(3, "FieldsList", [2])
+        model._mesh.field.setAsBackgroundMesh(3)
+        model.synchronize()
+
+    def _create_polygonal_core(self, model: GmshOCCModel,
+                               tags_inner_lines: list[int],
+                               tags_inner_points: list[int],
+                               structured: bool = False):
+        ###
+        # Iteration 0: create the 0D elements
+        ###
+
+        p_core = points_on_circle(self._r_in / 2, self._n, self._origin)
+        p_tags_core = [model.add_point(*pt) for pt in p_core]
+
+        ###
+        # Iteration 1: create the 1D elements
+        ###
+
+        points_i = itertools.cycle(range(self._n))
+        points_j = itertools.cycle(range(self._n))
+        next(points_j)  # j starts one step ahead of i
+
+        l_tags_core   = []
+        l_tags_chords = []
+
+        for _ in range(self._n):
+            i = next(points_i)
+            j = next(points_j)
+
+            pcore_i = p_tags_core[i]
+            pcore_j = p_tags_core[j]
+
+            l_core  = model.add_line(pcore_i, pcore_j)
+            l_chord = model.add_line(tags_inner_points[i], pcore_i)
+
+            l_tags_core.append(l_core)
+            l_tags_chords.append(l_chord)
+
+            nn = int(1 + model.get_length(l_chord) // self._d1)
+
+            model.synchronize()
+
+            if structured:
+                model.set_transfinite_curve(l_core,  self._n_angular)
+
+            model.set_transfinite_curve(l_chord, nn)
+
+        ###
+        # Iteration 2: create the 2D elements
+        ###
+
+        points_i = itertools.cycle(range(self._n))
+        points_j = itertools.cycle(range(self._n))
+        next(points_j)  # j starts one step ahead of i
+
+        surf_tags = []
+
+        for _ in range(self._n):
+            i = next(points_i)
+            j = next(points_j)
+
+            loop = [
+                l_tags_core[i],
+                -l_tags_chords[i],
+                -tags_inner_lines[i],
+                l_tags_chords[j],
+            ]
+            loop_tag = model.add_curve_loop(loop)
+            surf_tag = model.add_plane_surface([loop_tag])
+            surf_tags.append(surf_tag)
+
+            model.synchronize()
+
+            if structured:
+                model.set_transfinite_surface(surf_tag)
+
+            model.set_recombine(2, surf_tag)
+
+        loop_tag = model.add_curve_loop(l_tags_core)
+        surf_tag = model.add_plane_surface([loop_tag])
+        surf_tags.append(surf_tag)
+
+        model.synchronize()
+        # return surf_tag
+
+
 def points_on_circle(
         radius: float,
         num_points: int,
@@ -541,11 +716,12 @@ def points_on_circle(
     if rotation is None:
         rotation = 0.0
 
+    rotation = np.deg2rad(rotation)
     (xc, yc, zc) = np.array(origin, dtype=np.float64)
     points = []
 
     for i in range(num_points):
-        angle = i * 2 * np.pi / num_points + np.deg2rad(rotation)
+        angle = i * 2 * np.pi / num_points + rotation
         x = xc + radius * np.cos(angle)
         y = yc + radius * np.sin(angle)
         points.append((x, y, zc))
@@ -590,4 +766,4 @@ def square_points_xy(
         Rotation angle in degrees to apply to the square points around
         the Z axis, default is 0 (no rotation).
     """
-    return points_on_circle(side * np.sqrt(2), 4, origin, rotation)
+    return points_on_circle(side * np.sqrt(2) / 2, 4, origin, rotation)
