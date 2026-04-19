@@ -276,8 +276,8 @@ class GmshOCCModel:
     #region: common geometry constructions
     def hexagon_xy(self,
             center_to_wall: float,
-            origin: tuple[float, float, float] | None = None,
-            rotation: float | None = None
+            origin: tuple[float, float, float] = (0, 0, 0),
+            rotation: float = 0.0,
         ) -> int:
         """ Create a hexagon in the XY plane. """
         pts = hexagon_points_xy(center_to_wall, origin, rotation)
@@ -438,7 +438,6 @@ class GeometricProgression:
         return best_n, d_end / d_mid
 
 
-
 class CircularCrossSection:
     # """ Circular cross-section with optional square inner region.
 
@@ -471,6 +470,7 @@ class CircularCrossSection:
     # )
 
     def __init__(self,
+            model: GmshOCCModel,
             radius: float,
             boundary_thickness: float,
             cell_size_boundary: float,
@@ -497,24 +497,25 @@ class CircularCrossSection:
 
         self._n_angular = num_points_angular
 
-    def _create_ring_boundary(self, model: GmshOCCModel):
+        self._model = model
+        self._p_origin = self._model.add_point(*self._origin)
+
+    def _add_arc(self, p_start, p_end):
+        return self._model.add_circle_arc(p_start, self._p_origin, p_end)
+
+    def _create_ring_boundary(self):
         ###
         # Iteration 0: create the 0D elements
         ###
 
-        p_origin = model.add_point(*self._origin)
-
         p_cout = points_on_circle(self._r_out, self._n, self._origin)
         p_cin  = points_on_circle(self._r_in,  self._n, self._origin)
 
-        p_tags_cout = [model.add_point(*pt) for pt in p_cout]
-        p_tags_cin  = [model.add_point(*pt) for pt in p_cin]
+        p_tags_cout = [self._model.add_point(*pt) for pt in p_cout]
+        p_tags_cin  = [self._model.add_point(*pt) for pt in p_cin]
 
         bl = self._r_out - self._r_in
         nn, q = GeometricProgression.fit(bl, self._d0, self._d1)
-
-        def add_arc(p_start, p_end):
-            return model.add_circle_arc(p_start, p_origin, p_end)
 
         ###
         # Iteration 1: create the 1D elements
@@ -538,18 +539,18 @@ class CircularCrossSection:
             pcin_i  = p_tags_cin[i]
             pcin_j  = p_tags_cin[j]
 
-            l_cout  = add_arc(pcout_i, pcout_j)
-            l_cin   = add_arc(pcin_i, pcin_j)
-            l_chord = model.add_line(pcout_i, pcin_i)
+            l_cout  = self._add_arc(pcout_i, pcout_j)
+            l_cin   = self._add_arc(pcin_i, pcin_j)
+            l_chord = self._model.add_line(pcout_i, pcin_i)
 
             l_tags_cout.append(l_cout)
             l_tags_cin.append(l_cin)
             l_tags_chords.append(l_chord)
 
-            model.synchronize()
-            model.set_transfinite_curve(l_cout, self._n_angular)
-            model.set_transfinite_curve(l_cin,  self._n_angular)
-            model.set_transfinite_curve(l_chord, nn, "Progression", q)
+            self._model.synchronize()
+            self._model.set_transfinite_curve(l_cout, self._n_angular)
+            self._model.set_transfinite_curve(l_cin,  self._n_angular)
+            self._model.set_transfinite_curve(l_chord, nn, "Progression", q)
 
         ###
         # Iteration 2: create the 2D elements
@@ -571,67 +572,58 @@ class CircularCrossSection:
                 -l_tags_chords[j],
                 -l_tags_cin[i]
             ]
-            loop_tag = model.add_curve_loop(loop)
-            surf_tag = model.add_plane_surface([loop_tag])
+            loop_tag = self._model.add_curve_loop(loop)
+            surf_tag = self._model.add_plane_surface([loop_tag])
             surf_tags.append(surf_tag)
 
-            model.synchronize()
-            model.set_transfinite_surface(surf_tag)
-            model.set_recombine(2, surf_tag)
+            self._model.synchronize()
+            self._model.set_transfinite_surface(surf_tag)
+            self._model.set_recombine(2, surf_tag)
 
-        model.synchronize()
+        self._model.synchronize()
         return surf_tags, l_tags_cin, l_tags_cout, p_tags_cin, p_tags_cout
 
-    def _create_simple_core(self, model: GmshOCCModel,
-                            tags_inner_lines: list[int]):
-        loop_tag = model.add_curve_loop(tags_inner_lines)
-        surf_tag = model.add_plane_surface([loop_tag])
+    def _create_simple_core(self, tags_inner_lines: list[int]):
+        loop_tag = self._model.add_curve_loop(tags_inner_lines)
+        surf_tag = self._model.add_plane_surface([loop_tag])
 
-        model.synchronize()
-        model.set_recombine(2, surf_tag)
+        self._model.synchronize()
+        self._model.set_recombine(2, surf_tag)
 
-        len_arc = 2 * np.pi * self._r_in / self._n
-        len_step = len_arc / self._n_angular
+        # WIP: could not get this working easily! Dunno!
+        # len_arc = 2 * np.pi * self._r_in / self._n
+        # len_step = len_arc / self._n_angular
+        #
+        # size_min = len_step / 2.0
+        # size_max = self._r_in
+        #
+        # def radius(x, y):
+        #     dx = x - self._origin[0]
+        #     dy = y - self._origin[1]
+        #     return np.sqrt(dx**2 + dy**2)
+        #
+        # def meshSizeCallback(dim, tag, x, y, z, lc):
+        #     r = radius(x, y)
+        #     f = np.exp(-3.0 * r / self._r_in)
+        #     f = size_min + f * (size_max - size_min)
+        #     print(f"@ x, y = {x:+.3f}, {y:+.3f} | r = {r:.3f} | f = {f:.3e}")
+        #     return min(lc, f)
+        #
+        # model._mesh.setSizeCallback(meshSizeCallback)
+        # model.synchronize()
 
-        size_min = len_step
-        # size_max = min(len_step * 10, self._r_in / 2)
-        size_max = 0.01
-
-        dist_min = self._d1
-        dist_max = self._r_in
-
-        print(f"len_arc={len_arc:.3e}, len_step={len_step:.3e}, "
-              f"size_min={size_min:.3e}, size_max={size_max:.3e}, dist_max={dist_max:.3e}")
-
-        n_samples = max(100, self._n * self._n_angular)
-
-        model._mesh.field.add("Distance", 1)
-        model._mesh.field.setNumbers(1, "CurvesList", tags_inner_lines)
-        model._mesh.field.setNumber(1, "Sampling", n_samples)
-
-        model._mesh.field.add("Threshold", 2)
-        model._mesh.field.setNumber(2, "InField", 1)
-        model._mesh.field.setNumber(2, "DistMin", dist_min)
-        model._mesh.field.setNumber(2, "DistMax", dist_max)
-        model._mesh.field.setNumber(2, "SizeMin", size_min)
-        model._mesh.field.setNumber(2, "SizeMax", size_max)
-        model._mesh.field.setNumber(2, "StopAtDistMax", 1)
-
-        # model._mesh.field.add("Min", 3)
-        # model._mesh.field.setNumbers(3, "FieldsList", [2])
-        model._mesh.field.setAsBackgroundMesh(2)
-        model.synchronize()
-
-    def _create_polygonal_core(self, model: GmshOCCModel,
+    def _create_polygonal_core(self,
                                tags_inner_lines: list[int],
                                tags_inner_points: list[int],
-                               structured: bool = False):
+                               structured: bool = False,
+                               radius_fraction: float = 0.5):
         ###
         # Iteration 0: create the 0D elements
         ###
 
-        p_core = points_on_circle(self._r_in / 2, self._n, self._origin)
-        p_tags_core = [model.add_point(*pt) for pt in p_core]
+        r_core = self._r_in * radius_fraction
+        p_core = points_on_circle(r_core, self._n, self._origin)
+        p_tags_core = [self._model.add_point(*pt) for pt in p_core]
 
         ###
         # Iteration 1: create the 1D elements
@@ -651,20 +643,20 @@ class CircularCrossSection:
             pcore_i = p_tags_core[i]
             pcore_j = p_tags_core[j]
 
-            l_core  = model.add_line(pcore_i, pcore_j)
-            l_chord = model.add_line(tags_inner_points[i], pcore_i)
+            l_core  = self._add_arc(pcore_i, pcore_j)
+            l_chord = self._model.add_line(tags_inner_points[i], pcore_i)
 
             l_tags_core.append(l_core)
             l_tags_chords.append(l_chord)
 
-            nn = int(1 + model.get_length(l_chord) // self._d1)
+            nn = int(1 + self._model.get_length(l_chord) // self._d1)
 
-            model.synchronize()
+            self._model.synchronize()
 
             if structured:
-                model.set_transfinite_curve(l_core,  self._n_angular)
+                self._model.set_transfinite_curve(l_core,  self._n_angular)
 
-            model.set_transfinite_curve(l_chord, nn)
+            self._model.set_transfinite_curve(l_chord, nn)
 
         ###
         # Iteration 2: create the 2D elements
@@ -686,38 +678,37 @@ class CircularCrossSection:
                 -tags_inner_lines[i],
                 l_tags_chords[j],
             ]
-            loop_tag = model.add_curve_loop(loop)
-            surf_tag = model.add_plane_surface([loop_tag])
+            loop_tag = self._model.add_curve_loop(loop)
+            surf_tag = self._model.add_plane_surface([loop_tag])
             surf_tags.append(surf_tag)
 
-            model.synchronize()
+            self._model.synchronize()
 
             if structured:
-                model.set_transfinite_surface(surf_tag)
+                self._model.set_transfinite_surface(surf_tag)
 
-            model.set_recombine(2, surf_tag)
+            self._model.set_recombine(2, surf_tag)
 
-        loop_tag = model.add_curve_loop(l_tags_core)
-        surf_tag = model.add_plane_surface([loop_tag])
+        loop_tag = self._model.add_curve_loop(l_tags_core)
+        surf_tag = self._model.add_plane_surface([loop_tag])
         surf_tags.append(surf_tag)
 
-        model.synchronize()
+        self._model.synchronize()
+
+        # TODO handle structured here with a distance field for the
+        # core as it does not need to be so fine as around!
+
+        self._model.set_recombine(2, surf_tag)
         # return surf_tag
 
 
 def points_on_circle(
         radius: float,
         num_points: int,
-        origin: tuple[float, float, float] | None = None,
-        rotation: float | None = None,
+        origin: tuple[float, float, float] = (0, 0, 0),
+        rotation: float = 0.0,
     ) -> list[tuple[float, float, float]]:
     """ Generate points evenly spaced on a circle in the XY plane. """
-    if origin is None:
-        origin = (0, 0, 0)
-
-    if rotation is None:
-        rotation = 0.0
-
     rotation = np.deg2rad(rotation)
     (xc, yc, zc) = np.array(origin, dtype=np.float64)
     points = []
@@ -733,8 +724,8 @@ def points_on_circle(
 
 def hexagon_points_xy(
         apothem: float,
-        origin: tuple[float, float, float] | None = None,
-        rotation: float | None = None
+        origin: tuple[float, float, float] = (0, 0, 0),
+        rotation: float = 0.0,
     ) -> list[tuple[float, float, float]]:
     """ Create the points for constructing a hexagon in the XY plane.
 
@@ -753,8 +744,8 @@ def hexagon_points_xy(
 
 def square_points_xy(
         side: float,
-        origin: tuple[float, float, float] | None = None,
-        rotation: float | None = None
+        origin: tuple[float, float, float] = (0, 0, 0),
+        rotation: float = 0.0,
     ) -> list[tuple[float, float, float]]:
     """ Create the points for constructing a square in the XY plane.
 
