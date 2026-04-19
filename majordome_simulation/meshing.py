@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Any, Self
+from typing import Any, Callable, Self
 from numpy.typing import NDArray
 import itertools
 import gmsh
@@ -438,6 +438,210 @@ class GeometricProgression:
         return best_n, d_end / d_mid
 
 
+class RingBuilder:
+    __slots__ = (
+        "_points_in",
+        "_points_out",
+        "_lines_out",
+        "_lines_in",
+        "_lines_chords",
+        "_surf_tags",
+    )
+
+    def __init__(self,
+            model: GmshOCCModel,
+            splits: int,
+            radius_out: float | None = None,
+            radius_in: float | None = None,
+            points_out: list[int] | None = None,
+            points_in: list[int] | None = None,
+            origin: tuple[float, float, float] = (0, 0, 0),
+            linker_in: Callable | None = None,
+            linker_out: Callable | None = None,
+            callback_lines: Callable | None = None,
+            callback_surfaces: Callable | None = None,
+        ):
+        if not points_in and radius_in is None:
+            raise ValueError("Either points_in or radius_in must be provided")
+
+        if not points_out and radius_out is None:
+            raise ValueError("Either points_out or radius_out must be provided")
+
+        if points_out is None and radius_out is not None:
+            p_cout = points_on_circle(radius_out, splits, origin)
+            points_out = [model.add_point(*pt) for pt in p_cout]
+
+        if points_in is None and radius_in is not None:
+            p_cin = points_on_circle(radius_in,  splits, origin)
+            points_in = [model.add_point(*pt) for pt in p_cin]
+
+        if points_in is None or points_out is None:
+            raise ValueError("Failed to generate points for ring boundaries")
+
+        self._points_out = points_out
+        self._points_in  = points_in
+
+        objs = self.make_ring_curves(
+            model      = model,
+            points_in  = self._points_in,
+            points_out = self._points_out,
+            lines_in   = [],
+            lines_out  = [],
+            linker_in  = linker_in,
+            linker_out = linker_out,
+            callback   = callback_lines or (lambda *args: None)
+        )
+
+        l_tags_out, l_tags_in, l_tags_chords = objs
+        self._lines_out    = l_tags_out
+        self._lines_in     = l_tags_in
+        self._lines_chords = l_tags_chords
+
+        self._surf_tags = self.make_ring_surfaces(
+            model        = model,
+            lines_in     = l_tags_in,
+            lines_out    = l_tags_out,
+            lines_chords = l_tags_chords,
+            callback     = callback_surfaces or (lambda *args: None)
+        )
+
+        model.synchronize()
+
+    @property
+    def points_in(self) -> list[int]:
+        """ Access to the inner boundary points of the ring. """
+        return self._points_in
+
+    @property
+    def points_out(self) -> list[int]:
+        """ Access to the outer boundary points of the ring. """
+        return self._points_out
+
+    @property
+    def lines_out(self) -> list[int]:
+        """ Access to the outer boundary lines of the ring. """
+        return self._lines_out
+
+    @property
+    def lines_in(self) -> list[int]:
+        """ Access to the inner boundary lines of the ring. """
+        return self._lines_in
+
+    @property
+    def lines_chords(self) -> list[int]:
+        """ Access to the chord lines connecting inner and outer boundaries. """
+        return self._lines_chords
+
+    @property
+    def surface_tags(self) -> list[int]:
+        """ Access to all surfaces in the ring. """
+        return self._surf_tags
+
+    @staticmethod
+    def make_ring_curves(
+            model: GmshOCCModel,
+            points_in: list[int],
+            points_out: list[int],
+            lines_in: list[int] | None = None,
+            lines_out: list[int] | None = None,
+            linker_in: Callable | None = None,
+            linker_out: Callable | None = None,
+            **kws
+        ) -> tuple[list[int], list[int], list[int]]:
+        """ Create ordered curves for ring construction. """
+        linker_in  = linker_in  or (lambda p1, p2: model.add_line(p1, p2))
+        linker_out = linker_out or (lambda p1, p2: model.add_line(p1, p2))
+        callback = kws.get("callback", lambda *args: None)
+
+        if lines_in is None:
+            lines_in = []
+
+        if lines_out is None:
+            lines_out = []
+
+        create_out = len(lines_out) == 0
+        create_in  = len(lines_in)  == 0
+
+        n_splits = len(points_in)
+        points_i = itertools.cycle(range(n_splits))
+        points_j = itertools.cycle(range(n_splits))
+        next(points_j)  # j starts one step ahead of i
+
+        l_tags_out    = lines_out
+        l_tags_in     = lines_in
+        l_tags_chords = []
+
+        for split in range(n_splits):
+            i = next(points_i)
+            j = next(points_j)
+
+            pcout_i = points_out[i]
+            pcout_j = points_out[j]
+
+            pcin_i  = points_in[i]
+            pcin_j  = points_in[j]
+
+            if create_out:
+                l_cout = linker_out(pcout_i, pcout_j)
+                l_tags_out.append(l_cout)
+            else:
+                l_cout = lines_out[i-1]
+
+            if create_in:
+                l_cin = linker_in(pcin_i, pcin_j)
+                l_tags_in.append(l_cin)
+            else:
+                l_cin = lines_in[i-1]
+
+            l_chord = model.add_line(pcout_i, pcin_i)
+            l_tags_chords.append(l_chord)
+
+            model.synchronize()
+            callback(split, i, j, l_cout, l_cin, l_chord)
+
+        model.synchronize()
+        return l_tags_out, l_tags_in, l_tags_chords
+
+    @staticmethod
+    def make_ring_surfaces(
+            model: GmshOCCModel,
+            lines_in: list[int],
+            lines_out: list[int],
+            lines_chords: list[int],
+            **kws
+        ) -> list[int]:
+        """  Create surfaces from ordered curves for ring construction. """
+        callback = kws.get("callback", lambda *args: None)
+
+        n_splits = len(lines_in)
+        points_i = itertools.cycle(range(n_splits))
+        points_j = itertools.cycle(range(n_splits))
+        next(points_j)  # j starts one step ahead of i
+
+        surf_tags = []
+
+        for split in range(n_splits):
+            i = next(points_i)
+            j = next(points_j)
+
+            loop = [
+                lines_chords[i],
+                lines_out[i],
+                -lines_chords[j],
+                -lines_in[i]
+            ]
+
+            loop_tag = model.add_curve_loop(loop)
+            surf_tag = model.add_plane_surface([loop_tag])
+            surf_tags.append(surf_tag)
+
+            model.synchronize()
+            callback(split, i, j, surf_tag)
+
+        model.synchronize()
+        return surf_tags
+
+
 class CircularCrossSection:
     # """ Circular cross-section with optional square inner region.
 
@@ -504,84 +708,31 @@ class CircularCrossSection:
         return self._model.add_circle_arc(p_start, self._p_origin, p_end)
 
     def _create_ring_boundary(self):
-        ###
-        # Iteration 0: create the 0D elements
-        ###
-
-        p_cout = points_on_circle(self._r_out, self._n, self._origin)
-        p_cin  = points_on_circle(self._r_in,  self._n, self._origin)
-
-        p_tags_cout = [self._model.add_point(*pt) for pt in p_cout]
-        p_tags_cin  = [self._model.add_point(*pt) for pt in p_cin]
-
         bl = self._r_out - self._r_in
         nn, q = GeometricProgression.fit(bl, self._d0, self._d1)
 
-        ###
-        # Iteration 1: create the 1D elements
-        ###
-
-        points_i = itertools.cycle(range(self._n))
-        points_j = itertools.cycle(range(self._n))
-        next(points_j)  # j starts one step ahead of i
-
-        l_tags_cout   = []
-        l_tags_cin    = []
-        l_tags_chords = []
-
-        for _ in range(self._n):
-            i = next(points_i)
-            j = next(points_j)
-
-            pcout_i = p_tags_cout[i]
-            pcout_j = p_tags_cout[j]
-
-            pcin_i  = p_tags_cin[i]
-            pcin_j  = p_tags_cin[j]
-
-            l_cout  = self._add_arc(pcout_i, pcout_j)
-            l_cin   = self._add_arc(pcin_i, pcin_j)
-            l_chord = self._model.add_line(pcout_i, pcin_i)
-
-            l_tags_cout.append(l_cout)
-            l_tags_cin.append(l_cin)
-            l_tags_chords.append(l_chord)
-
-            self._model.synchronize()
+        def callback_lines(_split, i, j, l_cout, l_cin, l_chord):
             self._model.set_transfinite_curve(l_cout, self._n_angular)
             self._model.set_transfinite_curve(l_cin,  self._n_angular)
             self._model.set_transfinite_curve(l_chord, nn, "Progression", q)
 
-        ###
-        # Iteration 2: create the 2D elements
-        ###
-
-        points_i = itertools.cycle(range(self._n))
-        points_j = itertools.cycle(range(self._n))
-        next(points_j)  # j starts one step ahead of i
-
-        surf_tags = []
-
-        for _ in range(self._n):
-            i = next(points_i)
-            j = next(points_j)
-
-            loop = [
-                l_tags_chords[i],
-                l_tags_cout[i],
-                -l_tags_chords[j],
-                -l_tags_cin[i]
-            ]
-            loop_tag = self._model.add_curve_loop(loop)
-            surf_tag = self._model.add_plane_surface([loop_tag])
-            surf_tags.append(surf_tag)
-
-            self._model.synchronize()
+        def callback_surfaces(_split, i, j, surf_tag):
             self._model.set_transfinite_surface(surf_tag)
             self._model.set_recombine(2, surf_tag)
 
-        self._model.synchronize()
-        return surf_tags, l_tags_cin, l_tags_cout, p_tags_cin, p_tags_cout
+        ring = RingBuilder(
+            model             = self._model,
+            splits            = self._n,
+            radius_out        = self._r_out,
+            radius_in         = self._r_in,
+            linker_in         = self._add_arc,
+            linker_out        = self._add_arc,
+            origin            = self._origin,
+            callback_lines    = callback_lines,
+            callback_surfaces = callback_surfaces,
+        )
+
+        return ring
 
     def _create_simple_core(self, tags_inner_lines: list[int]):
         loop_tag = self._model.add_curve_loop(tags_inner_lines)
@@ -615,8 +766,8 @@ class CircularCrossSection:
     def _create_polygonal_core(self,
                                tags_inner_lines: list[int],
                                tags_inner_points: list[int],
-                               structured: bool = False,
-                               radius_fraction: float = 0.5):
+                               structured: bool = True,
+                               radius_fraction: float = 0.4):
         ###
         # Iteration 0: create the 0D elements
         ###
@@ -629,77 +780,50 @@ class CircularCrossSection:
         # Iteration 1: create the 1D elements
         ###
 
-        points_i = itertools.cycle(range(self._n))
-        points_j = itertools.cycle(range(self._n))
-        next(points_j)  # j starts one step ahead of i
-
-        l_tags_core   = []
-        l_tags_chords = []
-
-        for _ in range(self._n):
-            i = next(points_i)
-            j = next(points_j)
-
-            pcore_i = p_tags_core[i]
-            pcore_j = p_tags_core[j]
-
-            l_core  = self._add_arc(pcore_i, pcore_j)
-            l_chord = self._model.add_line(tags_inner_points[i], pcore_i)
-
-            l_tags_core.append(l_core)
-            l_tags_chords.append(l_chord)
-
+        def callback_lines(_split, i, j, l_cout, l_core, l_chord):
             nn = int(1 + self._model.get_length(l_chord) // self._d1)
-
-            self._model.synchronize()
+            self._model.set_transfinite_curve(l_chord, nn)
 
             if structured:
                 self._model.set_transfinite_curve(l_core,  self._n_angular)
 
-            self._model.set_transfinite_curve(l_chord, nn)
-
-        ###
-        # Iteration 2: create the 2D elements
-        ###
-
-        points_i = itertools.cycle(range(self._n))
-        points_j = itertools.cycle(range(self._n))
-        next(points_j)  # j starts one step ahead of i
-
-        surf_tags = []
-
-        for _ in range(self._n):
-            i = next(points_i)
-            j = next(points_j)
-
-            loop = [
-                l_tags_core[i],
-                -l_tags_chords[i],
-                -tags_inner_lines[i],
-                l_tags_chords[j],
-            ]
-            loop_tag = self._model.add_curve_loop(loop)
-            surf_tag = self._model.add_plane_surface([loop_tag])
-            surf_tags.append(surf_tag)
-
-            self._model.synchronize()
-
+        def callback_surfaces(split, i, j, surf_tag):
             if structured:
                 self._model.set_transfinite_surface(surf_tag)
 
             self._model.set_recombine(2, surf_tag)
 
+        objs = RingBuilder.make_ring_curves(
+            model      = self._model,
+            points_in  = p_tags_core,
+            points_out = tags_inner_points,
+            lines_in   = [],
+            lines_out  = tags_inner_lines,
+            linker_in  = self._add_arc,
+            linker_out = self._add_arc,
+            callback   = callback_lines,
+        )
+
+        _, l_tags_core, l_tags_chords = objs
+
+        surf_tags = RingBuilder.make_ring_surfaces(
+            model        = self._model,
+            lines_in     = l_tags_core,
+            lines_out    = tags_inner_lines,
+            lines_chords = l_tags_chords,
+            callback     = callback_surfaces
+        )
+
         loop_tag = self._model.add_curve_loop(l_tags_core)
         surf_tag = self._model.add_plane_surface([loop_tag])
         surf_tags.append(surf_tag)
-
         self._model.synchronize()
 
         # TODO handle structured here with a distance field for the
         # core as it does not need to be so fine as around!
 
         self._model.set_recombine(2, surf_tag)
-        # return surf_tag
+        return surf_tags
 
 
 def points_on_circle(
