@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Any, Callable, Self
+from xml.parsers.expat import model
 from numpy.typing import NDArray
 import itertools
 import gmsh
@@ -23,6 +24,7 @@ CUSTOM_DEFAULT_OPTIONS = {
     "Geometry.Lines": True,
     "Geometry.Surfaces": True,
 }
+
 
 class GmshOCCModel:
     """ Wrapper to manage OCC models with an OOP approach.
@@ -267,45 +269,11 @@ class GmshOCCModel:
         gmsh.write(filename)
 
     def dump(self, *args):
-        """" Dump the mesh to files with given names. """
+        """ Dump the mesh to files with given names. """
         self.synchronize()
 
         for arg in args:
             gmsh.write(arg)
-
-    #region: common geometry constructions
-    def hexagon_xy(self,
-            center_to_wall: float,
-            origin: tuple[float, float, float] = (0, 0, 0),
-            rotation: float = 0.0,
-        ) -> int:
-        """ Create a hexagon in the XY plane. """
-        pts = hexagon_points_xy(center_to_wall, origin, rotation)
-
-        point_tags = []
-        line_tags = []
-
-        for i in range(6):
-            pt = self.add_point(*pts[i])
-            point_tags.append(pt)
-
-            if i > 0:
-                line = self.add_line(point_tags[i-1], point_tags[i])
-                line_tags.append(line)
-
-        line = self.add_line(point_tags[-1], point_tags[0])
-        line_tags.append(line)
-        self.synchronize()
-
-        loop = self.add_curve_loop(line_tags)
-        surf = self.add_plane_surface([loop])
-        self.synchronize()
-
-        return surf
-
-
-
-    #endregion: common geometry constructions
 
 
 class GeometricProgression:
@@ -439,6 +407,48 @@ class GeometricProgression:
 
 
 class RingBuilder:
+    """ Create a ring-shaped geometry with inner and outer boundaries.
+
+    Parameters
+    ----------
+    model : GmshOCCModel
+        Instance of the GmshOCCModel to build the ring in.
+    splits : int
+        Number of segments to divide the ring into.
+    radius_out : float | None
+        Outer radius of the ring. Required if `points_out` is not provided.
+    radius_in : float | None
+        Inner radius of the ring. Required if `points_in` is not provided.
+    points_out : list[int] | None
+        List of point tags for the outer boundary. Required if `radius_out`
+        is not provided.
+    points_in : list[int] | None
+        List of point tags for the inner boundary. Required if `radius_in`
+        is not provided.
+    lines_out : list[int] | None
+        List of line tags for the outer boundary. If not provided, lines
+        will be created between `points_out`.
+    lines_in : list[int] | None
+        List of line tags for the inner boundary. If not provided, lines
+        will be created between `points_in`.
+    origin : tuple[float, float, float]
+        Origin point for the ring geometry, default is (0, 0, 0).
+    linker_in : Callable | None
+        Custom function to create inner boundary lines, with signature
+        `linker_in(p1, p2) -> line_tag`.
+    linker_out : Callable | None
+        Custom function to create outer boundary lines, with signature
+        `linker_out(p1, p2) -> line_tag`.
+    callback_lines : Callable | None
+        Optional callback function called after creating each set of lines,
+        with signature `callback_lines(split, i, j, l_cout, l_cin, l_chord)`.
+    callback_surfaces : Callable | None
+        Optional callback function called after creating each surface, with
+        signature `callback_surfaces(split, i, j, s_tag)`.
+    close_ring : bool
+        Whether to create a surface filling the inner boundary of the ring.
+        Default is False.
+    """
     __slots__ = (
         "_points_in",
         "_points_out",
@@ -455,38 +465,61 @@ class RingBuilder:
             radius_in: float | None = None,
             points_out: list[int] | None = None,
             points_in: list[int] | None = None,
+            lines_out: list[int] | None = None,
+            lines_in: list[int] | None = None,
             origin: tuple[float, float, float] = (0, 0, 0),
             linker_in: Callable | None = None,
             linker_out: Callable | None = None,
             callback_lines: Callable | None = None,
             callback_surfaces: Callable | None = None,
+            close_ring: bool = False,
+            rotation: float = 0.0
         ):
+        #####
+        ## Data validation
+        #####
+
+        # At least one element of the pair must be provided:
         if not points_in and radius_in is None:
             raise ValueError("Either points_in or radius_in must be provided")
+        elif points_in is not None and radius_in is not None:
+            raise ValueError("Cannot provide both points_in and radius_in")
 
         if not points_out and radius_out is None:
             raise ValueError("Either points_out or radius_out must be provided")
+        elif points_out is not None and radius_out is not None:
+            raise ValueError("Cannot provide both points_out and radius_out")
 
+        #####
+        ## Points
+        #####
+
+        # If points are not provided, generate them from the radius:
         if points_out is None and radius_out is not None:
-            p_cout = points_on_circle(radius_out, splits, origin)
+            p_cout = points_on_circle(radius_out, splits, origin, rotation)
             points_out = [model.add_point(*pt) for pt in p_cout]
 
         if points_in is None and radius_in is not None:
-            p_cin = points_on_circle(radius_in,  splits, origin)
+            p_cin = points_on_circle(radius_in,  splits, origin, rotation)
             points_in = [model.add_point(*pt) for pt in p_cin]
 
+        # Just a sanity check, should never be true (for linter):
         if points_in is None or points_out is None:
             raise ValueError("Failed to generate points for ring boundaries")
+
+        #####
+        ## Curves
+        #####
 
         self._points_out = points_out
         self._points_in  = points_in
 
-        objs = self.make_ring_curves(
+        objs = self._make_ring_curves(
             model      = model,
             points_in  = self._points_in,
             points_out = self._points_out,
-            lines_in   = [],
-            lines_out  = [],
+            lines_in   = lines_in or [],
+            lines_out  = lines_out or [],
             linker_in  = linker_in,
             linker_out = linker_out,
             callback   = callback_lines or (lambda *args: None)
@@ -497,13 +530,22 @@ class RingBuilder:
         self._lines_in     = l_tags_in
         self._lines_chords = l_tags_chords
 
-        self._surf_tags = self.make_ring_surfaces(
+        #####
+        ## Surfaces
+        #####
+
+        self._surf_tags = self._make_ring_surfaces(
             model        = model,
             lines_in     = l_tags_in,
             lines_out    = l_tags_out,
             lines_chords = l_tags_chords,
             callback     = callback_surfaces or (lambda *args: None)
         )
+
+        if close_ring:
+            loop = model.add_curve_loop(l_tags_in)
+            surf = model.add_plane_surface([loop])
+            self._surf_tags.append(surf)
 
         model.synchronize()
 
@@ -538,7 +580,7 @@ class RingBuilder:
         return self._surf_tags
 
     @staticmethod
-    def make_ring_curves(
+    def _make_ring_curves(
             model: GmshOCCModel,
             points_in: list[int],
             points_out: list[int],
@@ -603,7 +645,7 @@ class RingBuilder:
         return l_tags_out, l_tags_in, l_tags_chords
 
     @staticmethod
-    def make_ring_surfaces(
+    def _make_ring_surfaces(
             model: GmshOCCModel,
             lines_in: list[int],
             lines_out: list[int],
@@ -641,73 +683,128 @@ class RingBuilder:
         model.synchronize()
         return surf_tags
 
+    @staticmethod
+    def get_progression_callbacks(
+            model: GmshOCCModel,
+            num_pts: int,
+            bl: float,
+            d0: float,
+            d1: float
+        ) -> tuple[Callable, Callable]:
+        """ Get line and surface callback functions for ring meshing. """
+        nn, q = GeometricProgression.fit(bl, d0, d1)
+
+        def callback_lines(_split, i, j, l_cout, l_cin, l_chord):
+            model.set_transfinite_curve(l_cout, num_pts)
+            model.set_transfinite_curve(l_cin,  num_pts)
+            model.set_transfinite_curve(l_chord, nn, "Progression", q)
+
+        def callback_surfaces(_split, i, j, surf_tag):
+            model.set_transfinite_surface(surf_tag)
+            model.set_recombine(2, surf_tag)
+
+        return callback_lines, callback_surfaces
+
 
 class CircularCrossSection:
-    # """ Circular cross-section with optional square inner region.
+    """ Circular cross-section with optional square inner region.
 
-    # Parameters
-    # ----------
-    # radius : float
-    #     Outer radius of the circular cross-section.
-    # cell_size_boundary : float
-    #     Target cell size near the circular boundary.
-    # cell_size_center : float
-    #     Target cell size near the center of the cross-section.
-    # num_points_angular : int, optional
-    #     Number of points to define the circular boundary.
-    # square_side : float, optional
-    #     Size of the inner square region. If not provided, it defaults
-    #     to `radius / 4`.
-    # origin : tuple[float, float, float], optional
-    #     Origin point for the cross-section center, default is (0, 0, 0).
-    # kws : dict
-    #     Additional keyword arguments for mesh configuration, passed to
-    #     `GeometricProgression.fit`.
-    # """
-    # __slots__ = (
-    #     "_radius",
-    #     "_cell_bo",
-    #     "_cell_bi",
-    #     "_num_points_angular",
-    #     "_square_side",
-    #     "_origin",
-    # )
+    Parameters
+    ----------
+    model : GmshOCCModel
+        Instance of the GmshOCCModel to build the geometry in.
+    radius : float
+        Outer radius of the circular cross-section.
+    boundary_thickness : float
+        Thickness of the boundary layer, defining the inner radius as
+        `radius - boundary_thickness`.
+    cell_size_external : float
+        Target cell size for the external boundary layer region.
+    cell_size_internal : float
+        Target cell size for the internal central region of the cross-section.
+    num_points_angular : int | None
+        Number of points to place along the inner and outer circular
+        boundaries. If None, it is computed based on the inner radius
+        and `cell_size_center`.
+    origin : tuple[float, float, float] | None
+        Origin point for the cross-section geometry, default is (0, 0, 0).
+    num_splits : int
+        Number of segments to divide the ring into, default is 8.
+    radius_fraction : float
+        Fraction of the inner radius to use for the polygonal core region
+        when `core_polygonal` is True, default is 0.3.
+    core_polygonal : bool
+        Whether to create a polygonal core region inside the ring.
+        Default is False.
+    core_unstructured : bool
+        Whether to create an unstructured core region inside the ring.
+        Default is False.
+    rotation : float
+        Rotation angle in radians to apply to the entire geometry.
+        Default is 0.0.
+    """
+    __slots__ = (
+        "_model",
+        "_r_out",
+        "_r_in",
+        "_origin",
+        "_p_origin",
+        "_d0",
+        "_d1",
+        "_n_splits",
+        "_n_angular",
+        "_ring",
+        "_surfaces"
+    )
 
     def __init__(self,
             model: GmshOCCModel,
             radius: float,
             boundary_thickness: float,
-            cell_size_boundary: float,
-            cell_size_center: float,
+            cell_size_external: float,
+            cell_size_internal: float,
             num_points_angular: int | None = None,
             origin: tuple[float, float, float] | None = None,
-            n_splits: int = 8,
-            **kws
+            num_splits: int = 8,
+            radius_fraction: float = 0.3,
+            core_polygonal: bool = False,
+            core_unstructured: bool = False,
+            rotation: float = 0.0,
         ) -> None:
+        #####
+        ## Validation and preparation
+        #####
+
+        if core_polygonal and core_unstructured:
+            raise ValueError("Cannot have both core_polygonal and "
+                             "core_unstructured set to True")
+
+        if num_splits < 3:
+            raise ValueError("num_splits must be >= 3")
+
         if origin is None:
             origin = (0, 0, 0)
 
-        self._n = n_splits
-
+        self._model = model
         self._r_out  = radius
         self._r_in   = radius - boundary_thickness
-        self._origin = origin
 
-        self._d0 = cell_size_boundary
-        self._d1 = cell_size_center
+        self._origin = origin
+        self._p_origin = self._model.add_point(*self._origin)
+
+        self._d0 = cell_size_external
+        self._d1 = cell_size_internal
 
         if num_points_angular is None:
             num_points_angular = int(self._r_in // self._d1)
 
+        self._n_splits = num_splits
         self._n_angular = num_points_angular
 
-        self._model = model
-        self._p_origin = self._model.add_point(*self._origin)
+        #####
+        ## Main boundary ring
+        #####
 
-    def _add_arc(self, p_start, p_end):
-        return self._model.add_circle_arc(p_start, self._p_origin, p_end)
-
-    def _create_ring_boundary(self):
         bl = self._r_out - self._r_in
         nn, q = GeometricProgression.fit(bl, self._d0, self._d1)
 
@@ -720,9 +817,9 @@ class CircularCrossSection:
             self._model.set_transfinite_surface(surf_tag)
             self._model.set_recombine(2, surf_tag)
 
-        ring = RingBuilder(
+        self._ring = RingBuilder(
             model             = self._model,
-            splits            = self._n,
+            splits            = self._n_splits,
             radius_out        = self._r_out,
             radius_in         = self._r_in,
             linker_in         = self._add_arc,
@@ -730,16 +827,35 @@ class CircularCrossSection:
             origin            = self._origin,
             callback_lines    = callback_lines,
             callback_surfaces = callback_surfaces,
+            rotation          = rotation
         )
 
-        return ring
+        self._surfaces = self._ring.surface_tags
 
-    def _create_simple_core(self, tags_inner_lines: list[int]):
-        loop_tag = self._model.add_curve_loop(tags_inner_lines)
+        #####
+        ## Curves
+        #####
+
+        if core_polygonal:
+            self._create_polygonal_core(self._ring,
+                                        radius_fraction,
+                                        rotation)
+
+        if core_unstructured:
+            self._create_simple_core(self._ring)
+
+    def _add_arc(self, p_start, p_end):
+        """ Add arc around common system origin. """
+        return self._model.add_circle_arc(p_start, self._p_origin, p_end)
+
+    def _create_simple_core(self, outer_ring: RingBuilder):
+        """ Simply close the inner core of the ring. """
+        loop_tag = self._model.add_curve_loop(outer_ring.lines_in)
         surf_tag = self._model.add_plane_surface([loop_tag])
 
         self._model.synchronize()
         self._model.set_recombine(2, surf_tag)
+        self._surfaces.append(surf_tag)
 
         # WIP: could not get this working easily! Dunno!
         # len_arc = 2 * np.pi * self._r_in / self._n
@@ -760,25 +876,19 @@ class CircularCrossSection:
         #     print(f"@ x, y = {x:+.3f}, {y:+.3f} | r = {r:.3f} | f = {f:.3e}")
         #     return min(lc, f)
         #
-        # model._mesh.setSizeCallback(meshSizeCallback)
-        # model.synchronize()
+        # self._model._mesh.setSizeCallback(meshSizeCallback)
+        # self._model.synchronize()
 
-    def _create_polygonal_core(self,
-                               tags_inner_lines: list[int],
-                               tags_inner_points: list[int],
-                               structured: bool = True,
-                               radius_fraction: float = 0.4):
-        ###
-        # Iteration 0: create the 0D elements
-        ###
+    def _create_polygonal_core(self, outer_ring: RingBuilder,
+                               radius_fraction: float,
+                               rotation: float):
+        """ Create a polygonal core region inside the ring. """
+        structured = True
 
         r_core = self._r_in * radius_fraction
-        p_core = points_on_circle(r_core, self._n, self._origin)
+        p_core = points_on_circle(r_core, self._n_splits, self._origin,
+                                  rotation)
         p_tags_core = [self._model.add_point(*pt) for pt in p_core]
-
-        ###
-        # Iteration 1: create the 1D elements
-        ###
 
         def callback_lines(_split, i, j, l_cout, l_core, l_chord):
             nn = int(1 + self._model.get_length(l_chord) // self._d1)
@@ -793,37 +903,42 @@ class CircularCrossSection:
 
             self._model.set_recombine(2, surf_tag)
 
-        objs = RingBuilder.make_ring_curves(
-            model      = self._model,
-            points_in  = p_tags_core,
-            points_out = tags_inner_points,
-            lines_in   = [],
-            lines_out  = tags_inner_lines,
-            linker_in  = self._add_arc,
-            linker_out = self._add_arc,
-            callback   = callback_lines,
+        ring = RingBuilder(
+            model             = self._model,
+            splits            = self._n_splits,
+            points_in         = p_tags_core,
+            points_out        = outer_ring.points_in,
+            lines_in          = [],
+            lines_out         = outer_ring.lines_in,
+            linker_in         = self._add_arc,
+            linker_out        = self._add_arc,
+            callback_lines    = callback_lines,
+            callback_surfaces = callback_surfaces,
+            close_ring        = True
         )
 
-        _, l_tags_core, l_tags_chords = objs
+        self._surfaces.extend(ring.surface_tags)
 
-        surf_tags = RingBuilder.make_ring_surfaces(
-            model        = self._model,
-            lines_in     = l_tags_core,
-            lines_out    = tags_inner_lines,
-            lines_chords = l_tags_chords,
-            callback     = callback_surfaces
-        )
-
-        loop_tag = self._model.add_curve_loop(l_tags_core)
-        surf_tag = self._model.add_plane_surface([loop_tag])
-        surf_tags.append(surf_tag)
-        self._model.synchronize()
-
+        surf_tag = ring.surface_tags[-1]
         # TODO handle structured here with a distance field for the
         # core as it does not need to be so fine as around!
-
         self._model.set_recombine(2, surf_tag)
-        return surf_tags
+
+    @property
+    def surfaces(self) -> list[int]:
+        """ Access to all surface tags in the cross-section.
+
+        Where the first `num_splits` surfaces correspond to the ring
+        segments; If a polygonal core is created, the folloing `num_splits`
+        surfaces correspond to the structured core segments; in all cases,
+        the last surface corresponds to the unstructured core.
+        """
+        return self._surfaces
+
+    @property
+    def ring(self) -> RingBuilder:
+        """ Access to the main ring geometry of the cross-section. """
+        return self._ring
 
 
 def points_on_circle(
@@ -863,7 +978,8 @@ def hexagon_points_xy(
         Rotation angle in degrees to apply to the hexagon points around
         the Z axis, default is 0 (no rotation).
     """
-    return points_on_circle(apothem, 6, origin, rotation)
+    radius = 2.0 * apothem / np.sqrt(3)
+    return points_on_circle(radius, 6, origin, rotation)
 
 
 def square_points_xy(
