@@ -262,6 +262,27 @@ class GmshOCCModel:
         """ Add a physical volume (3D) group. """
         return self.add_physical_group(3, tags, tag_id, name)
 
+    def add_physical_groups(self, *,
+                            curves: list[dict[str, Any]] | None = None,
+                            surfaces: list[dict[str, Any]] | None = None,
+                            volumes: list[dict[str, Any]] | None = None,
+                                ) -> None:
+        """ Add multiple physical groups from a list of dictionaries. """
+        # TODO test for duplicates before interacting with gmsh
+        if curves is not None:
+            for entry in curves:
+                self.add_physical_curve(**entry)
+
+        if surfaces is not None:
+            for entry in surfaces:
+                self.add_physical_surface(**entry)
+
+        if volumes is not None:
+            for entry in volumes:
+                self.add_physical_volume(**entry)
+
+        self.synchronize()
+
     def mesh_and_save(self, filename: str, *, dim: int, **kws) -> None:
         """ Generate mesh and save to file. """
         self.synchronize()
@@ -770,6 +791,7 @@ class CircularCrossSection:
             core_polygonal: bool = False,
             core_unstructured: bool = False,
             rotation: float = 0.0,
+            recombine: bool = False
         ) -> None:
         #####
         ## Validation and preparation
@@ -839,22 +861,25 @@ class CircularCrossSection:
         if core_polygonal:
             self._create_polygonal_core(self._ring,
                                         radius_fraction,
-                                        rotation)
+                                        rotation, recombine)
 
         if core_unstructured:
-            self._create_simple_core(self._ring)
+            self._create_simple_core(self._ring, recombine)
 
     def _add_arc(self, p_start, p_end):
         """ Add arc around common system origin. """
         return self._model.add_circle_arc(p_start, self._p_origin, p_end)
 
-    def _create_simple_core(self, outer_ring: RingBuilder):
+    def _create_simple_core(self, outer_ring: RingBuilder, recombine: bool):
         """ Simply close the inner core of the ring. """
         loop_tag = self._model.add_curve_loop(outer_ring.lines_in)
         surf_tag = self._model.add_plane_surface([loop_tag])
 
         self._model.synchronize()
-        self._model.set_recombine(2, surf_tag)
+
+        if recombine:
+            self._model.set_recombine(2, surf_tag)
+
         self._surfaces.append(surf_tag)
 
         # WIP: could not get this working easily! Dunno!
@@ -881,7 +906,8 @@ class CircularCrossSection:
 
     def _create_polygonal_core(self, outer_ring: RingBuilder,
                                radius_fraction: float,
-                               rotation: float):
+                               rotation: float,
+                               recombine: bool):
         """ Create a polygonal core region inside the ring. """
         structured = True
 
@@ -922,7 +948,9 @@ class CircularCrossSection:
         surf_tag = ring.surface_tags[-1]
         # TODO handle structured here with a distance field for the
         # core as it does not need to be so fine as around!
-        self._model.set_recombine(2, surf_tag)
+
+        if recombine:
+            self._model.set_recombine(2, surf_tag)
 
     @property
     def surfaces(self) -> list[int]:
@@ -1000,3 +1028,35 @@ def square_points_xy(
         the Z axis, default is 0 (no rotation).
     """
     return points_on_circle(side * np.sqrt(2) / 2, 4, origin, rotation)
+
+
+def get_extrusion_tags(new_tags: list[tuple[int, int]], source_dim: int
+                       ) -> tuple[list[int], list[int]]:
+    """ Extract tags of extruded entities from the list of new tags. """
+    extruded_ndim = []
+    extruded_super = []
+    extruded_sides = []
+
+    this_iter = iter(new_tags[:])
+    that_iter = iter(new_tags[1:])
+
+    while True:
+        try:
+            (this_dim, this_val) = next(this_iter)
+            (that_dim, that_val) = next(that_iter)
+
+            if this_dim == source_dim + 1:
+                # *this* not handled here, but just skip to the next pair:
+                continue
+
+            if this_dim == source_dim and that_dim == source_dim + 1:
+                extruded_ndim.append(this_val)
+                extruded_super.append(that_val)
+                continue
+
+            # TODO validate!
+            # extruded_sides.append(this_val)
+        except StopIteration:
+            break
+
+    return extruded_super, extruded_ndim
