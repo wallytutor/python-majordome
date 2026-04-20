@@ -762,8 +762,9 @@ class CircularCrossSection:
         Fraction of the inner radius to use for the polygonal core region
         when `core_polygonal` is True, default is 0.3.
     core_polygonal : bool
-        Whether to create a polygonal core region inside the ring.
-        Default is False.
+        Whether to create a polygonal core region inside the ring; if
+        True, then the following `core_unstructured` option is used to
+        tell whether the core region should be closed with a single surface or left open for user-defined meshing. Default is False.
     core_unstructured : bool
         Whether to create an unstructured core region inside the ring.
         Default is False.
@@ -782,7 +783,8 @@ class CircularCrossSection:
         "_n_splits",
         "_n_angular",
         "_ring",
-        "_surfaces"
+        "_surfaces",
+        "_ring_core",
     )
 
     def __init__(self,
@@ -859,16 +861,18 @@ class CircularCrossSection:
             rotation          = rotation
         )
 
-        self._surfaces = self._ring.surface_tags
+        self._surfaces = self._ring.surface_tags.copy()
 
         #####
         ## Curves
         #####
 
+        self._ring_core = None
+
         if core_polygonal:
-            self._create_polygonal_core(self._ring,
-                                        radius_fraction,
-                                        rotation, recombine)
+            closed = core_unstructured
+            self._create_polygonal_core(self._ring, radius_fraction,
+                                        rotation, recombine, closed)
 
         if core_unstructured:
             self._create_simple_core(self._ring, recombine)
@@ -914,7 +918,8 @@ class CircularCrossSection:
     def _create_polygonal_core(self, outer_ring: RingBuilder,
                                radius_fraction: float,
                                rotation: float,
-                               recombine: bool):
+                               recombine: bool,
+                               closed: bool):
         """ Create a polygonal core region inside the ring. """
         structured = True
 
@@ -936,7 +941,7 @@ class CircularCrossSection:
 
             self._model.set_recombine(2, surf_tag)
 
-        ring = RingBuilder(
+        self._ring_core = RingBuilder(
             model             = self._model,
             splits            = self._n_splits,
             points_in         = p_tags_core,
@@ -947,12 +952,12 @@ class CircularCrossSection:
             linker_out        = self._add_arc,
             callback_lines    = callback_lines,
             callback_surfaces = callback_surfaces,
-            close_ring        = True
+            close_ring        = closed
         )
 
-        self._surfaces.extend(ring.surface_tags)
+        self._surfaces.extend(self._ring_core.surface_tags)
 
-        surf_tag = ring.surface_tags[-1]
+        surf_tag = self._ring_core.surface_tags[-1]
         # TODO handle structured here with a distance field for the
         # core as it does not need to be so fine as around!
 
@@ -964,11 +969,16 @@ class CircularCrossSection:
         """ Access to all surface tags in the cross-section.
 
         Where the first `num_splits` surfaces correspond to the ring
-        segments; If a polygonal core is created, the folloing `num_splits`
+        segments; If a polygonal core is created, the following `num_splits`
         surfaces correspond to the structured core segments; in all cases,
         the last surface corresponds to the unstructured core.
         """
         return self._surfaces
+
+    @property
+    def core(self) -> RingBuilder | None:
+        """ Access to the inner core ring geometry, if created. """
+        return self._ring_core
 
     @property
     def ring(self) -> RingBuilder:
