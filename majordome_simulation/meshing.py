@@ -64,6 +64,7 @@ class GmshOCCModel:
         # Aliases for model operations:
         self.get_boundary       = model.getBoundary
         self.add_physical_group = model.addPhysicalGroup
+        self.set_physical_name  = model.setPhysicalName
 
         # XXX: when using aliases, prefer the original name of the method
         # if it is PEP8 compliant. If the original name uses camelCase,
@@ -250,17 +251,23 @@ class GmshOCCModel:
     def add_physical_curve(self, *, tags: list[int], name: str,
                            tag_id: int = -1) -> int:
         """ Add a physical curve (1D) group. """
-        return self.add_physical_group(1, tags, tag_id, name)
+        group = self.add_physical_group(1, tags, tag_id, name)
+        # self.set_physical_name(1, group, name)
+        return group
 
     def add_physical_surface(self, *, tags: list[int], name: str,
                              tag_id: int = -1) -> int:
         """ Add a physical surface (2D) group. """
-        return self.add_physical_group(2, tags, tag_id, name)
+        group = self.add_physical_group(2, tags, tag_id, name)
+        # self.set_physical_name(2, group, name)
+        return group
 
     def add_physical_volume(self, *, tags: list[int], name: str,
                             tag_id: int = -1) -> int:
         """ Add a physical volume (3D) group. """
-        return self.add_physical_group(3, tags, tag_id, name)
+        group = self.add_physical_group(3, tags, tag_id, name)
+        # self.set_physical_name(3, group, name)
+        return group
 
     def add_physical_groups(self, *,
                             curves: list[dict[str, Any]] | None = None,
