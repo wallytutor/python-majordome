@@ -88,6 +88,8 @@ pip install -e .[full]
 Ubuntu users can bootstrap the environment with the following commands; make sure to check the latest versions of the tools and update the commands accordingly.
 
 ```bash
+sudo apt-get install -y python3-dev
+
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 source "$HOME/.cargo/env"
 
