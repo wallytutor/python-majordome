@@ -2,11 +2,12 @@
 
 ## Prerequisites
 
-The environment for developing Majordome requires at least a reasonably mondern version of Python and Rust. Documentation depends on Quarto. The exact versions may change over time, but as of the last update, the following (minimum) versions are recommended:
+The environment for developing Majordome requires at least a reasonably mondern version of Python and Rust; documentation depends on Quarto and `uv` is preferred over `pip` for managing the environment. The exact versions may change over time, but as of the last update, the following (minimum) versions are recommended:
 
 - Python 3.12
-- Rust 1.90
-- Quarto 1.8
+- [Rust 1.90](https://rust-lang.org/tools/install/)
+- [Quarto 1.8](https://quarto.org/docs/get-started/)
+- [uv](https://docs.astral.sh/uv/)
 
 The development focuses on portability and ease of setup, so by default any dependency relying on a C/C++ compiler is forbidden. This means that the development environment can be set up on any platform without needing to install additional compilers or tools.
 
@@ -20,10 +21,10 @@ Building the package:
 
 ``` bash
 # Install the Python package in development mode:
-./build.ps1 -FromPip
+./build.ps1 -FromPip -PythonEnv py312
 
 # Install the Python package with release optimizations and create wheel:
-./build.ps1 -FromPip -PackageDist -FlagRelease
+./build.ps1 -FromPip -PackageDist -FlagRelease -PythonEnv py312
 ```
 
 Testing the package:
@@ -80,6 +81,21 @@ python -m pip install --upgrade --force-reinstall setuptools_rust
 
 # Install the package in editable mode with all optional dependencies
 pip install -e .[full]
+```
+
+### Boostraping environment
+
+Ubuntu users can bootstrap the environment with the following commands; make sure to check the latest versions of the tools and update the commands accordingly.
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+source "$HOME/.cargo/env"
+
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source "$HOME/.local/bin/env"
+
+wget https://github.com/quarto-dev/quarto-cli/releases/download/v1.9.37/quarto-1.9.37-linux-amd64.deb
+sudo apt-get install -y ./quarto-1.9.37-linux-amd64.deb
 ```
 
 ## Documentation
