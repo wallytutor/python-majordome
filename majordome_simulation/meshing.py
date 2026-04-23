@@ -363,8 +363,7 @@ class GeometricProgression:
     @property
     def heights(self) -> NDArray[np.float64]:
         """ Heights of the segments in the progression. """
-        x = self.coordinates(x0=0.0)
-        return x[1:] - x[:-1]
+        return np.diff(self.coordinates(x0=0.0))
 
     @staticmethod
     def ratio(n: int, d0: float, d1: float) -> float:
