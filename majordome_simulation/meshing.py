@@ -339,6 +339,33 @@ class GeometricProgression:
             return self.n * self.d0
         return self.d0 * (1.0 - self.q**self.n) / (1.0 - self.q)
 
+    def coordinates(self, x0: float = 0.0) -> NDArray[np.float64]:
+        """ Absolute coordinates of the progression points.
+
+        Parameters
+        ----------
+        x0 : float
+            Coordinate of the first point in the progression.
+
+        Returns
+        -------
+        NDArray[np.float64]
+            Coordinates of the ``n + 1`` points delimiting the ``n``
+            segments of the progression.
+        """
+        indices = np.arange(self.n + 1, dtype=np.float64)
+
+        if abs(1.0 - self.q) < self.tol:
+            return x0 + self.d0 * indices
+
+        return x0 + self.d0 * (1.0 - self.q**indices) / (1.0 - self.q)
+
+    @property
+    def heights(self) -> NDArray[np.float64]:
+        """ Heights of the segments in the progression. """
+        x = self.coordinates(x0=0.0)
+        return x[1:] - x[:-1]
+
     @staticmethod
     def ratio(n: int, d0: float, d1: float) -> float:
         """ Geometric progression ratio for `n` segments from `d0` to `d1`.
