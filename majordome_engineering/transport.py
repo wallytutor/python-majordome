@@ -323,12 +323,12 @@ class SkinFrictionFactor:
     https://www.cfd-online.com/Wiki/Skin_friction_coefficient
     """
     @staticmethod
-    def laminar(Re):
+    def laminar(Re) -> float:
         """ Laminar limit theoretical value. """
         return 64 / Re
 
     @staticmethod
-    def smooth_wall(Re, check: bool = True):
+    def smooth_wall(Re, check: bool = True) -> float:
         """ Blasius smooth wall approximation.
 
         https://doi.org/10.1007/978-3-662-02239-9_1
@@ -373,16 +373,16 @@ class WallGradingCalculator:
         # print(f"Friction velocity ... {self._ut}")
 
     @staticmethod
-    def wall_shear_stress(rho, U, Cf):
+    def wall_shear_stress(rho, U, Cf) -> float:
         """ Wall shear stress estimater from friction factor [Pa]. """
         return Cf * rho * U**2
 
     @staticmethod
-    def friction_velocity(tw, rho):
+    def friction_velocity(tw, rho) -> float:
         """ Dimensionless friction velocity. """
         return (tw / rho)**(1/2)
 
-    def first_layer(self, y_plus, skin_factor: Callable | None = None) -> None:
+    def first_layer(self, y_plus, skin_factor: Callable | None = None) -> float:
         """ Height of first cell for given y+ value [m]. """
         if skin_factor is not None:
             self.set_skin_factor(skin_factor)
