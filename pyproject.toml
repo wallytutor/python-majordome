@@ -134,9 +134,6 @@ full = [
 # SETUPTOOLS-RUST
 ##############################################################################
 
-# [tool.setuptools-rust]
-# bindings = "bin"
-
 [[tool.setuptools-rust.bins]]
 target = "containerize"
 path = "bindings/rust/Cargo.toml"

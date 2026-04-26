@@ -76,7 +76,7 @@ param (
 )
 
 $script:PYTHON_ENV = $null
-$script:PATH_CORE   = "$PSScriptRoot\Cargo.toml"
+$script:PATH_CORE   = "$PSScriptRoot\bindings\rust\Cargo.toml"
 
 $env:MAJORDOME_INSTALL = "$PSScriptRoot[full]"
 $env:QUARTO_PYTHON = ""
@@ -345,11 +345,11 @@ function Main {
         exit 0
     }
     if ($RustCheck) {
-        cargo check --manifest-path "Cargo.toml"
+        cargo check --manifest-path $PATH_CORE
         exit 0
     }
     if ($TestRust) {
-        cargo test --manifest-path "Cargo.toml"
+        cargo test --manifest-path $PATH_CORE
         exit 0
     }
     if ($TestPython) {

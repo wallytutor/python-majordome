@@ -11,7 +11,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PATH_CORE="${SCRIPT_DIR}/Cargo.toml"
+PATH_CORE="${SCRIPT_DIR}/bindings/rust/Cargo.toml"
 
 # Keep same install marker convention as the PowerShell script.
 export MAJORDOME_INSTALL="${SCRIPT_DIR}[full]"
@@ -482,12 +482,12 @@ main() {
     fi
 
     if [[ "$RUST_CHECK" -eq 1 ]]; then
-        cargo check --manifest-path "Cargo.toml"
+        cargo check --manifest-path "$PATH_CORE"
         exit 0
     fi
 
     if [[ "$TEST_RUST" -eq 1 ]]; then
-        cargo test --manifest-path "Cargo.toml"
+        cargo test --manifest-path "$PATH_CORE"
         exit 0
     fi
 
