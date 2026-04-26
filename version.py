@@ -100,6 +100,9 @@ def update_cargo_version() -> None:
     lines[version_line_index] = updated_line
     CARGO_TOML.write_text("".join(lines), encoding="utf-8")
 
+    run(["git", "add", str(CARGO_TOML)], check=True)
+    run(["git", "commit", "-m", f"Version {VERSION}"], check=True)
+
 
 def tag_version_if_missing() -> None:
     """ Create and push a git tag if it does not already exist. """
