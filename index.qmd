@@ -39,6 +39,37 @@ Majordome code is documented using Numpydoc style docstrings, and the documentat
 
 To standardize packaging and distribution, build scripts are provided for both Windows PowerShell (`build.ps1`) and Unix-like shells (`build.sh`). These scripts handle the installation of dependencies, building the package, running tests, and generating documentation. The scripts are designed to be user-friendly and to provide clear feedback on the actions being performed. Both share the same command line arguments, which are illustrated below (using `build.ps1` as an example). In all cases, use `-PythonEnv` to choose target Python environment(s), available options are `py312`, `py313`, `py314`.
 
+---
+
+### Commands
+
+Build options:
+
+- `-FlagRelease`: release mode (`rust.debug=false`, optimized Rust flags)
+- `-FlagBacktrace`: enables Rust backtraces
+- `-RustCheck`: runs `cargo check`
+- `-RustCore`: builds core Rust crate
+- `-TestRust`: runs `cargo test`
+- `-TestPython`: runs `pytest` on selected Python environment(s)
+- `-FromPip`: installs package in editable mode on selected Python environment(s)
+- `-PackageDist`: builds wheel(s); requires `-FromPip`
+
+Documentation options:
+
+- `-PackageDocs`: renders docs (HTML)
+- `-FreshDocs`: clears cache/output before docs build; requires `-PackageDocs`
+- `-DocsPdf`: renders docs PDF; requires `-PackageDocs`
+- `-PublishDocs`: publishes docs with Quarto to GitHub Pages
+
+Cleanup options:
+
+- `-Clean`: removes build artifacts (`build`, `target`, logs, cache dirs)
+- `-DistClean`: includes Python venvs and `dist`
+
+**Note:** Python environments are created under `venv312`, `venv313`, and `venv314` and `QUARTO_PYTHON` is set automatically from the selected environment.
+
+---
+
 ### Examples
 
 - Building the package:
@@ -89,42 +120,13 @@ twine upload --repository majordome dist/*
 
 ---
 
-### Commands
-
-Build options:
-
-- `-FlagRelease`: release mode (`rust.debug=false`, optimized Rust flags)
-- `-FlagBacktrace`: enables Rust backtraces
-- `-RustCheck`: runs `cargo check`
-- `-RustCore`: builds core Rust crate
-- `-TestRust`: runs `cargo test`
-- `-TestPython`: runs `pytest` on selected Python environment(s)
-- `-FromPip`: installs package in editable mode on selected Python environment(s)
-- `-PackageDist`: builds wheel(s); requires `-FromPip`
-
-Documentation options:
-
-- `-PackageDocs`: renders docs (HTML)
-- `-FreshDocs`: clears cache/output before docs build; requires `-PackageDocs`
-- `-DocsPdf`: renders docs PDF; requires `-PackageDocs`
-- `-PublishDocs`: publishes docs with Quarto to GitHub Pages
-
-Cleanup options:
-
-- `-Clean`: removes build artifacts (`build`, `target`, logs, cache dirs)
-- `-DistClean`: includes Python venvs and `dist`
-
-**Note:** Python environments are created under `venv312`, `venv313`, and `venv314` and `QUARTO_PYTHON` is set automatically from the selected environment.
-
----
-
 ### Manual setup
 
 For developing the package, consider doing so from within a virtual environment; that will makes things easier to check versions and pin them properly in package dependencies, as needed. Following the next snippet, install, activate, upgrade pip, install build tools, and install the package in editable mode with all optional dependencies:
 
 ```bash
 # Create a virtual environment
-python -m venv venv
+uv venv --python 3.12 venv
 
 # Activate the virtual environment (Windows PowerShell)
 . venv/Scripts/Activate.ps1
@@ -132,16 +134,13 @@ python -m venv venv
 # Activate the virtual environment (Unix-like)
 . venv/bin/activate
 
-# Upgrade pip
-python -m pip install --upgrade pip
-
 # Install build tools
-python -m pip install --upgrade --force-reinstall build wheel
-python -m pip install --upgrade --force-reinstall setuptools
-python -m pip install --upgrade --force-reinstall setuptools_rust
+uv pip install --upgrade --force-reinstall build wheel
+uv pip install --upgrade --force-reinstall setuptools
+uv pip install --upgrade --force-reinstall setuptools_rust
 
 # Install the package in editable mode with all optional dependencies
-pip install -e .[full]
+uv pip install -e .[full]
 ```
 
 Ubuntu users can bootstrap the environment with the following commands; make sure to check the latest versions of the tools and update the commands accordingly.
@@ -156,6 +155,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 source "$HOME/.local/bin/env"
 
 quarto_repo="https://github.com/quarto-dev/quarto-cli"
-wget $quarto_repo/releases/download/v1.9.37/quarto-1.9.37-linux-amd64.deb
-sudo apt-get install -y ./quarto-1.9.37-linux-amd64.deb
+quarto_deb="quarto-1.9.37-linux-amd64.deb"
+
+wget $quarto_repo/releases/download/v1.9.37/$quarto_deb
+sudo apt-get install -y ./$quarto_deb
 ```
