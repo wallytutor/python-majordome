@@ -1,4 +1,4 @@
-# Majordome Home
+# Majordome
 
 ## Getting Started
 

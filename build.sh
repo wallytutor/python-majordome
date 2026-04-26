@@ -115,6 +115,22 @@ test_tool_status() {
     fi
 }
 
+ensure_clean_git_for_package_dist() {
+    local status_output
+    if ! status_output="$(git status --porcelain 2>/dev/null)"; then
+        printf 'WARNING: Could not determine git status. Aborting --package-dist for safety.\n'
+        exit 1
+    fi
+
+    if [[ -z "$status_output" ]]; then
+        return
+    fi
+
+    printf 'WARNING: --package-dist requires a clean git repository.\n'
+    printf 'Uncommitted changes were detected; aborting to prevent accidental tagging.\n'
+    exit 1
+}
+
 set_param_set() {
     local requested="$1"
 
@@ -233,6 +249,12 @@ install_python_package() {
     fi
 
     printf '[%s] Installing editable package\n' "$PYENV_NAME"
+
+    if [[ "$PACKAGE_DIST" -eq 1 ]]; then
+        ensure_clean_git_for_package_dist
+        "$PYTHON_EXE" version.py -tag
+    fi
+
     "$PYTHON_EXE" -m pip install -e "$MAJORDOME_INSTALL" "${opts[@]}"
     majordome --install-kernel
 
@@ -393,6 +415,7 @@ main() {
         remove_hard "${SCRIPT_DIR}/target"
         remove_hard "${SCRIPT_DIR}/log.*"
         remove_hard "${SCRIPT_DIR}/__pycache__"
+        remove_hard "${SCRIPT_DIR}/*.egg-info"
         remove_hard "${SCRIPT_DIR}/.quarto"
         remove_hard "${SCRIPT_DIR}/.vscode"
         remove_hard "${SCRIPT_DIR}/_book"

@@ -101,6 +101,22 @@ function Test-ToolStatus {
     }
 }
 
+function Assert-CleanGitForPackageDist {
+    $statusOutput = git status --porcelain 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "Could not determine git status. Aborting -PackageDist for safety."
+        exit 1
+    }
+
+    if ([string]::IsNullOrWhiteSpace(($statusOutput -join ""))) {
+        return
+    }
+
+    Write-Warning "-PackageDist requires a clean git repository."
+    Write-Warning "Uncommitted changes were detected; aborting to prevent accidental tagging."
+    exit 1
+}
+
 function Initialize-PythonEnvironment {
     param (
         [pscustomobject]$PyEnv
@@ -216,6 +232,12 @@ function Install-PythonPackage {
 
     $pyEnv = $script:PYTHON_ENV
     Write-Host "[$($pyEnv.Name)] Installing editable package"
+
+    if ($PackageDist) {
+        Assert-CleanGitForPackageDist
+        & $pyEnv.PythonExe version.py -tag
+    }
+
     & $pyEnv.PythonExe -m pip install -e $env:MAJORDOME_INSTALL @opts
     & majordome --install-kernel
 
@@ -255,6 +277,7 @@ function Main {
         Remove-Hard $(Join-Path $PSScriptRoot "target")
         Remove-Hard $(Join-Path $PSScriptRoot "log.*")
         Remove-Hard $(Join-Path $PSScriptRoot "__pycache__")
+        Remove-Hard $(Join-Path $PSScriptRoot "*.egg-info")
         Remove-Hard $(Join-Path $PSScriptRoot ".quarto")
         Remove-Hard $(Join-Path $PSScriptRoot ".vscode")
         Remove-Hard $(Join-Path $PSScriptRoot "_book")
