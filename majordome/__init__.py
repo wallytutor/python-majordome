@@ -38,7 +38,7 @@ def __dir__():
     return sorted(names)
 
 
-from _majordome import __version__, constants
+from ._majordome import __version__, constants
 from .utilities import MajordomePlot
 
 __all__ += [
