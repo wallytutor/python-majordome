@@ -11,6 +11,11 @@ BUILD_ARGS = [
     "-FlagRelease",
 ]
 
+DOCS_ARGS = [
+    "-PythonEnv", "py312",
+    "-PublishDocs",
+]
+
 REMOVE_PATHS = [
     "__pycache__",
     "dist",
@@ -52,6 +57,7 @@ def main_windows():
         shutil.rmtree(here / item, ignore_errors=True)
 
     run_build_ps1("-Clean")
+    run_build_ps1(*DOCS_ARGS)
     run_build_ps1(*BUILD_ARGS)
 
     wsl_name = "ubuntu"
