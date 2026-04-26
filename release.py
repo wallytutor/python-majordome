@@ -50,20 +50,28 @@ def main_windows():
     for item in REMOVE_PATHS:
         shutil.rmtree(here / item, ignore_errors=True)
 
-    run_build_ps1("-Clean")
-    run_build_ps1(*BUILD_ARGS)
+    # run_build_ps1("-Clean")
+    # run_build_ps1(*BUILD_ARGS)
 
     wsl_name = "ubuntu"
     wsl_here = win_to_wsl(here)
 
-    # cmd = [
-    #     "wsl",
-    #     "-d", wsl_name,
-    #     "--",
-    #     "bash", "-c",
-    #     f"cd {wsl_here} && ./build.sh {' '.join(build_args)}"
-    # ]
-    # run(cmd, check=True)
+    nix = [
+        "source ~/.bashrc",
+        f"cd {wsl_here}",
+        f"bash build.sh {' '.join(BUILD_ARGS)}",
+    ]
+
+    cmd = [
+        "wsl",
+        "-d", wsl_name,
+        "--",
+        "bash", "-lc",
+        " && ".join(nix),
+    ]
+
+    run(cmd, check=True)
+
 
 if __name__ == "__main__":
     if sys.platform.startswith("win"):
