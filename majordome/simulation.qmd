@@ -1,0 +1,131 @@
+# Simulation
+
+*aka majordome.simulation*
+
+```{python}
+from majordome.documents import *
+from majordome.simulation import *
+```
+
+## Elmer Multiphysics
+
+### TimeStepAccumulator
+
+```{python}
+doc = DocumentedClass(TimeStepAccumulator)
+doc.constructor()
+doc.members()
+```
+
+In general the usage of the `TimeStepAccumulator` is as follows:
+
+```{python}
+acc = TimeStepAccumulator()
+acc.add_block(end_time=1e-5, time_step=1e-6, save_interval=1e-5)
+acc.add_block(end_time=1e-4, time_step=1e-5, save_interval=9e-5)
+acc.add_block(end_time=1e-3, time_step=1e-4, save_interval=9e-4)
+
+print(str(acc))
+```
+
+#### ConstantTimeStepInterval
+
+In some special cases, when using `TimeStepAccumulator` you might want to add time steps one by one, which can be done using the `append` method in combination with the `ConstantTimeStepInterval` described below.
+
+```{python}
+doc = DocumentedClass(ConstantTimeStepInterval)
+doc.constructor()
+doc.members()
+```
+
+### ElmerConvergenceData
+
+```{python}
+doc = DocumentedClass(ElmerConvergenceData)
+doc.constructor()
+doc.members()
+doc.properties()
+```
+
+### ElmerTabularData
+
+```{python}
+doc = DocumentedClass(ElmerTabularData)
+doc.constructor()
+doc.properties()
+```
+
+### ElmerTabularMetadata
+
+```{python}
+doc = DocumentedClass(ElmerTabularMetadata)
+doc.constructor()
+doc.properties()
+```
+
+---
+
+## Ansys Fluent
+
+### FluentFvParticlesParser
+
+This class provides functionality for parsing particle track files. Fluent export DPM results in several formats; `majordome` supports *fieldview* particle tracks through `FluentFvParticlesParser`. Loading a file is as simple as:
+
+```{python}
+dpm = FluentFvParticlesParser("data/docs/sample.fvp")
+```
+
+You can retrieve the names of columns and number of individual tracks with the following properties:
+
+```{python}
+dpm.variable_names, dpm.n_tracks
+```
+
+For convenience, tracks can be recovered as data frames through object indexing:
+
+```{python}
+dpm[0]
+```
+
+### FluentInterpolationParser
+
+Sometimes is is also useful to parse interpolation files. It enables one to compute new quantites for an interpolation files may be useful, especially in reasearch settings. Class `FluentInterpolationParser` is able to read the contents of an interpolation file exported in plain text format. Below you find an example of parsing.
+
+```{python}
+ip = FluentInterpolationParser("data/docs/sample.ip")
+```
+
+Names of variables are provided by property `variable_names`:
+
+```{python}
+ip.variable_names
+```
+
+Valid names can be used to retrieve data for a given variable:
+
+```{python}
+ip.get_data("x0")
+```
+
+The whole data table can be retreived with `data` property, where each variable correspond to a column:
+
+```{python}
+ip.data
+```
+
+---
+
+## OpenFOAM
+
+---
+
+## Meshing
+
+### GmshOCCModel
+
+```{python}
+doc = DocumentedClass(GmshOCCModel)
+doc.constructor()
+```
+
+<!-- TODO document members -->

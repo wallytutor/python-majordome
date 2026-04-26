@@ -1,0 +1,323 @@
+# Utilities
+
+*aka majordome.utilities*
+
+This module provides a set of utilities that are whether too general purpose for integrating another module or still waiting to find their definitive home. These include constants, type aliases, and functionalities of different kinds. Regarding this last kind of components, this tutorial aims at illustrating their use for practical documentation.
+
+```{python}
+from majordome.documents import *
+from majordome.utilities import *
+from functools import wraps, update_wrapper
+import numpy as np
+import pyvista as pv
+
+pv.set_plot_theme("document")
+pv.set_jupyter_backend("static")
+```
+
+## Plotting
+
+### MajordomePlot
+
+One might ask why a wrapper around Matplotlib's `Figure` and `Axes` is necessary, and I would strongly agree that it isn't. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That's the main goal of `MajordomePlot`: simplifying the plotting of publication-quality figures across Majordome (and beyond!). Below we illustrate how to use this functionality to ensure all the plots in a project look the same.
+
+```{python}
+doc = DocumentedClass(MajordomePlot)
+doc.constructor()
+```
+
+Let's see how one would expect to use it from the above constructor signature. This is in fact almost the same as calling `plt.subplots()`, and that is what the constructor does under the hood. This is a *negative* example actually, the author has *never* used the constructor directly, but instead uses the `new` classmethod, which is a much more convenient way to create a plot. More on that later.
+
+```{python}
+#| echo: true
+x = np.linspace(0, 10, 100)
+mp = MajordomePlot(shape=(1, 1), size=(5, 4))
+mp.axes[0].plot(x, np.sin(x))
+mp.axes[0].set_xlabel("x")
+mp.axes[0].set_ylabel("sin(x)")
+pass
+```
+
+The story behind this class dates a few years back, when I was learning about Python decorators. As an exercise, I coded what later became the `new` classmethod, which is a decorator that creates a new `MajordomePlot` and passes it to the decorated function. This is a very convenient way to create plots, as it allows you to focus on the plotting code and not worry about the boilerplate of creating the plot and setting the labels.
+
+```{python}
+doc.classmethods()
+```
+
+In the following example, we make use of this decorator to parametrize the labels of the plot. Internally, we must expect a *keyword-only* argument `plot`, which is the `MajordomePlot` instance created by the decorator, from which we can access the `Figure` and `Axes` objects as usual. The rest of the code is just standard Matplotlib code, with the exeption that the axes is raveled, so we can access it with `ax[0]` instead of `ax[0, 0]`. Returning `plot` is optional (it is done by the decorator already), but it avoids linting errors if you want to annotate the return type as `MajordomePlot`.
+
+Here we create a function that will be used below in the examples. In summary, to get it working, you need to:
+
+- Use decorator `@MajordomePlot.new` with all its configurable attributes; for details, please refer to its API documentation.
+
+- Have a function with signature `func(*args, plot=None, **kwargs) -> None`, where it is recommended (for linter) to provide explictly keyword `plot=None`.
+
+- Unpack `fig, ax = plot.subplots()` or just `_, ax = plot.subplots()`, as needed, inside the figure; these contain standard `matplotlib` figure and axes.
+
+```{python}
+#| echo: true
+@MajordomePlot.new(size=(5, 4), xlabel="x", ylabel="sin(x)")
+def plot_sin(x, *, plot, **kwargs) -> MajordomePlot:
+    _, ax = plot.subplots()
+    ax[0].plot(x, np.sin(x))
+    return plot
+
+plot = plot_sin(np.linspace(0, 10, 100))
+```
+
+The following elements document the members and properties of the class.
+
+```{python}
+doc.members()
+```
+
+```{python}
+doc.properties()
+```
+
+### PowerFormatter
+
+```{python}
+entry = SignatureEntry(PowerFormatter)
+entry.documentation()
+```
+
+```{python}
+def saddle(X, Y):
+    return 2 * (X - 5) * (Y - 5)
+
+
+@MajordomePlot.new(size=(5, 4), xlabel="x", ylabel="exp(x)")
+def plot_saddle(x, *, plot, **kwargs) -> MajordomePlot:
+    X, Y = np.meshgrid(x, x)
+    Z = saddle(X, Y)
+
+    zmin, zmax = Z.min(), Z.max()
+    zstep = (zmax - zmin) / 10
+
+    ticks = np.round(np.arange(zmin, zmax + 1, zstep))
+    extend = (x.min(), x.max(), x.min(), x.max())
+
+    fig, ax = plot.subplots()
+    im = ax[0].imshow(Z, extent=extend, cmap="seismic")
+
+    cbar = fig.colorbar(im, ax=ax[0], shrink=0.95)
+    cbar.set_label("Dummy Spectral Density", rotation=270, labelpad=15)
+    cbar.set_ticks(ticks)
+    cbar.ax.yaxis.set_major_formatter(PowerFormatter())
+
+    return plot
+
+plot = plot_saddle(np.linspace(0, 10, 100))
+```
+
+### General utilities
+
+```{python}
+entry = SignatureEntry(centered_colormap)
+entry.documentation()
+```
+
+```{python}
+cmap = centered_colormap("seismic", vmin=0, vmax=1, vcenter=0.75)
+
+obj = pv.Sphere(radius=1, center=(0, 0, 0))
+x, y, z = obj.points.T
+
+f = 5 * x * y * z
+f -= f.min()
+f = f / (f.max() - f.min())
+
+p = pv.Plotter()
+p.add_mesh(obj, scalars=f, cmap=cmap)
+p.show()
+```
+
+## LaTeX
+
+*Upcoming...*
+
+## Argument parsing
+
+### FuncArguments
+
+```{python}
+#| echo: true
+def f(*args, **kwargs):
+    """ Arbitrary interface function for illustration. """
+    f.parser.update(*args, **kwargs)
+
+    try:
+        print(f"a = {f.parser.get('a')}, b = {f.parser.get('b')}")
+        f.parser.close()
+    except Exception as err:
+        print(err)
+        pass
+```
+
+- Arguments are both positional-mandatory
+
+```{python}
+#| echo: true
+f.parser = FuncArguments()
+f.parser.add("a", index=0)
+f.parser.add("b", index=1)
+
+f(3)
+f(3, 4)
+```
+
+- Arguments are both keyword-only
+
+```{python}
+#| echo: true
+f.parser = FuncArguments()
+f.parser.add("a", default="foo")
+f.parser.add("b", default="bar")
+
+f(3)
+f(3, 4)
+f(3, b=4)
+f(a=3, b=4)
+```
+
+- One positional and another (maybe) positional
+
+```{python}
+#| echo: true
+f.parser = FuncArguments()
+f.parser.add("a", index=0)
+f.parser.add("b", index=1, default=6)
+
+f(3)
+f(3, 4)
+f(3, 4, b=4)
+```
+
+- Badly configured
+
+```{python}
+#| echo: true
+f.parser = FuncArguments()
+
+try:
+    f.parser.add("a")
+    f.parser.add("b")
+except Exception as err:
+    print(err)
+```
+
+### Creating class constructors
+
+*You should probably not do this, but it is quite fun!*
+
+```{python}
+#| echo: true
+def _init_some_class(cls):
+    """ Decorator to enhance SomeClass with argument parsing. """
+    orig_init = cls.__init__
+
+    # Maybe stash for later use?
+    # cls.__orig_init__ = orig_init
+
+    parser = FuncArguments(greedy_args=False, pop_kw=True)
+    parser.add("a", 0)
+    parser.add("x", default=None)
+
+    @wraps(orig_init)
+    def new_init(self, *args, **kwargs):
+        parser.update(*args, **kwargs)
+        a = parser.get("a")
+        x = parser.get("x")
+
+        orig_init(self, *parser.args, **parser.kwargs)
+        parser.close()
+
+        # -- logic goes here
+        print(f"some a = {a}")
+        print(f"some x = {x}")
+
+        return None
+
+    cls.__init__ = update_wrapper(new_init, orig_init)
+    return cls
+```
+
+```{python}
+#| echo: true
+class BaseClass:
+    def __init__(self, *args, **kwargs) -> None:
+        print(f"args   = {args}")
+        print(f"kwargs = {kwargs}")
+```
+
+```{python}
+#| echo: true
+@_init_some_class
+class SomeClass(BaseClass):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+```
+
+```{python}
+#| echo: true
+some = SomeClass(1, 2, 3, x=1, y=2)
+```
+
+## PDF Tools
+
+### PdfToTextConverter
+
+Below we illustrate the usage of `PdfToTextConverter`. Please notice that data curation of extracted texts is still required if readability is a requirement. If quality of automated extractions is often poor for a specific language, you might want to search the web how to *train tesseract*, that topic is not covered here.
+
+**Note:** this note assumes [tesseract](https://github.com/tesseract-ocr/tesseract) and [poppler](https://github.com/oschwartz10612/poppler-windows), and [ImageMagick](https://imagemagick.org/) are available in system path. Under Windows you might struggle to get them all working together, please check Majordome's Kompanion for automatic installation.
+
+Install dependencies on Ubuntu 22.04:
+
+```bash
+sudo apt install tesseract-ocr imagemagick poppler-utils
+```
+
+In case of Rocky Linux 9:
+
+```bash
+sudo dnf install tesseract tesseract-langpack-eng ImageMagick poppler-utils
+```
+
+Assuming the dependencies are found in the path, it is simply a matter of creating a converter:
+
+```{python}
+#| echo: true
+converter = PdfToTextConverter()
+```
+
+For generated PDF (not scanned documents), it is much faster to avoir using OCR; below we show the metadata from a paper:
+
+```{python}
+#| echo: true
+data = converter("data/docs/pdftools/paper.pdf", use_ocr=False)
+data.meta
+```
+
+For scanned documents, by default if OCR is not enabled it will be used as a fallback method for text extraction:
+
+```{python}
+#| echo: true
+data = converter("data/docs/pdftools/scanned.pdf", last_page=1)
+data.content[:500]
+```
+
+## Misc
+
+### ColorPrint
+
+```{python}
+ColorPrint.red("This is a red message.")
+ColorPrint.green("This is a green message.")
+ColorPrint.blue("This is a blue message.")
+ColorPrint.yellow("This is a yellow message.")
+ColorPrint.cyan("This is a cyan message.")
+```
+
+<!-- ## *ReadTextData* -->
+<!-- ## *InteractiveSession* -->

@@ -18,21 +18,12 @@ book:
   chapters:
     - index.qmd
     - majordome/magic.qmd
-    - majordome_engineering/energy.qmd
-    - majordome_engineering/reactor.qmd
-    - majordome_engineering/symbolic.qmd
-    - majordome_engineering/transport.qmd
-    - majordome_simulation/elmer.qmd
-    - majordome_simulation/fluent.qmd
-    - majordome_simulation/meshing.qmd
-    - majordome_utilities/common.qmd
-    - majordome_utilities/documents.qmd
-    - majordome_utilities/latex.qmd
-    - majordome_utilities/parsing.qmd
-    - majordome_utilities/pdftools.qmd
-    - majordome_utilities/plotting.qmd
-    - _docs/developers.qmd
-    - _docs/references.qmd
+    - majordome/engineering.qmd
+    - majordome/simulation.qmd
+    - majordome/utilities.qmd
+    - majordome/documents.qmd
+    - majordome/_docs/developers.qmd
+    - majordome/_docs/references.qmd
 
 bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
 

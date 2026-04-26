@@ -12,12 +12,12 @@ def _import_subpackage(name: str):
     self = sys.modules[__name__]
 
     try:
-        obj = import_module(f"majordome_{name}")
+        obj = import_module(f"majordome.{name}")
         setattr(self, name, obj)
 
         __all__ += [name]
     except ImportError as e:
-        warnings.warn(f"importing majordome_{name}: {e}", ImportWarning)
+        warnings.warn(f"importing majordome.{name}: {e}", ImportWarning)
 
 
 def __dir__():
@@ -38,11 +38,8 @@ def __dir__():
     return sorted(names)
 
 
-from .utilities import (
-    __version__,
-    constants,
-    MajordomePlot
-)
+from _majordome import __version__, constants
+from .utilities import MajordomePlot
 
 __all__ += [
     "__version__",
@@ -52,5 +49,6 @@ __all__ += [
 
 _import_subpackage("utilities")
 _import_subpackage("cartography")
+_import_subpackage("documents")
 _import_subpackage("engineering")
 _import_subpackage("simulation")
