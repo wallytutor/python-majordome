@@ -18,6 +18,7 @@ REMOVE_PATHS = [
     "majordome.egg-info",
 ]
 
+
 def win_to_wsl(path: Path) -> str:
     """ Convert a Windows path to a WSL path. """
     cmd = ["wsl", "wslpath", str(path.as_posix())]
@@ -50,8 +51,8 @@ def main_windows():
     for item in REMOVE_PATHS:
         shutil.rmtree(here / item, ignore_errors=True)
 
-    # run_build_ps1("-Clean")
-    # run_build_ps1(*BUILD_ARGS)
+    run_build_ps1("-Clean")
+    run_build_ps1(*BUILD_ARGS)
 
     wsl_name = "ubuntu"
     wsl_here = win_to_wsl(here)
