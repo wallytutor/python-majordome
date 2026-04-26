@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 import sys
 
-VERSION = "1.0.1"
+VERSION = "1.0.0"
 
 CARGO_TOML = Path(__file__).resolve().parent / "bindings/rust/Cargo.toml"
 
