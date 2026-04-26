@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>7&nbsp; Elmer Simulation – Majordome</title>
+<title>4&nbsp; Simulation – Majordome</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -58,15 +58,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../majordome_simulation/fluent.html" rel="next">
-<link href="../majordome_engineering/transport.html" rel="prev">
+<link href="../majordome/utilities.html" rel="next">
+<link href="../majordome/engineering.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -105,6 +105,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -118,7 +121,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome_simulation/elmer.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Elmer Simulation</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome/simulation.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simulation</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -146,7 +149,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Majordome Home</span></span></a>
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Majordome</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -157,91 +160,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome_engineering/energy.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Energy sources</span></span></a>
+  <a href="../majordome/engineering.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Engineering</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome_engineering/reactor.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Reactor models</span></span></a>
+  <a href="../majordome/simulation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simulation</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome_engineering/symbolic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Symbolic functions</span></span></a>
+  <a href="../majordome/utilities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Utilities</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome_engineering/transport.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Transport properties</span></span></a>
+  <a href="../majordome/documents.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome_simulation/elmer.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Elmer Simulation</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_simulation/fluent.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fluent files</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_simulation/meshing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Meshing helpers</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_utilities/common.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Common</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_utilities/documents.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_utilities/latex.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">LaTeX Helpers</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_utilities/parsing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Argument parsing</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_utilities/pdftools.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">PDF Tools</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../majordome_utilities/plotting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Plotting</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../_docs/developers.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Developer Guide</span></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../_docs/references.html" class="sidebar-item-text sidebar-link">
+  <a href="../majordome/_docs/references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
 </li>
@@ -255,11 +198,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#timestepaccumulator" id="toc-timestepaccumulator" class="nav-link active" data-scroll-target="#timestepaccumulator"><span class="header-section-number">7.1</span> TimeStepAccumulator</a></li>
-  <li><a href="#constanttimestepinterval" id="toc-constanttimestepinterval" class="nav-link" data-scroll-target="#constanttimestepinterval"><span class="header-section-number">7.2</span> ConstantTimeStepInterval</a></li>
-  <li><a href="#elmerconvergencedata" id="toc-elmerconvergencedata" class="nav-link" data-scroll-target="#elmerconvergencedata"><span class="header-section-number">7.3</span> ElmerConvergenceData</a></li>
-  <li><a href="#elmertabulardata" id="toc-elmertabulardata" class="nav-link" data-scroll-target="#elmertabulardata"><span class="header-section-number">7.4</span> ElmerTabularData</a></li>
-  <li><a href="#elmertabularmetadata" id="toc-elmertabularmetadata" class="nav-link" data-scroll-target="#elmertabularmetadata"><span class="header-section-number">7.5</span> ElmerTabularMetadata</a></li>
+  <li><a href="#elmer-multiphysics" id="toc-elmer-multiphysics" class="nav-link active" data-scroll-target="#elmer-multiphysics"><span class="header-section-number">4.1</span> Elmer Multiphysics</a>
+  <ul class="collapse">
+  <li><a href="#timestepaccumulator" id="toc-timestepaccumulator" class="nav-link" data-scroll-target="#timestepaccumulator"><span class="header-section-number">4.1.1</span> TimeStepAccumulator</a></li>
+  <li><a href="#elmerconvergencedata" id="toc-elmerconvergencedata" class="nav-link" data-scroll-target="#elmerconvergencedata"><span class="header-section-number">4.1.2</span> ElmerConvergenceData</a></li>
+  <li><a href="#elmertabulardata" id="toc-elmertabulardata" class="nav-link" data-scroll-target="#elmertabulardata"><span class="header-section-number">4.1.3</span> ElmerTabularData</a></li>
+  <li><a href="#elmertabularmetadata" id="toc-elmertabularmetadata" class="nav-link" data-scroll-target="#elmertabularmetadata"><span class="header-section-number">4.1.4</span> ElmerTabularMetadata</a></li>
+  </ul></li>
+  <li><a href="#ansys-fluent" id="toc-ansys-fluent" class="nav-link" data-scroll-target="#ansys-fluent"><span class="header-section-number">4.2</span> Ansys Fluent</a>
+  <ul class="collapse">
+  <li><a href="#fluentfvparticlesparser" id="toc-fluentfvparticlesparser" class="nav-link" data-scroll-target="#fluentfvparticlesparser"><span class="header-section-number">4.2.1</span> FluentFvParticlesParser</a></li>
+  <li><a href="#fluentinterpolationparser" id="toc-fluentinterpolationparser" class="nav-link" data-scroll-target="#fluentinterpolationparser"><span class="header-section-number">4.2.2</span> FluentInterpolationParser</a></li>
+  </ul></li>
+  <li><a href="#openfoam" id="toc-openfoam" class="nav-link" data-scroll-target="#openfoam"><span class="header-section-number">4.3</span> OpenFOAM</a></li>
+  <li><a href="#meshing" id="toc-meshing" class="nav-link" data-scroll-target="#meshing"><span class="header-section-number">4.4</span> Meshing</a>
+  <ul class="collapse">
+  <li><a href="#gmshoccmodel" id="toc-gmshoccmodel" class="nav-link" data-scroll-target="#gmshoccmodel"><span class="header-section-number">4.4.1</span> GmshOCCModel</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -268,7 +223,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Elmer Simulation</span></h1>
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simulation</span></h1>
 </div>
 
 
@@ -285,10 +240,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><em>aka majordome_simulation.elmer</em></p>
-<section id="timestepaccumulator" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="timestepaccumulator"><span class="header-section-number">7.1</span> TimeStepAccumulator</h2>
-<div id="975085e3" class="cell" data-execution_count="3">
+<p><em>aka majordome.simulation</em></p>
+<section id="elmer-multiphysics" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="elmer-multiphysics"><span class="header-section-number">4.1</span> Elmer Multiphysics</h2>
+<section id="timestepaccumulator" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="timestepaccumulator"><span class="header-section-number">4.1.1</span> TimeStepAccumulator</h3>
+<div id="5dc03eb0" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="TimeStepAccumulator">
 <div class="callout-header d-flex align-content-center">
@@ -425,7 +382,7 @@ The time step interval to append to the accumulator.
 </div>
 </div>
 <p>In general the usage of the <code>TimeStepAccumulator</code> is as follows:</p>
-<div id="1091479e" class="cell" data-execution_count="4">
+<div id="c72ffee8" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-stdout">
 <pre><code>! &gt;&gt; Total duration: 0.001 &lt;&lt; !
 ! Step Duration(3)     =         1e-05         9e-05        0.0009
@@ -435,11 +392,10 @@ Output Intervals(3)    =            10             9             9
 </code></pre>
 </div>
 </div>
-</section>
-<section id="constanttimestepinterval" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="constanttimestepinterval"><span class="header-section-number">7.2</span> ConstantTimeStepInterval</h2>
+<section id="constanttimestepinterval" class="level4" data-number="4.1.1.1">
+<h4 data-number="4.1.1.1" class="anchored" data-anchor-id="constanttimestepinterval"><span class="header-section-number">4.1.1.1</span> ConstantTimeStepInterval</h4>
 <p>In some special cases, when using <code>TimeStepAccumulator</code> you might want to add time steps one by one, which can be done using the <code>append</code> method in combination with the <code>ConstantTimeStepInterval</code> described below.</p>
-<div id="a7cd9786" class="cell" data-execution_count="5">
+<div id="57acd378" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ConstantTimeStepInterval">
 <div class="callout-header d-flex align-content-center">
@@ -526,9 +482,10 @@ Minimum number of time steps to use if <code>time_step</code> is not provided. M
 </div>
 </div>
 </section>
-<section id="elmerconvergencedata" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="elmerconvergencedata"><span class="header-section-number">7.3</span> ElmerConvergenceData</h2>
-<div id="3439ea0a" class="cell" data-execution_count="6">
+</section>
+<section id="elmerconvergencedata" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="elmerconvergencedata"><span class="header-section-number">4.1.2</span> ElmerConvergenceData</h3>
+<div id="dd92124b" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ElmerConvergenceData">
 <div class="callout-header d-flex align-content-center">
@@ -607,7 +564,7 @@ The ID of the solver to filter by.
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    solver_id : <span class="bu">int</span>,</span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    final_iter : <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    time_axis : numpy.ndarray[<span class="bu">tuple</span>[typing.Any, ...], numpy.dtype[<span class="op">~</span>_ScalarT]] <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span>,</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    plot : majordome_utilities.plotting.MajordomePlot <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    plot : majordome.utilities.MajordomePlot <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> MajordomePlot:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Plot convergence data for a specific solver.</p>
 <hr>
@@ -646,7 +603,7 @@ Optional array of time values to use as the x-axis. If not provided, the timeste
 </div>
 </div>
 <div class="row" style="font-size: 0.8em;">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>plot : majordome_utilities.plotting.MajordomePlot <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>plot : majordome.utilities.MajordomePlot <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="row" style="margin-top: -2em; font-size: 0.8em;">
 <div class="col-2">
@@ -677,9 +634,9 @@ Placeholder for plot object provided by decorator.
 </div>
 </div>
 </section>
-<section id="elmertabulardata" class="level2" data-number="7.4">
-<h2 data-number="7.4" class="anchored" data-anchor-id="elmertabulardata"><span class="header-section-number">7.4</span> ElmerTabularData</h2>
-<div id="4ac4199a" class="cell" data-execution_count="7">
+<section id="elmertabulardata" class="level3" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="elmertabulardata"><span class="header-section-number">4.1.3</span> ElmerTabularData</h3>
+<div id="c5ba00c0" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ElmerTabularData">
 <div class="callout-header d-flex align-content-center">
@@ -758,9 +715,9 @@ The path to the associated metadata file. If not provided, the class will attemp
 </div>
 </div>
 </section>
-<section id="elmertabularmetadata" class="level2" data-number="7.5">
-<h2 data-number="7.5" class="anchored" data-anchor-id="elmertabularmetadata"><span class="header-section-number">7.5</span> ElmerTabularMetadata</h2>
-<div id="682e2bb4" class="cell" data-execution_count="8">
+<section id="elmertabularmetadata" class="level3" data-number="4.1.4">
+<h3 data-number="4.1.4" class="anchored" data-anchor-id="elmertabularmetadata"><span class="header-section-number">4.1.4</span> ElmerTabularMetadata</h3>
+<div id="56639dee" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="ElmerTabularMetadata">
 <div class="callout-header d-flex align-content-center">
@@ -823,8 +780,202 @@ Path to the .names metadata file.
 </div>
 </div>
 </div>
+<hr>
+</section>
+</section>
+<section id="ansys-fluent" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="ansys-fluent"><span class="header-section-number">4.2</span> Ansys Fluent</h2>
+<section id="fluentfvparticlesparser" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="fluentfvparticlesparser"><span class="header-section-number">4.2.1</span> FluentFvParticlesParser</h3>
+<p>This class provides functionality for parsing particle track files. Fluent export DPM results in several formats; <code>majordome</code> supports <em>fieldview</em> particle tracks through <code>FluentFvParticlesParser</code>. Loading a file is as simple as:</p>
+<p>You can retrieve the names of columns and number of individual tracks with the following properties:</p>
+<div id="9b401572" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>(['x', 'y', 'z', 'residence_time', 'time_step'], 2)</code></pre>
+</div>
+</div>
+<p>For convenience, tracks can be recovered as data frames through object indexing:</p>
+<div id="f338d41f" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
 
 
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">x</th>
+<th data-quarto-table-cell-role="th">y</th>
+<th data-quarto-table-cell-role="th">z</th>
+<th data-quarto-table-cell-role="th">residence_time</th>
+<th data-quarto-table-cell-role="th">time_step</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.128501</td>
+<td>0.537214</td>
+<td>-0.622358</td>
+<td>0.000000</td>
+<td>0.000000e+00</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>0.128493</td>
+<td>0.537929</td>
+<td>-0.619682</td>
+<td>0.000107</td>
+<td>1.697420e-07</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>0.128493</td>
+<td>0.537964</td>
+<td>-0.619554</td>
+<td>0.000112</td>
+<td>2.738057e-07</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>0.128488</td>
+<td>0.538534</td>
+<td>-0.617419</td>
+<td>0.000176</td>
+<td>4.008972e-07</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>0.128477</td>
+<td>0.539842</td>
+<td>-0.612481</td>
+<td>0.000299</td>
+<td>7.041471e-07</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="fluentinterpolationparser" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="fluentinterpolationparser"><span class="header-section-number">4.2.2</span> FluentInterpolationParser</h3>
+<p>Sometimes is is also useful to parse interpolation files. It enables one to compute new quantites for an interpolation files may be useful, especially in reasearch settings. Class <code>FluentInterpolationParser</code> is able to read the contents of an interpolation file exported in plain text format. Below you find an example of parsing.</p>
+<div id="85c7811e" class="cell" data-execution_count="12">
+<div class="cell-output cell-output-stdout">
+<pre><code>             x0 in range (        11:        16)
+             x1 in range (        17:        22)
+       pressure in range (        23:        28)
+     x-velocity in range (        29:        34)
+     y-velocity in range (        35:        40)
+    temperature in range (        41:        46)
+              k in range (        47:        52)
+          omega in range (        53:        58)</code></pre>
+</div>
+</div>
+<p>Names of variables are provided by property <code>variable_names</code>:</p>
+<div id="83c8761c" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>['x0',
+ 'x1',
+ 'pressure',
+ 'x-velocity',
+ 'y-velocity',
+ 'temperature',
+ 'k',
+ 'omega']</code></pre>
+</div>
+</div>
+<p>Valid names can be used to retrieve data for a given variable:</p>
+<div id="d57b5508" class="cell" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>array([0.1, 0.1, 0.2, 0.3, 0.4])</code></pre>
+</div>
+</div>
+<p>The whole data table can be retreived with <code>data</code> property, where each variable correspond to a column:</p>
+<div id="a877d0f0" class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>array([[0.1, 1. , 9. , 9. , 9. , 9. , 9. , 9. ],
+       [0.1, 2. , 1. , 1. , 1. , 1. , 1. , 1. ],
+       [0.2, 3. , 2. , 2. , 2. , 2. , 2. , 2. ],
+       [0.3, 4. , 3. , 3. , 3. , 3. , 3. , 3. ],
+       [0.4, 5. , 4. , 4. , 4. , 4. , 4. , 4. ]])</code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="openfoam" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="openfoam"><span class="header-section-number">4.3</span> OpenFOAM</h2>
+<hr>
+</section>
+<section id="meshing" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="meshing"><span class="header-section-number">4.4</span> Meshing</h2>
+<section id="gmshoccmodel" class="level3" data-number="4.4.1">
+<h3 data-number="4.4.1" class="anchored" data-anchor-id="gmshoccmodel"><span class="header-section-number">4.4.1</span> GmshOCCModel</h3>
+<div id="a4b5d69c" class="cell" data-execution_count="16">
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="callout callout-style-default callout-note callout-titled" title="GmshOCCModel">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>GmshOCCModel
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>GmshOCCModel(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    render : <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span>,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    name : <span class="bu">str</span> <span class="op">=</span> <span class="st">'domain'</span>,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kws : Any</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Wrapper to manage OCC models with an OOP approach.</p>
+<hr>
+<strong>Parameters</strong>
+<div class="row" style="font-size: 0.8em;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>render : <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="row" style="margin-top: -2em; font-size: 0.8em;">
+<div class="col-2">
+&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<div class="col-10">
+Whether to launch the Gmsh GUI after building the model.
+</div>
+</div>
+<div class="row" style="font-size: 0.8em;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>name : <span class="bu">str</span> <span class="op">=</span> <span class="st">'domain'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="row" style="margin-top: -2em; font-size: 0.8em;">
+<div class="col-2">
+&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<div class="col-10">
+Name of the Gmsh model.
+</div>
+</div>
+<div class="row" style="font-size: 0.8em;">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>ks : <span class="bu">dict</span> <span class="op">=</span> <span class="va">None</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="row" style="margin-top: -2em; font-size: 0.8em;">
+<div class="col-2">
+&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<div class="col-10">
+Provide configuration for gmsh internals.
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- TODO document members -->
+
+
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1230,13 +1381,13 @@ Path to the .names metadata file.
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../majordome_engineering/transport.html" class="pagination-link" aria-label="Transport properties">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Transport properties</span></span>
+      <a href="../majordome/engineering.html" class="pagination-link" aria-label="Engineering">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Engineering</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../majordome_simulation/fluent.html" class="pagination-link" aria-label="Fluent files">
-        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fluent files</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../majordome/utilities.html" class="pagination-link" aria-label="Utilities">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Utilities</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
