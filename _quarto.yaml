@@ -22,7 +22,6 @@ book:
     - majordome/simulation.qmd
     - majordome/utilities.qmd
     - majordome/documents.qmd
-    - majordome/_docs/developers.qmd
     - majordome/_docs/references.qmd
 
 bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
