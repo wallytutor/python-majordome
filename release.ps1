@@ -217,7 +217,7 @@ function Start-Workflow {
     "`n> Publishing GitHub release..."
 
     $wheels = Get-ChildItem "dist/*.whl" | ForEach-Object { $_.FullName }
-    gh release create "v$newVersion" $wheels --generate-notes
+    gh release create "v$newVersion" $wheels --notes "Release $newVersion"
 }
 
 Start-Workflow $Version $Force
