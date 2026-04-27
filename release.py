@@ -235,7 +235,10 @@ class Workflow:
 
         # Update with uv
         try:
-            run(["uv", "version", uv_target], check=True)
+            if is_bump:
+                run(["uv", "version", "--bump", uv_target], check=True)
+            else:
+                run(["uv", "version", uv_target], check=True)
         except (FileNotFoundError, CalledProcessError) as e:
             Colors.error(f"Error: Failed to update version with uv: {e}")
             sys.exit(1)
@@ -248,7 +251,9 @@ class Workflow:
                 f"version {resolved_version}"
             )
         else:
-            Colors.info(f"Resolved semantic version {resolved_version}")
+            Colors.info(
+                f"Resolved semantic version {resolved_version}"
+            )
 
         # Ensure cargo-edit is available, then update with cargo
         try:
@@ -258,7 +263,10 @@ class Workflow:
             sys.exit(1)
 
         try:
-            run(["cargo", "set-version", resolved_version], check=True)
+            if is_bump:
+                run(["cargo", "set-version", "--bump", uv_target], check=True)
+            else:
+                run(["cargo", "set-version", resolved_version], check=True)
         except (FileNotFoundError, CalledProcessError) as e:
             Colors.error(f"Error: Failed to update version with cargo: {e}")
             sys.exit(1)
