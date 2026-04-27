@@ -111,7 +111,7 @@ class Workflow:
 
         if cargo_version != pyproject_version:
             Colors.error(
-                "Error: Version mismatch!\n"
+                "Version mismatch!\n"
                 f"  Cargo.toml .......: {cargo_version}\n"
                 f"  pyproject.toml ...: {pyproject_version}"
             )
@@ -126,15 +126,13 @@ class Workflow:
         target_version = versions['current']
         Colors.ok(f"✓ Current version: {versions['current']}")
 
-        if version:
-            target_version = Workflow._update_versions(version)
-            Workflow._commit_version_bump(target_version)
-            Workflow._tag_version_if_missing(target_version)
-        else:
-            Colors.info(
-                f"ℹ No version specified, using current: {target_version}"
-            )
+        if not version:
+            Colors.info(f"ℹ No version specified, keeping {target_version}")
+            return target_version
 
+        target_version = Workflow._update_versions(version)
+        Workflow._commit_version_bump(target_version)
+        Workflow._tag_version_if_missing(target_version)
         return target_version
 
     @staticmethod
@@ -225,12 +223,18 @@ class Workflow:
     @staticmethod
     def _update_versions(new_version: str) -> str:
         """ Update versions and return the resolved semantic version. """
+        # Ensure cargo-edit is available, then update with cargo
+        try:
+            run(["cargo", "install", "cargo-edit"], check=True)
+        except (FileNotFoundError, CalledProcessError) as e:
+            Colors.error(f"Failed to install cargo-edit: {e}")
+            sys.exit(1)
+
         request_version = new_version.strip()
         normal_version = request_version.lower()
         Colors.info(f"Updating version using input '{request_version}'...")
 
-        bump_types = {"patch", "minor", "major"}
-        is_bump = normal_version in bump_types
+        is_bump = normal_version in {"patch", "minor", "major"}
         uv_target = normal_version if is_bump else request_version
 
         cmd_uv = ["uv", "version", uv_target]
@@ -240,36 +244,16 @@ class Workflow:
             cmd_uv.insert(2, "--bump")
             cmd_cargo.insert(2, "--bump")
 
-        # Update with uv
         try:
             run(cmd_uv, check=True)
         except (FileNotFoundError, CalledProcessError) as e:
-            Colors.error(f"Error: Failed to update version with uv: {e}")
-            sys.exit(1)
-
-        resolved_version = Workflow.get_versions()["current"]
-
-        if is_bump:
-            Colors.info(
-                f"Resolved bump '{normal_version}' to semantic "
-                f"version {resolved_version}"
-            )
-        else:
-            Colors.info(
-                f"Resolved semantic version {resolved_version}"
-            )
-
-        # Ensure cargo-edit is available, then update with cargo
-        try:
-            run(["cargo", "install", "cargo-edit"], check=True)
-        except (FileNotFoundError, CalledProcessError) as e:
-            Colors.error(f"Error: Failed to install cargo-edit: {e}")
+            Colors.error(f"Failed to update version with uv: {e}")
             sys.exit(1)
 
         try:
             run(cmd_cargo, check=True)
         except (FileNotFoundError, CalledProcessError) as e:
-            Colors.error(f"Error: Failed to update version with cargo: {e}")
+            Colors.error(f"Failed to update version with cargo: {e}")
             sys.exit(1)
 
         post_version = Workflow.get_versions()["current"]
@@ -302,14 +286,14 @@ class Workflow:
     def _commit_version_bump(version: str) -> None:
         """ Commit version bump changes. """
         Colors.info("Committing version bump...")
-        run([
-            "git", "add", "Cargo.toml", "pyproject.toml", "Cargo.lock"
-        ], check=False)  # Ignore error if Cargo.lock doesn't exist yet
+        run(["git", "add",
+             "Cargo.toml",
+             "Cargo.lock",
+             "pyproject.toml",
+             "uv.lock"], check=False)
 
-        run([
-            "git", "commit",
-            "-m", f"Bump version to {version}"
-        ], check=True)
+        run(["git", "commit", "-m", f"Bump version to {version}"],
+            check=True)
         Colors.ok("✓ Version bump committed")
 
     @staticmethod
