@@ -287,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="majordomeplot" class="level3" data-number="5.1.1">
 <h3 data-number="5.1.1" class="anchored" data-anchor-id="majordomeplot"><span class="header-section-number">5.1.1</span> MajordomePlot</h3>
 <p>One might ask why a wrapper around Matplotlib’s <code>Figure</code> and <code>Axes</code> is necessary, and I would strongly agree that it isn’t. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That’s the main goal of <code>MajordomePlot</code>: simplifying the plotting of publication-quality figures across Majordome (and beyond!). Below we illustrate how to use this functionality to ensure all the plots in a project look the same.</p>
-<div id="60a4aff0" class="cell" data-execution_count="3">
+<div id="babcdd48" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="MajordomePlot">
 <div class="callout-header d-flex align-content-center">
@@ -383,7 +383,7 @@ Additional options to pass to <code>plt.subplots()</code>.
 </div>
 </div>
 <p>Let’s see how one would expect to use it from the above constructor signature. This is in fact almost the same as calling <code>plt.subplots()</code>, and that is what the constructor does under the hood. This is a <em>negative</em> example actually, the author has <em>never</em> used the constructor directly, but instead uses the <code>new</code> classmethod, which is a much more convenient way to create a plot. More on that later.</p>
-<div id="13fc6286" class="cell" data-execution_count="4">
+<div id="9b8afd5e" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mp <span class="op">=</span> MajordomePlot(shape<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>), size<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">4</span>))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>mp.axes[<span class="dv">0</span>].plot(x, np.sin(x))</span>
@@ -399,7 +399,7 @@ Additional options to pass to <code>plt.subplots()</code>.
 </div>
 </div>
 <p>The story behind this class dates a few years back, when I was learning about Python decorators. As an exercise, I coded what later became the <code>new</code> classmethod, which is a decorator that creates a new <code>MajordomePlot</code> and passes it to the decorated function. This is a very convenient way to create plots, as it allows you to focus on the plotting code and not worry about the boilerplate of creating the plot and setting the labels.</p>
-<div id="35de42b5" class="cell" data-execution_count="5">
+<div id="2418ba33" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="new">
 <div class="callout-header d-flex align-content-center">
@@ -537,7 +537,7 @@ Label(s) for the y-axis. If a list is provided, each subplot will get its own la
 <li><p>Have a function with signature <code>func(*args, plot=None, **kwargs) -&gt; None</code>, where it is recommended (for linter) to provide explictly keyword <code>plot=None</code>.</p></li>
 <li><p>Unpack <code>fig, ax = plot.subplots()</code> or just <code>_, ax = plot.subplots()</code>, as needed, inside the figure; these contain standard <code>matplotlib</code> figure and axes.</p></li>
 </ul>
-<div id="e975e5a7" class="cell" data-execution_count="6">
+<div id="3bf715bf" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@MajordomePlot.new</span>(size<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">4</span>), xlabel<span class="op">=</span><span class="st">"x"</span>, ylabel<span class="op">=</span><span class="st">"sin(x)"</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_sin(x, <span class="op">*</span>, plot, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> MajordomePlot:</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    _, ax <span class="op">=</span> plot.subplots()</span>
@@ -554,7 +554,7 @@ Label(s) for the y-axis. If a list is provided, each subplot will get its own la
 </div>
 </div>
 <p>The following elements document the members and properties of the class.</p>
-<div id="867840b3" class="cell" data-execution_count="7">
+<div id="0a1e3c24" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="resize">
 <div class="callout-header d-flex align-content-center">
@@ -676,7 +676,7 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </div>
 </div>
 </div>
-<div id="ff3ca1f0" class="cell" data-execution_count="8">
+<div id="cd8b6f5a" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="figure">
 <div class="callout-header d-flex align-content-center">
@@ -713,7 +713,7 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </section>
 <section id="powerformatter" class="level3" data-number="5.1.2">
 <h3 data-number="5.1.2" class="anchored" data-anchor-id="powerformatter"><span class="header-section-number">5.1.2</span> PowerFormatter</h3>
-<div id="464beba9" class="cell" data-execution_count="9">
+<div id="50d6fa7e" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="PowerFormatter">
 <div class="callout-header d-flex align-content-center">
@@ -755,7 +755,7 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </div>
 </div>
 </div>
-<div id="6a0bc709" class="cell" data-execution_count="10">
+<div id="79108694" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -767,7 +767,7 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </section>
 <section id="general-utilities" class="level3" data-number="5.1.3">
 <h3 data-number="5.1.3" class="anchored" data-anchor-id="general-utilities"><span class="header-section-number">5.1.3</span> General utilities</h3>
-<div id="7d463756" class="cell" data-execution_count="11">
+<div id="76ce687d" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="centered_colormap">
 <div class="callout-header d-flex align-content-center">
@@ -836,7 +836,7 @@ Center value of the colormap, by default 0.
 </div>
 </div>
 </div>
-<div id="eacecf4b" class="cell" data-execution_count="12">
+<div id="29c712b1" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -855,7 +855,7 @@ Center value of the colormap, by default 0.
 <h2 data-number="5.3" class="anchored" data-anchor-id="argument-parsing"><span class="header-section-number">5.3</span> Argument parsing</h2>
 <section id="funcarguments" class="level3" data-number="5.3.1">
 <h3 data-number="5.3.1" class="anchored" data-anchor-id="funcarguments"><span class="header-section-number">5.3.1</span> FuncArguments</h3>
-<div id="8367fff6" class="cell" data-execution_count="13">
+<div id="99ba6e7d" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Arbitrary interface function for illustration. """</span></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    f.parser.update(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
@@ -870,7 +870,7 @@ Center value of the colormap, by default 0.
 <ul>
 <li>Arguments are both positional-mandatory</li>
 </ul>
-<div id="396ca883" class="cell" data-execution_count="14">
+<div id="f57dc3c2" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, index<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, index<span class="op">=</span><span class="dv">1</span>)</span>
@@ -885,7 +885,7 @@ a = 3, b = 4</code></pre>
 <ul>
 <li>Arguments are both keyword-only</li>
 </ul>
-<div id="a347acb8" class="cell" data-execution_count="15">
+<div id="b6f6e9c2" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, default<span class="op">=</span><span class="st">"foo"</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, default<span class="op">=</span><span class="st">"bar"</span>)</span>
@@ -907,7 +907,7 @@ a = 3, b = 4</code></pre>
 <ul>
 <li>One positional and another (maybe) positional</li>
 </ul>
-<div id="7049f4ec" class="cell" data-execution_count="16">
+<div id="d060ce6a" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, index<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, index<span class="op">=</span><span class="dv">1</span>, default<span class="op">=</span><span class="dv">6</span>)</span>
@@ -924,7 +924,7 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <ul>
 <li>Badly configured</li>
 </ul>
-<div id="a06cede2" class="cell" data-execution_count="17">
+<div id="abd017bc" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
@@ -940,7 +940,7 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <section id="creating-class-constructors" class="level3" data-number="5.3.2">
 <h3 data-number="5.3.2" class="anchored" data-anchor-id="creating-class-constructors"><span class="header-section-number">5.3.2</span> Creating class constructors</h3>
 <p><em>You should probably not do this, but it is quite fun!</em></p>
-<div id="737537fd" class="cell" data-execution_count="18">
+<div id="16bc0b86" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _init_some_class(cls):</span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Decorator to enhance SomeClass with argument parsing. """</span></span>
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>    orig_init <span class="op">=</span> cls.<span class="fu">__init__</span></span>
@@ -970,19 +970,19 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <span id="cb47-27"><a href="#cb47-27" aria-hidden="true" tabindex="-1"></a>    cls.<span class="fu">__init__</span> <span class="op">=</span> update_wrapper(new_init, orig_init)</span>
 <span id="cb47-28"><a href="#cb47-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cls</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="5a4d92f7" class="cell" data-execution_count="19">
+<div id="faadcdb2" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaseClass:</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"args   = </span><span class="sc">{</span>args<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"kwargs = </span><span class="sc">{</span>kwargs<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="076816bb" class="cell" data-execution_count="20">
+<div id="f36624a8" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="at">@_init_some_class</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SomeClass(BaseClass):</span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="420f4c7d" class="cell" data-execution_count="21">
+<div id="e51488c0" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>some <span class="op">=</span> SomeClass(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, x<span class="op">=</span><span class="dv">1</span>, y<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>args   = (1, 2, 3)
@@ -1004,11 +1004,11 @@ some x = 1</code></pre>
 <p>In case of Rocky Linux 9:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dnf install tesseract tesseract-langpack-eng ImageMagick poppler-utils</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Assuming the dependencies are found in the path, it is simply a matter of creating a converter:</p>
-<div id="2f64692d" class="cell" data-execution_count="22">
+<div id="817cc2a6" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>converter <span class="op">=</span> PdfToTextConverter()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For generated PDF (not scanned documents), it is much faster to avoir using OCR; below we show the metadata from a paper:</p>
-<div id="61b5267e" class="cell" data-execution_count="23">
+<div id="30a5eb50" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> converter(<span class="st">"data/pdftools/paper.pdf"</span>, use_ocr<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>data.meta</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
@@ -1029,7 +1029,7 @@ some x = 1</code></pre>
 </div>
 </div>
 <p>For scanned documents, by default if OCR is not enabled it will be used as a fallback method for text extraction:</p>
-<div id="6badf1d2" class="cell" data-execution_count="24">
+<div id="16e4494c" class="cell" data-execution_count="24">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> converter(<span class="st">"data/pdftools/scanned.pdf"</span>, last_page<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>data.content[:<span class="dv">500</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="23">
@@ -1042,7 +1042,7 @@ some x = 1</code></pre>
 <h2 data-number="5.5" class="anchored" data-anchor-id="misc"><span class="header-section-number">5.5</span> Misc</h2>
 <section id="colorprint" class="level3" data-number="5.5.1">
 <h3 data-number="5.5.1" class="anchored" data-anchor-id="colorprint"><span class="header-section-number">5.5.1</span> ColorPrint</h3>
-<div id="c0b18897" class="cell" data-execution_count="25">
+<div id="c50debe9" class="cell" data-execution_count="25">
 <div class="cell-output cell-output-stdout">
 <div class="ansi-escaped-output">
 <pre><span class="ansi-red-fg">This is a red message.</span>
