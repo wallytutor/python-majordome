@@ -126,16 +126,6 @@ function Start-ReleaseBuild {
 
     $newVersion = Approve-ReleaseVersion $Version
 
-    if ($CommitChanges) {
-        git add "Cargo.toml" "pyproject.toml" "Cargo.lock" "uv.lock"
-        git commit -m "Release version $newVersion"
-        git tag "v$newVersion"
-        git push origin main --tags
-
-        Write-Host -ForegroundColor Green `
-        "`n> Committed and tagged version $newVersion."
-    }
-
     Write-Host -ForegroundColor Green "`n> Cleaning dist directory..."
     Remove-Item -Path "dist/*" -Force -Recurse -ErrorAction SilentlyContinue
 
@@ -150,6 +140,14 @@ function Start-ReleaseBuild {
     wsl -d $script:WslName -- bash -c $command
 
     if ($LASTEXITCODE -ne 0) { throw "`n> Error: Linux build failed." }
+
+    if ($CommitChanges) {
+        Write-Host -ForegroundColor Green "`n> Committing $newVersion..."
+        git add "Cargo.toml" "pyproject.toml" "Cargo.lock" "uv.lock"
+        git commit -m "Release version $newVersion"
+        git tag "v$newVersion"
+        git push origin main --tags
+    }
 
     return $newVersion
 }
@@ -200,24 +198,19 @@ function Start-Workflow {
     # If there are modified files and --force is not set, exit with an error.
     # Otherwise, continue but set a flag to skip committing changes.
     if ($hasModified -and -not $Force) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Uncommitted changes detected." `
-        "`n> Please commit or stash them before releasing."
-        exit 1
+       throw "Uncommitted changes detected."
     } elseif ($hasModified -and $Force) {
         Write-Host -ForegroundColor Yellow `
-        "`n> Warning: uncommitted changes but proceeding due to --force."
+        "`n> Warning: uncommitted changes but -Force proceeding."
         $commitChanges = $false
     }
 
     $newVersion = Start-ReleaseBuild $Version $commitChanges
     Start-DocumentationBuild
 
-    Write-Host -ForegroundColor Green `
-    "`n> Publishing GitHub release..."
-
+    Write-Host -ForegroundColor Green "`n> Publishing GitHub release..."
     $wheels = Get-ChildItem "dist/*.whl" | ForEach-Object { $_.FullName }
-    gh release create "v$newVersion" $wheels --notes "Release $newVersion"
+    & gh release create "v$newVersion" "dist/*.whl" --generate-notes
 }
 
 Start-Workflow $Version $Force
