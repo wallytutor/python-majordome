@@ -127,7 +127,7 @@ function Start-ReleaseBuild {
     $newVersion = Approve-ReleaseVersion $Version
 
     if ($CommitChanges) {
-        git add "Cargo.toml" "pyproject.toml"
+        git add "Cargo.toml" "pyproject.toml" "Cargo.lock" "uv.lock"
         git commit -m "Release version $newVersion"
         git tag "v$newVersion"
         git push origin main --tags
