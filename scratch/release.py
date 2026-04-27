@@ -142,7 +142,10 @@ class Workflow:
         Colors.info("Building wheel package...")
 
         if sys.platform != "win32":
-            Workflow._local_build("Linux")
+            raise NotImplementedError(
+                "Only Windows builds with WSL are currently supported."
+            )
+            # Workflow._local_build("Linux")
         else:
             Workflow._local_build("Windows")
 
@@ -150,13 +153,14 @@ class Workflow:
             wsl_name = "ubuntu"
             wsl_here = Workflow._win_to_wsl(here)
 
+            # uv tool install maturin
+            # uv tool run maturin build --release --compatibility manylinux2014
+
+            uv_cmd = ["uv", "build"]
+
             build_cmd = [
-                "wsl",
-                "-d", wsl_name,
-                "--",
-                "bash", "-lc",
-                f"source ~/.bashrc && cd {wsl_here} && "
-                f"uv build --wheel --manylinux auto"
+                "wsl", "-d", wsl_name, "--", "bash", "-lc",
+                f"source ~/.bashrc && cd {wsl_here} && {' '.join(uv_cmd)}"
             ]
 
             try:
@@ -296,6 +300,7 @@ class Workflow:
 
         run(["git", "commit", "-m", f"Bump version to {version}"],
             check=True)
+        # run(["git", "push"], check=True)
         Colors.ok("✓ Version bump committed")
 
     @staticmethod
@@ -334,12 +339,7 @@ class Workflow:
         """ Run a local build for the given platform. """
         Colors.info(f"Running local {name} build...")
         try:
-            if name.lower() == "linux":
-                run(["uv", "build", "--manylinux", "auto", "--wheel"],
-                    check=True)
-            else:
-                run(["uv", "build", "--wheel"], check=True)
-
+            run(["uv", "build", "--wheel"], check=True)
             Colors.ok(f"✓ Local {name} wheel build succeeded")
         except CalledProcessError as e:
             Colors.error(f"Failed local {name} build: {e}")
@@ -400,13 +400,13 @@ class Workflow:
         Colors.step("\n[3/5] Building wheel package...")
         cls.build_wheel(target)
 
-        Colors.step("\n[4/5] Generating and publishing documentation...")
-        cls.render_and_publish_docs()
+        # Colors.step("\n[4/5] Generating and publishing documentation...")
+        # cls.render_and_publish_docs()
 
-        Colors.step("\n" + "=" * 60)
-        Colors.ok(f"✓ Release {target} completed successfully!")
-        Colors.step("=" * 60)
-        Colors.info("\nPublishing to PyPI should be done manually!")
+        # Colors.step("\n" + "=" * 60)
+        # Colors.ok(f"✓ Release {target} completed successfully!")
+        # Colors.step("=" * 60)
+        # Colors.info("\nPublishing to PyPI should be done manually!")
 
 
 if __name__ == "__main__":
