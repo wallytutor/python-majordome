@@ -1,6 +1,6 @@
 # Documents
 
-*aka majordome_utilities.documents*
+*aka majordome.documents*
 
 ```{python}
 from majordome.documents import *
