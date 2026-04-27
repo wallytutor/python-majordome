@@ -3,7 +3,7 @@ name = "majordome"
 description = "General utilities for scientific Python and numerical simulation."
 repository = "https://github.com/wallytutor/python-majordome.git"
 license-file = "LICENSE"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2024"
 build = "build.rs"
 
