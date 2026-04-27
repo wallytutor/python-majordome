@@ -1,6 +1,6 @@
 [project]
 name = "majordome"
-version = "0.9.9"
+version = "1.0.0"
 description = "General utilities for scientific Python and numerical simulation."
 readme = "README.md"
 license = "MIT"
