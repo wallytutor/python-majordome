@@ -186,7 +186,7 @@ function Start-Workflow {
 
     Write-Host -ForegroundColor Green "`n> Publishing GitHub release..."
     $wheels = Get-ChildItem "dist/*.whl" | ForEach-Object { $_.FullName }
-    & gh release create "v$newVersion" "dist/*.whl" --generate-notes
+    & gh release create "v$newVersion" @wheels --generate-notes
 }
 
 Start-Workflow $Version $Force
