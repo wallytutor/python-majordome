@@ -26,10 +26,7 @@ function Get-TomlSectionVersion {
         }
     }
 
-    Write-Host -ForegroundColor Red `
-    "Error: Could not find version in [$Section] of $Path."
-
-    exit 1
+    throw "Could not find version in [$Section] of $Path."
 }
 
 function Update-PackageVersion {
@@ -44,13 +41,9 @@ function Update-PackageVersion {
     $isBump = $version -in ("patch", "minor", "major")
 
     # If the version input is neither a valid version number nor a valid
-    # bump type, exit with an error.
+    # bump type, throw an error.
     if (-not ($isNumb -or $isBump)) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Invalid version input." `
-        "`n> Please specify a valid version or a bump type." `
-        "`n> Examples: '1.2.3', 'patch', 'minor', 'major'."
-        exit 1
+        throw "Invalid version input: $version"
     }
 
     # Get the current version from the latest git tag:
@@ -87,32 +80,17 @@ function Approve-ReleaseVersion {
     $pyprojectVersion = Get-TomlSectionVersion "pyproject.toml"  "project"
 
     if ($cargoVersion -ne $pyprojectVersion) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Version mismatch between Cargo.toml and pyproject.toml." `
-        "`n> Cargo.toml .......: $cargoVersion" `
-        "`n> pyproject.toml ...: $pyprojectVersion"
-        exit 1
+        throw "Version mismatch between Cargo.toml and pyproject.toml."
     }
 
     if ($cargoVersion -eq $currentTag) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Version did not change from current tag." `
-        "`n> Current tag .......: $currentTag" `
-        "`n> New version .......: $cargoVersion"
-
-        Write-Host -ForegroundColor Red `
-        "`n> Please update the version before releasing."
-        exit 1
-
+        throw "Version did not change from current tag $currentTag."
     }
 
     $hasTag = git rev-parse -q --verify "refs/tags/v$cargoVersion"
 
     if ($hasTag) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Tag v$cargoVersion already exists." `
-        "`n> Please update the version before releasing."
-        exit 1
+        throw "Tag v$cargoVersion already exists."
     }
 
     return $cargoVersion
@@ -169,9 +147,7 @@ function Start-DocumentationBuild {
     quarto render "docs" --to html
 
     if ($LASTEXITCODE -ne 0) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Documentation build failed."
-        exit 1
+        throw "Documentation build failed."
     }
 
     Write-Host -ForegroundColor Green `
@@ -195,7 +171,7 @@ function Start-Workflow {
     # Check for modified files (status code M) in git:
     $hasModified = git status --porcelain | Select-String -Pattern '^\s*M\s' -Quiet
 
-    # If there are modified files and --force is not set, exit with an error.
+    # If there are modified files and --force is not set, throw an error.
     # Otherwise, continue but set a flag to skip committing changes.
     if ($hasModified -and -not $Force) {
        throw "Uncommitted changes detected."
