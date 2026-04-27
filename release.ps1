@@ -136,33 +136,20 @@ function Start-ReleaseBuild {
         "`n> Committed and tagged version $newVersion."
     }
 
-    Remove-Item -Path "dist/*" -Force -Recurse
-    Write-Host -ForegroundColor Green `
-    "`n> Cleaned dist directory."
+    Write-Host -ForegroundColor Green "`n> Cleaning dist directory..."
+    Remove-Item -Path "dist/*" -Force -Recurse -ErrorAction SilentlyContinue
 
-    Write-Host -ForegroundColor Green `
-    "`n> Building Windows executable..."
-
+    Write-Host -ForegroundColor Green "`n> Building Windows executable..."
     uv build --wheel
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Windows build failed."
-        exit 1
-    }
+    if ($LASTEXITCODE -ne 0) { throw "`n> Error: Windows build failed." }
 
-    Write-Host -ForegroundColor Green `
-    "`n> Building Linux executable..."
-
+    Write-Host -ForegroundColor Green "`n> Building Linux executable..."
     $wslPath = (wsl wslpath $PsScriptRoot.Replace("\", "/"))
     $command = "cd $wslPath && source ~/.bashrc && ./release.sh"
     wsl -d $script:WslName -- bash -c $command
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host -ForegroundColor Red `
-        "`n> Error: Linux build failed."
-        exit 1
-    }
+    if ($LASTEXITCODE -ne 0) { throw "`n> Error: Linux build failed." }
 
     return $newVersion
 }
