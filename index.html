@@ -239,11 +239,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#majordome" id="toc-majordome" class="nav-link active" data-scroll-target="#majordome"><span class="header-section-number">1</span> Majordome</a>
   <ul class="collapse">
   <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started"><span class="header-section-number">1.1</span> Getting Started</a></li>
-  <li><a href="#manual-builds" id="toc-manual-builds" class="nav-link" data-scroll-target="#manual-builds"><span class="header-section-number">1.2</span> Manual builds</a></li>
-  <li><a href="#developers" id="toc-developers" class="nav-link" data-scroll-target="#developers"><span class="header-section-number">1.3</span> Developers</a>
+  <li><a href="#developers" id="toc-developers" class="nav-link" data-scroll-target="#developers"><span class="header-section-number">1.2</span> Developers</a>
   <ul class="collapse">
-  <li><a href="#release-process" id="toc-release-process" class="nav-link" data-scroll-target="#release-process"><span class="header-section-number">1.3.1</span> Release process</a></li>
-  <li><a href="#manual-release-steps" id="toc-manual-release-steps" class="nav-link" data-scroll-target="#manual-release-steps"><span class="header-section-number">1.3.2</span> Manual release steps</a></li>
+  <li><a href="#release-process" id="toc-release-process" class="nav-link" data-scroll-target="#release-process"><span class="header-section-number">1.2.1</span> Release process</a></li>
+  <li><a href="#manual-release-steps" id="toc-manual-release-steps" class="nav-link" data-scroll-target="#manual-release-steps"><span class="header-section-number">1.2.2</span> Manual release steps</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -287,7 +286,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="1"><span class="header-section-number">1</span> Majordome</h1>
 <section id="getting-started" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="getting-started"><span class="header-section-number">1.1</span> Getting Started</h2>
-<p>If you do not intend to build the package, you can find us on <a href="https://pypi.org/project/majordome/">Majordome on PyPI</a> and install it with pip:</p>
+<p>If you do not intend to build/develop the package, you can find us on <a href="https://pypi.org/project/majordome/">Majordome on PyPI</a> and install it with pip:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install majordome</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>To register <code>majordome</code> as a Jupyter kernel, run:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">majordome</span> <span class="at">--install-kernel</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -295,12 +294,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">majordome</span> <span class="at">--install-kernel</span> <span class="kw">`</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--kernel-name</span> majordome-dev <span class="kw">`</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--display-name</span> <span class="st">"Majordome (dev)"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If you don’t fit in the first group, you can build the package from source. For that, please referer to the development section below.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you just prefer to compile locally without delving into the development environment, you can install both Rust and <code>uv</code> and then run <code>uv build --wheel</code> to generate the wheel for your platform. This will generate a wheel that you can install with <code>uv pip install dist/*.whl</code> or <code>pip install dist/*.whl</code> in the current environment. Note that this wheel will be specific to your platform and may not be compatible with other platforms, so it is recommended to use the release wheels for distribution.</p>
+</div>
+</div>
 <hr>
 </section>
-<section id="manual-builds" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="manual-builds"><span class="header-section-number">1.2</span> Manual builds</h2>
-<p>If you don’t fit in the first group, you can build the package from source.</p>
-<p>The environment for developing Majordome requires at least a reasonably mondern version of Python and Rust; documentation depends on Quarto and <code>uv</code> is used for managing the environment. The exact versions may change over time, but as of the last update, the following (minimum) versions are recommended:</p>
+<section id="developers" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="developers"><span class="header-section-number">1.2</span> Developers</h2>
+<p>The development focuses on portability and ease of setup, so by default any dependency relying on a C/C++ compiler is forbidden. This means that the development environment can be set up on any platform without needing to install additional compilers or tools.</p>
+<p>Majordome code is documented using Numpydoc style docstrings, and the documentation is generated by module <code>majordome.documents</code> using Quarto markdown. This design choice reflects the academic aim of the package, with reporting and notebook support as first-class citizens.</p>
+<p>The environment for developing Majordome requires at least a reasonably modern version of Python and Rust; documentation depends on Quarto and <code>uv</code> is used for managing the environment. The exact versions may change over time, but as of the last update, the following (minimum) versions are recommended:</p>
 <ul>
 <li><a href="https://python.org/downloads/">Python 3.12+</a></li>
 <li><a href="https://rust-lang.org/tools/install/">Rust toolchain</a></li>
@@ -334,49 +348,8 @@ Tip
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install <span class="at">-y</span> ./<span class="va">$quarto_deb</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<p>The following steps illustrate how to build the package, generate the documentation, and publish it to GitHub Pages. The commands are provided for both Windows PowerShell and Unix-like shells; make sure to use the appropriate ones for your system.</p>
-<ul>
-<li>Build the package:</li>
-</ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> build <span class="at">--wheel</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>Inspect the wheel (especially if new data was included):</li>
-</ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> zipfile <span class="at">-l</span> dist/<span class="pp">*</span>.whl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>Create and activate a virtual environment:</li>
-</ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> venv <span class="at">--python</span> python3.12 .venv</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Activate on Windows:</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span> .venv/Scripts/activate</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Activate on Unix:</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span> .venv/bin/activate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>Install the package before generating the documentation:</li>
-</ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install .<span class="pp">[</span><span class="ss">docs</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>Point Quarto to the virtual environment:</li>
-</ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows:</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="ex">:QUARTO_PYTHON</span> = <span class="st">".venv/Scripts/python.exe"</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Unix:</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">QUARTO_PYTHON</span><span class="op">=</span><span class="st">".venv/bin/python"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ul>
-<li>Generate the docs:</li>
-</ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> render docs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<hr>
-</section>
-<section id="developers" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="developers"><span class="header-section-number">1.3</span> Developers</h2>
-<p>The development focuses on portability and ease of setup, so by default any dependency relying on a C/C++ compiler is forbidden. This means that the development environment can be set up on any platform without needing to install additional compilers or tools.</p>
-<p>Majordome code is documented using Numpydoc style docstrings, and the documentation is generated by module <code>majordome.documents</code> using Quarto markdown. This design choice reflects the academic aim of the package, with reporting and notebook support as first-class citizens.</p>
-<section id="release-process" class="level3" data-number="1.3.1">
-<h3 data-number="1.3.1" class="anchored" data-anchor-id="release-process"><span class="header-section-number">1.3.1</span> Release process</h3>
+<section id="release-process" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="release-process"><span class="header-section-number">1.2.1</span> Release process</h3>
 <p>In addition to what is described in the manual builds section, developers can also need to publish the docs, update the <a href="https://docs.astral.sh/uv/guides/package/#updating-your-version">version</a>, and publish the new version to GitHub and PyPI. This is fully automated by <code>release.ps1</code> to ensure consistency in actions.</p>
 <ul>
 <li>Make sure the package builds in both Windows and Linux, and that the documentation builds (many tests are included in the documentation, so this is a good sanity check for the code as well). The following commands provide a good starting point for the verifications in Windows:</li>
@@ -409,8 +382,8 @@ python -m zipfile -l dist/*.whl</code></pre>
 # - Avoid this, unless you know exactly what you are doing:
 .\release.ps1 1.0.0</code></pre>
 </section>
-<section id="manual-release-steps" class="level3" data-number="1.3.2">
-<h3 data-number="1.3.2" class="anchored" data-anchor-id="manual-release-steps"><span class="header-section-number">1.3.2</span> Manual release steps</h3>
+<section id="manual-release-steps" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="manual-release-steps"><span class="header-section-number">1.2.2</span> Manual release steps</h3>
 <p>This script is useful but can be fragile; it is better to have a fall-back plan in case something goes wrong.</p>
 <ul>
 <li>Select the new version to release:</li>
@@ -421,7 +394,12 @@ $version = "patch"</code></pre>
 <ul>
 <li>Update the version in both <code>Cargo.toml</code> and <code>pyproject.toml</code>:</li>
 </ul>
-<pre class="shell"><code>uv version --bump $version
+<pre class="shell"><code># First, test with --dry-run to check the changes that will be made:
+uv version --bump $version --dry-run
+cargo set-version --bump $version --dry-run
+
+# After testing with the above, remove --dry-run:
+uv version --bump $version
 cargo set-version --bump $version</code></pre>
 <ul>
 <li>You can manually check the changes in the version files; alternatively, the following snipet can be used to extract the version from <code>Cargo.toml</code> and use it for the commit message and GitHub release tag:</li>
@@ -454,6 +432,10 @@ $nixCmd  = "cd $wslPath &amp;&amp; source ~/.bashrc &amp;&amp; ./release.sh"</co
 uv build --wheel
 wsl -d Ubuntu -- bash -c $nixCmd</code></pre>
 <ul>
+<li>Inspect the wheels (especially if new data was included):</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> zipfile <span class="at">-l</span> dist/<span class="pp">*</span>.whl</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
 <li>If everything is fine, commit the changes, push to the repository:</li>
 </ul>
 <pre class="shell"><code>git add "Cargo.toml" "pyproject.toml" "Cargo.lock" "uv.lock"
@@ -461,45 +443,40 @@ git commit -m "Release version $version"
 git tag "v$version"
 git push origin main --tags</code></pre>
 <ul>
+<li>Create and activate a virtual environment:</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> venv <span class="at">--python</span> python3.12 .venv</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Activate on Windows:</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span> .venv/Scripts/activate</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Activate on Unix:</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span> .venv/bin/activate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Install the package before generating the documentation:</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> pip install .<span class="pp">[</span><span class="ss">docs</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Point Quarto to the virtual environment:</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows:</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="va">$env</span><span class="ex">:QUARTO_PYTHON</span> = <span class="st">".venv/Scripts/python.exe"</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Unix:</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">QUARTO_PYTHON</span><span class="op">=</span><span class="st">".venv/bin/python"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
 <li>Generate the documentation and publish it to GitHub Pages:</li>
 </ul>
-<pre class="shell"><code>uv venv .venv
-. ".venv\Scripts\Activate.ps1"
-uv pip install '.[docs]'
-
-$env:QUARTO_PYTHON = ".venv\Scripts\python.exe"
-quarto render docs --to html
+<pre class="shell"><code>quarto render docs --to html
 quarto publish gh-pages --no-prompt --no-browser docs</code></pre>
 <ul>
 <li>Create the release on GitHub:</li>
 </ul>
 <pre class="shell"><code>gh release create "v$version" dist/*.whl --generate-notes</code></pre>
-<p>Nonetheless, the following commands are documented to keep track of what is being automated. Please notice that everything related to virtual environment handling is ommitted for simplicity, as super-users should be able to handle it on their own:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Publish the docs to GitHub Pages (owners only):</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">quarto</span> publish gh-pages <span class="at">--no-prompt</span> <span class="at">--no-browser</span> docs</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Install (the first time) cargo-edit for Cargo.toml:</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> install cargo-edit</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Manually set the new version:</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># (remove `--dry-run` to actually update the version)</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> version 1.0.0 <span class="at">--dry-run</span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> set-version 1.0.0 <span class="at">--dry-run</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Or use the bump to automatically increment:</span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> version <span class="at">--bump</span> patch <span class="at">--dry-run</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> version <span class="at">--bump</span> minor <span class="at">--dry-run</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> version <span class="at">--bump</span> major <span class="at">--dry-run</span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> set-version <span class="at">--bump</span> patch <span class="at">--dry-run</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> set-version <span class="at">--bump</span> minor <span class="at">--dry-run</span></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="ex">cargo</span> set-version <span class="at">--bump</span> major <span class="at">--dry-run</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Push the new version to GitHub (DO NOT COPY THIS):</span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> release create v1.0.0 dist/<span class="pp">*</span>.whl <span class="at">--generate-notes</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li>Publish the new version to PyPI (owners only) is done manually with <code>uv</code>:</li>
 </ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> publish</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> publish</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
