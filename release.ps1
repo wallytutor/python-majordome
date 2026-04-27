@@ -99,7 +99,7 @@ function Approve-ReleaseVersion {
 function Start-ReleaseBuild {
     param (
         [Parameter(Mandatory=$true, Position=0)][string]$Version,
-        [Parameter(Mandatory=$true, Position=1)][switch]$CommitChanges
+        [Parameter(Mandatory=$true, Position=1)][bool]$CommitChanges
     )
 
     $newVersion = Approve-ReleaseVersion $Version
@@ -190,7 +190,7 @@ function Start-Workflow {
         $commitChanges = $false
     }
 
-    $newVersion = Start-ReleaseBuild $Version $commitChanges
+    $newVersion = Start-ReleaseBuild $Version $commitChanges | Select-Object -Last 1
     Start-DocumentationBuild
     Start-GitHubRelease $newVersion
 }
