@@ -17,8 +17,7 @@ version = "0.28.2"
 features = [
     "extension-module",
     "abi3-py312",
-    "multiple-pymethods",
-    "auto-initialize"
+    "multiple-pymethods"
 ]
 
 [dependencies.mlua]
