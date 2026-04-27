@@ -110,14 +110,14 @@ function Start-ReleaseBuild {
     Write-Host -ForegroundColor Green "`n> Building Windows executable..."
     uv build --wheel
 
-    if ($LASTEXITCODE -ne 0) { throw "`n> Error: Windows build failed." }
+    if ($LASTEXITCODE -ne 0) { throw "Windows build failed." }
 
     Write-Host -ForegroundColor Green "`n> Building Linux executable..."
     $wslPath = (wsl wslpath $PsScriptRoot.Replace("\", "/"))
     $command = "cd $wslPath && source ~/.bashrc && ./release.sh"
     wsl -d $script:WslName -- bash -c $command
 
-    if ($LASTEXITCODE -ne 0) { throw "`n> Error: Linux build failed." }
+    if ($LASTEXITCODE -ne 0) { throw "Linux build failed." }
 
     if ($CommitChanges) {
         Write-Host -ForegroundColor Green "`n> Committing $newVersion..."
@@ -131,8 +131,7 @@ function Start-ReleaseBuild {
 }
 
 function Start-DocumentationBuild {
-    Write-Host -ForegroundColor Green `
-    "`n> Building documentation..."
+    Write-Host -ForegroundColor Green "`n> Building documentation..."
 
     $pythonPath = "$script:VenvPath\Scripts\python.exe"
 
@@ -145,15 +144,28 @@ function Start-DocumentationBuild {
 
     $env:QUARTO_PYTHON = $pythonPath
     quarto render "docs" --to html
-
-    if ($LASTEXITCODE -ne 0) {
-        throw "Documentation build failed."
-    }
-
-    Write-Host -ForegroundColor Green `
-    "`n> Documentation built successfully."
+    if ($LASTEXITCODE -ne 0) { throw "Documentation build failed." }
+    Write-Host -ForegroundColor Green "`n> Documentation built successfully."
 
     quarto publish gh-pages --no-prompt --no-browser docs
+    if ($LASTEXITCODE -ne 0) { throw "Documentation publish failed." }
+    Write-Host -ForegroundColor Green "`n> Documentation published successfully."
+}
+
+function Start-GitHubRelease {
+    param (
+        [Parameter(Mandatory=$true, Position=0)][string]$Version
+    )
+
+    Write-Host -ForegroundColor Green "`n> Publishing GitHub release..."
+    $wheels = Get-ChildItem "dist/*.whl" | ForEach-Object { $_.FullName }
+    if (-not $wheels) { throw "No wheels found in dist/." }
+
+    $releaseArgs = @("release", "create", "v$Version") +
+        $wheels +
+        @("--generate-notes")
+
+    & gh @releaseArgs
 }
 
 function Start-Workflow {
@@ -162,31 +174,31 @@ function Start-Workflow {
         [Parameter(Mandatory=$true, Position=1)][bool]$Force
     )
 
-    Write-Host -ForegroundColor Green `
-    "`n> Preliminary validation..."
+    Write-Host -ForegroundColor Green "`n> Preliminary validation..."
 
-    # Flag to indicate whether to skip committing changes:
+    # Check for modified files (status code M) in git. If there are
+    # modified files and -Force is not set, throw an error. Otherwise,
+    # continue but set a flag to skip committing changes.
     $commitChanges = $true
-
-    # Check for modified files (status code M) in git:
     $hasModified = git status --porcelain | Select-String -Pattern '^\s*M\s' -Quiet
 
-    # If there are modified files and --force is not set, throw an error.
-    # Otherwise, continue but set a flag to skip committing changes.
     if ($hasModified -and -not $Force) {
        throw "Uncommitted changes detected."
     } elseif ($hasModified -and $Force) {
         Write-Host -ForegroundColor Yellow `
-        "`n> Warning: uncommitted changes but -Force proceeding."
+        "`n> Uncommitted changes but -Force proceeding."
         $commitChanges = $false
     }
 
     $newVersion = Start-ReleaseBuild $Version $commitChanges
     Start-DocumentationBuild
-
-    Write-Host -ForegroundColor Green "`n> Publishing GitHub release..."
-    $wheels = Get-ChildItem "dist/*.whl" | ForEach-Object { $_.FullName }
-    & gh release create "v$newVersion" @wheels --generate-notes
+    Start-GitHubRelease $newVersion
 }
 
-Start-Workflow $Version $Force
+try {
+    Start-Workflow $Version $Force
+    Write-Host -ForegroundColor Green "`n> Release workflow completed successfully."
+} catch {
+    Write-Host -ForegroundColor Red "`n> Error: $_"
+    exit 1
+}
