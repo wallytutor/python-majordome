@@ -1,6 +1,8 @@
 project:
   type: book
 
+jupyter: python3
+
 execute:
   cache:   true
   echo:    false
