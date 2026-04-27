@@ -10,13 +10,19 @@ target/
 
 # Documentation artifacts:
 docs/.gitignore
-docs/.jupyter_cache/
 docs/.quarto/
-docs/**/*.quarto_ipynb
 docs/_book/
 docs/site_libs/
-docs/*_files/
-docs/*.html
+docs/**/.jupyter_cache/
+docs/**/*.quarto_ipynb
+docs/**/*_files/
+docs/**/*.html
+docs/index.*
+!docs/index.qmd
+
+# Jupyter notebooks:
+*.ipynb_checkpoints/
+*.ipynb
 
 # Python:
 __pycache__/
