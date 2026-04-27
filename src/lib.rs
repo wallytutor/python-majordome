@@ -466,7 +466,8 @@ mod tool_containerize {
     use crate::utils::*;
 
     #[pyfunction]
-    pub fn containerize_entrypoint() {
+    #[pyo3(signature = (args=None))]
+    pub fn containerize_entrypoint(args: Option<Vec<String>>) {
         // TODO allow user to specify paths to container runtimes
         // const DEF_PATH_APPTAINER: &str = "/usr/bin/apptainer";
         // const DEF_PATH_DOCKER: &str = "/usr/bin/docker";
@@ -476,7 +477,7 @@ mod tool_containerize {
             exit(1);
         }
 
-        let config = ContainerConfig::from_args(env::args().collect());
+        let config = ContainerConfig::from_args(resolve_args(args));
         config.print();
 
         let tar_name = config.tar_file();
@@ -570,6 +571,28 @@ mod tool_containerize {
         print_success!("  {} rmi {}", config.container.as_str(), config.project);
     }
 
+    #[cfg(test)]
+    mod test {
+        use super::{ContainerConfig, ContainerRuntime};
+
+        #[test]
+        fn parse_cli_args_without_program_name() {
+            let config = ContainerConfig::from_args(vec![
+                "my-project".to_string(),
+                "--container".to_string(),
+                "docker".to_string(),
+                "--cleanup".to_string(),
+                "--no-sif".to_string(),
+            ]);
+
+            assert_eq!(config.project, "my-project");
+            assert!(matches!(config.container, ContainerRuntime::Docker));
+            assert!(config.cleanup);
+            assert!(config.generate_tar);
+            assert!(!config.generate_sif);
+        }
+    }
+
     enum ContainerRuntime {
         Docker,
         Podman,
@@ -595,14 +618,14 @@ mod tool_containerize {
         }
 
         fn from_args(args: Vec<String>) -> Self {
-            let name = &args[0];
+            let name = "containerize";
 
-            let mut project: Option<&String> = None;
+            let mut project: Option<&str> = None;
             let mut container = ContainerRuntime::Podman;
             let mut cleanup = false;
             let mut generate_tar = true;
             let mut generate_sif = true;
-            let mut i = 1;
+            let mut i = 0;
 
             while i < args.len() {
                 match args[i].as_str() {
@@ -623,13 +646,13 @@ mod tool_containerize {
                             Self::early_exit(name, "--container requires a value");
                         }
 
-                        let name = args[i + 1].as_str();
+                        let runtime_name = args[i + 1].as_str();
 
-                        match name {
+                        match runtime_name {
                             "docker" => container = ContainerRuntime::Docker,
                             "podman" => container = ContainerRuntime::Podman,
                             _ => {
-                                let msg = format!("unknown --container value '{name}'");
+                                let msg = format!("unknown --container value '{runtime_name}'");
                                 Self::early_exit(name, &msg);
                             }
                         }
@@ -667,7 +690,7 @@ mod tool_containerize {
 
                     arg if !arg.starts_with("--") => {
                         if project.is_none() {
-                            project = Some(&args[i]);
+                            project = Some(arg);
                         } else {
                             let msg = format!("unexpected argument '{arg}'");
                             Self::early_exit(name, &msg);

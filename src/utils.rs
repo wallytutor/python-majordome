@@ -62,6 +62,9 @@ pub fn run_command(
         .status()
 }
 
+/// Resolve entrypoint arguments from Python wrappers or process CLI.
+///
+/// Contract: returned vector contains CLI arguments only (no program name).
 pub fn resolve_args(args: Option<Vec<String>>) -> Vec<String> {
     args.unwrap_or_else(|| std::env::args().skip(1).collect())
 }

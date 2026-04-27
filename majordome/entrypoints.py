@@ -14,4 +14,4 @@ def containerize():
         sys.exit(1)
 
     from ._core import containerize_entrypoint
-    containerize_entrypoint()
+    containerize_entrypoint(sys.argv[1:])
