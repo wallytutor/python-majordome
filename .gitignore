@@ -27,3 +27,4 @@ docs/index.*
 # Python:
 __pycache__/
 *.py[cod]
+*.so
