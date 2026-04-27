@@ -225,20 +225,24 @@ class Workflow:
     @staticmethod
     def _update_versions(new_version: str) -> str:
         """ Update versions and return the resolved semantic version. """
-        requested_version = new_version.strip()
-        normalized_version = requested_version.lower()
-        Colors.info(f"Updating version using input '{requested_version}'...")
+        request_version = new_version.strip()
+        normal_version = request_version.lower()
+        Colors.info(f"Updating version using input '{request_version}'...")
 
         bump_types = {"patch", "minor", "major"}
-        is_bump = normalized_version in bump_types
-        uv_target = normalized_version if is_bump else requested_version
+        is_bump = normal_version in bump_types
+        uv_target = normal_version if is_bump else request_version
+
+        cmd_uv = ["uv", "version", uv_target]
+        cmd_cargo = ["cargo", "set-version", uv_target]
+
+        if is_bump:
+            cmd_uv.insert(2, "--bump")
+            cmd_cargo.insert(2, "--bump")
 
         # Update with uv
         try:
-            if is_bump:
-                run(["uv", "version", "--bump", uv_target], check=True)
-            else:
-                run(["uv", "version", uv_target], check=True)
+            run(cmd_uv, check=True)
         except (FileNotFoundError, CalledProcessError) as e:
             Colors.error(f"Error: Failed to update version with uv: {e}")
             sys.exit(1)
@@ -247,7 +251,7 @@ class Workflow:
 
         if is_bump:
             Colors.info(
-                f"Resolved bump '{normalized_version}' to semantic "
+                f"Resolved bump '{normal_version}' to semantic "
                 f"version {resolved_version}"
             )
         else:
@@ -263,10 +267,7 @@ class Workflow:
             sys.exit(1)
 
         try:
-            if is_bump:
-                run(["cargo", "set-version", "--bump", uv_target], check=True)
-            else:
-                run(["cargo", "set-version", resolved_version], check=True)
+            run(cmd_cargo, check=True)
         except (FileNotFoundError, CalledProcessError) as e:
             Colors.error(f"Error: Failed to update version with cargo: {e}")
             sys.exit(1)
