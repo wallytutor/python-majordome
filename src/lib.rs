@@ -342,7 +342,6 @@ mod tool_majordome {
             let kwargs = PyDict::new(py);
             kwargs.set_item("kernel_name", kernel_name)?;
             kwargs.set_item("user", true)?;
-            kwargs.set_item("replace", true)?;
 
             let destination = manager.call_method(
                 "install_kernel_spec",
