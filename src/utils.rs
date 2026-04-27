@@ -62,6 +62,10 @@ pub fn run_command(
         .status()
 }
 
+pub fn resolve_args(args: Option<Vec<String>>) -> Vec<String> {
+    args.unwrap_or_else(|| std::env::args().skip(1).collect())
+}
+
 pub fn to_runtime_error(error: impl std::fmt::Display) -> PyErr {
     pyo3::exceptions::PyRuntimeError::new_err(error.to_string())
 }

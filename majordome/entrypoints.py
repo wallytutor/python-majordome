@@ -5,7 +5,7 @@ from .utilities import ColorPrint
 
 def majordome():
     from ._core import majordome_entrypoint
-    majordome_entrypoint()
+    majordome_entrypoint(sys.argv[1:])
 
 
 def containerize():

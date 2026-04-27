@@ -157,17 +157,14 @@ pub mod constants {
 }
 // endregion: constants
 
+// region: modules
 pub mod utils;
 pub mod calphad;
 pub mod diffusion;
+// endregion: modules
 
-// region: majordome (bin)
-mod entrypoints {
-    use std::fs::File;
-    use std::path::Path;
-    use std::process::exit;
-    use std::process::{ExitStatus};
-    use std::env;
+// region: tool_majordome
+mod tool_majordome {
     use serde_json::json;
     use pyo3::prelude::*;
     use pyo3::types::{PyDict, PyModule};
@@ -177,21 +174,24 @@ mod entrypoints {
     const DEFAULT_DISPLAY_NAME: &str = "Majordome";
 
     #[pyfunction]
-    pub fn majordome_entrypoint() -> PyResult<()> {
-        let mode = majordome_parse_mode(std::env::args().skip(1).collect());
+    #[pyo3(signature = (args=None))]
+    pub fn majordome_entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
+        let mode = parse_mode(resolve_args(args));
         print_header!("Majordome IPython: {}\n", VERSION);
 
         Python::attach(|py| match mode {
             RunMode::Ipython(args) => {
                 // XXX: if --help is passed, IPython returns a SystemExit
                 // exception so we will not return the context manager state.
-                let globals = majordome_start_globals(py)?;
+                let globals = start_globals(py)?;
                 start_ipython(py, globals, args)
             },
+
             RunMode::Kernel(args) => {
-                let globals = majordome_start_globals(py)?;
+                let globals = start_globals(py)?;
                 start_ipykernel(py, globals, args)
             },
+
             RunMode::InstallKernel { kernel_name, display_name } => {
                 install_jupyter_kernel(py, &kernel_name, &display_name)
             }
@@ -200,9 +200,16 @@ mod entrypoints {
         Ok(())
     }
 
-    fn majordome_parse_mode(args: Vec<String>) -> RunMode {
+    #[derive(Debug, PartialEq, Eq)]
+    pub enum RunMode {
+        Ipython(Vec<String>),
+        Kernel(Vec<String>),
+        InstallKernel { kernel_name: String, display_name: String }
+    }
+
+    fn parse_mode(args: Vec<String>) -> RunMode {
         if args.iter().any(|arg| arg == "--install-kernel") {
-            return majordome_parse_install_mode(args);
+            return parse_install_mode(args);
         }
 
         if let Some(index) = args.iter().position(|arg| arg == "--kernel") {
@@ -212,7 +219,7 @@ mod entrypoints {
         }
 
         if args.iter().any(|arg| arg == "--help" || arg == "-h") {
-            majordome_print_usage();
+            print_usage();
         }
 
         let mut ipython_args = args;
@@ -223,7 +230,7 @@ mod entrypoints {
         RunMode::Ipython(ipython_args)
     }
 
-    fn majordome_parse_install_mode(args: Vec<String>) -> RunMode {
+    fn parse_install_mode(args: Vec<String>) -> RunMode {
         let mut kernel_name = DEFAULT_KERNEL_NAME.to_string();
         let mut display_name = DEFAULT_DISPLAY_NAME.to_string();
 
@@ -254,13 +261,13 @@ mod entrypoints {
                 }
 
                 "--help" | "-h" => {
-                    majordome_print_usage();
+                    print_usage();
                     std::process::exit(0);
                 }
 
                 other => {
                     eprintln!("Unknown option for kernel installation: {other}");
-                    majordome_print_usage();
+                    print_usage();
                     std::process::exit(2);
                 }
             }
@@ -272,7 +279,7 @@ mod entrypoints {
         }
     }
 
-    fn majordome_print_usage() {
+    fn print_usage() {
         println!(
             concat!(
                 "Usage:\n",
@@ -286,7 +293,7 @@ mod entrypoints {
         );
     }
 
-    fn majordome_start_globals(py: Python<'_>) -> PyResult<Py<PyDict>> {
+    fn start_globals(py: Python<'_>) -> PyResult<Py<PyDict>> {
         // Create a persistent dictionary to hold the new globals injected
         // into the Python environment and import builtins to add the new
         // functions to it.
@@ -315,12 +322,6 @@ mod entrypoints {
         globals.set_item("P_NORMAL",         P_NORMAL)?;
 
         Ok(globals.into())
-    }
-
-    enum RunMode {
-        Ipython(Vec<String>),
-        Kernel(Vec<String>),
-        InstallKernel { kernel_name: String, display_name: String }
     }
 
     fn install_jupyter_kernel(
@@ -359,6 +360,36 @@ mod entrypoints {
         println!(
             "Installed kernel '{kernel_name}' as '{display_name}' in {destination}"
         );
+
+        Ok(())
+    }
+
+    fn start_ipython(
+            py: Python<'_>,
+            globals: Py<PyDict>,
+            args: Vec<String>
+        ) -> PyResult<()> {
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("user_ns", globals)?;
+
+        let ipython = PyModule::import(py, "IPython")?;
+        ipython.call_method("start_ipython", (args,), Some(&kwargs))?;
+
+        Ok(())
+    }
+
+    fn start_ipykernel(
+            py: Python<'_>,
+            globals: Py<PyDict>,
+            args: Vec<String>
+        ) -> PyResult<()> {
+        let kwargs = PyDict::new(py);
+        kwargs.set_item("argv", args)?;
+        kwargs.set_item("user_ns", globals)?;
+
+        let kernelapp = PyModule::import(py, "ipykernel.kernelapp")?;
+        let app = kernelapp.getattr("IPKernelApp")?;
+        app.call_method("launch_instance", (), Some(&kwargs))?;
 
         Ok(())
     }
@@ -402,35 +433,37 @@ mod entrypoints {
         Ok(directory)
     }
 
-    fn start_ipython(
-            py: Python<'_>,
-            globals: Py<PyDict>,
-            args: Vec<String>
-        ) -> PyResult<()> {
-        let kwargs = PyDict::new(py);
-        kwargs.set_item("user_ns", globals)?;
+    #[cfg(test)]
+    mod test {
+        use super::*;
 
-        let ipython = PyModule::import(py, "IPython")?;
-        ipython.call_method("start_ipython", (args,), Some(&kwargs))?;
+        #[test]
+        fn empty_args_default_to_ipython_without_banner() {
+            assert_eq!(
+                parse_mode(Vec::new()),
+                RunMode::Ipython(vec!["--no-banner".to_string()])
+            );
+        }
 
-        Ok(())
+        #[test]
+        fn explicit_args_bypass_process_argv_lookup() {
+            let args = vec!["--kernel".to_string(), "-f".to_string(), "conn.json".to_string()];
+
+            assert_eq!(resolve_args(Some(args.clone())), args);
+        }
     }
+}
+// endregion: tool_majordome
 
-    fn start_ipykernel(
-            py: Python<'_>,
-            globals: Py<PyDict>,
-            args: Vec<String>
-        ) -> PyResult<()> {
-        let kwargs = PyDict::new(py);
-        kwargs.set_item("argv", args)?;
-        kwargs.set_item("user_ns", globals)?;
-
-        let kernelapp = PyModule::import(py, "ipykernel.kernelapp")?;
-        let app = kernelapp.getattr("IPKernelApp")?;
-        app.call_method("launch_instance", (), Some(&kwargs))?;
-
-        Ok(())
-    }
+// region: tool_containerize
+mod tool_containerize {
+    use std::fs::File;
+    use std::path::Path;
+    use std::process::exit;
+    use std::process::{ExitStatus};
+    use std::env;
+    use pyo3::prelude::*;
+    use crate::utils::*;
 
     #[pyfunction]
     pub fn containerize_entrypoint() {
@@ -801,7 +834,7 @@ mod entrypoints {
         }
     }
 }
-// endregion: majordome (bin)
+// endregion: tool_containerize
 
 #[pymodule(name = "_core")]
 pub mod handlers {
@@ -819,8 +852,8 @@ pub mod handlers {
     use super::constants;
 
     #[pymodule_export]
-    use super::entrypoints::majordome_entrypoint;
+    use super::tool_majordome::majordome_entrypoint;
 
     #[pymodule_export]
-    use super::entrypoints::containerize_entrypoint;
+    use super::tool_containerize::containerize_entrypoint;
 }
