@@ -5,7 +5,6 @@ import logging
 import numpy as np
 import pandas as pd
 import warnings
-import yaml
 
 from abc import ABC, abstractmethod
 from cantera.composite import Solution
@@ -21,6 +20,7 @@ from numpy.polynomial import Polynomial
 from numpy.typing import NDArray
 from pathlib import Path
 from PIL import Image, ImageDraw, ExifTags
+from ruamel.yaml import YAML
 from skimage import (
     io as skio,
     util as skutil,
@@ -42,7 +42,7 @@ with warnings.catch_warnings():
     from hyperspy.api import load as hs_load
     from hyperspy.signals import Signal2D
 
-from ._majordome import constants
+from ._core import constants
 from .data import DATA
 from .utilities import (
     MajordomePlot,
@@ -2757,8 +2757,7 @@ class AbstractRadiationModel(ABC):
     @staticmethod
     def load_raw_data(name: str) -> Any:
         """ Load raw data for feeding an implementation. """
-        with open(DATA / "wsgg.yaml") as fp:
-            data = yaml.safe_load(fp)
+        data = YAML().load(open(DATA / "wsgg.yaml"))
 
         for dataset in data["database"]:
             if dataset["name"] == name:

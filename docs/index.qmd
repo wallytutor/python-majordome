@@ -2,7 +2,13 @@
 
 ## Getting Started
 
-Majordome uses `build.ps1` to manage Rust, Python, and documentation workflows. The following sections outline the requirements and usage of the build script for Windows users. Building in Linux and macOS should be trivial and the users may adapt the ideas outlined in that script to their platform of choice. Most users can get it working with the following command. For more advanced usage, see the *Developers* section below.
+If you do not intend to build the package, you can find us on [Majordome on PyPI](https://pypi.org/project/majordome/) and install it with pip:
+
+```bash
+pip install majordome
+```
+
+Otherwise you can build the package from source. Majordome uses `build.ps1` to manage Rust, Python, and documentation workflows. The following sections outline the requirements and usage of the build script for Windows users. Building in Linux and macOS should be trivial and the users may adapt the ideas outlined in that script to their platform of choice. Most users can get it working with the following command. For more advanced usage, see the *Developers* section below.
 
 ```bash
 ./build.ps1 -PythonEnv py312 -FromPip -PackageDist -FlagRelease

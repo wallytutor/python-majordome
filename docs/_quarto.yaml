@@ -17,12 +17,12 @@ book:
 
   chapters:
     - index.qmd
-    - majordome/magic.qmd
-    - majordome/engineering.qmd
-    - majordome/simulation.qmd
-    - majordome/utilities.qmd
-    - majordome/documents.qmd
-    - majordome/_docs/references.qmd
+    - magic.qmd
+    - engineering.qmd
+    - simulation.qmd
+    - utilities.qmd
+    - documents.qmd
+    - references.qmd
 
 bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
 

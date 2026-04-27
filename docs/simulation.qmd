@@ -72,7 +72,7 @@ doc.properties()
 This class provides functionality for parsing particle track files. Fluent export DPM results in several formats; `majordome` supports *fieldview* particle tracks through `FluentFvParticlesParser`. Loading a file is as simple as:
 
 ```{python}
-dpm = FluentFvParticlesParser("data/docs/sample.fvp")
+dpm = FluentFvParticlesParser("data/fluent/sample.fvp")
 ```
 
 You can retrieve the names of columns and number of individual tracks with the following properties:
@@ -92,7 +92,7 @@ dpm[0]
 Sometimes is is also useful to parse interpolation files. It enables one to compute new quantites for an interpolation files may be useful, especially in reasearch settings. Class `FluentInterpolationParser` is able to read the contents of an interpolation file exported in plain text format. Below you find an example of parsing.
 
 ```{python}
-ip = FluentInterpolationParser("data/docs/sample.ip")
+ip = FluentInterpolationParser("data/fluent/sample.ip")
 ```
 
 Names of variables are provided by property `variable_names`:

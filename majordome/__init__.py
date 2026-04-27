@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ._majordome import __version__, constants
+from ._core import __version__, constants
 from .utilities import MajordomePlot
 
 __all__ = [

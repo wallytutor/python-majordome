@@ -12,7 +12,6 @@ from pathlib import Path
 from pyparsing import OneOrMore, Word, Suppress
 from typing import Any, Callable, Iterator, Self
 from numpy.typing import NDArray
-from xml.parsers.expat import model
 
 from .utilities import MajordomePlot
 
