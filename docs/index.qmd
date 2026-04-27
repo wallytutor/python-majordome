@@ -37,9 +37,10 @@ The environment for developing Majordome requires at least a reasonably mondern 
 
 ::: {.callout-tip}
 
-Ubuntu users can bootstrap the environment with the following commands; make sure to check the latest versions of the tools and update the commands accordingly.
+Ubuntu users can bootstrap the environment with the following commands; make sure to check the latest versions of the tools and update the commands accordingly. Podman is required for building the manylinux wheel inside a container for compatibility.
 
 ```bash
+sudo apt-get install -y podman
 sudo apt-get install -y python3-dev
 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
