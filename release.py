@@ -34,6 +34,7 @@ Publishing to PyPI is done manually to avoid any mistakes.
 import argparse
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 from subprocess import run, CalledProcessError
@@ -154,7 +155,8 @@ class Workflow:
                 "-d", wsl_name,
                 "--",
                 "bash", "-lc",
-                f"source ~/.bashrc && cd {wsl_here} && uv build --wheel"
+                f"source ~/.bashrc && cd {wsl_here} && "
+                f"uv build --wheel --manylinux auto"
             ]
 
             try:
@@ -332,7 +334,12 @@ class Workflow:
         """ Run a local build for the given platform. """
         Colors.info(f"Running local {name} build...")
         try:
-            run(["uv", "build", "--wheel"], check=True)
+            if name.lower() == "linux":
+                run(["uv", "build", "--manylinux", "auto", "--wheel"],
+                    check=True)
+            else:
+                run(["uv", "build", "--wheel"], check=True)
+
             Colors.ok(f"✓ Local {name} wheel build succeeded")
         except CalledProcessError as e:
             Colors.error(f"Failed local {name} build: {e}")
@@ -380,6 +387,8 @@ class Workflow:
         Colors.step("=" * 60)
         Colors.step("Majordome Release Workflow")
         Colors.step("=" * 60)
+
+        shutil.rmtree("dist", ignore_errors=True)
 
         Colors.step("\n[1/5] Checking git status...")
         cls.check_git_status(force=args.force)
