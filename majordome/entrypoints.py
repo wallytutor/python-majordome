@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
+import sys
+from .utilities import ColorPrint
+
 
 def majordome():
-    print("Hello from Majordome CLI!")
+    from ._core import majordome_entrypoint
+    majordome_entrypoint()
 
 
 def containerize():
-    print("Containerization process initiated.")
+    if sys.platform != "linux":
+        ColorPrint.red("This tool only runs on Linux systems.")
+        sys.exit(1)
+
+    from ._core import containerize_entrypoint
+    containerize_entrypoint()
