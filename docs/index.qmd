@@ -116,10 +116,10 @@ Majordome code is documented using Numpydoc style docstrings, and the documentat
 In addition to what is described in the manual builds section, developers can also need to publish the docs, update the [version](https://docs.astral.sh/uv/guides/package/#updating-your-version), and publish the new version to GitHub and PyPI. This is fully automated by `release.py` to ensure consistency in actions, simple run one of the following:
 
 ```bash
-python release.py --version 1.0.0
-python release.py --version patch
-python release.py --version minor
-python release.py --version major
+python release.py 1.0.0
+python release.py patch
+python release.py minor
+python release.py major
 ```
 
 Nonetheless, the following commands are documented to keep track of what is being automated. Please notice that everything related to virtual environment handling is ommitted for simplicity, as super-users should be able to handle it on their own:
