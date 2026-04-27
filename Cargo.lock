@@ -109,7 +109,7 @@ dependencies = [
 
 [[package]]
 name = "majordome"
-version = "0.9.9"
+version = "1.0.0"
 dependencies = [
  "mlua",
  "pyo3",
