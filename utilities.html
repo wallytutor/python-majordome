@@ -58,26 +58,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../majordome/documents.html" rel="next">
-<link href="../majordome/simulation.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-49bf9995813b73fc9d466afa58da3ad1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./documents.html" rel="next">
+<link href="./simulation.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-49bf9995813b73fc9d466afa58da3ad1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -118,7 +118,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../majordome/utilities.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Utilities</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./magic.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./utilities.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Utilities</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -133,7 +133,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">Majordome</a> 
+      <a href="./">Majordome</a> 
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -145,43 +145,83 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Majordome</span></span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Majordome API</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome/magic.html" class="sidebar-item-text sidebar-link">
+  <a href="./magic.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome/engineering.html" class="sidebar-item-text sidebar-link">
+  <a href="./engineering.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Engineering</span></span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome/simulation.html" class="sidebar-item-text sidebar-link">
+  <a href="./simulation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simulation</span></span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome/utilities.html" class="sidebar-item-text sidebar-link active">
+  <a href="./utilities.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Utilities</span></span></a>
   </div>
 </li>
-        <li class="sidebar-item">
+          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome/documents.html" class="sidebar-item-text sidebar-link">
+  <a href="./documents.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
   </div>
 </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Reactor Engineering</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reactors/acetylene-pyrolysis-reactor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Acetylene pyrolysis</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reactors/counter-current-pfr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Counter-current PFR</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reactors/converting-nasa-poly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Fitting NASA9 data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../majordome/_docs/references.html" class="sidebar-item-text sidebar-link">
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
 </li>
@@ -221,7 +261,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./magic.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./utilities.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Utilities</span></a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Utilities</span></h1>
 </div>
@@ -247,7 +287,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="majordomeplot" class="level3" data-number="5.1.1">
 <h3 data-number="5.1.1" class="anchored" data-anchor-id="majordomeplot"><span class="header-section-number">5.1.1</span> MajordomePlot</h3>
 <p>One might ask why a wrapper around Matplotlib’s <code>Figure</code> and <code>Axes</code> is necessary, and I would strongly agree that it isn’t. However, keeping all the plots in a report consistent is a huge effort, and being able to standardize the plots without having to write new themes is a nice feature. That’s the main goal of <code>MajordomePlot</code>: simplifying the plotting of publication-quality figures across Majordome (and beyond!). Below we illustrate how to use this functionality to ensure all the plots in a project look the same.</p>
-<div id="40282d4e" class="cell" data-execution_count="2">
+<div id="60a4aff0" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="MajordomePlot">
 <div class="callout-header d-flex align-content-center">
@@ -343,7 +383,7 @@ Additional options to pass to <code>plt.subplots()</code>.
 </div>
 </div>
 <p>Let’s see how one would expect to use it from the above constructor signature. This is in fact almost the same as calling <code>plt.subplots()</code>, and that is what the constructor does under the hood. This is a <em>negative</em> example actually, the author has <em>never</em> used the constructor directly, but instead uses the <code>new</code> classmethod, which is a much more convenient way to create a plot. More on that later.</p>
-<div id="f66cb80e" class="cell" data-execution_count="3">
+<div id="13fc6286" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mp <span class="op">=</span> MajordomePlot(shape<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>), size<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">4</span>))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>mp.axes[<span class="dv">0</span>].plot(x, np.sin(x))</span>
@@ -359,7 +399,7 @@ Additional options to pass to <code>plt.subplots()</code>.
 </div>
 </div>
 <p>The story behind this class dates a few years back, when I was learning about Python decorators. As an exercise, I coded what later became the <code>new</code> classmethod, which is a decorator that creates a new <code>MajordomePlot</code> and passes it to the decorated function. This is a very convenient way to create plots, as it allows you to focus on the plotting code and not worry about the boilerplate of creating the plot and setting the labels.</p>
-<div id="5dab5ad2" class="cell" data-execution_count="4">
+<div id="35de42b5" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="new">
 <div class="callout-header d-flex align-content-center">
@@ -497,7 +537,7 @@ Label(s) for the y-axis. If a list is provided, each subplot will get its own la
 <li><p>Have a function with signature <code>func(*args, plot=None, **kwargs) -&gt; None</code>, where it is recommended (for linter) to provide explictly keyword <code>plot=None</code>.</p></li>
 <li><p>Unpack <code>fig, ax = plot.subplots()</code> or just <code>_, ax = plot.subplots()</code>, as needed, inside the figure; these contain standard <code>matplotlib</code> figure and axes.</p></li>
 </ul>
-<div id="67d14965" class="cell" data-execution_count="5">
+<div id="e975e5a7" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@MajordomePlot.new</span>(size<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">4</span>), xlabel<span class="op">=</span><span class="st">"x"</span>, ylabel<span class="op">=</span><span class="st">"sin(x)"</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_sin(x, <span class="op">*</span>, plot, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> MajordomePlot:</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    _, ax <span class="op">=</span> plot.subplots()</span>
@@ -514,7 +554,7 @@ Label(s) for the y-axis. If a list is provided, each subplot will get its own la
 </div>
 </div>
 <p>The following elements document the members and properties of the class.</p>
-<div id="d8efa45c" class="cell" data-execution_count="6">
+<div id="867840b3" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="resize">
 <div class="callout-header d-flex align-content-center">
@@ -636,7 +676,7 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </div>
 </div>
 </div>
-<div id="8d53ddd1" class="cell" data-execution_count="7">
+<div id="ff3ca1f0" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="figure">
 <div class="callout-header d-flex align-content-center">
@@ -673,7 +713,7 @@ Additional keyword arguments to pass to <code>Figure.savefig()</code>.
 </section>
 <section id="powerformatter" class="level3" data-number="5.1.2">
 <h3 data-number="5.1.2" class="anchored" data-anchor-id="powerformatter"><span class="header-section-number">5.1.2</span> PowerFormatter</h3>
-<div id="d93d4f17" class="cell" data-execution_count="8">
+<div id="464beba9" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="PowerFormatter">
 <div class="callout-header d-flex align-content-center">
@@ -715,7 +755,7 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </div>
 </div>
 </div>
-<div id="a78eb320" class="cell" data-execution_count="9">
+<div id="6a0bc709" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -727,7 +767,7 @@ String of superscript characters corresponding to <code>values</code>. By defaul
 </section>
 <section id="general-utilities" class="level3" data-number="5.1.3">
 <h3 data-number="5.1.3" class="anchored" data-anchor-id="general-utilities"><span class="header-section-number">5.1.3</span> General utilities</h3>
-<div id="bcc24cd7" class="cell" data-execution_count="10">
+<div id="7d463756" class="cell" data-execution_count="11">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div class="callout callout-style-default callout-note callout-titled" title="centered_colormap">
 <div class="callout-header d-flex align-content-center">
@@ -796,7 +836,7 @@ Center value of the colormap, by default 0.
 </div>
 </div>
 </div>
-<div id="7ddcea3b" class="cell" data-execution_count="11">
+<div id="eacecf4b" class="cell" data-execution_count="12">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -815,7 +855,7 @@ Center value of the colormap, by default 0.
 <h2 data-number="5.3" class="anchored" data-anchor-id="argument-parsing"><span class="header-section-number">5.3</span> Argument parsing</h2>
 <section id="funcarguments" class="level3" data-number="5.3.1">
 <h3 data-number="5.3.1" class="anchored" data-anchor-id="funcarguments"><span class="header-section-number">5.3.1</span> FuncArguments</h3>
-<div id="4e38d4c2" class="cell" data-execution_count="12">
+<div id="8367fff6" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Arbitrary interface function for illustration. """</span></span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    f.parser.update(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span>
@@ -830,7 +870,7 @@ Center value of the colormap, by default 0.
 <ul>
 <li>Arguments are both positional-mandatory</li>
 </ul>
-<div id="64bf7a1d" class="cell" data-execution_count="13">
+<div id="396ca883" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, index<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, index<span class="op">=</span><span class="dv">1</span>)</span>
@@ -845,7 +885,7 @@ a = 3, b = 4</code></pre>
 <ul>
 <li>Arguments are both keyword-only</li>
 </ul>
-<div id="9a36dba3" class="cell" data-execution_count="14">
+<div id="a347acb8" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, default<span class="op">=</span><span class="st">"foo"</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, default<span class="op">=</span><span class="st">"bar"</span>)</span>
@@ -867,7 +907,7 @@ a = 3, b = 4</code></pre>
 <ul>
 <li>One positional and another (maybe) positional</li>
 </ul>
-<div id="babbc36a" class="cell" data-execution_count="15">
+<div id="7049f4ec" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"a"</span>, index<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>f.parser.add(<span class="st">"b"</span>, index<span class="op">=</span><span class="dv">1</span>, default<span class="op">=</span><span class="dv">6</span>)</span>
@@ -884,7 +924,7 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <ul>
 <li>Badly configured</li>
 </ul>
-<div id="01180fe0" class="cell" data-execution_count="16">
+<div id="a06cede2" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>f.parser <span class="op">=</span> FuncArguments()</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
@@ -900,7 +940,7 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <section id="creating-class-constructors" class="level3" data-number="5.3.2">
 <h3 data-number="5.3.2" class="anchored" data-anchor-id="creating-class-constructors"><span class="header-section-number">5.3.2</span> Creating class constructors</h3>
 <p><em>You should probably not do this, but it is quite fun!</em></p>
-<div id="23cfd59a" class="cell" data-execution_count="17">
+<div id="737537fd" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _init_some_class(cls):</span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Decorator to enhance SomeClass with argument parsing. """</span></span>
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>    orig_init <span class="op">=</span> cls.<span class="fu">__init__</span></span>
@@ -930,19 +970,19 @@ Cannot have both positional and keyword version of b (1) simultaneously</code></
 <span id="cb47-27"><a href="#cb47-27" aria-hidden="true" tabindex="-1"></a>    cls.<span class="fu">__init__</span> <span class="op">=</span> update_wrapper(new_init, orig_init)</span>
 <span id="cb47-28"><a href="#cb47-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cls</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="351d7c8d" class="cell" data-execution_count="18">
+<div id="5a4d92f7" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaseClass:</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"args   = </span><span class="sc">{</span>args<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"kwargs = </span><span class="sc">{</span>kwargs<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="4f347a0f" class="cell" data-execution_count="19">
+<div id="076816bb" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="at">@_init_some_class</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SomeClass(BaseClass):</span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, <span class="op">*</span>args, <span class="op">**</span>kwargs) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(<span class="op">*</span>args, <span class="op">**</span>kwargs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="b23506d9" class="cell" data-execution_count="20">
+<div id="420f4c7d" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>some <span class="op">=</span> SomeClass(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, x<span class="op">=</span><span class="dv">1</span>, y<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>args   = (1, 2, 3)
@@ -964,12 +1004,12 @@ some x = 1</code></pre>
 <p>In case of Rocky Linux 9:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> dnf install tesseract tesseract-langpack-eng ImageMagick poppler-utils</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Assuming the dependencies are found in the path, it is simply a matter of creating a converter:</p>
-<div id="9e59edd8" class="cell" data-execution_count="21">
+<div id="2f64692d" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>converter <span class="op">=</span> PdfToTextConverter()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For generated PDF (not scanned documents), it is much faster to avoir using OCR; below we show the metadata from a paper:</p>
-<div id="581f06a8" class="cell" data-execution_count="22">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> converter(<span class="st">"data/docs/pdftools/paper.pdf"</span>, use_ocr<span class="op">=</span><span class="va">False</span>)</span>
+<div id="61b5267e" class="cell" data-execution_count="23">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> converter(<span class="st">"data/pdftools/paper.pdf"</span>, use_ocr<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>data.meta</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
 <pre><code>{'/Author': "W. Dal'Maz Silva",
@@ -989,8 +1029,8 @@ some x = 1</code></pre>
 </div>
 </div>
 <p>For scanned documents, by default if OCR is not enabled it will be used as a fallback method for text extraction:</p>
-<div id="a5b6880d" class="cell" data-execution_count="23">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> converter(<span class="st">"data/docs/pdftools/scanned.pdf"</span>, last_page<span class="op">=</span><span class="dv">1</span>)</span>
+<div id="6badf1d2" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> converter(<span class="st">"data/pdftools/scanned.pdf"</span>, last_page<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>data.content[:<span class="dv">500</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="23">
 <pre><code>'549\n\n5.. Uber die von der molekularkinetischen Theorie\nder Wirme geforderte Bewegung von in ruhenden\nFlussigkeiten suspendierten Teilchen;\nvon A. Einstein.\n\nIn dieser Arbeit soll gezeigt werden, daB nach der molekular-\nkinetischen Theorie der Warme in Flissigkeiten suspendierte\nKorper von mikroskopisch sichtbarer GroBe infolge der Mole-\nkularbewegung der Wirme Bewegungen von solcher GrifSe\nausfiihren miissen, daB diese Bewegungen leicht mit dem\nMikroskop nachgewiesen werden konnen. Es ist moglic'</code></pre>
@@ -1002,7 +1042,7 @@ some x = 1</code></pre>
 <h2 data-number="5.5" class="anchored" data-anchor-id="misc"><span class="header-section-number">5.5</span> Misc</h2>
 <section id="colorprint" class="level3" data-number="5.5.1">
 <h3 data-number="5.5.1" class="anchored" data-anchor-id="colorprint"><span class="header-section-number">5.5.1</span> ColorPrint</h3>
-<div id="03486cf3" class="cell" data-execution_count="24">
+<div id="c0b18897" class="cell" data-execution_count="25">
 <div class="cell-output cell-output-stdout">
 <div class="ansi-escaped-output">
 <pre><span class="ansi-red-fg">This is a red message.</span>
@@ -1428,12 +1468,12 @@ some x = 1</code></pre>
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../majordome/simulation.html" class="pagination-link" aria-label="Simulation">
+      <a href="./simulation.html" class="pagination-link" aria-label="Simulation">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simulation</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../majordome/documents.html" class="pagination-link" aria-label="Documents">
+      <a href="./documents.html" class="pagination-link" aria-label="Documents">
         <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Documents</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
