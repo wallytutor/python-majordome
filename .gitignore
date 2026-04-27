@@ -15,6 +15,7 @@ docs/.quarto/
 docs/**/*.quarto_ipynb
 docs/_book/
 docs/site_libs/
+docs/*_files/
 docs/*.html
 
 # Python:

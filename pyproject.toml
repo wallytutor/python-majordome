@@ -48,7 +48,8 @@ classifiers = [
 ]
 
 [project.scripts]
-majordome = "majordome:main"
+containerize = "majordome.entrypoints:containerize"
+majordome = "majordome.entrypoints:majordome"
 
 [project.urls]
 Homepage = "https://github.com/wallytutor/python-majordome"

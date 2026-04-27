@@ -12,15 +12,6 @@ name = "_core"
 path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
-# XXX: multiple binaries in a single crate, just add [[bin]] sections.
-[[bin]]
-name = "containerize"
-path = "scripts/containerize.rs"
-
-[[bin]]
-name = "majordome"
-path = "scripts/majordome.rs"
-
 [dependencies.pyo3]
 version = "0.28.2"
 features = [
