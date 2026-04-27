@@ -499,7 +499,13 @@ pass
 
 ### EffectiveThermalConductivity
 
-Class `EffectiveThermalConductivity` implements static methods for the evaluation of properties; its name is quite long, let's start by getting an alias before evaluating the desired models:
+In some fields of research, such as porous media or composite materials, the evaluation of effective thermal properties are key for simulation of macroscopic application cases. Class `EffectiveThermalConductivity`  implements (static) thermal conductivity models for this sort of applications, including:
+
+- Maxwell-Garnett approximation (`EffectiveThermalConductivity.maxwell_garnett`) as exposed in [@Hanein2017]; further discussion of its origin and applicability is provided by [@Kiradjiev2019].
+
+- For porous media (packed bed in the context) with enhanced radiative effects the model by [@Singh1994] as discussed by [@Kee2017] is implemented  (`EffectiveThermalConductivity.singh1994`).
+
+Its name is quite long, let's start by getting an alias before evaluating the desired models:
 
 ```{python}
 #| echo: true

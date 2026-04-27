@@ -295,7 +295,7 @@ For generated PDF (not scanned documents), it is much faster to avoir using OCR;
 
 ```{python}
 #| echo: true
-data = converter("data/docs/pdftools/paper.pdf", use_ocr=False)
+data = converter("data/pdftools/paper.pdf", use_ocr=False)
 data.meta
 ```
 
@@ -303,7 +303,7 @@ For scanned documents, by default if OCR is not enabled it will be used as a fal
 
 ```{python}
 #| echo: true
-data = converter("data/docs/pdftools/scanned.pdf", last_page=1)
+data = converter("data/pdftools/scanned.pdf", last_page=1)
 data.content[:500]
 ```
 

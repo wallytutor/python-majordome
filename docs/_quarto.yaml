@@ -13,16 +13,26 @@ book:
   sidebar:
     style: "docked"
     search: true
-    collapse-level: 1
+    collapse-level: 2
 
   chapters:
     - index.qmd
-    - majordome/magic.qmd
-    - majordome/engineering.qmd
-    - majordome/simulation.qmd
-    - majordome/utilities.qmd
-    - majordome/documents.qmd
-    - majordome/_docs/references.qmd
+
+    - part: "Majordome API"
+      chapters:
+      - magic.qmd
+      - engineering.qmd
+      - simulation.qmd
+      - utilities.qmd
+      - documents.qmd
+
+    - part: "Reactor Engineering"
+      chapters:
+        - reactors/acetylene-pyrolysis-reactor.qmd
+        - reactors/counter-current-pfr.qmd
+        - reactors/converting-nasa-poly.qmd
+
+    - references.qmd
 
 bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
 
