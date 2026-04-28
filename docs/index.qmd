@@ -74,7 +74,7 @@ In addition to what is described in the manual builds section, developers can al
 
 - Make sure the package builds in both Windows and Linux, and that the documentation builds (many tests are included in the documentation, so this is a good sanity check for the code as well). The following commands provide a good starting point for the verifications in Windows:
 
-```shell
+```bash
 # Check the sanity of the package:
 cargo check
 
@@ -88,13 +88,13 @@ python -m zipfile -l dist/*.whl
 
 - From WSL or a Linux machine, repeat the above but also try generating the Linux wheel inside the compliant manylinux container:
 
-```shell
+```bash
 ./release.sh
 ```
 
 - Once verifications are done, run one of the following:
 
-```shell
+```bash
 # - You fixed something small:
 .\release.ps1 patch
 
@@ -114,7 +114,7 @@ This script is useful but can be fragile; it is better to have a fall-back plan 
 
 - Select the new version to release:
 
-```shell
+```bash
 $version = "major"
 $version = "minor"
 $version = "patch"
@@ -122,7 +122,7 @@ $version = "patch"
 
 - Update the version in both `Cargo.toml` and `pyproject.toml`:
 
-```shell
+```bash
 # First, test with --dry-run to check the changes that will be made:
 uv version --bump $version --dry-run
 cargo set-version --bump $version --dry-run
@@ -134,7 +134,7 @@ cargo set-version --bump $version
 
 - You can manually check the changes in the version files; alternatively, the following snipet can be used to extract the version from `Cargo.toml` and use it for the commit message and GitHub release tag:
 
-```shell
+```bash
 $inSection = $false
 $version = $null
 
@@ -153,7 +153,7 @@ foreach ($line in Get-Content "Cargo.toml") {
 
 - Generate the command for WSL build and inspect it before running:
 
-```shell
+```bash
 $winPath = (Get-Location).Path.Replace("\", "/")
 $wslPath = (wsl wslpath $winPath).Trim()
 $nixCmd  = "cd $wslPath && source ~/.bashrc && ./release.sh"
@@ -161,7 +161,7 @@ $nixCmd  = "cd $wslPath && source ~/.bashrc && ./release.sh"
 
 - Build the wheels in both Windows and Linux (inside the compliant manylinux container):
 
-```shell
+```bash
 Remove-Item -Force -Recurse "dist/" -ErrorAction Ignore
 
 uv build --wheel
@@ -176,7 +176,7 @@ python -m zipfile -l dist/*.whl
 
 - If everything is fine, commit the changes, push to the repository:
 
-```shell
+```bash
 git add "Cargo.toml" "pyproject.toml" "Cargo.lock" "uv.lock"
 git commit -m "Release version $version"
 git tag "v$version"
@@ -213,14 +213,14 @@ export QUARTO_PYTHON=".venv/bin/python"
 
 - Generate the documentation and publish it to GitHub Pages:
 
-```shell
+```bash
 quarto render docs --to html
 quarto publish gh-pages --no-prompt --no-browser docs
 ```
 
 - Create the release on GitHub:
 
-```shell
+```bash
 gh release create "v$version" dist/*.whl --generate-notes
 ```
 
