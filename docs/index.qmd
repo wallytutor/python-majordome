@@ -81,6 +81,10 @@ cargo check
 # Run Rust tests:
 cargo test
 
+# Run Python tests:
+uv sync --all-extras
+pytest -v
+
 # Manually generate a wheel and check it:
 uv build --wheel
 python -m zipfile -l dist/*.whl
@@ -96,16 +100,16 @@ python -m zipfile -l dist/*.whl
 
 ```bash
 # - You fixed something small:
-.\release.ps1 patch
+./release.ps1 patch
 
 # - You added a new (non-breaking) feature:
-.\release.ps1 minor
+./release.ps1 minor
 
 # - You made a breaking change:
-.\release.ps1 major
+./release.ps1 major
 
 # - Avoid this, unless you know exactly what you are doing:
-.\release.ps1 1.0.0
+./release.ps1 1.0.0
 ```
 
 ### Manual release steps
