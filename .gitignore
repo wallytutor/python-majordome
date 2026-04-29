@@ -1,3 +1,6 @@
+# Editor cache:
+.vscode/
+
 # Virtual environment:
 .venv/
 

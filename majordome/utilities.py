@@ -39,13 +39,6 @@ from IPython import embed
 from .data import DATA
 
 #region: common
-PathLike = str | Path
-""" Input type for file system paths. """
-
-MaybePath = PathLike | None
-""" Input type for optional file system paths. """
-
-
 class AbstractReportable(ABC):
     """ Abstract base class for reportable objects. """
     def __init__(self, *args, **kwargs) -> None:
@@ -195,7 +188,7 @@ def has_program(name: str) -> bool:
     return True if shutil.which(name) else False
 
 
-def program_path(name: str, throw: bool = True) -> MaybePath:
+def program_path(name: str, throw: bool = True) -> Path | None:
     """ Returns a program path if it exists. """
     if not has_program(name):
         if throw:
@@ -339,8 +332,8 @@ class ProgressBar:
         Single character used for filling up the bar.
     """
     def __init__(self,
-            ncols: int | None = 40,
-            marker: str | None = "█"
+            ncols: int = 40,
+            marker: str = "█"
         ) -> None:
         self._nc = ncols + 1.0e-06
         self._mk = marker[:1]
@@ -382,10 +375,10 @@ class ProgressBar:
 
 def progress_bar(
         array: list[object] | Iterator,
-        ncols: int | None = 40,
-        marker: str | None = "█",
+        ncols: int = 40,
+        marker: str = "█",
         size: int | None = None,
-        enum: bool | None = False
+        enum: bool = False
     ):
     """ Wrapper to use progress bar as iterator.
 
@@ -393,18 +386,22 @@ def progress_bar(
     ----------
     array: list[object] | Iterator
         List of iterator of objects to track progression.
-    ncols: Optional[int] = 40
+    ncols: int = 40
         Number of columns used for bar tracing.
-    marker: Optional[str] = "█"
+    marker: str = "█"
         Single character used for filling up the bar.
-    size: Optional[int] = None
+    size: int | None = None
         If `array` does not have a length, *i.e*, it is an iterator,
         the size of the provided object is mandatory and provided
         through this parameters.
     enum: Optional[bool] = False
         If true, return the zero based object counter.
     """
-    size = size if size is not None else len(array)
+    if size is None and isinstance(array, list):
+        size = len(array)
+    else:
+        raise ValueError("Size must be provided if 'array' it is an iterator.")
+
     pbar = ProgressBar(ncols=ncols, marker=marker)
 
     for count, value in enumerate(array, 1):
@@ -968,15 +965,17 @@ class BeamerSlides:
             fp.write(self.generate())
 
         with open(slides_dir / f"log.{slides_tex.stem}", "w") as log:
-            cnf = dict(cwd=slides_dir, stdout=log, stderr=log)
+            def run(cmd):
+                subprocess.run(cmd, cwd=slides_dir,
+                               stdout=log, stderr=log)
 
-            subprocess.run(cmd, **cnf)
-            subprocess.run(cmd, **cnf)
+            run(cmd)
+            run(cmd)
 
             if bib:
-                subprocess.run(["bibtex", slides_tex.stem], **cnf)
-                subprocess.run(cmd, **cnf)
-                subprocess.run(cmd, **cnf)
+                run(["bibtex", slides_tex.stem])
+                run(cmd)
+                run(cmd)
 
 
 class SlideContentWriter:
@@ -1129,7 +1128,7 @@ class FuncArguments:
 @dataclass
 class PdfExtracted:
     """ Stores data extracted from a PDF file. """
-    meta: dict[str, Any]
+    meta: dict[str, Any] | None
     content: str
 
 
@@ -1143,33 +1142,36 @@ class PdfToTextConverter:
 
     Parameters
     ----------
-    tesseract : MaybePath, optional
+    tesseract : Path | None, optional
         Path to Tesseract executable. If None, searches in PATH.
-    pdftotext : MaybePath, optional
+    pdftotext : Path | None, optional
         Path to pdftotext directory. If None, searches in PATH.
     n_pages_warn : int, optional
         Number of pages above which a warning is issued. Default is 100.
     """
     __slots__ = ("_tesseract", "_pdftotext", "_bigpdf")
 
-    def __init__(self, tesseract: MaybePath = None,
-                 pdftotext: MaybePath = None, n_pages_warn: int = 100) -> None:
-        self._pdftotext = self._ensure_program("pdftotext", pdftotext).parent
+    def __init__(self, tesseract: Path | None = None,
+                 pdftotext: Path | None = None, n_pages_warn: int = 100) -> None:
+        self._pdftotext = self._ensure_program("pdftotext", pdftotext)
         self._tesseract = self._ensure_program("tesseract", tesseract)
         self._bigpdf = n_pages_warn
 
+        if self._pdftotext is not None:
+            self._pdftotext = self._pdftotext.parent
+
         pytesseract.tesseract_cmd = self._tesseract
 
-    def _ensure_program(self, name: str, program: MaybePath) -> MaybePath:
+    def _ensure_program(self, name: str, program: Path | None) -> Path | None:
         """ Ensure that `program` exists, or find it in PATH. """
         if program:
-            if not Path(program).exists():
+            if not (program := Path(program)).exists():
                 raise FileNotFoundError(f"Missing {name} at {program}")
             return program
 
         return program_path(name)
 
-    def read(self, pdf_path: PathLike) -> PdfReader | None:
+    def read(self, pdf_path: str | Path) -> PdfReader | None:
         """ Return True if PDF is not encrypted, performs some checks. """
         doc = PdfReader(pdf_path)
 
@@ -1182,7 +1184,7 @@ class PdfToTextConverter:
 
         return doc
 
-    def _page_image(self, pdf_path: PathLike, page: int, *, dpi: int = 150,
+    def _page_image(self, pdf_path: str | Path, page: int, *, dpi: int = 150,
                     userpw: str | None = None, thread_count: int = 1) -> str:
         """ Handles in-memory conversion of PDF to image. """
         max_threads = os.cpu_count() or 1
@@ -1190,28 +1192,31 @@ class PdfToTextConverter:
         if thread_count > max_threads:
             thread_count = max_threads
 
-        images = convert_from_path(
-            pdf_path,
-            dpi           = dpi,
-            first_page    = page,
-            last_page     = page,
-            thread_count  = thread_count,
-            userpw        = userpw,
-            poppler_path  = self._pdftotext,
-            output_folder = None,
-            fmt           = "ppm",
-            jpegopt       = None,
-            use_cropbox   = False,
-            strict        = False,
-            transparent   = False,
-            single_file   = False,
-            grayscale     = False,
-            size          = None,
-            paths_only    = False,
-        )
+        kwargs = {
+            "dpi": dpi,
+            "first_page": page,
+            "last_page": page,
+            "thread_count": thread_count,
+            "poppler_path": self._pdftotext,
+            "output_folder": None,
+            "fmt": "ppm",
+            "jpegopt": None,
+            "use_cropbox": False,
+            "strict": False,
+            "transparent": False,
+            "single_file": False,
+            "grayscale": False,
+            "size": None,
+            "paths_only": False,
+        }
+
+        if userpw is not None:
+            kwargs["userpw"] = userpw
+
+        images = convert_from_path(pdf_path, **kwargs)
         return image_to_string(images[0])
 
-    def __call__(self, pdf_path: PathLike, first_page: int | None = None,
+    def __call__(self, pdf_path: str | Path, first_page: int | None = None,
                  last_page: int | None = None, use_ocr: bool = False,
                  fallback_ocr: bool = True, verbose: bool = False,
                  ocr_opts: dict[str, Any] = {}) -> PdfExtracted | None:
@@ -1219,7 +1224,7 @@ class PdfToTextConverter:
 
         Parameters
         ----------
-        pdf_path : PathLike
+        pdf_path : str | Path
             Path to PDF file.
         first_page : int | None, optional
             First page to extract (1-based). If None, starts from first page.
@@ -1245,7 +1250,7 @@ class PdfToTextConverter:
             if not ocr_opts:
                 ocr_opts = {"thread_count": os.cpu_count()}
 
-        if verbose:
+        if verbose and meta is not None:
             skip = max(map(len, meta.keys()))
             fmt = f"{{key:>{skip+1}s}} : {{value}}"
 
@@ -1336,11 +1341,11 @@ class LatexDelimiterNormalizer:
     SINGLE_LINE_BLOCK_RE = re.compile(
         r"""
         ^[ \t]*
-        (\\?\[)          # opener: \[ or [
+        (\\*\[)          # opener: [, \[, \\[ , ...
         \s*
         (.+?)            # candidate expression
         \s*
-        (\\?\])          # closer: \] or ]
+        (\\*\])          # closer: ], \], \\], ...
         [ \t]*$
         """,
         flags=re.VERBOSE | re.MULTILINE,
@@ -1357,9 +1362,20 @@ class LatexDelimiterNormalizer:
         flags=re.VERBOSE | re.MULTILINE,
     )
 
-    OPEN_DELIMS = {"\\[", "["}
+    BLOCK_MATH_RE = re.compile(
+        r"""
+        (
+            ^\$\$[ \t]*$     # opening $$
+            [\s\S]*?         # block body
+            ^\$\$[ \t]*$     # closing $$
+        )
+        """,
+        flags=re.VERBOSE | re.MULTILINE,
+    )
 
-    CLOSE_DELIMS = {"\\]", "]"}
+    OPEN_DELIM_RE = re.compile(r"\\*\[")
+
+    CLOSE_DELIM_RE = re.compile(r"\\*\]")
 
     @classmethod
     def _is_probably_math(cls, expr: str) -> bool:
@@ -1374,9 +1390,18 @@ class LatexDelimiterNormalizer:
         return opener == "(" and start > 0 and text[start - 1] == "]"
 
     @classmethod
+    def _is_open_delim(cls, text: str) -> bool:
+        return bool(cls.OPEN_DELIM_RE.fullmatch(text))
+
+    @classmethod
+    def _is_close_delim(cls, text: str) -> bool:
+        return bool(cls.CLOSE_DELIM_RE.fullmatch(text))
+
+    @classmethod
     def _normalize_standalone_blocks(cls, text: str) -> str:
-        def handle_block(block: str, out: list[str]) -> None:
+        def handle_block(block: list[str], out: list[str]) -> None:
             expr = "\n".join(block).strip()
+            expr = cls._normalize_double_escapes(expr)
             out.append("$$")
 
             if expr:
@@ -1391,12 +1416,12 @@ class LatexDelimiterNormalizer:
         for line in text.splitlines():
             stripped = line.strip()
 
-            if not in_block and stripped in cls.OPEN_DELIMS:
+            if not in_block and cls._is_open_delim(stripped):
                 in_block = True
                 block = []
                 continue
 
-            if in_block and stripped in cls.CLOSE_DELIMS:
+            if in_block and cls._is_close_delim(stripped):
                 handle_block(block, out)
                 in_block = False
                 block = []
@@ -1418,6 +1443,7 @@ class LatexDelimiterNormalizer:
             expr = match.group(2).strip()
 
             if cls._is_probably_math(expr):
+                expr = cls._normalize_double_escapes(expr)
                 return f"$$\n{expr}\n$$"
 
             return match.group(0)
@@ -1456,6 +1482,20 @@ class LatexDelimiterNormalizer:
         return cls.INLINE_DELIM_RE.sub(repl, text)
 
     @classmethod
+    def _normalize_inline_outside_blocks(cls, text: str) -> str:
+        # Do not touch inline delimiters inside $$...$$ blocks.
+        parts = cls.BLOCK_MATH_RE.split(text)
+        normalized_parts: list[str] = []
+
+        for idx, part in enumerate(parts):
+            if idx % 2 == 1:
+                normalized_parts.append(part)
+            else:
+                normalized_parts.append(cls._normalize_inline_math(part))
+
+        return "".join(normalized_parts)
+
+    @classmethod
     def apply(cls, text: str) -> str:
         """ Apply normalization to the given text.
 
@@ -1475,7 +1515,7 @@ class LatexDelimiterNormalizer:
 
             chunk = cls._normalize_standalone_blocks(part)
             chunk = cls._normalize_single_line_blocks(chunk)
-            chunk = cls._normalize_inline_math(chunk)
+            chunk = cls._normalize_inline_outside_blocks(chunk)
             normalized_parts.append(chunk)
 
         return "".join(normalized_parts)

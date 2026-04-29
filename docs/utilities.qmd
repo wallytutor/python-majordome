@@ -336,7 +336,12 @@ I noticed that sometimes links may be fragile, like in:
 
 ![diagram showing something](assets/img/favicon-32x32.png)
 
-What about this doubly escaped math: \\( \\Delta J \\) ?
+What about this doubly escaped inline math: \\( \\Delta J \\) ?
+
+\\[
+W_{\\text{point}}^{(n)} = \\left( W_{AA}^{(n)} + W_{BB}^{(n)} -
+      2W_{AB}^{(n)} \\right)
+\\]
 """
 
 normalizer = LatexDelimiterNormalizer()
