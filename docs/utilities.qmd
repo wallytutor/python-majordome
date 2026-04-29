@@ -354,6 +354,23 @@ output = normalizer.apply(sample)
 display(Markdown(output))
 ```
 
+### Strip Markdown links
+
+```{python}
+stripper = MarkdownLinkStripper()
+markdown = r"""
+This is a sample markdown with some links and images.
+
+![An image[x]](https://example.com/image.png)
+
+Here is a [link to Google](https://www.google.com) and
+another [link to OpenAI](https://www.openai.com).
+"""
+
+cleaned, _ = stripper.apply(markdown, placeholder="<removed-link>")
+print(cleaned)
+```
+
 ## Misc
 
 ### ColorPrint

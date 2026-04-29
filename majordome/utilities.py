@@ -1611,7 +1611,7 @@ class LatexDelimiterNormalizer:
     @classmethod
     def apply_token_list(cls,
             tokens: list[Token],
-            inplace: bool = False
+            inplace: bool = True
         ) -> tuple[list[Token], int]:
         """ Apply LaTeX delimiter normalization to all applicable tokens.
 
@@ -1619,9 +1619,9 @@ class LatexDelimiterNormalizer:
         ----------
         tokens : list[Token]
             The token stream to process.
-        inplace : bool, optional
+        inplace : bool
             Whether to modify the tokens in place or return a new list
-            (default is False).
+            (default is True).
         """
         normalizer = cls()
         root = tokens if inplace else deepcopy(tokens)
@@ -1646,4 +1646,130 @@ class LatexDelimiterNormalizer:
 
         walk(root)
         return root, changed
+
+
+class MarkdownLinkStripper:
+    """ Remove `![alt-text](url)` image/object tags from text.
+
+    Please notice that this can be fragile if the Markdown is malformed,
+    e.g. missing closing parentheses or brackets, so it is recommended
+    to run this after a Markdown linter or parser. Supports nested square
+    brackets in image alt text, `![phase [alpha] region](figure-1.png)`
+    as this appears when scanning papers with references.
+    """
+    LINK_RE = re.compile(
+        r"""
+        !\[
+            (?:
+                [^\[\]\\]                           # plain alt-text char
+                | \\.                               # escaped character
+                | \[[^\[\]\\]*(?:\\.[^\[\]\\]*)*\]  # one nested [] group
+            )*
+        \]
+        \(
+            (?:
+                [^()\\\n]         # plain target character
+                | \\.             # escaped character
+                | \([^()\\\n]*\)  # one nested () group
+            )*
+        \)
+        """,
+        flags=re.VERBOSE | re.MULTILINE,
+    )
+
+    @staticmethod
+    def consume_balanced(
+            text: str,
+            start: int,
+            opener: str,
+            closer: str
+        ) -> int:
+        """ Index after matching closer for a balanced opener or -1."""
+        if start >= len(text) or text[start] != opener:
+            return -1
+
+        depth = 0
+        i = start
+
+        while i < len(text):
+            ch = text[i]
+
+            if ch == "\\":
+                i += 2
+                continue
+
+            if ch == opener:
+                depth += 1
+            elif ch == closer:
+                depth -= 1
+                if depth == 0:
+                    return i + 1
+
+            i += 1
+
+        return -1
+
+    @classmethod
+    def consume_parens(cls, selected: str, start: int) -> int:
+        return cls.consume_balanced(selected, start, "(", ")")
+
+    @classmethod
+    def consume_brackets(cls, selected: str, start: int) -> int:
+        return cls.consume_balanced(selected, start, "[", "]")
+
+    @staticmethod
+    def open_alt(text: str, j: int) -> bool:
+        return text[j] == "!" and j + 1 < len(text) and text[j + 1] == "["
+
+    @staticmethod
+    def open_url(text: str, j: int) -> bool:
+        return j != -1 and j < len(text) and text[j] == "("
+
+    @classmethod
+    def brute_force(cls,
+            text: str,
+            placeholder: str = ""
+        ) -> tuple[str, list[str]]:
+        """ Brute-force approach (use if regex fails). """
+        removed: list[str] = []
+        out: list[str] = []
+        cursor = 0
+        n = len(text)
+
+        while cursor < n:
+            if cls.open_alt(text, cursor):
+                alt_end = cls.consume_brackets(text, cursor + 1)
+
+                if cls.open_url(text, alt_end):
+                    url_end = cls.consume_parens(text, alt_end)
+
+                    if url_end != -1:
+                        removed.append(text[cursor:url_end])
+                        out.append(placeholder)
+                        cursor = url_end
+                        continue
+
+            out.append(text[cursor])
+            cursor += 1
+
+        cleaned = "".join(out)
+        cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+        return cleaned, removed
+
+    @classmethod
+    def apply(cls,
+            text: str,
+            placeholder: str = ""
+        ) -> tuple[str, list[str]]:
+        """ Apply the link stripping to the given text. """
+        try:
+            removed = [m.group(0) for m in cls.LINK_RE.finditer(text)]
+            cleaned = cls.LINK_RE.sub(placeholder, text)
+            cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+        except re.error:
+            warnings.warn("Regex failed in MarkdownLinkStripper, "
+                          "falling back to brute-force method.")
+            cleaned, removed = cls.brute_force(text)
+
+        return cleaned, removed
 #endregion: markdown
