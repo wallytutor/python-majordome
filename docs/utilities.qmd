@@ -307,6 +307,37 @@ data = converter("data/pdftools/scanned.pdf", last_page=1)
 data.content[:500]
 ```
 
+## Markdown
+
+### Normalize LaTeX delimiters
+
+```{python}
+doc = DocumentedClass(LatexDelimiterNormalizer)
+doc.classmethods()
+```
+
+The following illustrates the use of the functionality:
+
+```{python}
+sample = r"""
+Inline good: \( x^2 + y^2 \)
+
+Inline missing slash: \(a+b)
+
+Inline missing slash close: (c+d\)
+
+Fragile block:
+
+\[
+\int_0^1 f(x)\,dx
+]
+"""
+
+normalizer = LatexDelimiterNormalizer()
+output = normalizer.apply(sample)
+display(Markdown(output))
+```
+
 ## Misc
 
 ### ColorPrint

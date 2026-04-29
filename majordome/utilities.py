@@ -1011,7 +1011,7 @@ class SlideContentWriter:
         return repr(self)
 #endregion: latex
 
-#region: parsing
+#region: argument parsing
 class FuncArguments:
     """ Metaprogramming helper to manage function arguments.
 
@@ -1123,7 +1123,7 @@ class FuncArguments:
         if self.greedy_args and self.got != self.nargs:
             raise ValueError(f"Too many positional arguments, got "
                              f"{self.nargs} but only {self.got} were used.")
-#endregion: parsing
+#endregion: argument parsing
 
 #region: pdftools
 @dataclass
@@ -1297,3 +1297,169 @@ class PdfToTextConverter:
 #
 #     return texts_list
 #endregion: pdftools
+
+#region: markdown
+class LatexDelimiterNormalizer:
+    """ Normalize damaged LaTeX delimiters in Markdown text.
+
+    This class was designed to handle cases where LaTeX delimiters
+    in Markdown text are damaged (originally to fix OCR-converted
+    PDF text), such as when a single backslash is used instead of
+    a double backslash, or when delimiters are split across lines.
+    It provides methods to normalize these delimiters to ensure
+    that LaTeX expressions are correctly identified and rendered
+    in Markdown. The normalization process includes handling inline
+    math, single-line blocks, and standalone blocks, while keeping
+    fenced code blocks untouched.
+    """
+
+    MATH_HINT_RE = re.compile(
+        r"""
+        \\[A-Za-z]+       # any LaTeX command, e.g. \alpha
+        | [_^]            # subscript/superscript markers
+        | [=<>]           # common math operators
+        """,
+        flags=re.VERBOSE | re.MULTILINE,
+    )
+
+    INLINE_DELIM_RE = re.compile(
+        r"""
+        (\\?\()          # opener: \( or (
+        \s*
+        (.+?)            # candidate expression (non-greedy)
+        \s*
+        (\\?\))          # closer: \) or )
+        """,
+        flags=re.VERBOSE | re.MULTILINE | re.DOTALL,
+    )
+
+    SINGLE_LINE_BLOCK_RE = re.compile(
+        r"""
+        ^[ \t]*
+        (\\?\[)          # opener: \[ or [
+        \s*
+        (.+?)            # candidate expression
+        \s*
+        (\\?\])          # closer: \] or ]
+        [ \t]*$
+        """,
+        flags=re.VERBOSE | re.MULTILINE,
+    )
+
+    CODE_FENCE_RE = re.compile(
+        r"""
+        (
+            ^```[^\n]*\n    # opening fence + optional info string
+            [\s\S]*?        # fenced body
+            ^```[ \t]*$     # closing fence
+        )
+        """,
+        flags=re.VERBOSE | re.MULTILINE,
+    )
+
+    OPEN_DELIMS = {"\\[", "["}
+
+    CLOSE_DELIMS = {"\\]", "]"}
+
+    @classmethod
+    def _is_probably_math(cls, expr: str) -> bool:
+        return bool(cls.MATH_HINT_RE.search(expr.strip()))
+
+    @classmethod
+    def _normalize_standalone_blocks(cls, text: str) -> str:
+        def handle_block(block: str, out: list[str]) -> None:
+            expr = "\n".join(block).strip()
+            out.append("$$")
+
+            if expr:
+                out.append(expr)
+
+            out.append("$$")
+
+        out: list[str] = []
+        block: list[str] = []
+        in_block = False
+
+        for line in text.splitlines():
+            stripped = line.strip()
+
+            if not in_block and stripped in cls.OPEN_DELIMS:
+                in_block = True
+                block = []
+                continue
+
+            if in_block and stripped in cls.CLOSE_DELIMS:
+                handle_block(block, out)
+                in_block = False
+                block = []
+                continue
+
+            if in_block:
+                block.append(line)
+            else:
+                out.append(line)
+
+        if in_block:
+            handle_block(block, out)
+
+        return "\n".join(out)
+
+    @classmethod
+    def _normalize_single_line_blocks(cls, text: str) -> str:
+        def repl(match: re.Match[str]) -> str:
+            expr = match.group(2).strip()
+
+            if cls._is_probably_math(expr):
+                return f"$$\n{expr}\n$$"
+
+            return match.group(0)
+
+        return cls.SINGLE_LINE_BLOCK_RE.sub(repl, text)
+
+    @classmethod
+    def _normalize_inline_math(cls, text: str) -> str:
+        def repl(match: re.Match[str]) -> str:
+            opener = match.group(1)
+            expr   = match.group(2)
+            closer = match.group(3)
+            expr = expr.strip()
+
+            if "$" in expr:
+                return match.group(0)
+
+            has_math_delim = (
+                opener.startswith("\\") or closer.endswith("\\)")
+            )
+
+            if has_math_delim or cls._is_probably_math(expr):
+                return f"${expr}$"
+
+            return match.group(0)
+
+        return cls.INLINE_DELIM_RE.sub(repl, text)
+
+    @classmethod
+    def apply(cls, text: str) -> str:
+        """ Apply normalization to the given text.
+
+        Parameters
+        ----------
+        text : str
+            The input Markdown text to normalize.
+        """
+        # Keep fenced code blocks untouched.
+        parts = cls.CODE_FENCE_RE.split(text)
+        normalized_parts: list[str] = []
+
+        for idx, part in enumerate(parts):
+            if idx % 2 == 1:
+                normalized_parts.append(part)
+                continue
+
+            chunk = cls._normalize_standalone_blocks(part)
+            chunk = cls._normalize_single_line_blocks(chunk)
+            chunk = cls._normalize_inline_math(chunk)
+            normalized_parts.append(chunk)
+
+        return "".join(normalized_parts)
+#endregion: markdown
