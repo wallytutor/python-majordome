@@ -1324,11 +1324,11 @@ class LatexDelimiterNormalizer:
 
     INLINE_DELIM_RE = re.compile(
         r"""
-        (\\?\()          # opener: \( or (
+        (\\*\()          # opener: (, \(, \\(, ...
         \s*
         (.+?)            # candidate expression (non-greedy)
         \s*
-        (\\?\))          # closer: \) or )
+        (\\*\))          # closer: ), \), \\), ...
         """,
         flags=re.VERBOSE | re.MULTILINE | re.DOTALL,
     )
@@ -1425,6 +1425,11 @@ class LatexDelimiterNormalizer:
         return cls.SINGLE_LINE_BLOCK_RE.sub(repl, text)
 
     @classmethod
+    def _normalize_double_escapes(cls, expr: str) -> str:
+        """ Collapse doubled backslashes from before LaTeX tokens. """
+        return re.sub(r"\\\\(?=[A-Za-z()[\]{}])", r"\\", expr)
+
+    @classmethod
     def _normalize_inline_math(cls, text: str) -> str:
         def repl(match: re.Match[str]) -> str:
             opener = match.group(1)
@@ -1443,12 +1448,12 @@ class LatexDelimiterNormalizer:
             )
 
             if has_math_delim or cls._is_probably_math(expr):
+                expr = cls._normalize_double_escapes(expr)
                 return f"${expr}$"
 
             return match.group(0)
 
         return cls.INLINE_DELIM_RE.sub(repl, text)
-
 
     @classmethod
     def apply(cls, text: str) -> str:

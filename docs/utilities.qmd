@@ -332,9 +332,11 @@ Fragile block:
 \int_0^1 f(x)\,dx
 ]
 
-I noticed that sometimes links may be fragile, like in
+I noticed that sometimes links may be fragile, like in:
 
 ![diagram showing something](assets/img/favicon-32x32.png)
+
+What about this doubly escaped math: \\( \\Delta J \\) ?
 """
 
 normalizer = LatexDelimiterNormalizer()
