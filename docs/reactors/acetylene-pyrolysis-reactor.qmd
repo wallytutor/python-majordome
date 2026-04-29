@@ -12,10 +12,9 @@ Work in progress!
 ```
 
 ```{python}
-from majordome.engineering import (
-    NormalFlowRate,
-    PlugFlowChainCantera,
-)
+from majordome.engineering import NormalFlowRate
+from majordome.engineering import PlugFlowChainCantera
+
 from scipy.interpolate import CubicSpline
 import os
 import cantera as ct
