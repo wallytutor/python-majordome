@@ -12,6 +12,11 @@ class TestLatexDelimiterNormalizer:
         expected = r"$x^2 + y^2$"
         assert self.normalizer.apply(sample) == expected
 
+    def test_inline_parenthesized(self):
+        sample   = r"(\( x^2 + y^2 \))"
+        expected = r"($x^2 + y^2$)"
+        assert self.normalizer.apply(sample) == expected
+
     def test_inline_missing_open_slash(self):
         sample   = r"(c+d\)"
         expected = r"$c+d$"

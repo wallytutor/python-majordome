@@ -13,8 +13,10 @@ import warnings
 
 from abc import ABC, abstractmethod
 from collections import OrderedDict, deque
+from copy import deepcopy
 from dataclasses import dataclass
 from decimal import Decimal, getcontext
+from markdown_it.token import Token
 from matplotlib import pyplot as plt
 from matplotlib import colormaps
 from matplotlib.axes import Axes
@@ -1517,6 +1519,13 @@ class LatexDelimiterNormalizer:
 
             has_math_delim = opener_escaped or closer_escaped
 
+            # If plain parentheses already contain escaped inline delimiters,
+            # keep outer parentheses outside math and let nested matches handle.
+            if (not has_math_delim
+                    and ("\\(" in expr or "\\)" in expr)):
+                idx += 1
+                continue
+
             if has_math_delim or cls._is_probably_math(expr):
                 out.append(text[cursor:opener_start])
                 expr = cls._normalize_double_escapes(expr)
@@ -1525,7 +1534,9 @@ class LatexDelimiterNormalizer:
                 idx = cursor
                 continue
 
-            idx = closer_idx + 1
+            # For non-math groups, advance one character only so nested
+            # escaped inline math like "(\(n\))" can still be detected.
+            idx += 1
 
         out.append(text[cursor:])
         return "".join(out)
@@ -1568,4 +1579,43 @@ class LatexDelimiterNormalizer:
             normalized_parts.append(chunk)
 
         return "".join(normalized_parts)
+
+    @classmethod
+    def apply_token_list(cls,
+            tokens: list[Token],
+            inplace: bool = False
+        ) -> tuple[list[Token], int]:
+        """ Apply LaTeX delimiter normalization to all applicable tokens.
+
+        Parameters
+        ----------
+        tokens : list[Token]
+            The token stream to process.
+        inplace : bool, optional
+            Whether to modify the tokens in place or return a new list
+            (default is False).
+        """
+        normalizer = cls()
+        root = tokens if inplace else deepcopy(tokens)
+        changed = 0
+
+        def skip(tok: Token) -> bool:
+            return tok.type in {"code_inline", "code_block", "fence"}
+
+        def walk(stream: list[Token]) -> None:
+            nonlocal changed
+
+            for tok in stream:
+                if not skip(tok) and tok.content:
+                    updated = normalizer.apply(tok.content)
+
+                    if updated != tok.content:
+                        tok.content = updated
+                        changed += 1
+
+                if tok.children:
+                    walk(tok.children)
+
+        walk(root)
+        return root, changed
 #endregion: markdown
