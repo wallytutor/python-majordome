@@ -2,6 +2,7 @@
 from textwrap import dedent
 from majordome.utilities import (
     LatexDelimiterNormalizer,
+    MarkdownLinkStripper,
 )
 
 class TestLatexDelimiterNormalizer:
@@ -71,3 +72,56 @@ class TestLatexDelimiterNormalizer:
             $$""") # XXX cannot break to next line!
 
         assert self.normalizer.apply(sample) == expected
+
+
+class TestMarkdownLinkStripper:
+    stripper = MarkdownLinkStripper()
+
+    def test_brute(self):
+        sample   = dedent(r"""
+            A [link](https://example.com/path?query=param)
+            and ![image](https://example.com/image.png)""")
+
+        expected = dedent(r"""
+            A [link](https://example.com/path?query=param)
+            and <x>""")
+
+        cleaned, removed = self.stripper.brute(sample, placeholder="<x>")
+
+        assert cleaned == expected
+        assert removed[0] == "![image](https://example.com/image.png)"
+
+    def test_apply(self):
+        sample   = dedent(r"""
+            A [link](https://example.com/path?query=param)
+            and ![image](https://example.com/image.png)""")
+
+        expected = dedent(r"""
+            A [link](https://example.com/path?query=param)
+            and <x>""")
+
+        cleaned, removed = self.stripper.apply(sample, placeholder="<x>")
+
+        assert cleaned == expected
+        assert removed[0] == "![image](https://example.com/image.png)"
+
+    def test_apply_remove_links(self):
+        sample   = dedent(r"""
+            A [link](https://example.com/path?query=param)
+            and ![image](https://example.com/image.png)""")
+
+        expected = dedent(r"""
+            A <x>
+            and <x>""")
+
+        cleaned, removed = self.stripper.apply(
+            sample,
+            placeholder="<x>",
+            remove_links=True,
+        )
+
+        assert cleaned == expected
+        assert removed == [
+            "[link](https://example.com/path?query=param)",
+            "![image](https://example.com/image.png)",
+        ]

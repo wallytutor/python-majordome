@@ -1677,6 +1677,26 @@ class MarkdownLinkStripper:
         flags=re.VERBOSE | re.MULTILINE,
     )
 
+    LINK_OR_IMAGE_RE = re.compile(
+        r"""
+        !?\[
+            (?:
+                [^\[\]\\]                           # plain alt-text char
+                | \\.                               # escaped character
+                | \[[^\[\]\\]*(?:\\.[^\[\]\\]*)*\]  # one nested [] group
+            )*
+        \]
+        \(
+            (?:
+                [^()\\\n]         # plain target character
+                | \\.             # escaped character
+                | \([^()\\\n]*\)  # one nested () group
+            )*
+        \)
+        """,
+        flags=re.VERBOSE | re.MULTILINE,
+    )
+
     @staticmethod
     def consume_balanced(
             text: str,
@@ -1722,13 +1742,18 @@ class MarkdownLinkStripper:
         return text[j] == "!" and j + 1 < len(text) and text[j + 1] == "["
 
     @staticmethod
+    def open_link(text: str, j: int) -> bool:
+        return text[j] == "["
+
+    @staticmethod
     def open_url(text: str, j: int) -> bool:
         return j != -1 and j < len(text) and text[j] == "("
 
     @classmethod
-    def brute_force(cls,
+    def brute(cls,
             text: str,
-            placeholder: str = ""
+            placeholder: str = "",
+            remove_links: bool = False
         ) -> tuple[str, list[str]]:
         """ Brute-force approach (use if regex fails). """
         removed: list[str] = []
@@ -1737,8 +1762,12 @@ class MarkdownLinkStripper:
         n = len(text)
 
         while cursor < n:
-            if cls.open_alt(text, cursor):
-                alt_end = cls.consume_brackets(text, cursor + 1)
+            is_image = cls.open_alt(text, cursor)
+            is_link = remove_links and cls.open_link(text, cursor)
+
+            if is_image or is_link:
+                bracket_start = cursor + 1 if is_image else cursor
+                alt_end = cls.consume_brackets(text, bracket_start)
 
                 if cls.open_url(text, alt_end):
                     url_end = cls.consume_parens(text, alt_end)
@@ -1759,17 +1788,34 @@ class MarkdownLinkStripper:
     @classmethod
     def apply(cls,
             text: str,
-            placeholder: str = ""
+            placeholder: str = "",
+            remove_links: bool = False
         ) -> tuple[str, list[str]]:
-        """ Apply the link stripping to the given text. """
+        """ Apply the link stripping to the given text.
+
+        Parameters
+        ----------
+        text : str
+            Input Markdown text.
+        placeholder : str
+            Replacement text for each removed link/image.
+        remove_links : bool
+            If True, remove both `[text](url)` and `![alt](url)`.
+            If False, remove only image/object tags.
+        """
         try:
-            removed = [m.group(0) for m in cls.LINK_RE.finditer(text)]
-            cleaned = cls.LINK_RE.sub(placeholder, text)
+            pattern = cls.LINK_OR_IMAGE_RE if remove_links else cls.LINK_RE
+            removed = [m.group(0) for m in pattern.finditer(text)]
+            cleaned = pattern.sub(placeholder, text)
             cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
         except re.error:
             warnings.warn("Regex failed in MarkdownLinkStripper, "
                           "falling back to brute-force method.")
-            cleaned, removed = cls.brute_force(text)
+            cleaned, removed = cls.brute(
+                text,
+                placeholder=placeholder,
+                remove_links=remove_links,
+            )
 
         return cleaned, removed
 #endregion: markdown
