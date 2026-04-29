@@ -80,6 +80,13 @@ class ReadTextData:
         return data
 
 
+class InteractiveSessionTracer:
+    def __call__(self, frame, event, _arg):
+        if event == "return":
+            self.locals = frame.f_locals.copy()
+        return self
+
+
 class InteractiveSession:
     """ Produce interactive sessions with a copy of function locals. """
     def __init__(self, debug: bool = False, **opts):
@@ -94,10 +101,7 @@ class InteractiveSession:
 
     def __call__(self, func):
         """ Decorate function with configured session. """
-        def tracer(frame, event, _arg):
-            if event == "return":
-                tracer.locals = frame.f_locals.copy()
-            return tracer
+        tracer = InteractiveSessionTracer()
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
