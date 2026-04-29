@@ -1331,17 +1331,6 @@ class LatexDelimiterNormalizer:
         flags=re.VERBOSE | re.MULTILINE,
     )
 
-    INLINE_DELIM_RE = re.compile(
-        r"""
-        (\\*\()          # opener: (, \(, \\(, ...
-        \s*
-        (.+?)            # candidate expression (non-greedy)
-        \s*
-        (\\*\))          # closer: ), \), \\), ...
-        """,
-        flags=re.VERBOSE | re.MULTILINE | re.DOTALL,
-    )
-
     SINGLE_LINE_BLOCK_RE = re.compile(
         r"""
         ^[ \t]*
@@ -1386,12 +1375,43 @@ class LatexDelimiterNormalizer:
         return bool(cls.MATH_HINT_RE.search(expr.strip()))
 
     @classmethod
-    def _is_maybe_link(cls, opener, match, text) -> bool:
-        # Ignore Markdown links/images: [...](...) and ![...](...)
-        # This match is on the "(...)" part, so if previous char is ']',
-        # keep it untouched.
-        start = match.start()
-        return opener == "(" and start > 0 and text[start - 1] == "]"
+    def _is_maybe_link(cls, opener_start: int, opener_escaped: bool,
+                       text: str) -> bool:
+        # Ignore Markdown links/images: [...](...) and ![...](...).
+        return (not opener_escaped
+                and opener_start > 0
+                and text[opener_start - 1] == "]")
+
+    @classmethod
+    def _count_preceding_backslashes(cls, text: str, idx: int) -> int:
+        count = 0
+        j = idx - 1
+
+        while j >= 0 and text[j] == "\\":
+            count += 1
+            j -= 1
+
+        return count
+
+    @classmethod
+    def _find_inline_closer(cls, text: str, start: int) -> int | None:
+        depth = 0
+
+        for k in range(start, len(text)):
+            char = text[k]
+
+            if char == "(":
+                depth += 1
+                continue
+
+            if char == ")":
+                if depth > 0:
+                    depth -= 1
+                    continue
+
+                return k
+
+        return None
 
     @classmethod
     def _is_open_delim(cls, text: str) -> bool:
@@ -1461,29 +1481,54 @@ class LatexDelimiterNormalizer:
 
     @classmethod
     def _normalize_inline_math(cls, text: str) -> str:
-        def repl(match: re.Match[str]) -> str:
-            opener = match.group(1)
-            expr   = match.group(2)
-            closer = match.group(3)
-            expr = expr.strip()
+        out: list[str] = []
+        cursor = 0
+        idx = 0
+        n = len(text)
 
-            if cls._is_maybe_link(opener, match, text):
-                return match.group(0)
+        while idx < n:
+            if text[idx] != "(":
+                idx += 1
+                continue
+
+            opener_bs = cls._count_preceding_backslashes(text, idx)
+            opener_escaped = opener_bs > 0
+            opener_start = idx - opener_bs
+
+            if cls._is_maybe_link(opener_start, opener_escaped, text):
+                idx += 1
+                continue
+
+            closer_idx = cls._find_inline_closer(text, idx + 1)
+
+            if closer_idx is None:
+                idx += 1
+                continue
+
+            closer_bs = cls._count_preceding_backslashes(text, closer_idx)
+            closer_escaped = closer_bs > 0
+
+            expr_end = closer_idx - closer_bs if closer_escaped else closer_idx
+            expr = text[idx + 1:expr_end].strip()
 
             if "$" in expr:
-                return match.group(0)
+                idx = closer_idx + 1
+                continue
 
-            has_math_delim = (
-                opener.startswith("\\") or closer.endswith("\\)")
-            )
+            has_math_delim = opener_escaped or closer_escaped
 
             if has_math_delim or cls._is_probably_math(expr):
+                out.append(text[cursor:opener_start])
                 expr = cls._normalize_double_escapes(expr)
-                return f"${expr}$"
+                out.append(f"${expr}$")
+                cursor = closer_idx + 1
+                idx = cursor
+                continue
 
-            return match.group(0)
+            idx = closer_idx + 1
 
-        return cls.INLINE_DELIM_RE.sub(repl, text)
+        out.append(text[cursor:])
+        return "".join(out)
 
     @classmethod
     def _normalize_inline_outside_blocks(cls, text: str) -> str:
