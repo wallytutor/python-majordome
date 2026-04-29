@@ -319,6 +319,7 @@ doc.classmethods()
 The following illustrates the use of the functionality:
 
 ```{python}
+#| echo: true
 sample = r"""
 Inline good: \( x^2 + y^2 \)
 
@@ -326,11 +327,15 @@ Inline missing slash: \(a+b)
 
 Inline missing slash close: (c+d\)
 
-Fragile block:
+Inline parenthetized: (\(c+d\))
 
-\[
-\int_0^1 f(x)\,dx
-]
+Inline breaking case: \( V_{IJ}^{(n)} \)
+
+Block inline: \[ \int_0^1 f(x)\,dx ]
+
+Fragilized block:
+
+\[ \int_0^1 f(x)\,dx ]
 
 I noticed that sometimes links may be fragile, like in:
 
@@ -354,6 +359,7 @@ display(Markdown(output))
 ### ColorPrint
 
 ```{python}
+#| echo: true
 ColorPrint.red("This is a red message.")
 ColorPrint.green("This is a green message.")
 ColorPrint.blue("This is a blue message.")
