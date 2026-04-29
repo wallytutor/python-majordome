@@ -1366,6 +1366,14 @@ class LatexDelimiterNormalizer:
         return bool(cls.MATH_HINT_RE.search(expr.strip()))
 
     @classmethod
+    def _is_maybe_link(cls, opener, match, text) -> bool:
+        # Ignore Markdown links/images: [...](...) and ![...](...)
+        # This match is on the "(...)" part, so if previous char is ']',
+        # keep it untouched.
+        start = match.start()
+        return opener == "(" and start > 0 and text[start - 1] == "]"
+
+    @classmethod
     def _normalize_standalone_blocks(cls, text: str) -> str:
         def handle_block(block: str, out: list[str]) -> None:
             expr = "\n".join(block).strip()
@@ -1424,6 +1432,9 @@ class LatexDelimiterNormalizer:
             closer = match.group(3)
             expr = expr.strip()
 
+            if cls._is_maybe_link(opener, match, text):
+                return match.group(0)
+
             if "$" in expr:
                 return match.group(0)
 
@@ -1437,6 +1448,7 @@ class LatexDelimiterNormalizer:
             return match.group(0)
 
         return cls.INLINE_DELIM_RE.sub(repl, text)
+
 
     @classmethod
     def apply(cls, text: str) -> str:
