@@ -41,6 +41,11 @@ class TestLatexDelimiterNormalizer:
         expected = "$$\n\\int_0^1 f(x)\\,dx\n$$"  # XXX not raw string!
         assert self.normalizer.apply(sample) == expected
 
+    def test_block_inline(self):
+        sample   = r"text to be inline \[ \int_0^1 f(x)\,dx ]"
+        expected = "text to be inline $$ \\int_0^1 f(x)\\,dx $$"
+        assert self.normalizer.apply(sample) == expected
+
     def test_skip_md_links(self):
         sample   = r"[link](https://example.com/path?query=param)"
         expected = r"[link](https://example.com/path?query=param)"

@@ -1346,6 +1346,17 @@ class LatexDelimiterNormalizer:
         flags=re.VERBOSE | re.MULTILINE,
     )
 
+    INLINE_BLOCK_RE = re.compile(
+        r"""
+        (\\*\[)          # opener: [, \[, \\[ , ...
+        \s*
+        (.+?)            # candidate expression
+        \s*
+        (\\*\])          # closer: ], \], \\], ...
+        """,
+        flags=re.VERBOSE,
+    )
+
     CODE_FENCE_RE = re.compile(
         r"""
         (
@@ -1465,7 +1476,7 @@ class LatexDelimiterNormalizer:
 
     @classmethod
     def _normalize_single_line_blocks(cls, text: str) -> str:
-        def repl(match: re.Match[str]) -> str:
+        def repl_full_line(match: re.Match[str]) -> str:
             expr = match.group(2).strip()
 
             if cls._is_probably_math(expr):
@@ -1474,7 +1485,24 @@ class LatexDelimiterNormalizer:
 
             return match.group(0)
 
-        return cls.SINGLE_LINE_BLOCK_RE.sub(repl, text)
+        def repl_inline(match: re.Match[str]) -> str:
+            opener = match.group(1)
+            expr = match.group(2).strip()
+            closer = match.group(3)
+
+            # Ignore plain bracket groups unless at least one delimiter side
+            # uses LaTeX escaping (e.g. \[ ... ] or [ ... \]).
+            if "\\" not in opener and "\\" not in closer:
+                return match.group(0)
+
+            if cls._is_probably_math(expr):
+                expr = cls._normalize_double_escapes(expr)
+                return f"$$ {expr} $$"
+
+            return match.group(0)
+
+        text = cls.SINGLE_LINE_BLOCK_RE.sub(repl_full_line, text)
+        return cls.INLINE_BLOCK_RE.sub(repl_inline, text)
 
     @classmethod
     def _normalize_double_escapes(cls, expr: str) -> str:
