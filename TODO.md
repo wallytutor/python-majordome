@@ -26,6 +26,8 @@
 
 - [ ] Automatic plotting of postprocessing folder with multiple restart points; support single domain as well as multiple regions cases (there is an ongoing draft in the heat-exchanger model).
 
+- [ ] Provide a Windows handle for running OpenFOAM in WSL; this would wrap the WSL command and provide a more seamless experience for users on Windows without the need to open a separate terminal and run the command manually.
+
 ## General code features
 
 - [x] Fix launching of rust binaries in uv environments; test a branch of majordome simplified to a uv/maturin workflow Creating projects | uv Project Layout - Maturin User Guide before going further. Created a new project with uv init --python 3.12 --build-backend maturin majordome. Migration performed and project management became extremely simple compared to previous version.
