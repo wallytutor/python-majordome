@@ -9,7 +9,7 @@ build = "build.rs"
 
 [lib]
 name = "_core"
-path = "src/lib.rs"
+path = "src/core/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies.pyo3]
