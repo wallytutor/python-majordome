@@ -1,5 +1,11 @@
 # Changelog
 
+## Ongoing Development
+
+- Added .NET extras for educational purposes. The code is currently not part of the Python package and is highly experimental.
+
+- Included `majordome.utilities.sympy_symbols_factory` utility to create SymPy symbols in batch, with support for custom naming conventions and indexing.
+
 ## 1.1.0 - 2026-04-29
 
 - Updated `majordome.utilities.LatexDelimiterNormalizer` to handle parenthesized LaTeX blocks and inline expressions (mostly to support outputs of OCR when extracting text from PDFs).

@@ -1,0 +1,184 @@
+# Slycke's Models
+
+::: {.callout .callout-info}
+
+Educational code for simulating diffusion processes in solids. Example application based on [Slycke's](https://doi.org/10.1007/BF02833226) models of carbonitriding processes in steel.
+
+:::
+
+## Preliminary calculations
+
+```{python}
+%load_ext majordome.magic
+```
+
+```{python}
+import sympy as sp
+from majordome.utilities import sympy_symbols_factory
+```
+
+```{python, title="Define symbols"}
+sympy_symbols_factory(
+    # Molar fractions and concentrations:
+    "x_c", "x_n",
+    "C_c", "C_n",
+
+    # Molar masses, number of atoms per unit cell:
+    "M_c", "M_n", "M_f",
+    "N_c", "N_n", "N_f",
+
+    # Paraleters related to density:
+    "V_c", "A_v", "rho_0",
+
+    # Dump all of the above into the global namespace:
+    scope = globals()
+)
+```
+
+The problem as formulated by @Slycke1981a is expressed in terms of concentrations, while the diffusion coefficients (which are based on geometric exclusion principles) require molar fractions. There may be some overhead in simulations if handling of unit conversion is not done carefully, so in this section we will derive the necessary relationships to convert between the two.
+
+The problem may seen nonlinear, as density might be considered as a function of composition (in general for carbonitriding it is reasonable to assume that the density of the steel is constant, but we will not make this assumption here). From the definition o molar fraction, one can derive the mean number of atoms of a kind per unit cell in terms of the total number of atoms per unit cell and the molar fractions. For instance, for carbon and nitrogen we have:
+
+```{python}
+N_total = N_c + N_n + N_f
+eq1 = sp.Eq(x_c, N_c / N_total)
+eq2 = sp.Eq(x_n, N_n / N_total)
+
+
+```
+
+```{python}
+%%md
+${sp.latex(eq1):s}, \quad {sp.latex(eq2):s}$
+```
+
+With a little manipulation, we can express the number of atoms per unit cell of carbon and nitrogen as a function of the molar fractions and the total number of atoms of iron $N_f$ (which dependends only on the crystal structure, here for FCC $N_f = 4$) per unit cell:
+
+```{python}
+eq1 = x_c * N_total - N_c
+eq2 = x_n * N_total - N_n
+
+sol = sp.linsolve([eq1, eq2], (N_c, N_n))
+N_c_sym, N_n_sym = next(iter(sol))
+```
+
+```{python}
+%%md
+$N_c = {sp.latex(N_c_sym):s}, \quad N_n = {sp.latex(N_n_sym):s}$
+```
+
+In the absence of interstitial atoms, the density of plain iron expressed in terms of the unit cell parameters (see any introductory text on Materials Science, *e.g.* @Callister2007) can be expressed as:
+
+```{python}
+rho_sym = N_f * M_f / (V_c * A_v)
+```
+
+```{python}
+%%md
+$\rho_0 = {sp.latex(rho_sym):s}$
+```
+
+Including the additional interstitial atoms - and neglecting their effect on lattice parameter, which is not a bad hypothesis at high temperature - the density of the system can be expressed as:
+
+```{python}
+rho_mix = (N_c * M_c + N_n * M_n + N_f * M_f) / (V_c * A_v)
+rho_mix = sp.simplify(rho_mix.subs({N_c: N_c_sym, N_n: N_n_sym}))
+```
+
+```{python}
+%%md
+$\rho = {sp.latex(rho_mix):s}$
+```
+
+Notice the common factors between the two expressions, which allows us to express the density of the system as a function of the density of pure iron and the molar fractions:
+
+```{python}
+rho_mix = rho_mix.subs(N_f / (V_c * A_v), rho_0 / M_f)
+```
+
+```{python}
+%%md
+$\rho = {sp.latex(rho_mix):s}$
+```
+
+The concentration is the ratio between the solution density and its mean molar mass. Writing the molar mass of the system as a function of the molar fractions and molar masses of the individual components is straightforward:
+
+```{python}
+xf = 1 - x_c - x_n
+Mbar = M_c * x_c + M_n * x_n + M_f * xf
+```
+
+```{python}
+%%md
+$\bar{M} = {sp.latex(Mbar):s}$
+```
+
+With this expression we find the trivial result:
+
+```{python}
+C_mix = sp.simplify(rho_mix / Mbar)
+```
+
+```{python}
+%%md
+$C = {sp.latex(C_mix):s}$
+```
+
+and for the individual components:
+
+```{python}
+C_c_sym = x_c * C_mix
+C_n_sym = x_n * C_mix
+```
+
+```{python}
+%%md
+$C_c = {sp.latex(C_c_sym):s}, \quad C_n = {sp.latex(C_n_sym):s}$
+```
+
+With these expressions, we can express the molar fractions as a function of the concentrations:
+
+```{python}
+den = sp.denom(C_mix)
+eq1 = sp.simplify((C_c - C_mix * x_c) * den)
+eq2 = sp.simplify((C_n - C_mix * x_n) * den)
+
+sol = sp.linsolve([eq1, eq2], (x_c, x_n))
+x_c_sym, x_n_sym = next(iter(sol))
+```
+
+```{python}
+%%md
+$x_c = {sp.latex(x_c_sym):s}, \quad x_n = {sp.latex(x_n_sym):s}$
+```
+
+The preliminary conclusions from the above calculations are:
+
+1. Problem is to be initialized in terms of concentrations, which are computed from the molar fractions and the density of plain iron.
+
+1. Solution is carried interativelly, so we do not need to handle the non-linearity arising from the dependence of composition with both species.
+
+1. The model is responsible by converting from concentrations to mole fractions internally, so there is no impact on the solver.
+
+```{python}
+rho_num = 7870.0
+mf_num  = 0.055
+x_c_num = 0.0074
+x_n_num = 0.0000
+
+# sp.lambdify(
+(list(C_c_sym.free_symbols))
+
+conc_c = sp.lambdify((rho_0, M_f, x_c, x_n), C_c_sym)
+conc_n = sp.lambdify((rho_0, M_f, x_c, x_n), C_n_sym)
+
+conc_n(rho_num, mf_num, x_c_num, x_n_num)
+conc_c(rho_num, mf_num, x_c_num, x_n_num)
+pass
+```
+
+## Convergence analysis
+
+## Discretization methods
+
+## Comparison to validation data

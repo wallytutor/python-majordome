@@ -22,17 +22,27 @@ book:
 
     - part: "Majordome API"
       chapters:
-      - magic.qmd
       - engineering.qmd
       - simulation.qmd
       - utilities.qmd
       - documents.qmd
+      - magic.qmd
 
     - part: "Reactor Engineering"
       chapters:
         - reactors/acetylene-pyrolysis-reactor.qmd
         - reactors/counter-current-pfr.qmd
         - reactors/converting-nasa-poly.qmd
+
+    - part: "Diffusion in Solids"
+      chapters:
+        - diffusion/index.qmd
+        - diffusion/slycke.qmd
+
+    - part: "Development"
+      chapters:
+      - devel/python.qmd
+      - devel/dotnet.qmd
 
     - references.qmd
 

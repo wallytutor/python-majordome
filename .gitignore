@@ -19,7 +19,12 @@ docs/site_libs/
 docs/**/.jupyter_cache/
 docs/**/*.quarto_ipynb
 docs/**/*_files/
+docs/**/*.aux
+docs/**/*.log
+docs/**/*.out
+docs/**/*.tex
 docs/**/*.html
+docs/**/*.pdf
 docs/index.*
 !docs/index.qmd
 
@@ -31,3 +36,12 @@ docs/index.*
 __pycache__/
 *.py[cod]
 *.so
+
+# .NET build output
+**/bin/
+**/obj/
+
+# fsdocs
+.fsdocs/
+output/
+tmp/watch/
