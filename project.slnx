@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="src/Diffusion.Core/Diffusion.Core.fsproj" />
-  <Project Path="src/Diffusion.Slycke/Diffusion.Slycke.fsproj" />
+  <Project Path="src/Diffusion/Diffusion.Core.fsproj" />
+  <Project Path="src/Diffusion/Diffusion.Slycke.fsproj" />
 </Solution>

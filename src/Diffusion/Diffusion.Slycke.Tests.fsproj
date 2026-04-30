@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Tests.fs" />
+    <Compile Include="../Diffusion.Slycke/Tests.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="Diffusion.Thermo.fsproj" />
+    <ProjectReference Include="Diffusion.Slycke.fsproj" />
   </ItemGroup>
 
 </Project>

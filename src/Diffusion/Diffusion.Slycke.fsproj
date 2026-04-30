@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Library.fs" />
+    <Compile Include="../Diffusion.Slycke/DiffusionPlainFeCN.fs" />
+    <Compile Include="../Diffusion.Slycke/Library.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Diffusion.Numerics/Diffusion.Numerics.fsproj" />
+    <ProjectReference Include="Diffusion.Core.fsproj" />
   </ItemGroup>
 
 </Project>

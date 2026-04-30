@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="TridiagonalSolver.fs" />
-    <Compile Include="NumericalUtilities.fs" />
-    <Compile Include="Library.fs" />
+    <Compile Include="../Diffusion.Numerics/TridiagonalSolver.fs" />
+    <Compile Include="../Diffusion.Numerics/NumericalUtilities.fs" />
+    <Compile Include="../Diffusion.Numerics/Library.fs" />
   </ItemGroup>
 
 </Project>

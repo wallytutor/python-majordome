@@ -1,8 +1,8 @@
 // #define COMPILED
 
 #if COMPILED
-#r "../../src/Diffusion.Slycke/bin/Debug/net10.0/Diffusion.Core.dll"
-#r "../../src/Diffusion.Slycke/bin/Debug/net10.0/Diffusion.Slycke.dll"
+#r "../../src/Diffusion/bin/Debug/net10.0/Diffusion.Core.dll"
+#r "../../src/Diffusion/bin/Debug/net10.0/Diffusion.Slycke.dll"
 #else
 #load "../../src/Diffusion.Numerics/TridiagonalSolver.fs"
 #load "../../src/Diffusion.Numerics/NumericalUtilities.fs"
