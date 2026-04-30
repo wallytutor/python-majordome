@@ -4,6 +4,9 @@
 # Virtual environment:
 .venv/
 
+# Token
+.token
+
 # Any sandbox:
 *sandbox*
 
