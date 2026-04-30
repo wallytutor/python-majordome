@@ -319,6 +319,25 @@ def sci_to_latex_decimal(x: Number, sig: int = 3):
     mantissa_str = f"{mantissa:.{sig}g}"
 
     return fr"{mantissa_str}\times 10^{{{exponent}}}"
+
+
+def sympy_symbols_factory(*args: str | tuple, scope: dict):
+    """ Adds the given names to the global namespace as SymPy symbols. """
+    if "sp" not in scope:
+        import sympy as sp
+        scope["sp"] = sp
+
+    for symbol in args:
+        try:
+            latex_name = symbol
+
+            if isinstance(symbol, tuple):
+                symbol, latex_name = symbol
+
+            exec(f"{symbol} = sp.symbols('{latex_name}')", scope)
+
+        except Exception as e:
+            print(f"Error creating symbol {symbol}: {e}")
 #endregion: common
 
 #region: progress
