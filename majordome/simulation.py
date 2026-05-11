@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import polars as pl
 import pyparsing as pp
+import re
 
 from dataclasses import dataclass
 from io import StringIO, TextIOWrapper
@@ -970,10 +971,13 @@ def load_dpm_table(fname: str) -> pd.DataFrame:
 #endregion: fluent
 
 #region: openfoam
-def openfoam_xy_loader(fname: Path, backend="polars", **kwargs) -> pd.DataFrame:
+def openfoam_tabular_loader(fname: Path, backend="polars",
+                            **kwargs) -> pd.DataFrame:
     """ Load OpenFOAM xy files into a pandas DataFrame. """
+    comment = "#"
+
     if backend == "pandas":
-        return pd.read_csv(fname, sep=r"\s+", comment='#',
+        return pd.read_csv(fname, sep=r"\s+", comment=comment,
                            header=None, **kwargs)
     elif backend == "polars":
         # XXX keep this until this function is made stable; polars is much
@@ -987,7 +991,7 @@ def openfoam_xy_loader(fname: Path, backend="polars", **kwargs) -> pd.DataFrame:
         #         f.write(re.sub(r"\s+", ",", f.read()))
         #
         # df = pl.read_csv("tmp.csv", separator=",")
-        df = pl.read_csv(fname, separator="\t", comment_prefix='#',
+        df = pl.read_csv(fname, separator="\t", comment_prefix=comment,
                          has_header=False, **kwargs)
         return df.to_pandas()
     else:
@@ -1041,12 +1045,47 @@ class FoamPostProcessingLoader:
 
         return [f.resolve() for f in report_dir.rglob('*') if f.is_file()]
 
+    def _get_report_header(self, fname: Path) -> list[str]:
+        """ Get the header line for a specific report. """
+        last_line = None
+
+        # Read until a line is not a comment:
+        with open(fname) as f:
+            for line in f:
+                if not line.startswith("#"):
+                    break
+
+                last_line = line
+
+        if last_line is not None:
+            last_line = last_line.lstrip("#").replace("\t", ",")
+            last_line = re.sub(r"\s+", " ", last_line).strip()
+            last_line = last_line.split(",")
+            return last_line
+
+        raise ValueError(f"No header found in report '{fname}'.")
+
     def load_report(self,
             report: str,
-            loader: Callable[[Path], pd.DataFrame] = openfoam_xy_loader,
+            loader: Callable[[Path], pd.DataFrame] = openfoam_tabular_loader,
             **kwargs
         ) -> pd.DataFrame:
-        """ Load a specific report into a pandas DataFrame. """
+        """ Load a specific report into a pandas DataFrame.
+
+        Parameters
+        ----------
+        report : str
+            The name of the report to load, must be one of the available
+            reports as returned by `available_reports`.
+        loader : Callable[[Path], pd.DataFrame], optional
+            A custom loader function that takes a file path and returns
+            a DataFrame. By default, it uses `openfoam_tabular_loader`
+            which is designed to handle OpenFOAM's xy files. The loader
+            function should accept a file path and any additional keyword
+            arguments, and return a DataFrame with the data from that file.
+        kwargs
+            Additional keyword arguments to pass to the loader function.
+        """
         files = self._get_report_files(report)
 
         if not files:
@@ -1054,7 +1093,9 @@ class FoamPostProcessingLoader:
 
         # Use the provided loader function to load each file
         data_frames = [loader(file, **kwargs) for file in files]
-        return pd.concat(data_frames, ignore_index=True)
+        df = pd.concat(data_frames, ignore_index=True)
+        df.columns = self._get_report_header(files[0])
+        return df
 #endregion: openfoam
 
 #region: meshing
