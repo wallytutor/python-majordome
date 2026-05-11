@@ -971,31 +971,54 @@ def load_dpm_table(fname: str) -> pd.DataFrame:
 #endregion: fluent
 
 #region: openfoam
-def openfoam_tabular_loader(fname: Path, backend="polars",
-                            **kwargs) -> pd.DataFrame:
-    """ Load OpenFOAM xy files into a pandas DataFrame. """
-    comment = "#"
+class FoamTabularData:
+    """ Class to represent tabular data from OpenFOAM reports. """
+    @staticmethod
+    def get_header(fname: str | Path) -> list[str]:
+        """ Get the header line for a specific report. """
+        last_line = None
 
-    if backend == "pandas":
-        return pd.read_csv(fname, sep=r"\s+", comment=comment,
-                           header=None, **kwargs)
-    elif backend == "polars":
-        # XXX keep this until this function is made stable; polars is much
-        # faster than pandas for this task, but it does not support multi-
-        # character separators. OpenFOAM actually uses hard tabs, so the
-        # following implementation works but this regex-based approach could
-        # be a fall-back.
-        #
-        # with open("data.txt") as f:
-        #     with open("tmp.csv", "w") as f:
-        #         f.write(re.sub(r"\s+", ",", f.read()))
-        #
-        # df = pl.read_csv("tmp.csv", separator=",")
-        df = pl.read_csv(fname, separator="\t", comment_prefix=comment,
-                         has_header=False, **kwargs)
-        return df.to_pandas()
-    else:
-        raise ValueError(f"Unsupported backend '{backend}'.")
+        # Read until a line is not a comment:
+        with open(fname) as f:
+            for line in f:
+                if not line.startswith("#"):
+                    break
+
+                last_line = line
+
+        if last_line is not None:
+            last_line = last_line.lstrip("#").replace("\t", ",")
+            last_line = re.sub(r"\s+", " ", last_line).strip()
+            return [h.strip() for h in last_line.split(",")]
+
+        raise ValueError(f"No header found in report '{fname}'.")
+
+    @staticmethod
+    def loader(fname: Path, backend="polars",
+                                **kwargs) -> pd.DataFrame:
+        """ Load OpenFOAM xy files into a pandas DataFrame. """
+        comment = "#"
+
+        if backend == "pandas":
+            return pd.read_csv(fname, sep=r"\s+", comment=comment,
+                            header=None, **kwargs)
+        elif backend == "polars":
+            # XXX keep this until this function is made stable; polars is much
+            # faster than pandas for this task, but it does not support multi-
+            # character separators. OpenFOAM actually uses hard tabs, so the
+            # following implementation works but this regex-based approach could
+            # be a fall-back.
+            #
+            # with open("data.txt") as f:
+            #     with open("tmp.csv", "w") as f:
+            #         f.write(re.sub(r"\s+", ",", f.read()))
+            #
+            # df = pl.read_csv("tmp.csv", separator=",")
+            df = pl.read_csv(fname, separator="\t", comment_prefix=comment,
+                            has_header=False, **kwargs)
+            return df.to_pandas()
+        else:
+            raise ValueError(f"Unsupported backend '{backend}'.")
 
 
 class FoamPostProcessingLoader:
@@ -1045,29 +1068,9 @@ class FoamPostProcessingLoader:
 
         return [f.resolve() for f in report_dir.rglob('*') if f.is_file()]
 
-    def _get_report_header(self, fname: Path) -> list[str]:
-        """ Get the header line for a specific report. """
-        last_line = None
-
-        # Read until a line is not a comment:
-        with open(fname) as f:
-            for line in f:
-                if not line.startswith("#"):
-                    break
-
-                last_line = line
-
-        if last_line is not None:
-            last_line = last_line.lstrip("#").replace("\t", ",")
-            last_line = re.sub(r"\s+", " ", last_line).strip()
-            last_line = last_line.split(",")
-            return last_line
-
-        raise ValueError(f"No header found in report '{fname}'.")
-
     def load_report(self,
             report: str,
-            loader: Callable[[Path], pd.DataFrame] = openfoam_tabular_loader,
+            loader: Callable[[Path], pd.DataFrame] = FoamTabularData.loader,
             **kwargs
         ) -> pd.DataFrame:
         """ Load a specific report into a pandas DataFrame.
@@ -1094,7 +1097,7 @@ class FoamPostProcessingLoader:
         # Use the provided loader function to load each file
         data_frames = [loader(file, **kwargs) for file in files]
         df = pd.concat(data_frames, ignore_index=True)
-        df.columns = self._get_report_header(files[0])
+        df.columns = FoamTabularData.get_header(files[0])
         return df
 #endregion: openfoam
 
