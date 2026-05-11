@@ -4,6 +4,7 @@ import itertools
 import mmap
 import numpy as np
 import pandas as pd
+import polars as pl
 import pyparsing as pp
 
 from dataclasses import dataclass
@@ -969,6 +970,91 @@ def load_dpm_table(fname: str) -> pd.DataFrame:
 #endregion: fluent
 
 #region: openfoam
+def openfoam_xy_loader(fname: Path, backend="polars", **kwargs) -> pd.DataFrame:
+    """ Load OpenFOAM xy files into a pandas DataFrame. """
+    if backend == "pandas":
+        return pd.read_csv(fname, sep=r"\s+", comment='#',
+                           header=None, **kwargs)
+    elif backend == "polars":
+        # XXX keep this until this function is made stable; polars is much
+        # faster than pandas for this task, but it does not support multi-
+        # character separators. OpenFOAM actually uses hard tabs, so the
+        # following implementation works but this regex-based approach could
+        # be a fall-back.
+        #
+        # with open("data.txt") as f:
+        #     with open("tmp.csv", "w") as f:
+        #         f.write(re.sub(r"\s+", ",", f.read()))
+        #
+        # df = pl.read_csv("tmp.csv", separator=",")
+        df = pl.read_csv(fname, separator="\t", comment_prefix='#',
+                         has_header=False, **kwargs)
+        return df.to_pandas()
+    else:
+        raise ValueError(f"Unsupported backend '{backend}'.")
+
+
+class FoamPostProcessingLoader:
+    """ Loading and concatenation of OpenFOAM post-processing reports.
+
+    Parameters
+    ----------
+    domain : str | None
+        The name of the OpenFOAM domain to load reports from. If None,
+        it will look for reports in the main `postProcessing` directory.
+    """
+    __slots__ = ( "_domain", "_domain_dir", "_reports", )
+
+    def __init__(self, domain: str | None = None) -> None:
+        self._domain = domain
+        self._reports = self._get_domain_reports()
+
+    @property
+    def domain_dir(self) -> Path:
+        """ Access to the path of the post-processing directory. """
+        if not hasattr(self, "_domain_dir"):
+            if self._domain is not None:
+                domain_dir = Path("postProcessing") / self._domain
+            else:
+                domain_dir = Path("postProcessing")
+
+            if not domain_dir.is_dir():
+                raise ValueError(f"No such '{domain_dir}'")
+
+            self._domain_dir = domain_dir
+
+        return self._domain_dir
+
+    @property
+    def available_reports(self) -> list[str]:
+        """ Access to the list of available reports. """
+        return self._reports
+
+    def _get_domain_reports(self) -> list[str]:
+        """ Get a list of available reports for the current domain. """
+        return [d.name for d in self.domain_dir.iterdir() if d.is_dir()]
+
+    def _get_report_files(self, report: str) -> list[Path]:
+        """ Get a list of files for a specific report. """
+        if not (report_dir := self.domain_dir / report).is_dir():
+            raise ValueError(f"No such report '{report_dir}'.")
+
+        return [f.resolve() for f in report_dir.rglob('*') if f.is_file()]
+
+    def load_report(self,
+            report: str,
+            loader: Callable[[Path], pd.DataFrame] = openfoam_xy_loader,
+            **kwargs
+        ) -> pd.DataFrame:
+        """ Load a specific report into a pandas DataFrame. """
+        files = self._get_report_files(report)
+
+        if not files:
+            raise ValueError(f"No files found for report '{report}'.")
+
+        # Use the provided loader function to load each file
+        data_frames = [loader(file, **kwargs) for file in files]
+        return pd.concat(data_frames, ignore_index=True)
 #endregion: openfoam
 
 #region: meshing
