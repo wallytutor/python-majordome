@@ -26,7 +26,13 @@
 
 - [x] Automatic plotting of postprocessing folder with multiple restart points; support single domain as well as multiple regions cases.
 
+- [ ] Add caching of postprocessing data to avoid reloading and re-parsing files when plotting multiple times; this would involve storing the loaded data in memory and providing a way to refresh it when new data is added.
+
 - [ ] Provide a Windows handle for running OpenFOAM in WSL; this would wrap the WSL command and provide a more seamless experience for users on Windows without the need to open a separate terminal and run the command manually.
+
+## CFD in general
+
+- [ ] Add a camera setup function for parallel views automation in PyVista. Currently I have several scripts using this in different projects, but nothing generalized to be included here.
 
 ## General code features
 

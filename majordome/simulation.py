@@ -1030,40 +1030,47 @@ class FoamPostProcessingLoader:
         The name of the OpenFOAM domain to load reports from. If None,
         it will look for reports in the main `postProcessing` directory.
     """
-    __slots__ = ( "_domain", "_domain_dir", "_reports", )
+    __slots__ = ( "_domain_dir", "_reports", "_root", )
 
-    def __init__(self, domain: str | None = None) -> None:
-        self._domain = domain
+    def __init__(self,
+            domain: str | None = None,
+            root: str | Path | None = None
+        ) -> None:
+        self._root = self._get_root(root)
+        self._domain_dir = self._get_domain(self._root, domain)
         self._reports = self._get_domain_reports()
 
-    @property
-    def domain_dir(self) -> Path:
-        """ Access to the path of the post-processing directory. """
-        if not hasattr(self, "_domain_dir"):
-            if self._domain is not None:
-                domain_dir = Path("postProcessing") / self._domain
-            else:
-                domain_dir = Path("postProcessing")
+    @staticmethod
+    def _get_root(root):
+        if root is not None:
+            root = Path(root) / "postProcessing"
+        else:
+            root = Path("postProcessing")
 
-            if not domain_dir.is_dir():
-                raise ValueError(f"No such '{domain_dir}'")
+        if not root.is_dir():
+            raise ValueError(f"No such directory '{root}'")
 
-            self._domain_dir = domain_dir
+        return root
 
-        return self._domain_dir
+    @staticmethod
+    def _get_domain(root, domain):
+        if domain is not None:
+            domain_dir = root / domain
+        else:
+            domain_dir = root
 
-    @property
-    def available_reports(self) -> list[str]:
-        """ Access to the list of available reports. """
-        return self._reports
+        if not domain_dir.is_dir():
+            raise ValueError(f"No such directory '{domain_dir}'")
+
+        return domain_dir
 
     def _get_domain_reports(self) -> list[str]:
         """ Get a list of available reports for the current domain. """
-        return [d.name for d in self.domain_dir.iterdir() if d.is_dir()]
+        return [d.name for d in self._domain_dir.iterdir() if d.is_dir()]
 
     def _get_report_files(self, report: str) -> list[Path]:
         """ Get a list of files for a specific report. """
-        if not (report_dir := self.domain_dir / report).is_dir():
+        if not (report_dir := self._domain_dir / report).is_dir():
             raise ValueError(f"No such report '{report_dir}'.")
 
         return [f.resolve() for f in report_dir.rglob('*') if f.is_file()]
@@ -1099,6 +1106,11 @@ class FoamPostProcessingLoader:
         df = pd.concat(data_frames, ignore_index=True)
         df.columns = FoamTabularData.get_header(files[0])
         return df
+
+    @property
+    def available_reports(self) -> list[str]:
+        """ Access to the list of available reports. """
+        return self._reports
 #endregion: openfoam
 
 #region: meshing
