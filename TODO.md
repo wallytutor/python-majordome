@@ -24,7 +24,7 @@
 
 ## OpenFOAM support
 
-- [ ] Automatic plotting of postprocessing folder with multiple restart points; support single domain as well as multiple regions cases (there is an ongoing draft in the heat-exchanger model).
+- [x] Automatic plotting of postprocessing folder with multiple restart points; support single domain as well as multiple regions cases.
 
 - [ ] Provide a Windows handle for running OpenFOAM in WSL; this would wrap the WSL command and provide a more seamless experience for users on Windows without the need to open a separate terminal and run the command manually.
 

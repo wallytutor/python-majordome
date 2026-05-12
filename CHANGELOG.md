@@ -2,6 +2,10 @@
 
 ## Ongoing Development
 
+- Cantera data files are added to path no matter which module is loaded if it imports from `majordome.data`.
+
+- Added `majordome.simulation.FoamPostProcessingLoader` for automatic plotting of postprocessing folder with multiple restart points.
+
 - Added .NET extras for educational purposes. The code is currently not part of the Python package and is highly experimental.
 
 - Included `majordome.utilities.sympy_symbols_factory` utility to create SymPy symbols in batch, with support for custom naming conventions and indexing.

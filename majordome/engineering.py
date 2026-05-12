@@ -102,8 +102,6 @@ __all__ = [
     "WSGGRadlibBordbar2020",
 ]
 
-ct.add_directory(DATA / "thermo")
-
 #region: reactor
 WARN_CANTERA_NON_KEY_VALUE = True
 """ If true, warns about compostion not compliant with Cantera format. """
