@@ -694,7 +694,7 @@ def centered_colormap(name: str, vmin: float, vmax: float,
     return lut
 
 
-@MajordomePlot.new(size=(5, 4))
+@MajordomePlot.new(size=(6, 5))
 def plot_xy(x=None, y=None, *,
            plot: MajordomePlot | None = None,
            **kwargs) -> MajordomePlot:
