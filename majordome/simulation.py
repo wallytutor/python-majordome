@@ -1111,6 +1111,11 @@ class FoamPostProcessingLoader:
     def available_reports(self) -> list[str]:
         """ Access to the list of available reports. """
         return self._reports
+
+    @property
+    def root_directory(self) -> Path:
+        """ Access to the root postProcessing directory. """
+        return self._root
 #endregion: openfoam
 
 #region: meshing
