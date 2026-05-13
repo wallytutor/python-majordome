@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Add internal warning manager to control the display of warnings across the package.
+
 - Cantera data files are added to path no matter which module is loaded if it imports from `majordome.data`.
 
 - Added `majordome.simulation.FoamPostProcessingLoader` for automatic plotting of postprocessing folder with multiple restart points.
