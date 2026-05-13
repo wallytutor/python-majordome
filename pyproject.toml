@@ -87,13 +87,6 @@ module-name = "majordome._core"
 python-packages = ["majordome"]
 python-source = "."
 
-# XXX: keep for now, I am debugging uv pip install -e .
-# [tool.setuptools]
-# include-package-data = true
-#
-# [tool.setuptools.package-data]
-# majordome = ["data/**/*"]
-
 [tool.uv]
 cache-keys = [
     { file = "pyproject.toml" },

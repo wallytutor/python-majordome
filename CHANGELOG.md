@@ -2,11 +2,15 @@
 
 ## Ongoing Development
 
+- *WIP*
+
+## 1.2.0 - 2026-06-15
+
 - Add internal warning manager to control the display of warnings across the package.
 
 - Cantera data files are added to path no matter which module is loaded if it imports from `majordome.data`.
 
-- Added `majordome.simulation.FoamPostProcessingLoader` for automatic plotting of postprocessing folder with multiple restart points.
+- Added `majordome.simulation.FoamPostProcessingLoader` for automatic plotting of postprocessing folder with multiple restart points. Because large files may be needed, polars has been upgraded to a mandatory dependency.
 
 - Added .NET extras for educational purposes. The code is currently not part of the Python package and is highly experimental.
 
