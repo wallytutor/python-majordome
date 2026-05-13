@@ -45,6 +45,7 @@ with warnings.catch_warnings():
 from ._core import constants
 from .data import DATA
 from .utilities import (
+    majordome_warning as warn,
     MajordomePlot,
     PowerFormatter,
     bounds,
@@ -158,13 +159,13 @@ def _split_composition(species):
 
     if not species:
         if WARN_MISSING_SPECIES_NAME:
-            warnings.warn("Missing species name, returning `None`!")
+            warn("Missing species name, returning `None`!")
         return None, 0
 
     if ":" not in species:
         if WARN_CANTERA_NON_KEY_VALUE:
-            warnings.warn(f"Possibly malformed species '{species}', "
-                          f"setting composition to unit '{species}:1'")
+            warn(f"Possibly malformed species '{species}', "
+                 f"setting composition to unit '{species}:1'")
         return species, 1.0
 
     # TODO also support things as "2 * species" ?
@@ -198,7 +199,7 @@ def composition_to_dict(Y: str, species_names: list[str] = []
             if name in species_names:
                 Y_dict[name] = value
             elif WARN_UNKNOWN_SPECIES:
-                warnings.warn(f"Unknown species '{name}', skipping...")
+                warn(f"Unknown species '{name}', skipping...")
         else:
             Y_dict[name] = value
 
@@ -220,7 +221,7 @@ def composition_to_array(Y: str, species_names: list[str]
         if name in species_names:
             Y_new[species_names.index(name)] = value
         elif WARN_UNKNOWN_SPECIES:
-            warnings.warn(f"Unknown species {name}, skipping...")
+            warn(f"Unknown species {name}, skipping...")
 
     return Y_new
 
@@ -769,8 +770,8 @@ class PlugFlowChainCantera:
                 stats.append(self._net.solver_stats)
 
         if self._failures:
-            warnings.warn("Some failures were encountered during the loop! "
-                          "Check `failures` property for details.")
+            warn("Some failures were encountered during the loop! "
+                 "Check `failures` property for details.")
 
         self._has_solution = True
         return None if not save_history else pd.DataFrame(stats)
@@ -830,8 +831,8 @@ class PlugFlowChainCantera:
 
         if selected and but:
             but = []
-            warnings.warn(("Keywords `selected` and `but` are mutually "
-                           "exclusive, ignoring `but`..."))
+            warn("Keywords `selected` and `but` are mutually "
+                 "exclusive, ignoring `but`...")
 
         if not selected:
             selected = self._states.species_names
@@ -1818,7 +1819,8 @@ class StabilizeNvarsConvergenceCheck:
 
         # If reached each, we are *good* here...
         if self._niter >= self._max_iter:
-            warnings.warn(f"Leaving after `max_iter` without convergence")
+            warn(f"Leaving after 'max_iter={self._max_iter}' iterations. "
+                 f"Reviewing the setup is recommended.")
             return True
 
         # Converge once, count it, otherwise reset counter:

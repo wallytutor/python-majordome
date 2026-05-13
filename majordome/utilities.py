@@ -40,6 +40,16 @@ from IPython import embed
 
 from .data import DATA
 
+#region: internals
+def _simple_warning(message, category, filename, lineno, file=None, line=None):
+    return f"Majordome {category.__name__}: {message}\n"
+
+
+def majordome_warning(message, *args, **kwargs):
+    warnings.formatwarning = _simple_warning
+    warnings.warn(message, *args, **kwargs)
+#endregion: internals
+
 #region: common
 class AbstractReportable(ABC):
     """ Abstract base class for reportable objects. """
@@ -700,7 +710,8 @@ def plot_xy(x=None, y=None, *,
 
 # Alias for backward compatibility.
 def plot2d(*args, **kwargs):
-    warnings.warn("`plot2d` is deprecated, use `plot_xy` instead.", DeprecationWarning)
+    majordome_warning("`plot2d` is deprecated, use `plot_xy` instead.",
+                      DeprecationWarning)
     return plot_xy(*args, **kwargs)
 #endregion: plotting
 
@@ -815,8 +826,8 @@ def section(title: str, separator: bool = True) -> str:
 
 def itemize(items: list[str], itemsep: str = "6pt") -> str:
     """ Generate LaTeX itemize environment from a list of items. """
-    warnings.warn("LEGACY FUNCTION: replace in new code with Itemize class",
-                  DeprecationWarning)
+    majordome_warning("LEGACY FUNCTION: replace in new code with Itemize class",
+                      DeprecationWarning)
 
     contents = [
         f"\\begin{{itemize}}",
@@ -938,8 +949,8 @@ class BeamerSlides:
             self._section += 1
 
         if self._verbose and key in self._slides:
-            warnings.warn(f"Warning: Section with key '{key}' already "
-                           "exists. Overwriting with new content.")
+            majordome_warning(f"Warning: Section with key '{key}' already "
+                              "exists. Overwriting with new content.")
 
         self._slides[key] = content
 
@@ -950,8 +961,8 @@ class BeamerSlides:
 
         # Slide is added to the dictionary, warn if key exists:
         if self._verbose and key in self._slides:
-            warnings.warn(f"Warning: Slide with key '{key}' already "
-                           "exists. Overwriting with new content.")
+            majordome_warning(f"Warning: Slide with key '{key}' already "
+                              "exists. Overwriting with new content.")
 
         self._slides[key] = f(**kw)
 
@@ -1201,11 +1212,11 @@ class PdfToTextConverter:
         doc = PdfReader(pdf_path)
 
         if doc.is_encrypted:
-            warnings.warn(f"PDF is encrypted: {pdf_path}")
+            majordome_warning(f"PDF is encrypted: {pdf_path}")
             return None
 
         if (n_pages := len(doc.pages)) > self._bigpdf:
-            warnings.warn(f"{pdf_path} is too long ({n_pages})")
+            majordome_warning(f"{pdf_path} is too long ({n_pages})")
 
         return doc
 
@@ -1270,7 +1281,7 @@ class PdfToTextConverter:
         meta = doc.metadata
 
         if use_ocr:
-            warnings.warn("OCR may take a long time.")
+            majordome_warning("OCR may take a long time.")
 
             if not ocr_opts:
                 ocr_opts = {"thread_count": os.cpu_count()}
@@ -1828,8 +1839,8 @@ class MarkdownLinkStripper:
             cleaned = pattern.sub(placeholder, text)
             cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
         except re.error:
-            warnings.warn("Regex failed in MarkdownLinkStripper, "
-                          "falling back to brute-force method.")
+            majordome_warning("Regex failed in MarkdownLinkStripper, "
+                              "falling back to brute-force method.")
             cleaned, removed = cls.brute(
                 text,
                 placeholder=placeholder,

@@ -6,6 +6,7 @@ import sympy as sp
 
 from IPython.core.getipython import get_ipython
 from IPython.display import Markdown, display, Math
+from .utilities import majordome_warning
 
 
 class SkipperMagic:
@@ -23,7 +24,7 @@ class SkipperMagic:
         if (key := s.strip().lower()) in SkipperMagic.LOOKUP_STR2BOOL:
             return SkipperMagic.LOOKUP_STR2BOOL[key]
 
-        warnings.warn(f"Unknown boolean string '{key}'")
+        majordome_warning(f"Unknown boolean string '{key}'")
         return False
 
     @staticmethod
