@@ -30,8 +30,9 @@ dotnet build --no-restore
 Tests can be run on a project basis using one of the following:
 
 ```bash
-dotnet test src/Diffusion.Core/Diffusion.Core.Tests.fsproj
-dotnet test src/Diffusion.Slycke/Diffusion.Slycke.Tests.fsproj
+dotnet test src/Diffusion/Diffusion.Numerics.Tests.fsproj
+dotnet test src/Diffusion/Diffusion.Core.Tests.fsproj
+dotnet test src/Diffusion/Diffusion.Slycke.Tests.fsproj
 ```
 
 Sample programs are located in the `samples/` directory. They are supplied as [Verso Notebooks](https://github.com/DataficationSDK/Verso) and can be run directly from VS Code with the [Verso extension](https://marketplace.visualstudio.com/items?itemName=Datafication.verso-notebook) installed. You can also run the samples from the command line using `dotnet fsi`. This allows you to interact with the code and modify it on the fly by copying snippets and executing them in the F# interactive session. Alternatively, you can export the samples as `.fsx` files and run them directly or with VS Code support.
