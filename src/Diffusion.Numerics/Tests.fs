@@ -6,7 +6,7 @@ open Diffusion.Numerics
 
 let testAnalytical
   (x: float)
-  (f: Dual<float> -> Dual<float>) 
+  (f: Dual -> Dual) 
   (df_analytical: float -> float) =
     let expected = df_analytical x
     let actual   = diff f x
@@ -132,21 +132,21 @@ let ``Div Float-Dual`` () =
 [<Fact>]
 let ``Pow Dual-Dual`` () =
     let status = testAnalytical x0
-                    (fun x -> Dual<float>.Pow(x, x))
+                    (fun x -> Dual.Pow(x, x))
                     (fun x -> (x ** x) * (log x + 1.0))
     Assert.True(status)
 
 [<Fact>]
 let ``Pow Dual-Float`` () =
     let status = testAnalytical x0
-                    (fun x -> Dual<float>.Pow(x, 3.0))
+                    (fun x -> Dual.Pow(x, 3.0))
                     (fun x -> 3.0 * (x ** 2.0))
     Assert.True(status)
 
 [<Fact>]
 let ``Pow Float-Dual`` () =
     let status = testAnalytical x0
-                    (fun x -> Dual<float>.Pow(3.0, x))
+                    (fun x -> Dual.Pow(3.0, x))
                     (fun x -> (3.0 ** x) * log 3.0)
     Assert.True(status)
 
@@ -192,7 +192,7 @@ let ``Log`` () =
 [<Fact>]
 let ``Sqrt`` () =
     let status = testAnalytical x0
-                    (fun x -> Dual<float>.Sqrt(x))
+                    (fun x -> Dual.Sqrt(x))
                     (fun x -> 0.5 / sqrt x)
     Assert.True(status)
 

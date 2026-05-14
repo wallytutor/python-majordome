@@ -1,172 +1,168 @@
 [<AutoOpen>]
 module Diffusion.Numerics.Autodiff
 
-type Dual<'T> = 
+type Dual = 
     {
-        Value: 'T
-        Deriv: 'T
+        Value: float
+        Deriv: float
     }
     
     // Unary operations
-    static member inline ( ~- ) (a: Dual< ^U >) = 
+    static member ( ~- ) (a: Dual) = 
         {
             Value = -a.Value
             Deriv = -a.Deriv
         }
 
     // Dual-Dual arithmetic
-    static member inline ( + ) (a: Dual< ^U >, b: Dual< ^U >) = 
+    static member ( + ) (a: Dual, b: Dual) = 
         {
             Value = a.Value + b.Value
             Deriv = a.Deriv + b.Deriv
         }
-    static member inline ( - ) (a: Dual< ^U >, b: Dual< ^U >) = 
+    static member ( - ) (a: Dual, b: Dual) = 
         {
             Value = a.Value - b.Value
             Deriv = a.Deriv - b.Deriv
         }
-    static member inline ( * ) (a: Dual< ^U >, b: Dual< ^U >) = 
+    static member ( * ) (a: Dual, b: Dual) = 
         {
             Value = a.Value * b.Value
             Deriv = a.Deriv * b.Value + a.Value * b.Deriv
         }
-    static member inline ( / ) (a: Dual< ^U >, b: Dual< ^U >) = 
+    static member ( / ) (a: Dual, b: Dual) = 
         {
             Value = a.Value / b.Value
             Deriv = (a.Deriv * b.Value - a.Value * b.Deriv) / (b.Value * b.Value)
         }
 
+    // Dual-Float arithmetic
+    static member ( + ) (a: Dual, b: float) = 
+        {
+            Value = a.Value + b
+            Deriv = a.Deriv
+        }
+    static member ( + ) (a: float, b: Dual) = 
+        {
+            Value = a + b.Value
+            Deriv = b.Deriv
+        }
+    static member ( - ) (a: Dual, b: float) = 
+        {
+            Value = a.Value - b
+            Deriv = a.Deriv
+        }
+    static member ( - ) (a: float, b: Dual) = 
+        {
+            Value = a - b.Value
+            Deriv = -b.Deriv
+        }
+    static member ( * ) (a: Dual, b: float) = 
+        {
+            Value = a.Value * b
+            Deriv = a.Deriv * b
+        }
+    static member ( * ) (a: float, b: Dual) = 
+        {
+            Value = a * b.Value
+            Deriv = a * b.Deriv
+        }
+    static member ( / ) (a: Dual, b: float) = 
+        {
+            Value = a.Value / b
+            Deriv = a.Deriv / b
+        }
+    static member ( / ) (a: float, b: Dual) = 
+        {
+            Value = a / b.Value
+            Deriv = (-a * b.Deriv) / (b.Value * b.Value)
+        }
+
     // Power operations
-    static member inline Pow (a: Dual< ^U >, b: Dual< ^U >) =
+    static member Pow (a: Dual, b: Dual) =
         let v = a.Value ** b.Value
         let d = v * (b.Deriv * log a.Value + b.Value * a.Deriv / a.Value)
         {
             Value = v
             Deriv = d
         }
-
-    // Standard math functions (F# inline math functions dispatch here via SRTP automatically)
-    static member inline Sin  (x: Dual< ^U >) = 
-        {
-            Value = sin x.Value
-            Deriv = cos x.Value * x.Deriv
-        }
-    static member inline Cos  (x: Dual< ^U >) = 
-        {
-            Value = cos x.Value
-            Deriv = -sin x.Value * x.Deriv
-        }
-    static member inline Tan  (x: Dual< ^U >) = 
-        {
-            Value = tan x.Value
-            Deriv = x.Deriv / (cos x.Value * cos x.Value)
-        }
-    static member inline Exp  (x: Dual< ^U >) = 
-        let v = exp x.Value
-        {
-            Value = v
-            Deriv = v * x.Deriv
-        }
-    static member inline Log  (x: Dual< ^U >) = 
-        {
-            Value = log x.Value
-            Deriv = x.Deriv / x.Value
-        }
-    static member inline Sqrt (x: Dual< ^U >) = 
-        let v = sqrt x.Value
-        let two: ^U = LanguagePrimitives.GenericOne + LanguagePrimitives.GenericOne
-        {
-            Value = v
-            Deriv = x.Deriv / (two * v)
-        }
-    static member inline Sinh (x: Dual< ^U >) = 
-        {
-            Value = sinh x.Value
-            Deriv = cosh x.Value * x.Deriv
-        }
-    static member inline Cosh (x: Dual< ^U >) = 
-        {
-            Value = cosh x.Value
-            Deriv = sinh x.Value * x.Deriv
-        }
-    static member inline Tanh (x: Dual< ^U >) = 
-        let t = tanh x.Value
-        let one: ^U = LanguagePrimitives.GenericOne
-        {
-            Value = t
-            Deriv = (one - t * t) * x.Deriv
-        }
-
-// Float overloads to prevent F# from max iteration depth overflow
-type Dual<'T> with
-    // Dual-Float arithmetic
-    static member ( + ) (a: Dual<float>, b: float) = 
-        {
-            Value = a.Value + b
-            Deriv = a.Deriv
-        }
-    static member ( + ) (a: float, b: Dual<float>) = 
-        {
-            Value = a + b.Value
-            Deriv = b.Deriv
-        }
-    static member ( - ) (a: Dual<float>, b: float) = 
-        {
-            Value = a.Value - b
-            Deriv = a.Deriv
-        }
-    static member ( - ) (a: float, b: Dual<float>) = 
-        {
-            Value = a - b.Value
-            Deriv = -b.Deriv
-        }
-    static member ( * ) (a: Dual<float>, b: float) = 
-        {
-            Value = a.Value * b
-            Deriv = a.Deriv * b
-        }
-    static member ( * ) (a: float, b: Dual<float>) = 
-        {
-            Value = a * b.Value
-            Deriv = a * b.Deriv
-        }
-    static member ( / ) (a: Dual<float>, b: float) = 
-        {
-            Value = a.Value / b
-            Deriv = a.Deriv / b
-        }
-    static member ( / ) (a: float, b: Dual<float>) = 
-        {
-            Value = a / b.Value
-            Deriv = (-a * b.Deriv) / (b.Value * b.Value)
-        }
-    static member Pow (a: Dual<float>, b: float) =
+    static member Pow (a: Dual, b: float) =
         {
             Value = a.Value ** b
             Deriv = b * (a.Value ** (b - 1.0)) * a.Deriv
         }
-    static member Pow (a: float, b: Dual<float>) =
+    static member Pow (a: float, b: Dual) =
         let v = a ** b.Value
         {
             Value = v
             Deriv = v * log a * b.Deriv
         }
 
+    // Standard math functions
+    static member Sin  (x: Dual) = 
+        {
+            Value = sin x.Value
+            Deriv = cos x.Value * x.Deriv
+        }
+    static member Cos  (x: Dual) = 
+        {
+            Value = cos x.Value
+            Deriv = -sin x.Value * x.Deriv
+        }
+    static member Tan  (x: Dual) = 
+        {
+            Value = tan x.Value
+            Deriv = x.Deriv / (cos x.Value * cos x.Value)
+        }
+    static member Exp  (x: Dual) = 
+        let v = exp x.Value
+        {
+            Value = v
+            Deriv = v * x.Deriv
+        }
+    static member Log  (x: Dual) = 
+        {
+            Value = log x.Value
+            Deriv = x.Deriv / x.Value
+        }
+    static member Sqrt (x: Dual) = 
+        let v = sqrt x.Value
+        {
+            Value = v
+            Deriv = x.Deriv / (2.0 * v)
+        }
+    static member Sinh (x: Dual) = 
+        {
+            Value = sinh x.Value
+            Deriv = cosh x.Value * x.Deriv
+        }
+    static member Cosh (x: Dual) = 
+        {
+            Value = cosh x.Value
+            Deriv = sinh x.Value * x.Deriv
+        }
+    static member Tanh (x: Dual) = 
+        let t = tanh x.Value
+        {
+            Value = t
+            Deriv = (1.0 - t * t) * x.Deriv
+        }
+
 /// Lift a scalar into a Dual number (constant, no derivative)
-let inline constant x = 
+let constant x = 
     {
         Value = x
-        Deriv = LanguagePrimitives.GenericZero
+        Deriv = 0.0
     }
 
 /// Create an active Dual variable (derivative is 1)
-let inline variable x = 
+let variable x = 
     {
         Value = x
-        Deriv = LanguagePrimitives.GenericOne
+        Deriv = 1.0
     }
 
 /// Differentiate a function of 1 variable using Forward Mode AutoDiff
-let inline diff f x =
+let diff f x =
     let res = f (variable x)
     res.Deriv
