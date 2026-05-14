@@ -2,7 +2,7 @@
 
 ## Ongoing Development
 
-- *WIP*
+- Increased maturity and documentation of `majordome.engineering.SkinFrictionFactor` and the associated `majordome.engineering.WallGradingCalculator`.
 
 ## 1.2.0 - 2026-05-13
 

@@ -16,6 +16,8 @@
 
 - [ ] Support solids kinetics in full; integrate to the PFR and start by implementing known Kaolinite model
 
+- [ ] Implement some from [these](https://www.cfd-online.com/Wiki/Skin_friction_coefficient) (after review) in `SkinFrictionFactor` for use in y+ calculations.
+
 ## Ansys Fluent support
 
 - [ ] Create a data converter to create Ansys Fluent SCM files directly from Cantera YAML (species data and reactions).

@@ -145,7 +145,7 @@ print(nfr.report())
 
 ### Plug-flow reactors
 
-### PlugFlowAxialSources
+#### PlugFlowAxialSources
 
 ```{python}
 SignatureEntry(PlugFlowAxialSources).documentation()
@@ -497,7 +497,7 @@ pass
 
 ## Transport properties
 
-### EffectiveThermalConductivity
+### Thermal conductivity
 
 In some fields of research, such as porous media or composite materials, the evaluation of effective thermal properties are key for simulation of macroscopic application cases. Class `EffectiveThermalConductivity`  implements (static) thermal conductivity models for this sort of applications, including:
 
@@ -593,7 +593,7 @@ k_eff_m = etc.maxwell_garnett(phi, k_gas, k_eff_s)
 plot_etc((T, k_gas, k_eff_m)).resize(10, 5)
 ```
 
-### SolutionDimless
+### Dimensionless solution
 
 A dimensionless numbers calculator is provided for gas flows; it currently has a certain number of groups which are all evaluated by definition (which might change according to your field, please check the docs). The mechanics of using the class can be resumed to:
 
@@ -634,7 +634,49 @@ Ra   = calculator.rayleigh(Tw, D)
 print(calculator.report())
 ```
 
-### SutherlandFitting
+### Boundary layer wall grading
+
+When performing CFD simulations of turbulent flows, it is important to ensure that the first layer of cells adjacent to the wall are properly graded to capture the boundary layer effects. The `WallGradingCalculator` class provides a simple interface for calculating the first layer thickness based on the desired dimensionless wall distance $y^+$ and the flow properties.
+
+The following example illustrates how to use the `WallGradingCalculator` to compute the first layer thickness for a turbulent flow of air at 700°C and atmospheric pressure, with a characteristic velocity of 10 m/s and a pipe diameter of 0.025 m. The skin friction factor is computed using the `SkinFrictionFactor.smooth_wall` method, which is appropriate for turbulent flows over smooth walls.
+
+```{python}
+#| echo: true
+# First create a solution object with the desired state:
+sol = SolutionDimless("airish.yaml")
+sol.set_state(973.15, 101325, "N2: 0.79, O2: 0.21")
+
+# Define a function to compute the skin friction factor for turbulent flow:
+def f_tur(Re):
+    """ Turbulent skin friction factor for smooth walls."""
+    return SkinFrictionFactor.smooth_wall(Re, check=False) / 8
+
+# Define the desired dimensionless wall distance y+:
+y_plus = 1.0
+
+# Instantiate the wall grading calculator from the solution and compute
+# the first layer thickness with the provided skin friction factor:
+calc = WallGradingCalculator.from_solution(sol, L=0.025, U=10.0)
+y_first = calc.first_layer(y_plus, skin_factor=f_tur)
+
+print(f"First layer thickness: {1e6*y_first:.0f} µm")
+```
+
+```{python}
+doc = DocumentedClass(WallGradingCalculator)
+doc.constructor()
+doc.members()
+doc.classmethods()
+doc.staticmethods()
+```
+
+```{python}
+doc = DocumentedClass(SkinFrictionFactor)
+doc.constructor()
+doc.staticmethods()
+```
+
+### Sutherland fitting
 
 To the author's knowledge, there is no standard tool to convert Cantera transport data to Sutherland parameters for use with OpenFOAM, what led to the motivation to develop `SutherlandFitting`. This simple class wraps a Cantera solution object, which it makes use for fitting Sutherland parameters to export as a table (to be used elswhere), and also allows for retrieving a converted database in OpenFOAM compatible format. The following example should be self-explanatory:
 
@@ -670,7 +712,7 @@ Finally, it *also* responds to its initial goal of exporting values in OpenFOAM 
 print(sutherland.to_openfoam())
 ```
 
-### WSGGRadlibBordbar2020
+### Radiation properties
 
 Radiative properties of gases are often required when participating media characteristics imply so. Here we implement the WSGG model of @Sadeghi2021 in class `WSGGRadlibBordbar2020`. The basic usage of the model to estimate total emissivity is done as follows:
 

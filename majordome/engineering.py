@@ -2525,31 +2525,59 @@ class SolutionDimless:
 
 # XXX WIP
 class SkinFrictionFactor:
-    """ Skin friction factors for y+ calculations.
-
-    To-do: implement some from the following (after review);
-    https://www.cfd-online.com/Wiki/Skin_friction_coefficient
-    """
+    """ Skin friction factors for y+ calculations. """
     @staticmethod
     def laminar(Re) -> float:
-        """ Laminar limit theoretical value. """
+        """ Laminar limit theoretical value.
+
+        Parameters
+        ----------
+        Re: float
+            Reynolds number of flow.
+        """
         return 64 / Re
 
     @staticmethod
     def smooth_wall(Re, check: bool = True) -> float:
         """ Blasius smooth wall approximation.
 
-        https://doi.org/10.1007/978-3-662-02239-9_1
+        As described [here](https://doi.org/10.1007/978-3-662-02239-9_1).
+
+        Parameters
+        ----------
+        Re: float
+            Reynolds number of flow.
+        check: bool = True
+            Whether to check if Reynolds number is in the valid range for this approximation, which is [4e3; 1e5]. If not, a warning is printed.
         """
         if check and not (4_000 < Re < 100_000):
-            print(f"WARNING: out-of-range Re = {Re:.2e} not in [4e3; 1e5]")
+            warn(f"Out-of-range Re = {Re:.2e} not in [4e3; 1e5]")
 
         return 0.3164 * Re**(-1/4)
 
 
 # XXX WIP
 class WallGradingCalculator:
-    """ Helper class for estimating first cell thickness given y+. """
+    """ Helper class for estimating first cell thickness given y+.
+
+    Parameters
+    ----------
+    L: float
+        Characteristic length of problem [m].
+    U: float
+        Characteristic velocity of problem [m/s].
+    rho: float
+        Density of fluid [kg/m³].
+    mu: float
+        Dynamic viscosity of fluid [Pa.s].
+    skin_factor: Callable | None = None
+        Skin friction factor to be used for calculating wall shear stress
+        and friction velocity; if None, then these values are not computed
+        and `first_layer` method will raise an error if called. If provided,
+        it should be a callable that takes Reynolds number as input and
+        returns the skin friction factor. Some examples of skin friction
+        factors are provided in `SkinFrictionFactor` class.
+    """
     def __init__(self, *,
             L: float,
             U: float,
@@ -2566,14 +2594,33 @@ class WallGradingCalculator:
             self.set_skin_factor(skin_factor)
 
     @classmethod
-    def from_solution(cls, obj, L: float, U: float,
+    def from_solution(cls, obj: SolutionDimless, L: float, U: float,
                       skin_factor: Callable | None = None) -> Self:
-        """ Alternative constructor from dimensionless solution. """
+        """ Alternative constructor from dimensionless solution.
+
+        Parameters
+        ----------
+        obj: SolutionDimless
+            Object providing access to solution and its properties.
+        L: float
+            Characteristic length of problem [m].
+        U: float
+            Characteristic velocity of problem [m/s].
+        skin_factor: Callable | None = None
+            See `__init__` for details.
+        """
         sol = obj.solution
         return cls(L=L, U=U, rho=sol.density_mass, mu=sol.viscosity,
                    skin_factor=skin_factor)
 
     def set_skin_factor(self, skin_factor: Callable) -> None:
+        """ Set skin friction factor and compute related properties.
+
+        Parameters
+        ----------
+        skin_factor: Callable
+            See `__init__` for details.
+        """
         self._Cf = skin_factor(self._Re)
         self._tw = self.wall_shear_stress(self._rho, self._U, self._Cf)
         self._ut = self.friction_velocity(self._tw, self._rho)
@@ -2583,16 +2630,42 @@ class WallGradingCalculator:
 
     @staticmethod
     def wall_shear_stress(rho, U, Cf) -> float:
-        """ Wall shear stress estimater from friction factor [Pa]. """
+        """ Wall shear stress estimater from friction factor [Pa].
+
+        Parameters
+        ----------
+        rho: float
+            Density of fluid [kg/m³].
+        U: float
+            Characteristic velocity of problem [m/s].
+        Cf: float
+            Skin friction factor [-].
+        """
         return Cf * rho * U**2
 
     @staticmethod
     def friction_velocity(tw, rho) -> float:
-        """ Dimensionless friction velocity. """
+        """ Dimensionless friction velocity.
+
+        Parameters
+        ----------
+        tw: float
+            Wall shear stress [Pa].
+        rho: float
+            Density of fluid [kg/m³].
+        """
         return (tw / rho)**(1/2)
 
     def first_layer(self, y_plus, skin_factor: Callable | None = None) -> float:
-        """ Height of first cell for given y+ value [m]. """
+        """ Height of first cell for given y+ value [m].
+
+        Parameters
+        ----------
+        y_plus: float
+            Desired y+ value for first cell.
+        skin_factor: Callable | None = None
+            See `__init__` for details.
+        """
         if skin_factor is not None:
             self.set_skin_factor(skin_factor)
 
