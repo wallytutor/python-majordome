@@ -1,9 +1,11 @@
 // #define COMPILED
 
 #if COMPILED
+#r "../../src/Diffusion/bin/Debug/net10.0/Diffusion.Numerics.dll"
 #r "../../src/Diffusion/bin/Debug/net10.0/Diffusion.Core.dll"
 #r "../../src/Diffusion/bin/Debug/net10.0/Diffusion.Slycke.dll"
 #else
+#load "../../src/Diffusion.Numerics/Autodiff.fs"
 #load "../../src/Diffusion.Numerics/TridiagonalSolver.fs"
 #load "../../src/Diffusion.Numerics/NumericalUtilities.fs"
 #load "../../src/Diffusion.Core/OperatingSystem.fs"
