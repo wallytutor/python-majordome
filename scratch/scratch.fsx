@@ -3,6 +3,19 @@ open Diffusion.Numerics
 open Diffusion.Numerics.Autodiff
 
 // ------------------------------------------------------------------------------------------------
+// Numeric context
+//
+// All floating-point constants pre-lifted to the target type ^T.
+// For float: identity.  For Dual: pre-computed constants with zero derivative.
+// Extensible: add magnetic_permeability, boltzmann_constant, etc. here.
+// ------------------------------------------------------------------------------------------------
+
+type NumericContext<^T> =
+    {
+        two: ^T
+    }
+
+// ------------------------------------------------------------------------------------------------
 // Thermodynamic functions
 //
 // All parameters share the same numeric type ^T.  Use float for direct
@@ -14,22 +27,20 @@ let T_ref = 298.15
 let inline cp (a0, a1, a2) T =
     a0 + a1 * T + a2 / (T * T)
 
-let inline enthalpyDef (a0, a1, a2) T =
-    let two = LanguagePrimitives.GenericOne + LanguagePrimitives.GenericOne
-    a0 * T + (a1 / two) * T * T - a2 / T
+let inline enthalpyDef ctx (a0, a1, a2) T =
+    a0 * T + (a1 / ctx.two) * T * T - a2 / T
 
-let inline entropyDef (a0, a1, a2) T =
-    let two = LanguagePrimitives.GenericOne + LanguagePrimitives.GenericOne
-    a0 * log T + a1 * T - (a2 / two) / (T * T)
+let inline entropyDef ctx (a0, a1, a2) T =
+    a0 * log T + a1 * T - (a2 / ctx.two) / (T * T)
 
-let inline enthalpy tRef deltaHf (a0, a1, a2) T =
-    deltaHf + enthalpyDef (a0, a1, a2) T - enthalpyDef (a0, a1, a2) tRef
+let inline enthalpy ctx tRef deltaHf (a0, a1, a2) T =
+    deltaHf + enthalpyDef ctx (a0, a1, a2) T - enthalpyDef ctx (a0, a1, a2) tRef
 
-let inline entropy tRef s0 (a0, a1, a2) T =
-    s0 + entropyDef (a0, a1, a2) T - entropyDef (a0, a1, a2) tRef
+let inline entropy ctx tRef s0 (a0, a1, a2) T =
+    s0 + entropyDef ctx (a0, a1, a2) T - entropyDef ctx (a0, a1, a2) tRef
 
-let inline gibbs tRef deltaHf s0 (a0, a1, a2) T =
-    enthalpy tRef deltaHf (a0, a1, a2) T - T * entropy tRef s0 (a0, a1, a2) T
+let inline gibbs ctx tRef deltaHf s0 (a0, a1, a2) T =
+    enthalpy ctx tRef deltaHf (a0, a1, a2) T - T * entropy ctx tRef s0 (a0, a1, a2) T
 
 // ------------------------------------------------------------------------------------------------
 // Specialized data format
@@ -102,16 +113,25 @@ let co2 = {
 // Main
 // ------------------------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------------------------
+// Main
+// ------------------------------------------------------------------------------------------------
+
+let ctx_float = { two = 2.0 }
+let ctx_dual = { two = constant 2.0 }
+
 let species = [co2]
 species |> List.iter (fun s ->
     printfn "Cp ...........: %f" (cp s.UnpackCoefs 298.15)
-    printfn "Enthalpy .....: %f" (enthalpy T_ref s.deltaHf s.UnpackCoefs 300.0)
-    printfn "Entropy ......: %f" (entropy T_ref s.s0 s.UnpackCoefs 300.0)
-    printfn "Gibbs ........: %f" (gibbs T_ref s.deltaHf s.s0 s.UnpackCoefs 300.0)
+    printfn "Enthalpy .....: %f" (enthalpy ctx_float T_ref s.deltaHf s.UnpackCoefs 300.0)
+    printfn "Entropy ......: %f" (entropy ctx_float T_ref s.s0 s.UnpackCoefs 300.0)
+    printfn "Gibbs ........: %f" (gibbs ctx_float T_ref s.deltaHf s.s0 s.UnpackCoefs 300.0)
 )
 
-let g (T: Dual) : Dual = gibbs (constant T_ref) (constant calcite.deltaHf) (constant calcite.s0) calcite.UnpackDualCoefs T
+let g (T: Dual) : Dual =
+    gibbs ctx_dual (constant T_ref) (constant calcite.deltaHf) (constant calcite.s0) calcite.UnpackDualCoefs T
+
 let dG = Autodiff.diff g 300.0
 printfn "\nAutodiff Verification (Calcite):"
 printfn "dG/dT = %f" dG
-printfn "-S(T) = %f" -(entropy T_ref calcite.s0 calcite.UnpackCoefs 300.0)
+printfn "-S(T) = %f" -(entropy ctx_float T_ref calcite.s0 calcite.UnpackCoefs 300.0)
