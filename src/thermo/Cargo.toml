@@ -5,7 +5,7 @@ edition = "2024"
 
 [lib]
 name = "thermo"
-path = "src/lib.rs"
+path = "lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]

@@ -1,0 +1,1168 @@
+pub mod autodiff {
+    use std::ops::{Add, Div, Mul, Neg, Sub};
+
+    // --------------------------------------------------------------------------------------------
+    // AutoDiff - Forward Mode
+    // --------------------------------------------------------------------------------------------
+
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    pub struct Dual<T> {
+        pub value: T,
+        pub deriv: T,
+    }
+
+    impl<T> Dual<T> {
+        pub fn new(value: T, deriv: T) -> Self {
+            Self { value, deriv }
+        }
+    }
+
+    impl Dual<f64> {
+        pub fn constant(value: f64) -> Self {
+            Self { value, deriv: 0.0 }
+        }
+
+        pub fn variable(value: f64) -> Self {
+            Self { value, deriv: 1.0 }
+        }
+
+        pub fn pow(self, b: Dual<f64>) -> Self {
+            let v = self.value.powf(b.value);
+            let d = v * (b.deriv * self.value.ln() + b.value * self.deriv / self.value);
+            Self { value: v, deriv: d }
+        }
+
+        pub fn powf(self, b: f64) -> Self {
+            Self {
+                value: self.value.powf(b),
+                deriv: b * self.value.powf(b - 1.0) * self.deriv,
+            }
+        }
+
+        pub fn f_pow(a: f64, b: Self) -> Self {
+            let v = a.powf(b.value);
+            Self {
+                value: v,
+                deriv: v * a.ln() * b.deriv,
+            }
+        }
+
+        pub fn powi(self, n: i32) -> Self {
+            if n == 0 {
+                return Self::constant(1.0);
+            }
+            let v = self.value.powi(n);
+            let d = (n as f64) * self.value.powi(n - 1) * self.deriv;
+            Self { value: v, deriv: d }
+        }
+
+        pub fn sin(self) -> Self {
+            Self {
+                value: self.value.sin(),
+                deriv: self.value.cos() * self.deriv,
+            }
+        }
+
+        pub fn cos(self) -> Self {
+            Self {
+                value: self.value.cos(),
+                deriv: -self.value.sin() * self.deriv,
+            }
+        }
+
+        pub fn tan(self) -> Self {
+            Self {
+                value: self.value.tan(),
+                deriv: self.deriv / (self.value.cos() * self.value.cos()),
+            }
+        }
+
+        pub fn exp(self) -> Self {
+            let v = self.value.exp();
+            Self {
+                value: v,
+                deriv: v * self.deriv,
+            }
+        }
+
+        pub fn ln(self) -> Self {
+            Self {
+                value: self.value.ln(),
+                deriv: self.deriv / self.value,
+            }
+        }
+
+        pub fn sqrt(self) -> Self {
+            let v = self.value.sqrt();
+            Self {
+                value: v,
+                deriv: self.deriv / (2.0 * v),
+            }
+        }
+
+        pub fn sinh(self) -> Self {
+            Self {
+                value: self.value.sinh(),
+                deriv: self.value.cosh() * self.deriv,
+            }
+        }
+
+        pub fn cosh(self) -> Self {
+            Self {
+                value: self.value.cosh(),
+                deriv: self.value.sinh() * self.deriv,
+            }
+        }
+
+        pub fn tanh(self) -> Self {
+            let t = self.value.tanh();
+            Self {
+                value: t,
+                deriv: (1.0 - t * t) * self.deriv,
+            }
+        }
+    }
+
+    impl Neg for Dual<f64> {
+        type Output = Self;
+        fn neg(self) -> Self::Output {
+            Self {
+                value: -self.value,
+                deriv: -self.deriv,
+            }
+        }
+    }
+
+    macro_rules! impl_op {
+        ($trait:ident, $method:ident, $op_dual_dual:expr, $op_dual_f:expr, $op_f_dual:expr) => {
+            impl $trait<Dual<f64>> for Dual<f64> {
+                type Output = Dual<f64>;
+                fn $method(self, rhs: Dual<f64>) -> Self::Output {
+                    $op_dual_dual(self, rhs)
+                }
+            }
+
+            impl $trait<f64> for Dual<f64> {
+                type Output = Dual<f64>;
+                fn $method(self, rhs: f64) -> Self::Output {
+                    $op_dual_f(self, rhs)
+                }
+            }
+
+            impl $trait<Dual<f64>> for f64 {
+                type Output = Dual<f64>;
+                fn $method(self, rhs: Dual<f64>) -> Self::Output {
+                    $op_f_dual(self, rhs)
+                }
+            }
+        };
+    }
+
+    impl_op!(
+        Add,
+        add,
+        |a: Dual<f64>, b: Dual<f64>| Dual::new(a.value + b.value, a.deriv + b.deriv),
+        |a: Dual<f64>, b: f64| Dual::new(a.value + b, a.deriv),
+        |a: f64, b: Dual<f64>| Dual::new(a + b.value, b.deriv)
+    );
+
+    impl_op!(
+        Sub,
+        sub,
+        |a: Dual<f64>, b: Dual<f64>| Dual::new(a.value - b.value, a.deriv - b.deriv),
+        |a: Dual<f64>, b: f64| Dual::new(a.value - b, a.deriv),
+        |a: f64, b: Dual<f64>| Dual::new(a - b.value, -b.deriv)
+    );
+
+    impl_op!(
+        Mul,
+        mul,
+        |a: Dual<f64>, b: Dual<f64>| Dual::new(
+            a.value * b.value,
+            a.deriv * b.value + a.value * b.deriv
+        ),
+        |a: Dual<f64>, b: f64| Dual::new(a.value * b, a.deriv * b),
+        |a: f64, b: Dual<f64>| Dual::new(a * b.value, a * b.deriv)
+    );
+
+    impl_op!(
+        Div,
+        div,
+        |a: Dual<f64>, b: Dual<f64>| Dual::new(
+            a.value / b.value,
+            (a.deriv * b.value - a.value * b.deriv) / (b.value * b.value)
+        ),
+        |a: Dual<f64>, b: f64| Dual::new(a.value / b, a.deriv / b),
+        |a: f64, b: Dual<f64>| Dual::new(a / b.value, (-a * b.deriv) / (b.value * b.value))
+    );
+
+    pub fn diff<F>(f: F, x: f64) -> f64
+    where
+        F: Fn(Dual<f64>) -> Dual<f64>,
+    {
+        let res = f(Dual::variable(x));
+        res.deriv
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Numeric Context & Generic Traits
+    // --------------------------------------------------------------------------------------------
+
+    pub trait Numeric:
+        Sized
+        + Clone
+        + Copy
+        + Add<Self, Output = Self>
+        + Sub<Self, Output = Self>
+        + Mul<Self, Output = Self>
+        + Div<Self, Output = Self>
+    {
+        fn from_f64(v: f64) -> Self;
+        fn to_f64(self) -> f64;
+        fn ln(self) -> Self;
+        fn powi(self, n: i32) -> Self;
+    }
+
+    impl Numeric for f64 {
+        fn from_f64(v: f64) -> Self {
+            v
+        }
+        fn to_f64(self) -> f64 {
+            self
+        }
+        fn ln(self) -> Self {
+            f64::ln(self)
+        }
+        fn powi(self, n: i32) -> Self {
+            f64::powi(self, n)
+        }
+    }
+
+    impl Numeric for Dual<f64> {
+        fn from_f64(v: f64) -> Self {
+            Dual::constant(v)
+        }
+        fn to_f64(self) -> f64 {
+            self.value
+        }
+        fn ln(self) -> Self {
+            self.ln()
+        }
+        fn powi(self, n: i32) -> Self {
+            self.powi(n)
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        fn assert_diff(
+            f: impl Fn(Dual<f64>) -> Dual<f64>,
+            df_analytical: impl Fn(f64) -> f64,
+            x: f64,
+        ) {
+            let expected = df_analytical(x);
+            let actual = diff(f, x);
+            let diff = (expected - actual).abs();
+            assert!(
+                diff < 1e-9,
+                "x={} | expected={}, actual={}, diff={}",
+                x,
+                expected,
+                actual,
+                diff
+            );
+        }
+
+        #[test]
+        fn test_unary_minus() {
+            assert_diff(|x| -x, |_| -1.0, 2.0);
+        }
+
+        #[test]
+        fn test_arithmetic() {
+            let x0 = 2.0;
+            assert_diff(|x| x + x, |_| 2.0, x0);
+            assert_diff(|x| x + 3.0, |_| 1.0, x0);
+            assert_diff(|x| 3.0 + x, |_| 1.0, x0);
+
+            assert_diff(|x| x - x, |_| 0.0, x0);
+            assert_diff(|x| x - 3.0, |_| 1.0, x0);
+            assert_diff(|x| 3.0 - x, |_| -1.0, x0);
+
+            assert_diff(|x| x * x, |x| 2.0 * x, x0);
+            assert_diff(|x| x * 3.0, |_| 3.0, x0);
+            assert_diff(|x| 3.0 * x, |_| 3.0, x0);
+
+            assert_diff(|x| x / x, |_| 0.0, x0);
+            assert_diff(|x| x / 3.0, |_| 1.0 / 3.0, x0);
+            assert_diff(|x| 3.0 / x, |x| -3.0 / (x * x), x0);
+        }
+
+        #[test]
+        fn test_power() {
+            let x0 = 2.0;
+            assert_diff(|x| x.pow(x), |x| (x.powf(x)) * (x.ln() + 1.0), x0);
+            assert_diff(|x| x.powf(3.0), |x| 3.0 * (x.powf(2.0)), x0);
+            assert_diff(
+                |x| Dual::f_pow(3.0, x),
+                |x| (3.0_f64.powf(x)) * 3.0_f64.ln(),
+                x0,
+            );
+        }
+
+        #[test]
+        fn test_math_functions() {
+            let x0 = 2.0;
+            assert_diff(|x| x.sin(), |x| x.cos(), x0);
+            assert_diff(|x| x.cos(), |x| -x.sin(), x0);
+            assert_diff(|x| x.tan(), |x| 1.0 / (x.cos().powi(2)), x0);
+            assert_diff(|x| x.exp(), |x| x.exp(), x0);
+            assert_diff(|x| x.ln(), |x| 1.0 / x, x0);
+            assert_diff(|x| x.sqrt(), |x| 0.5 / x.sqrt(), x0);
+            assert_diff(|x| x.sinh(), |x| x.cosh(), x0);
+            assert_diff(|x| x.cosh(), |x| x.sinh(), x0);
+            assert_diff(|x| x.tanh(), |x| 1.0 - x.tanh().powi(2), x0);
+        }
+
+        #[test]
+        fn test_calphad_example() {
+            let g = |t: Dual<f64>| {
+                Dual::constant(10.0) + t * 2.5 - t * 3.0 * t.ln() + t.powf(2.0) * 0.5
+            };
+            let dg_analytical = |t: f64| 2.5 - 3.0 * (t.ln() + 1.0) + t;
+            assert_diff(g, dg_analytical, 300.0);
+        }
+    }
+}
+
+pub mod core {
+    pub fn get_atomic_weight(symbol: &str) -> Option<f64> {
+        match symbol {
+            "H" => Some(1.008),
+            "He" => Some(4.002602),
+            "Li" => Some(6.94),
+            "Be" => Some(9.0121831),
+            "B" => Some(10.81),
+            "C" => Some(12.011),
+            "N" => Some(14.007),
+            "O" => Some(15.999),
+            "F" => Some(18.998403163),
+            "Ne" => Some(20.1797),
+            "Na" => Some(22.98976928),
+            "Mg" => Some(24.305),
+            "Al" => Some(26.9815384),
+            "Si" => Some(28.085),
+            "P" => Some(30.973761998),
+            "S" => Some(32.06),
+            "Cl" => Some(35.45),
+            "Ar" => Some(39.95),
+            "K" => Some(39.0983),
+            "Ca" => Some(40.078),
+            "Sc" => Some(44.955908),
+            "Ti" => Some(47.867),
+            "V" => Some(50.9415),
+            "Cr" => Some(51.9961),
+            "Mn" => Some(54.938043),
+            "Fe" => Some(55.845),
+            "Co" => Some(58.933194),
+            "Ni" => Some(58.6934),
+            "Cu" => Some(63.546),
+            "Zn" => Some(65.38),
+            "Ga" => Some(69.723),
+            "Ge" => Some(72.630),
+            "As" => Some(74.921595),
+            "Se" => Some(78.971),
+            "Br" => Some(79.904),
+            "Kr" => Some(83.798),
+            "Rb" => Some(85.4678),
+            "Sr" => Some(87.62),
+            "Y" => Some(88.90584),
+            "Zr" => Some(91.224),
+            "Nb" => Some(92.90637),
+            "Mo" => Some(95.95),
+            "Ru" => Some(101.07),
+            "Rh" => Some(102.90549),
+            "Pd" => Some(106.42),
+            "Ag" => Some(107.8682),
+            "Cd" => Some(112.414),
+            "In" => Some(114.818),
+            "Sn" => Some(118.710),
+            "Sb" => Some(121.760),
+            "Te" => Some(127.60),
+            "I" => Some(126.90447),
+            "Xe" => Some(131.293),
+            "Cs" => Some(132.90545196),
+            "Ba" => Some(137.327),
+            "La" => Some(138.90547),
+            "Ce" => Some(140.116),
+            "Pr" => Some(140.90766),
+            "Nd" => Some(144.242),
+            "Sm" => Some(150.36),
+            "Eu" => Some(151.964),
+            "Gd" => Some(157.25),
+            "Tb" => Some(158.925354),
+            "Dy" => Some(162.500),
+            "Ho" => Some(164.930328),
+            "Er" => Some(167.259),
+            "Tm" => Some(168.934218),
+            "Yb" => Some(173.045),
+            "Lu" => Some(174.9668),
+            "Hf" => Some(178.49),
+            "Ta" => Some(180.94788),
+            "W" => Some(183.84),
+            "Re" => Some(186.207),
+            "Os" => Some(190.23),
+            "Ir" => Some(192.217),
+            "Pt" => Some(195.084),
+            "Au" => Some(196.966570),
+            "Hg" => Some(200.592),
+            "Tl" => Some(204.38),
+            "Pb" => Some(207.2),
+            "Bi" => Some(208.98040),
+            "Th" => Some(232.0377),
+            "Pa" => Some(231.03588),
+            "U" => Some(238.02891),
+            _ => None,
+        }
+    }
+
+    use crate::autodiff::Numeric;
+    use std::collections::HashMap;
+
+    pub const T_REF: f64 = 298.15;
+
+    pub const P_REF: f64 = 101325.0;
+
+    pub const R_GAS: f64 = 8.31446261815324;
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AggregationType {
+        Solid,
+        Liquid,
+        Gas,
+    }
+
+    #[derive(Debug, Clone)]
+    pub enum Parameterization {
+        MaierKelley {
+            a: f64,
+            b: f64,
+            c: f64,
+            h_ref: f64,
+        },
+        NASA7 {
+            a1: f64,
+            a2: f64,
+            a3: f64,
+            a4: f64,
+            a5: f64,
+            a6: f64,
+            a7: f64,
+        },
+        NASA9 {
+            a1: f64,
+            a2: f64,
+            a3: f64,
+            a4: f64,
+            a5: f64,
+            a6: f64,
+            a7: f64,
+            a8: f64,
+            a9: f64,
+        },
+        Shomate {
+            a: f64,
+            b: f64,
+            c: f64,
+            d: f64,
+            e: f64,
+            f: f64,
+            g: f64,
+            h: f64,
+        },
+        GibbsPolynomial {
+            a: f64,
+            b: f64,
+            c: f64,
+            d: f64,
+            e: f64,
+            f: f64,
+            g: f64,
+        },
+    }
+
+    #[derive(Debug, Clone)]
+    pub struct TemperatureRange {
+        pub t_min: f64,
+        pub t_max: f64,
+        pub model: Parameterization,
+    }
+
+    #[derive(Debug, Clone)]
+    pub struct Substance {
+        pub name: String,
+        pub molar_mass: f64,
+        pub molar_volume: f64,
+        pub s0: f64,
+        pub ranges: Vec<TemperatureRange>,
+        pub elements: HashMap<String, f64>,
+        pub reference: String,
+        pub aggregation_type: AggregationType,
+    }
+
+    fn cp_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T) -> T {
+        a + b * t + c / (t * t)
+    }
+
+    fn cp_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, t: T) -> T {
+        let poly = a1 + t * (a2 + t * (a3 + t * (a4 + t * a5)));
+        T::from_f64(R_GAS) * poly
+    }
+
+    fn cp_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, t: T) -> T {
+        let tt = t / T::from_f64(1000.0);
+        let poly = a + tt * (b + tt * (c + tt * d));
+        poly + e / (tt * tt)
+    }
+
+    fn enthalpy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, h_ref: T) -> T {
+        let half = T::from_f64(0.5);
+        let delta_h = a * (t - t_ref) + half * b * (t * t - t_ref * t_ref)
+            - c * (T::from_f64(1.0) / t - T::from_f64(1.0) / t_ref);
+        h_ref + delta_h
+    }
+
+    fn enthalpy_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, a6: T, t: T) -> T {
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let c5 = T::from_f64(1.0 / 5.0);
+        let poly = a6 + t * (a1 + t * (c2 * a2 + t * (c3 * a3 + t * (c4 * a4 + t * (c5 * a5)))));
+        T::from_f64(R_GAS) * poly
+    }
+
+    fn enthalpy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, f: T, t: T) -> T {
+        let tt = t / T::from_f64(1000.0);
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let poly = f - e / tt + tt * (a + tt * (c2 * b + tt * (c3 * c + tt * (c4 * d))));
+        T::from_f64(1000.0) * poly
+    }
+
+    fn entropy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, s_ref: T) -> T {
+        let half = T::from_f64(0.5);
+        let delta_s = a * (t / t_ref).ln() + b * (t - t_ref)
+            - half * c * (T::from_f64(1.0) / (t * t) - T::from_f64(1.0) / (t_ref * t_ref));
+        s_ref + delta_s
+    }
+
+    fn entropy_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, a7: T, t: T) -> T {
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let poly = a7 + a1 * t.ln() + t * (a2 + t * (c2 * a3 + t * (c3 * a4 + t * (c4 * a5))));
+        T::from_f64(R_GAS) * poly
+    }
+
+    fn entropy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, g: T, t: T) -> T {
+        let tt = t / T::from_f64(1000.0);
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let poly = g + a * tt.ln() - e / (T::from_f64(2.0) * tt * tt)
+            + tt * (b + tt * (c2 * c + tt * (c3 * d)));
+        poly
+    }
+
+    impl Substance {
+        pub fn get_range(&self, t: f64) -> &TemperatureRange {
+            for r in &self.ranges {
+                if t >= r.t_min && t <= r.t_max {
+                    return r;
+                }
+            }
+            if t < self.ranges[0].t_min {
+                return &self.ranges[0];
+            }
+            self.ranges.last().unwrap()
+        }
+
+        pub fn cp<T: Numeric>(&self, t: T) -> T {
+            let t_val = t.to_f64();
+            let range = self.get_range(t_val);
+            match range.model {
+                Parameterization::MaierKelley { a, b, c, .. } => {
+                    cp_maierkelley(T::from_f64(a), T::from_f64(b), T::from_f64(c), t)
+                }
+                Parameterization::NASA7 {
+                    a1, a2, a3, a4, a5, ..
+                } => cp_nasa7(
+                    T::from_f64(a1),
+                    T::from_f64(a2),
+                    T::from_f64(a3),
+                    T::from_f64(a4),
+                    T::from_f64(a5),
+                    t,
+                ),
+                Parameterization::Shomate { a, b, c, d, e, .. } => cp_shomate(
+                    T::from_f64(a),
+                    T::from_f64(b),
+                    T::from_f64(c),
+                    T::from_f64(d),
+                    T::from_f64(e),
+                    t,
+                ),
+                _ => unimplemented!(),
+            }
+        }
+
+        pub fn enthalpy<T: Numeric>(&self, t: T) -> T {
+            let t_val = t.to_f64();
+            let range = self.get_range(t_val);
+            match range.model {
+                Parameterization::MaierKelley { a, b, c, h_ref } => enthalpy_maierkelley(
+                    T::from_f64(a),
+                    T::from_f64(b),
+                    T::from_f64(c),
+                    t,
+                    T::from_f64(T_REF),
+                    T::from_f64(h_ref),
+                ),
+                Parameterization::NASA7 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    ..
+                } => enthalpy_nasa7(
+                    T::from_f64(a1),
+                    T::from_f64(a2),
+                    T::from_f64(a3),
+                    T::from_f64(a4),
+                    T::from_f64(a5),
+                    T::from_f64(a6),
+                    t,
+                ),
+                Parameterization::Shomate {
+                    a, b, c, d, e, f, ..
+                } => enthalpy_shomate(
+                    T::from_f64(a),
+                    T::from_f64(b),
+                    T::from_f64(c),
+                    T::from_f64(d),
+                    T::from_f64(e),
+                    T::from_f64(f),
+                    t,
+                ),
+                _ => unimplemented!(),
+            }
+        }
+
+        pub fn entropy<T: Numeric>(&self, t: T) -> T {
+            let t_val = t.to_f64();
+            let range = self.get_range(t_val);
+
+            match range.model {
+                Parameterization::MaierKelley { a, b, c, .. } => entropy_maierkelley(
+                    T::from_f64(a),
+                    T::from_f64(b),
+                    T::from_f64(c),
+                    t,
+                    T::from_f64(T_REF),
+                    T::from_f64(self.s0),
+                ),
+                Parameterization::NASA7 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a7,
+                    ..
+                } => entropy_nasa7(
+                    T::from_f64(a1),
+                    T::from_f64(a2),
+                    T::from_f64(a3),
+                    T::from_f64(a4),
+                    T::from_f64(a5),
+                    T::from_f64(a7),
+                    t,
+                ),
+                Parameterization::Shomate {
+                    a, b, c, d, e, g, ..
+                } => entropy_shomate(
+                    T::from_f64(a),
+                    T::from_f64(b),
+                    T::from_f64(c),
+                    T::from_f64(d),
+                    T::from_f64(e),
+                    T::from_f64(g),
+                    t,
+                ),
+                _ => unimplemented!(),
+            }
+        }
+
+        pub fn gibbs<T: Numeric>(&self, t: T) -> T {
+            self.enthalpy(t) - t * self.entropy(t)
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use crate::autodiff::{Dual, diff};
+        use crate::data::load_substances_from_lua;
+
+        #[test]
+        fn test_thermo_derivatives() {
+            let db = load_substances_from_lua("data/data.lua").unwrap();
+            let calcite = db.get("Calcite").unwrap();
+            let g = |t: Dual<f64>| calcite.gibbs(t);
+
+            let expected = -calcite.entropy(300.0);
+            let actual = diff(g, 300.0);
+            assert!(
+                (expected - actual).abs() < 1e-9,
+                "expected={}, actual={}",
+                expected,
+                actual
+            );
+        }
+
+        #[test]
+        fn test_h2o_nasa7() {
+            let db = load_substances_from_lua("data/data.lua").unwrap();
+            let h2o = db.get("H2O").unwrap();
+            let val = h2o.cp(300.0);
+            assert!(val > 0.0);
+        }
+    }
+}
+
+pub mod data {
+    use crate::core::AggregationType;
+    use crate::core::Parameterization;
+    use crate::core::Substance;
+    use crate::core::TemperatureRange;
+    use crate::core::get_atomic_weight;
+    use crate::core::{P_REF, R_GAS, T_REF};
+    use mlua::prelude::*;
+    use std::collections::HashMap;
+    use std::fs::read_to_string;
+
+    impl FromLua for AggregationType {
+        fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
+            let s = value
+                .as_string()
+                .ok_or_else(|| LuaError::FromLuaConversionError {
+                    from: "Value",
+                    to: "AggregationType".to_string(),
+                    message: Some("Expected string".to_string()),
+                })?
+                .to_str()?
+                .to_string();
+
+            match s.as_str() {
+                "Solid" => Ok(AggregationType::Solid),
+                "Liquid" => Ok(AggregationType::Liquid),
+                "Gas" => Ok(AggregationType::Gas),
+                _ => Err(LuaError::FromLuaConversionError {
+                    from: "String",
+                    to: "AggregationType".to_string(),
+                    message: Some(format!("Unknown aggregation type: {}", s)),
+                }),
+            }
+        }
+    }
+
+    impl FromLua for Parameterization {
+        fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
+            let table = value
+                .as_table()
+                .ok_or_else(|| LuaError::FromLuaConversionError {
+                    from: "Value",
+                    to: "Parameterization".to_string(),
+                    message: Some("Expected table".to_string()),
+                })?;
+
+            let model_type: String = table.get("type")?;
+
+            match model_type.as_str() {
+                "MaierKelley" => Ok(Parameterization::MaierKelley {
+                    a: table.get("a")?,
+                    b: table.get("b")?,
+                    c: table.get("c")?,
+                    h_ref: table.get("h_ref")?,
+                }),
+                "NASA7" => Ok(Parameterization::NASA7 {
+                    a1: table.get("a1")?,
+                    a2: table.get("a2")?,
+                    a3: table.get("a3")?,
+                    a4: table.get("a4")?,
+                    a5: table.get("a5")?,
+                    a6: table.get("a6")?,
+                    a7: table.get("a7")?,
+                }),
+                "NASA9" => Ok(Parameterization::NASA9 {
+                    a1: table.get("a1")?,
+                    a2: table.get("a2")?,
+                    a3: table.get("a3")?,
+                    a4: table.get("a4")?,
+                    a5: table.get("a5")?,
+                    a6: table.get("a6")?,
+                    a7: table.get("a7")?,
+                    a8: table.get("a8")?,
+                    a9: table.get("a9")?,
+                }),
+                "Shomate" => Ok(Parameterization::Shomate {
+                    a: table.get("a")?,
+                    b: table.get("b")?,
+                    c: table.get("c")?,
+                    d: table.get("d")?,
+                    e: table.get("e")?,
+                    f: table.get("f")?,
+                    g: table.get("g")?,
+                    h: table.get("h")?,
+                }),
+                "GibbsPolynomial" => Ok(Parameterization::GibbsPolynomial {
+                    a: table.get("a")?,
+                    b: table.get("b")?,
+                    c: table.get("c")?,
+                    d: table.get("d")?,
+                    e: table.get("e")?,
+                    f: table.get("f")?,
+                    g: table.get("g")?,
+                }),
+                _ => Err(LuaError::FromLuaConversionError {
+                    from: "Table",
+                    to: "Parameterization".to_string(),
+                    message: Some(format!("Unknown parameterization type: {}", model_type)),
+                }),
+            }
+        }
+    }
+
+    impl FromLua for TemperatureRange {
+        fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
+            let table = value
+                .as_table()
+                .ok_or_else(|| LuaError::FromLuaConversionError {
+                    from: "Value",
+                    to: "TemperatureRange".to_string(),
+                    message: Some("Expected table".to_string()),
+                })?;
+
+            Ok(TemperatureRange {
+                t_min: table.get("t_min")?,
+                t_max: table.get("t_max")?,
+                model: table.get("model")?,
+            })
+        }
+    }
+
+    impl FromLua for Substance {
+        fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
+            let table = value
+                .as_table()
+                .ok_or_else(|| LuaError::FromLuaConversionError {
+                    from: "Value",
+                    to: "Substance".to_string(),
+                    message: Some("Expected table".to_string()),
+                })?;
+
+            let name: String = table.get("name")?;
+            let elements: HashMap<String, f64> = table.get("elements")?;
+            let aggregation_type: AggregationType = table.get("aggregation_type")?;
+
+            let mut molar_mass = 0.0;
+            for (symbol, count) in &elements {
+                let weight = get_atomic_weight(symbol).ok_or_else(|| {
+                    LuaError::RuntimeError(format!("Unknown element symbol: {}", symbol))
+                })?;
+                molar_mass += weight * count;
+            }
+
+            let molar_volume = if aggregation_type == AggregationType::Gas {
+                (R_GAS * T_REF / P_REF) * 1e6 // cm3/mol
+            } else {
+                table.get("molar_volume")?
+            };
+
+            Ok(Substance {
+                name,
+                molar_mass,
+                molar_volume,
+                s0: table.get("s0")?,
+                ranges: table.get("ranges")?,
+                elements,
+                reference: table.get("reference")?,
+                aggregation_type,
+            })
+        }
+    }
+
+    pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substance>> {
+        let lua = Lua::new();
+        let globals = lua.globals();
+
+        // Register MaierKelley constructor
+        let mk_fn = lua.create_function(|lua, (a, b, c, h_ref): (f64, f64, f64, f64)| {
+            let table = lua.create_table()?;
+            table.set("type", "MaierKelley")?;
+            table.set("a", a)?;
+            table.set("b", b)?;
+            table.set("c", c)?;
+            table.set("h_ref", h_ref)?;
+            Ok(table)
+        })?;
+        globals.set("MaierKelley", mk_fn)?;
+
+        // Register NASA7 constructor (takes a table/list of 7 coefficients)
+        let nasa7_fn = lua.create_function(|lua, coeffs: Vec<f64>| {
+            let table = lua.create_table()?;
+            table.set("type", "NASA7")?;
+            if coeffs.len() < 7 {
+                let err = "NASA7 requires 7 coefficients".to_string();
+                return Err(LuaError::RuntimeError(err));
+            }
+            for (i, &val) in coeffs.iter().enumerate().take(7) {
+                table.set(format!("a{}", i + 1), val)?;
+            }
+            Ok(table)
+        })?;
+        globals.set("NASA7", nasa7_fn)?;
+
+        // Register Range constructor
+        let range_fn =
+            lua.create_function(|lua, (t_min, t_max, model): (f64, f64, LuaValue)| {
+                let table = lua.create_table()?;
+                table.set("t_min", t_min)?;
+                table.set("t_max", t_max)?;
+                table.set("model", model)?;
+                Ok(table)
+            })?;
+        globals.set("Range", range_fn)?;
+
+        // Register Substance helper (adds defaults)
+        let substance_fn = lua.create_function(|_, table: LuaTable| {
+            if !table.contains_key("reference")? {
+                table.set("reference", "")?;
+            }
+            if !table.contains_key("aggregation_type")? {
+                table.set("aggregation_type", "Solid")?;
+            }
+            Ok(table)
+        })?;
+        globals.set("Substance", substance_fn)?;
+
+        let content =
+            read_to_string(path).map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
+
+        let map: HashMap<String, Substance> = lua.load(&content).eval()?;
+        Ok(map)
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn test_load_from_lua() {
+            let result = load_substances_from_lua("data/data.lua");
+            assert!(
+                result.is_ok(),
+                "Failed to load from lua: {:?}",
+                result.err()
+            );
+            let map = result.unwrap();
+            assert!(map.len() >= 6);
+            assert!(map.contains_key("Calcite"));
+            assert!(map.contains_key("CO2"));
+            assert_eq!(
+                map.get("Calcite").unwrap().aggregation_type,
+                AggregationType::Solid
+            );
+            assert_eq!(
+                map.get("CO2").unwrap().aggregation_type,
+                AggregationType::Gas
+            );
+        }
+    }
+}
+
+pub mod equil {
+    use crate::core::Substance;
+
+    // VERY ROUGH
+
+    pub fn find_particular_solution(a: &[Vec<f64>], b: &[f64], n_s: usize, n_e: usize) -> Vec<f64> {
+        let mut phi = vec![0.0; n_s];
+        let lr = 0.01;
+        for _ in 0..20000 {
+            let mut grad = vec![0.0; n_s];
+            for i in 0..n_e {
+                let mut err = -b[i];
+                for k in 0..n_s {
+                    err += a[i][k] * phi[k];
+                }
+                for k in 0..n_s {
+                    grad[k] += err * a[i][k];
+                }
+            }
+            for k in 0..n_s {
+                phi[k] -= lr * grad[k];
+            }
+        }
+        phi
+    }
+
+    pub fn evaluate_local_equilibrium(
+        species: &[&Substance],
+        elements: &[&str],
+        b: &[f64],
+        t: f64,
+        p: f64,
+    ) -> Vec<f64> {
+        let n_s = species.len();
+        let n_e = elements.len();
+        let r = 8.314_f64;
+
+        // Compute g_k
+        let mut g_k = vec![0.0; n_s];
+        for i in 0..n_s {
+            let s = species[i];
+            let mut g = s.gibbs(t);
+            if s.aggregation_type == crate::core::AggregationType::Gas {
+                // Gas heuristic: add pressure correction RT ln(P/P_REF)
+                // Assuming P is in atm if R is used this way, or P is in Pa and P_REF is 101325.
+                // The previous code used r * t * p.ln() which suggests P is normalized.
+                g += r * t * p.ln();
+            }
+            g_k[i] = g;
+        }
+
+        // Build stoichiometry matrix A
+        let mut a = vec![vec![0.0; n_s]; n_e];
+        for i in 0..n_e {
+            for j in 0..n_s {
+                a[i][j] = species[j].elements.get(elements[i]).copied().unwrap_or(0.0);
+            }
+        }
+
+        let mut best_phi = vec![0.0; n_s];
+        let mut min_g = f64::INFINITY;
+        let mut found_solution = false;
+
+        // We have a Linear Programming problem: Minimize g_k^T phi s.t. A phi = b, phi >= 0.
+        // Basic feasible solutions have at most rank(A) non-zero variables.
+        // For small n_s, we can just evaluate all possible combinations of active species (supports).
+        let total_subsets = 1 << n_s;
+        for mask in 1..total_subsets {
+            let mut phi = vec![0.0; n_s];
+            // initialize active ones
+            for k in 0..n_s {
+                if (mask & (1 << k)) != 0 {
+                    phi[k] = 1.0;
+                }
+            }
+
+            let lr = 0.01;
+            for _ in 0..10000 {
+                let mut grad = vec![0.0; n_s];
+                for i in 0..n_e {
+                    let mut err = -b[i];
+                    for k in 0..n_s {
+                        err += a[i][k] * phi[k];
+                    }
+                    for k in 0..n_s {
+                        grad[k] += err * a[i][k];
+                    }
+                }
+                for k in 0..n_s {
+                    if (mask & (1 << k)) != 0 {
+                        phi[k] -= lr * grad[k];
+                    } else {
+                        phi[k] = 0.0;
+                    }
+                }
+            }
+
+            // check mass balance error
+            let mut max_err = 0.0;
+            for i in 0..n_e {
+                let mut err = -b[i];
+                for k in 0..n_s {
+                    err += a[i][k] * phi[k];
+                }
+                if err.abs() > max_err {
+                    max_err = err.abs();
+                }
+            }
+
+            if max_err > 1e-4 {
+                continue;
+            }
+
+            // check non-negativity
+            let mut valid_non_negative = true;
+            for k in 0..n_s {
+                if phi[k] < -1e-4 {
+                    valid_non_negative = false;
+                    break;
+                }
+                phi[k] = phi[k].max(0.0);
+            }
+
+            if !valid_non_negative {
+                continue;
+            }
+
+            // Calculate Gibbs for this support
+            let mut g = 0.0;
+            for k in 0..n_s {
+                g += phi[k] * g_k[k];
+            }
+
+            if g < min_g {
+                min_g = g;
+                best_phi = phi.clone();
+                found_solution = true;
+            }
+        }
+
+        if found_solution {
+            best_phi
+        } else {
+            // Fallback
+            let phi_p = find_particular_solution(&a, b, n_s, n_e);
+            phi_p.into_iter().map(|x| x.max(0.0)).collect()
+        }
+    }
+
+    pub fn compute_elemental_fractions(mix: &[(&Substance, f64)], elements: &[&str]) -> Vec<f64> {
+        let mut moles_of_elements = vec![0.0; elements.len()];
+
+        for (substance, amount) in mix {
+            for (i, &el) in elements.iter().enumerate() {
+                if let Some(&moles_in_substance) = substance.elements.get(el) {
+                    moles_of_elements[i] += amount * moles_in_substance;
+                }
+            }
+        }
+
+        let total_moles: f64 = moles_of_elements.iter().sum();
+
+        if total_moles > 0.0 {
+            moles_of_elements
+                .into_iter()
+                .map(|m| m / total_moles)
+                .collect()
+        } else {
+            moles_of_elements
+        }
+    }
+}

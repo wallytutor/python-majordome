@@ -4,7 +4,7 @@ use thermo::equil::compute_elemental_fractions;
 use thermo::equil::evaluate_local_equilibrium;
 
 fn main() {
-    let db = load_substances_from_lua("data.lua").expect("Failed to load data.lua");
+    let db = load_substances_from_lua("data/data.lua").expect("Failed to load data.lua");
     
     let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
     let species: Vec<_> = names.iter().map(|n| db.get(*n).unwrap()).collect();

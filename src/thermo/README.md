@@ -5,3 +5,5 @@
 ## Status
 
 - Parameterization of data in MaierKelley, NASA7, NASA9, Shomate, and GibbsPolynomial.
+
+- Lua-based dynamic database system for species definition.

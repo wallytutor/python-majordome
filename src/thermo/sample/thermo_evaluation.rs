@@ -3,7 +3,7 @@ use thermo::data::load_substances_from_lua;
 fn main() {
     println!("=== Thermodynamic Properties ===\n");
 
-    let db = load_substances_from_lua("data.lua").expect("Failed to load data.lua");
+    let db = load_substances_from_lua("data/data.lua").expect("Failed to load data.lua");
     let calcite = db.get("Calcite").unwrap();
     let lime = db.get("Lime").unwrap();
     let co2 = db.get("CO2").unwrap();

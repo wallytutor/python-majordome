@@ -1,7 +1,7 @@
 use thermo::data::load_substances_from_lua;
 
 fn main() {
-    let db = load_substances_from_lua("data.lua").expect("Failed to load data.lua");
+    let db = load_substances_from_lua("data/data.lua").expect("Failed to load data.lua");
     
     let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
     let species: Vec<_> = names.iter().map(|n| db.get(*n).unwrap()).collect();
@@ -25,8 +25,9 @@ fn main() {
             let s_val = s.entropy(t);
             let g_val = s.gibbs(t);
 
-            let free_energy_func = -(g_val - s.delta_hf) / t;
-            let h_diff = h_val - s.delta_hf;
+            let h_ref = s.enthalpy(298.15);
+            let free_energy_func = -(g_val - h_ref) / t;
+            let h_diff = h_val - h_ref;
 
             println!(
                 "{:<8.2} | {:<12.4} | {:<12.4} | {:<14.4} | {:<14.2}",
