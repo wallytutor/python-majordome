@@ -1,8 +1,12 @@
+// ---------------------------------------------------------------------------
+
 pub const T_REF: f64 = 298.15;
 
 pub const P_REF: f64 = 101325.0;
 
 pub const R_GAS: f64 = 8.31446261815324;
+
+// ---------------------------------------------------------------------------
 
 pub mod autodiff {
     use std::ops::{Add, Div, Mul, Neg, Sub};
@@ -257,89 +261,6 @@ pub mod autodiff {
         }
         fn powi(self, n: i32) -> Self {
             self.powi(n)
-        }
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        fn assert_diff(
-            f: impl Fn(Dual<f64>) -> Dual<f64>,
-            df_analytical: impl Fn(f64) -> f64,
-            x: f64,
-        ) {
-            let expected = df_analytical(x);
-            let actual = diff(f, x);
-            let diff = (expected - actual).abs();
-            assert!(
-                diff < 1e-9,
-                "x={} | expected={}, actual={}, diff={}",
-                x,
-                expected,
-                actual,
-                diff
-            );
-        }
-
-        #[test]
-        fn test_unary_minus() {
-            assert_diff(|x| -x, |_| -1.0, 2.0);
-        }
-
-        #[test]
-        fn test_arithmetic() {
-            let x0 = 2.0;
-            assert_diff(|x| x + x, |_| 2.0, x0);
-            assert_diff(|x| x + 3.0, |_| 1.0, x0);
-            assert_diff(|x| 3.0 + x, |_| 1.0, x0);
-
-            assert_diff(|x| x - x, |_| 0.0, x0);
-            assert_diff(|x| x - 3.0, |_| 1.0, x0);
-            assert_diff(|x| 3.0 - x, |_| -1.0, x0);
-
-            assert_diff(|x| x * x, |x| 2.0 * x, x0);
-            assert_diff(|x| x * 3.0, |_| 3.0, x0);
-            assert_diff(|x| 3.0 * x, |_| 3.0, x0);
-
-            assert_diff(|x| x / x, |_| 0.0, x0);
-            assert_diff(|x| x / 3.0, |_| 1.0 / 3.0, x0);
-            assert_diff(|x| 3.0 / x, |x| -3.0 / (x * x), x0);
-        }
-
-        #[test]
-        fn test_power() {
-            let x0 = 2.0;
-            assert_diff(|x| x.pow(x), |x| (x.powf(x)) * (x.ln() + 1.0), x0);
-            assert_diff(|x| x.powf(3.0), |x| 3.0 * (x.powf(2.0)), x0);
-            assert_diff(
-                |x| Dual::f_pow(3.0, x),
-                |x| (3.0_f64.powf(x)) * 3.0_f64.ln(),
-                x0,
-            );
-        }
-
-        #[test]
-        fn test_math_functions() {
-            let x0 = 2.0;
-            assert_diff(|x| x.sin(), |x| x.cos(), x0);
-            assert_diff(|x| x.cos(), |x| -x.sin(), x0);
-            assert_diff(|x| x.tan(), |x| 1.0 / (x.cos().powi(2)), x0);
-            assert_diff(|x| x.exp(), |x| x.exp(), x0);
-            assert_diff(|x| x.ln(), |x| 1.0 / x, x0);
-            assert_diff(|x| x.sqrt(), |x| 0.5 / x.sqrt(), x0);
-            assert_diff(|x| x.sinh(), |x| x.cosh(), x0);
-            assert_diff(|x| x.cosh(), |x| x.sinh(), x0);
-            assert_diff(|x| x.tanh(), |x| 1.0 - x.tanh().powi(2), x0);
-        }
-
-        #[test]
-        fn test_calphad_example() {
-            let g = |t: Dual<f64>| {
-                Dual::constant(10.0) + t * 2.5 - t * 3.0 * t.ln() + t.powf(2.0) * 0.5
-            };
-            let dg_analytical = |t: f64| 2.5 - 3.0 * (t.ln() + 1.0) + t;
-            assert_diff(g, dg_analytical, 300.0);
         }
     }
 }
@@ -805,13 +726,7 @@ pub mod core {
 
         pub fn entropy<T: Numeric>(&self, t: T) -> T {
             match self {
-                Parameterization::MaierKelley {
-                    a,
-                    b,
-                    c,
-                    s_ref,
-                    ..
-                } => entropy_maierkelley(
+                Parameterization::MaierKelley { a, b, c, s_ref, .. } => entropy_maierkelley(
                     T::from_f64(*a),
                     T::from_f64(*b),
                     T::from_f64(*c),
@@ -944,39 +859,8 @@ pub mod core {
             range.model.entropy(t)
         }
 
-
         pub fn gibbs<T: Numeric>(&self, t: T) -> T {
             self.enthalpy(t) - t * self.entropy(t)
-        }
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use crate::autodiff::{Dual, diff};
-        use crate::data::load_substances_from_lua;
-
-        #[test]
-        fn test_thermo_derivatives() {
-            let db = load_substances_from_lua("data/data.lua").unwrap();
-            let calcite = db.get("Calcite").unwrap();
-            let g = |t: Dual<f64>| calcite.gibbs(t);
-
-            let expected = -calcite.entropy(300.0);
-            let actual = diff(g, 300.0);
-            assert!(
-                (expected - actual).abs() < 1e-9,
-                "expected={}, actual={}",
-                expected,
-                actual
-            );
-        }
-
-        #[test]
-        fn test_h2o_nasa7() {
-            let db = load_substances_from_lua("data/data.lua").unwrap();
-            let h2o = db.get("H2O").unwrap();
-            let val = h2o.cp(300.0);
-            assert!(val > 0.0);
         }
     }
 }
@@ -1037,7 +921,6 @@ pub mod data {
                     h_ref: table.get("h_ref")?,
                     s_ref: table.get("s_ref").unwrap_or(0.0),
                 }),
-
 
                 "NASA7" => Ok(Parameterization::NASA7 {
                     a1: table.get("a1")?,
@@ -1143,7 +1026,6 @@ pub mod data {
                     }
                 }
             }
-
 
             let elements: HashMap<String, f64> = table.get("elements")?;
             let aggregation_type: AggregationType = table
@@ -1385,33 +1267,6 @@ pub mod data {
         let map: HashMap<String, Substance> = lua.load(&content).eval()?;
         Ok(map)
     }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn test_load_from_lua() {
-            let result = load_substances_from_lua("data/data.lua");
-            assert!(
-                result.is_ok(),
-                "Failed to load from lua: {:?}",
-                result.err()
-            );
-            let map = result.unwrap();
-            assert!(map.len() >= 6);
-            assert!(map.contains_key("Calcite"));
-            assert!(map.contains_key("CO2"));
-            assert_eq!(
-                map.get("Calcite").unwrap().aggregation_type,
-                AggregationType::Solid
-            );
-            assert_eq!(
-                map.get("CO2").unwrap().aggregation_type,
-                AggregationType::Gas
-            );
-        }
-    }
 }
 
 pub mod equil {
@@ -1539,7 +1394,7 @@ pub mod equil {
         // For stoichiometric phases, the equilibrium is a Basic Feasible Solution (BFS).
         // A BFS has at most rank(A) species.
         // Since n_s is small, we iterate through all subsets.
-        
+
         for mask in 1..(1 << n_s) {
             let mut active = Vec::new();
             for k in 0..n_s {
@@ -1548,7 +1403,9 @@ pub mod equil {
                 }
             }
 
-            if active.len() > n_e { continue; }
+            if active.len() > n_e {
+                continue;
+            }
 
             // Solve A_sub * phi_sub = b using Normal Equations for robustness:
             // (A_sub^T * A_sub) * phi_sub = A_sub^T * b
@@ -1602,7 +1459,7 @@ pub mod equil {
                             g += phi[k] * g_0[k];
                         }
                         // Use a small epsilon to prefer smaller supports if Gibbs is same
-                        let score = g + (active.len() as f64) * 1e-6; 
+                        let score = g + (active.len() as f64) * 1e-6;
                         if score < min_g {
                             min_g = score;
                             best_phi = phi;
@@ -1610,7 +1467,6 @@ pub mod equil {
                         }
                     }
                 }
-
             }
         }
 
@@ -1644,3 +1500,143 @@ pub mod equil {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+mod autodiff_test {
+    use crate::autodiff::*;
+
+    fn assert_diff(f: impl Fn(Dual<f64>) -> Dual<f64>, df_analytical: impl Fn(f64) -> f64, x: f64) {
+        let expected = df_analytical(x);
+        let actual = diff(f, x);
+        let diff = (expected - actual).abs();
+        assert!(
+            diff < 1e-9,
+            "x={} | expected={}, actual={}, diff={}",
+            x,
+            expected,
+            actual,
+            diff
+        );
+    }
+
+    #[test]
+    fn test_unary_minus() {
+        assert_diff(|x| -x, |_| -1.0, 2.0);
+    }
+
+    #[test]
+    fn test_arithmetic() {
+        let x0 = 2.0;
+        assert_diff(|x| x + x, |_| 2.0, x0);
+        assert_diff(|x| x + 3.0, |_| 1.0, x0);
+        assert_diff(|x| 3.0 + x, |_| 1.0, x0);
+
+        assert_diff(|x| x - x, |_| 0.0, x0);
+        assert_diff(|x| x - 3.0, |_| 1.0, x0);
+        assert_diff(|x| 3.0 - x, |_| -1.0, x0);
+
+        assert_diff(|x| x * x, |x| 2.0 * x, x0);
+        assert_diff(|x| x * 3.0, |_| 3.0, x0);
+        assert_diff(|x| 3.0 * x, |_| 3.0, x0);
+
+        assert_diff(|x| x / x, |_| 0.0, x0);
+        assert_diff(|x| x / 3.0, |_| 1.0 / 3.0, x0);
+        assert_diff(|x| 3.0 / x, |x| -3.0 / (x * x), x0);
+    }
+
+    #[test]
+    fn test_power() {
+        let x0 = 2.0;
+        assert_diff(|x| x.pow(x), |x| (x.powf(x)) * (x.ln() + 1.0), x0);
+        assert_diff(|x| x.powf(3.0), |x| 3.0 * (x.powf(2.0)), x0);
+        assert_diff(
+            |x| Dual::f_pow(3.0, x),
+            |x| (3.0_f64.powf(x)) * 3.0_f64.ln(),
+            x0,
+        );
+    }
+
+    #[test]
+    fn test_math_functions() {
+        let x0 = 2.0;
+        assert_diff(|x| x.sin(), |x| x.cos(), x0);
+        assert_diff(|x| x.cos(), |x| -x.sin(), x0);
+        assert_diff(|x| x.tan(), |x| 1.0 / (x.cos().powi(2)), x0);
+        assert_diff(|x| x.exp(), |x| x.exp(), x0);
+        assert_diff(|x| x.ln(), |x| 1.0 / x, x0);
+        assert_diff(|x| x.sqrt(), |x| 0.5 / x.sqrt(), x0);
+        assert_diff(|x| x.sinh(), |x| x.cosh(), x0);
+        assert_diff(|x| x.cosh(), |x| x.sinh(), x0);
+        assert_diff(|x| x.tanh(), |x| 1.0 - x.tanh().powi(2), x0);
+    }
+
+    #[test]
+    fn test_calphad_example() {
+        let g =
+            |t: Dual<f64>| Dual::constant(10.0) + t * 2.5 - t * 3.0 * t.ln() + t.powf(2.0) * 0.5;
+        let dg_analytical = |t: f64| 2.5 - 3.0 * (t.ln() + 1.0) + t;
+        assert_diff(g, dg_analytical, 300.0);
+    }
+}
+
+#[cfg(test)]
+mod core_test {
+    use crate::autodiff::{Dual, diff};
+    use crate::data::load_substances_from_lua;
+
+    #[test]
+    fn test_thermo_derivatives() {
+        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let calcite = db.get("Calcite").unwrap();
+        let g = |t: Dual<f64>| calcite.gibbs(t);
+
+        let expected = -calcite.entropy(300.0);
+        let actual = diff(g, 300.0);
+        assert!(
+            (expected - actual).abs() < 1e-9,
+            "expected={}, actual={}",
+            expected,
+            actual
+        );
+    }
+
+    #[test]
+    fn test_h2o_nasa7() {
+        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let h2o = db.get("H2O").unwrap();
+        let val = h2o.cp(300.0);
+        assert!(val > 0.0);
+    }
+}
+
+#[cfg(test)]
+mod data_test {
+    use crate::core::AggregationType;
+    use crate::data::*;
+
+    #[test]
+    fn test_load_from_lua() {
+        let result = load_substances_from_lua("data/data.lua");
+        assert!(
+            result.is_ok(),
+            "Failed to load from lua: {:?}",
+            result.err()
+        );
+        let map = result.unwrap();
+        assert!(map.len() >= 6);
+        assert!(map.contains_key("Calcite"));
+        assert!(map.contains_key("CO2"));
+        assert_eq!(
+            map.get("Calcite").unwrap().aggregation_type,
+            AggregationType::Solid
+        );
+        assert_eq!(
+            map.get("CO2").unwrap().aggregation_type,
+            AggregationType::Gas
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
