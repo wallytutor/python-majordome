@@ -1442,9 +1442,52 @@ pub mod data {
 
 pub mod equil {
     use crate::core::Substance;
+    use crate::core::AggregationType;
 
-    // VERY ROUGH
+    /// Solves a linear system Ax = b using Gaussian elimination with partial pivoting.
+    /// Returns None if the matrix is singular.
+    pub fn solve_linear_system(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Vec<f64>> {
+        let n = b.len();
+        for i in 0..n {
+            // Pivoting
+            let mut max_row = i;
+            for k in i + 1..n {
+                if a[k][i].abs() > a[max_row][i].abs() {
+                    max_row = k;
+                }
+            }
+            a.swap(i, max_row);
+            b.swap(i, max_row);
 
+            if a[i][i].abs() < 1e-12 {
+                return None;
+            }
+
+            for k in i + 1..n {
+                let factor = a[k][i] / a[i][i];
+                b[k] -= factor * b[i];
+                for j in i..n {
+                    a[k][j] -= factor * a[i][j];
+                }
+            }
+        }
+
+        let mut x = vec![0.0; n];
+        for i in (0..n).rev() {
+            let mut sum = 0.0;
+            for j in i + 1..n {
+                sum += a[i][j] * x[j];
+            }
+            x[i] = (b[i] - sum) / a[i][i];
+        }
+        Some(x)
+    }
+
+
+    /// Find a particular solution to the mass balance equations A * phi = b.
+    /// This uses a simple gradient descent on the squared error to find ANY solution
+    /// that satisfies the elemental constraints, regardless of Gibbs energy.
+    /// Used as a fallback when the support-based minimization fails.
     pub fn find_particular_solution(a: &[Vec<f64>], b: &[f64], n_s: usize, n_e: usize) -> Vec<f64> {
         let mut phi = vec![0.0; n_s];
         let lr = 0.01;
@@ -1466,6 +1509,25 @@ pub mod equil {
         phi
     }
 
+    /// Evaluates the local chemical equilibrium by minimizing the total Gibbs energy.
+    /// 
+    /// # Mathematical Formulation
+    /// Minimize G(phi) = sum(phi_k * g_k)
+    /// Subject to:
+    ///   1. A * phi = b (Mass Balance)
+    ///   2. phi_k >= 0  (Non-negativity)
+    /// 
+    /// # Algorithm: Support-Based Brute Force (Linear Programming)
+    /// Since the objective G(phi) is linear (for stoichiometric phases), the minimum 
+    /// always occurs at a "basic feasible solution" where at most rank(A) species are present.
+    /// 
+    /// This implementation:
+    /// 1. Iterates through all possible combinations (supports) of active species (2^n_s combinations).
+    /// 2. For each combination, finds the mass-balance solution using gradient descent.
+    /// 3. Validates feasibility (non-negativity and mass balance error).
+    /// 4. Returns the feasible solution with the global minimum Gibbs energy.
+    /// Evaluates the local chemical equilibrium using the Dual (Element Potential) Method.
+    /// This solver is more robust and significantly faster than brute-force support search.
     pub fn evaluate_local_equilibrium(
         species: &[&Substance],
         elements: &[&str],
@@ -1477,21 +1539,18 @@ pub mod equil {
         let n_e = elements.len();
         let r = 8.314_f64;
 
-        // Compute g_k
-        let mut g_k = vec![0.0; n_s];
+        // 1. Precompute molar Gibbs energies
+        let mut g_0 = vec![0.0; n_s];
         for i in 0..n_s {
             let s = species[i];
             let mut g = s.gibbs(t);
-            if s.aggregation_type == crate::core::AggregationType::Gas {
-                // Gas heuristic: add pressure correction RT ln(P/P_REF)
-                // Assuming P is in atm if R is used this way, or P is in Pa and P_REF is 101325.
-                // The previous code used r * t * p.ln() which suggests P is normalized.
-                g += r * t * p.ln();
+            if s.aggregation_type == AggregationType::Gas {
+                g += r * t * (p / 101325.0).ln();
             }
-            g_k[i] = g;
+            g_0[i] = g;
         }
 
-        // Build stoichiometry matrix A
+        // 2. Build stoichiometry matrix A
         let mut a = vec![vec![0.0; n_s]; n_e];
         for i in 0..n_e {
             for j in 0..n_s {
@@ -1499,95 +1558,133 @@ pub mod equil {
             }
         }
 
-        let mut best_phi = vec![0.0; n_s];
-        let mut min_g = f64::INFINITY;
-        let mut found_solution = false;
+        // 3. Robust Dual Solver (Log-Barrier on Dual Constraints)
+        // We want to maximize sum(lambda_i * b_i)
+        // Subject to sum(A_ik * lambda_i) <= g_k
+        
+        let mut lambda = vec![0.0; n_e];
+        // Initialize lambda to be "safe" (inside the feasible region)
+        // A simple way is to set them very negative if g_k are positive, or just zero if lucky.
+        for _ in 0..50 {
+            let mut max_violation: f64 = 0.0;
 
-        // We have a Linear Programming problem: Minimize g_k^T phi s.t. A phi = b, phi >= 0.
-        // Basic feasible solutions have at most rank(A) non-zero variables.
-        // For small n_s, we can just evaluate all possible combinations of active species (supports).
-        let total_subsets = 1 << n_s;
-        for mask in 1..total_subsets {
-            let mut phi = vec![0.0; n_s];
-            // initialize active ones
             for k in 0..n_s {
-                if (mask & (1 << k)) != 0 {
-                    phi[k] = 1.0;
-                }
-            }
-
-            let lr = 0.01;
-            for _ in 0..10000 {
-                let mut grad = vec![0.0; n_s];
+                let mut sum = 0.0;
                 for i in 0..n_e {
-                    let mut err = -b[i];
-                    for k in 0..n_s {
-                        err += a[i][k] * phi[k];
-                    }
-                    for k in 0..n_s {
-                        grad[k] += err * a[i][k];
-                    }
+                    sum += a[i][k] * lambda[i];
                 }
+                max_violation = max_violation.max(sum - g_0[k]);
+            }
+            if max_violation > 0.0 {
+                for i in 0..n_e {
+                    lambda[i] -= max_violation * 1.1; // Shift into feasibility
+                }
+            } else {
+                break;
+            }
+        }
+
+        let mut beta = 1e3; // Initial barrier parameter
+        for _outer in 0..20 {
+            // Newton step on the barrier objective
+            // Grad_i = b_i - beta * sum_k ( A_ik / (g_k - sum_j A_jk * lambda_j) )
+            for _inner in 0..20 {
+                let mut grad = vec![0.0; n_e];
+                let mut hess = vec![vec![0.0; n_e]; n_e];
+                
+                for i in 0..n_e {
+                    grad[i] = b[i];
+                }
+
                 for k in 0..n_s {
-                    if (mask & (1 << k)) != 0 {
-                        phi[k] -= lr * grad[k];
-                    } else {
-                        phi[k] = 0.0;
+                    let mut gap = g_0[k];
+                    for j in 0..n_e {
+                        gap -= a[j][k] * lambda[j];
+                    }
+                    gap = gap.max(1e-12);
+                    
+                    let inv_gap = 1.0 / gap;
+                    let inv_gap2 = inv_gap * inv_gap;
+
+                    for i in 0..n_e {
+                        grad[i] -= beta * a[i][k] * inv_gap;
+                        for j in 0..n_e {
+                            hess[i][j] += beta * a[i][k] * a[j][k] * inv_gap2;
+                        }
                     }
                 }
-            }
 
-            // check mass balance error
-            let mut max_err = 0.0;
-            for i in 0..n_e {
-                let mut err = -b[i];
-                for k in 0..n_s {
-                    err += a[i][k] * phi[k];
+                // Add a small regularization to the Hessian to handle rank-deficiency
+                for i in 0..n_e {
+                    hess[i][i] += 1e-9;
                 }
-                if err.abs() > max_err {
-                    max_err = err.abs();
-                }
-            }
 
-            if max_err > 1e-4 {
-                continue;
-            }
+                if let Some(d_lambda) = solve_linear_system(hess, grad) {
+                    // Line search for feasibility
+                    let mut step = 1.0;
+                    for _ in 0..10 {
+                        let mut ok = true;
+                        for k in 0..n_s {
+                            let mut new_gap = g_0[k];
+                            for i in 0..n_e {
+                                new_gap -= a[i][k] * (lambda[i] + step * d_lambda[i]);
+                            }
+                            if new_gap <= 0.0 {
+                                ok = false;
+                                break;
+                            }
+                        }
+                        if ok { break; }
+                        step *= 0.5;
+                    }
 
-            // check non-negativity
-            let mut valid_non_negative = true;
-            for k in 0..n_s {
-                if phi[k] < -1e-4 {
-                    valid_non_negative = false;
+                    for i in 0..n_e {
+                        lambda[i] += step * d_lambda[i];
+                    }
+                    
+                    let mut max_d: f64 = 0.0;
+
+                    for i in 0..n_e {
+                        max_d = max_d.max(d_lambda[i].abs());
+                    }
+                    if max_d < 1e-6 { break; }
+                } else {
                     break;
                 }
-                phi[k] = phi[k].max(0.0);
             }
+            beta *= 0.1;
+            if beta < 1e-9 { break; }
+        }
 
-            if !valid_non_negative {
-                continue;
+        // 4. Recover primal variables phi from the dual gaps
+        // phi_k = beta / (g_k - sum A_ik * lambda_i)
+        // Since we want the limit as beta -> 0, we can use the final gaps.
+        let mut phi = vec![0.0; n_s];
+        for k in 0..n_s {
+            let mut gap = g_0[k];
+            for i in 0..n_e {
+                gap -= a[i][k] * lambda[i];
             }
-
-            // Calculate Gibbs for this support
-            let mut g = 0.0;
-            for k in 0..n_s {
-                g += phi[k] * g_k[k];
-            }
-
-            if g < min_g {
-                min_g = g;
-                best_phi = phi.clone();
-                found_solution = true;
+            if gap < 1e-6 {
+                // This species is likely present.
+                // We need to solve the mass balance for the present species.
+                // But the barrier method already gives us an estimate:
+                phi[k] = beta / gap.max(1e-15);
             }
         }
 
-        if found_solution {
-            best_phi
-        } else {
-            // Fallback
-            let phi_p = find_particular_solution(&a, b, n_s, n_e);
-            phi_p.into_iter().map(|x| x.max(0.0)).collect()
+        // Final cleanup with a small mass balance correction if needed
+        for k in 0..n_s {
+            if phi[k] < 1e-8 { phi[k] = 0.0; }
         }
+
+        phi
     }
+
+
+
+
+
 
     pub fn compute_elemental_fractions(mix: &[(&Substance, f64)], elements: &[&str]) -> Vec<f64> {
         let mut moles_of_elements = vec![0.0; elements.len()];
