@@ -608,7 +608,9 @@ pub mod core {
             b: f64,
             c: f64,
             h_ref: f64,
+            s_ref: f64,
         },
+
         NASA7 {
             a1: f64,
             a2: f64,
@@ -661,12 +663,7 @@ pub mod core {
                     cp_maierkelley(T::from_f64(*a), T::from_f64(*b), T::from_f64(*c), t)
                 }
                 Parameterization::NASA7 {
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    ..
+                    a1, a2, a3, a4, a5, ..
                 } => cp_nasa7(
                     T::from_f64(*a1),
                     T::from_f64(*a2),
@@ -694,14 +691,7 @@ pub mod core {
                     T::from_f64(*a7),
                     t,
                 ),
-                Parameterization::Shomate {
-                    a,
-                    b,
-                    c,
-                    d,
-                    e,
-                    ..
-                } => cp_shomate(
+                Parameterization::Shomate { a, b, c, d, e, .. } => cp_shomate(
                     T::from_f64(*a),
                     T::from_f64(*b),
                     T::from_f64(*c),
@@ -732,13 +722,7 @@ pub mod core {
 
         pub fn enthalpy<T: Numeric>(&self, t: T) -> T {
             match self {
-                Parameterization::MaierKelley {
-                    a,
-                    b,
-                    c,
-                    h_ref,
-                    ..
-                } => enthalpy_maierkelley(
+                Parameterization::MaierKelley { a, b, c, h_ref, .. } => enthalpy_maierkelley(
                     T::from_f64(*a),
                     T::from_f64(*b),
                     T::from_f64(*c),
@@ -785,13 +769,7 @@ pub mod core {
                     t,
                 ),
                 Parameterization::Shomate {
-                    a,
-                    b,
-                    c,
-                    d,
-                    e,
-                    f,
-                    ..
+                    a, b, c, d, e, f, ..
                 } => enthalpy_shomate(
                     T::from_f64(*a),
                     T::from_f64(*b),
@@ -802,13 +780,7 @@ pub mod core {
                     t,
                 ),
                 Parameterization::GibbsPolynomial {
-                    a,
-                    c,
-                    d,
-                    e,
-                    f,
-                    g,
-                    ..
+                    a, c, d, e, f, g, ..
                 } => enthalpy_gibbs_polynomial(
                     T::from_f64(*a),
                     T::from_f64(*c),
@@ -833,14 +805,21 @@ pub mod core {
 
         pub fn entropy<T: Numeric>(&self, t: T) -> T {
             match self {
-                Parameterization::MaierKelley { a, b, c, .. } => entropy_maierkelley(
+                Parameterization::MaierKelley {
+                    a,
+                    b,
+                    c,
+                    s_ref,
+                    ..
+                } => entropy_maierkelley(
                     T::from_f64(*a),
                     T::from_f64(*b),
                     T::from_f64(*c),
                     t,
                     T::from_f64(T_REF),
-                    T::from_f64(0.0), // s0 is handled at substance level
+                    T::from_f64(*s_ref),
                 ),
+
                 Parameterization::NASA7 {
                     a1,
                     a2,
@@ -880,13 +859,7 @@ pub mod core {
                     t,
                 ),
                 Parameterization::Shomate {
-                    a,
-                    b,
-                    c,
-                    d,
-                    e,
-                    g,
-                    ..
+                    a, b, c, d, e, g, ..
                 } => entropy_shomate(
                     T::from_f64(*a),
                     T::from_f64(*b),
@@ -897,13 +870,7 @@ pub mod core {
                     t,
                 ),
                 Parameterization::GibbsPolynomial {
-                    b,
-                    c,
-                    d,
-                    e,
-                    f,
-                    g,
-                    ..
+                    b, c, d, e, f, g, ..
                 } => entropy_gibbs_polynomial(
                     T::from_f64(*b),
                     T::from_f64(*c),
@@ -926,8 +893,6 @@ pub mod core {
             }
         }
     }
-
-
 
     #[derive(Debug, Clone)]
     pub struct TemperatureRange {
@@ -967,22 +932,17 @@ pub mod core {
             range.model.cp(t)
         }
 
-
-
         pub fn enthalpy<T: Numeric>(&self, t: T) -> T {
             let t_val = t.to_f64();
             let range = self.get_range(t_val);
             range.model.enthalpy(t)
         }
 
-
-
         pub fn entropy<T: Numeric>(&self, t: T) -> T {
             let t_val = t.to_f64();
             let range = self.get_range(t_val);
-            range.model.entropy(t) + T::from_f64(self.s0)
+            range.model.entropy(t)
         }
-
 
 
         pub fn gibbs<T: Numeric>(&self, t: T) -> T {
@@ -1075,7 +1035,10 @@ pub mod data {
                     b: table.get("b")?,
                     c: table.get("c")?,
                     h_ref: table.get("h_ref")?,
+                    s_ref: table.get("s_ref").unwrap_or(0.0),
                 }),
+
+
                 "NASA7" => Ok(Parameterization::NASA7 {
                     a1: table.get("a1")?,
                     a2: table.get("a2")?,
@@ -1132,7 +1095,6 @@ pub mod data {
                 }
 
                 _ => Err(LuaError::FromLuaConversionError {
-
                     from: "Table",
                     to: "Parameterization".to_string(),
                     message: Some(format!("Unknown parameterization type: {}", model_type)),
@@ -1170,6 +1132,19 @@ pub mod data {
                 })?;
 
             let name: String = table.get("name")?;
+            let s0: f64 = table.get("s0").unwrap_or(0.0);
+            let mut ranges: Vec<TemperatureRange> = table.get("ranges")?;
+            // Propagate s0 to models that need it (like Maier-Kelley)
+
+            for range in &mut ranges {
+                if let Parameterization::MaierKelley { ref mut s_ref, .. } = range.model {
+                    if *s_ref == 0.0 {
+                        *s_ref = s0;
+                    }
+                }
+            }
+
+
             let elements: HashMap<String, f64> = table.get("elements")?;
             let aggregation_type: AggregationType = table
                 .get("aggregation_type")
@@ -1353,7 +1328,6 @@ pub mod data {
     }
 
     fn create_lua_temperature_range(lua: &Lua) -> LuaResult<LuaFunction> {
-
         lua.create_function(|lua, (t_min, t_max, model): (f64, f64, LuaValue)| {
             let table = lua.create_table()?;
             table.set("t_min", t_min)?;
@@ -1441,8 +1415,8 @@ pub mod data {
 }
 
 pub mod equil {
-    use crate::core::Substance;
     use crate::core::AggregationType;
+    use crate::core::Substance;
 
     /// Solves a linear system Ax = b using Gaussian elimination with partial pivoting.
     /// Returns None if the matrix is singular.
@@ -1483,7 +1457,6 @@ pub mod equil {
         Some(x)
     }
 
-
     /// Find a particular solution to the mass balance equations A * phi = b.
     /// This uses a simple gradient descent on the squared error to find ANY solution
     /// that satisfies the elemental constraints, regardless of Gibbs energy.
@@ -1510,17 +1483,17 @@ pub mod equil {
     }
 
     /// Evaluates the local chemical equilibrium by minimizing the total Gibbs energy.
-    /// 
+    ///
     /// # Mathematical Formulation
     /// Minimize G(phi) = sum(phi_k * g_k)
     /// Subject to:
     ///   1. A * phi = b (Mass Balance)
     ///   2. phi_k >= 0  (Non-negativity)
-    /// 
+    ///
     /// # Algorithm: Support-Based Brute Force (Linear Programming)
-    /// Since the objective G(phi) is linear (for stoichiometric phases), the minimum 
+    /// Since the objective G(phi) is linear (for stoichiometric phases), the minimum
     /// always occurs at a "basic feasible solution" where at most rank(A) species are present.
-    /// 
+    ///
     /// This implementation:
     /// 1. Iterates through all possible combinations (supports) of active species (2^n_s combinations).
     /// 2. For each combination, finds the mass-balance solution using gradient descent.
@@ -1550,7 +1523,7 @@ pub mod equil {
             g_0[i] = g;
         }
 
-        // 2. Build stoichiometry matrix A
+        // 2. Build stoichiometry matrix A (n_e x n_s)
         let mut a = vec![vec![0.0; n_s]; n_e];
         for i in 0..n_e {
             for j in 0..n_s {
@@ -1558,133 +1531,95 @@ pub mod equil {
             }
         }
 
-        // 3. Robust Dual Solver (Log-Barrier on Dual Constraints)
-        // We want to maximize sum(lambda_i * b_i)
-        // Subject to sum(A_ik * lambda_i) <= g_k
+        let mut best_phi = vec![0.0; n_s];
+        let mut min_g = f64::INFINITY;
+        let mut found_solution = false;
+
+        // 3. Support-Based Solver
+        // For stoichiometric phases, the equilibrium is a Basic Feasible Solution (BFS).
+        // A BFS has at most rank(A) species.
+        // Since n_s is small, we iterate through all subsets.
         
-        let mut lambda = vec![0.0; n_e];
-        // Initialize lambda to be "safe" (inside the feasible region)
-        // A simple way is to set them very negative if g_k are positive, or just zero if lucky.
-        for _ in 0..50 {
-            let mut max_violation: f64 = 0.0;
-
+        for mask in 1..(1 << n_s) {
+            let mut active = Vec::new();
             for k in 0..n_s {
-                let mut sum = 0.0;
-                for i in 0..n_e {
-                    sum += a[i][k] * lambda[i];
+                if (mask & (1 << k)) != 0 {
+                    active.push(k);
                 }
-                max_violation = max_violation.max(sum - g_0[k]);
             }
-            if max_violation > 0.0 {
-                for i in 0..n_e {
-                    lambda[i] -= max_violation * 1.1; // Shift into feasibility
-                }
-            } else {
-                break;
-            }
-        }
 
-        let mut beta = 1e3; // Initial barrier parameter
-        for _outer in 0..20 {
-            // Newton step on the barrier objective
-            // Grad_i = b_i - beta * sum_k ( A_ik / (g_k - sum_j A_jk * lambda_j) )
-            for _inner in 0..20 {
-                let mut grad = vec![0.0; n_e];
-                let mut hess = vec![vec![0.0; n_e]; n_e];
-                
-                for i in 0..n_e {
-                    grad[i] = b[i];
-                }
+            if active.len() > n_e { continue; }
 
-                for k in 0..n_s {
-                    let mut gap = g_0[k];
-                    for j in 0..n_e {
-                        gap -= a[j][k] * lambda[j];
+            // Solve A_sub * phi_sub = b using Normal Equations for robustness:
+            // (A_sub^T * A_sub) * phi_sub = A_sub^T * b
+            let n_a = active.len();
+            let mut m = vec![vec![0.0; n_a]; n_a];
+            let mut rhs = vec![0.0; n_a];
+
+            for i in 0..n_a {
+                for j in 0..n_a {
+                    let mut sum = 0.0;
+                    for k in 0..n_e {
+                        sum += a[k][active[i]] * a[k][active[j]];
                     }
-                    gap = gap.max(1e-12);
-                    
-                    let inv_gap = 1.0 / gap;
-                    let inv_gap2 = inv_gap * inv_gap;
+                    m[i][j] = sum;
+                }
+                // Regularization to handle rank-deficiency in the support
+                m[i][i] += 1e-9;
 
+                let mut sum_rhs = 0.0;
+                for k in 0..n_e {
+                    sum_rhs += a[k][active[i]] * b[k];
+                }
+                rhs[i] = sum_rhs;
+            }
+
+            if let Some(x) = solve_linear_system(m, rhs) {
+                let mut phi = vec![0.0; n_s];
+                let mut valid = true;
+                for (j, &val) in x.iter().enumerate() {
+                    if val < -1e-6 {
+                        valid = false;
+                        break;
+                    }
+                    phi[active[j]] = val;
+                }
+
+                if valid {
+                    // Check mass balance accuracy
+                    let mut max_err: f64 = 0.0;
                     for i in 0..n_e {
-                        grad[i] -= beta * a[i][k] * inv_gap;
-                        for j in 0..n_e {
-                            hess[i][j] += beta * a[i][k] * a[j][k] * inv_gap2;
-                        }
-                    }
-                }
-
-                // Add a small regularization to the Hessian to handle rank-deficiency
-                for i in 0..n_e {
-                    hess[i][i] += 1e-9;
-                }
-
-                if let Some(d_lambda) = solve_linear_system(hess, grad) {
-                    // Line search for feasibility
-                    let mut step = 1.0;
-                    for _ in 0..10 {
-                        let mut ok = true;
+                        let mut sum = 0.0;
                         for k in 0..n_s {
-                            let mut new_gap = g_0[k];
-                            for i in 0..n_e {
-                                new_gap -= a[i][k] * (lambda[i] + step * d_lambda[i]);
-                            }
-                            if new_gap <= 0.0 {
-                                ok = false;
-                                break;
-                            }
+                            sum += a[i][k] * phi[k];
                         }
-                        if ok { break; }
-                        step *= 0.5;
+                        max_err = max_err.max((sum - b[i]).abs());
                     }
 
-                    for i in 0..n_e {
-                        lambda[i] += step * d_lambda[i];
+                    if max_err < 1e-5 {
+                        let mut g = 0.0;
+                        for k in 0..n_s {
+                            g += phi[k] * g_0[k];
+                        }
+                        // Use a small epsilon to prefer smaller supports if Gibbs is same
+                        let score = g + (active.len() as f64) * 1e-6; 
+                        if score < min_g {
+                            min_g = score;
+                            best_phi = phi;
+                            found_solution = true;
+                        }
                     }
-                    
-                    let mut max_d: f64 = 0.0;
-
-                    for i in 0..n_e {
-                        max_d = max_d.max(d_lambda[i].abs());
-                    }
-                    if max_d < 1e-6 { break; }
-                } else {
-                    break;
                 }
-            }
-            beta *= 0.1;
-            if beta < 1e-9 { break; }
-        }
 
-        // 4. Recover primal variables phi from the dual gaps
-        // phi_k = beta / (g_k - sum A_ik * lambda_i)
-        // Since we want the limit as beta -> 0, we can use the final gaps.
-        let mut phi = vec![0.0; n_s];
-        for k in 0..n_s {
-            let mut gap = g_0[k];
-            for i in 0..n_e {
-                gap -= a[i][k] * lambda[i];
-            }
-            if gap < 1e-6 {
-                // This species is likely present.
-                // We need to solve the mass balance for the present species.
-                // But the barrier method already gives us an estimate:
-                phi[k] = beta / gap.max(1e-15);
             }
         }
 
-        // Final cleanup with a small mass balance correction if needed
-        for k in 0..n_s {
-            if phi[k] < 1e-8 { phi[k] = 0.0; }
+        if found_solution {
+            best_phi
+        } else {
+            find_particular_solution(&a, b, n_s, n_e)
         }
-
-        phi
     }
-
-
-
-
-
 
     pub fn compute_elemental_fractions(mix: &[(&Substance, f64)], elements: &[&str]) -> Vec<f64> {
         let mut moles_of_elements = vec![0.0; elements.len()];

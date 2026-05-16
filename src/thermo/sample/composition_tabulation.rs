@@ -36,7 +36,8 @@ fn main() {
     let t_min = 300.0;
     let t_max = 1200.0;
     let t_inc = 100.0;
-    let p = 1.0;
+    let p = 101325.0;
+
 
     // Compute reference state at T_REF (298.15 K)
     let phi_ref = evaluate_local_equilibrium(&species, &elements, &b, T_REF, p);
