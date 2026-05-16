@@ -1,0 +1,39 @@
+[package]
+name = "thermo"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "thermo"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+
+[dependencies.pyo3]
+version = "0.28.2"
+features = ["extension-module", "abi3-py312", "multiple-pymethods"]
+
+[dependencies.mlua]
+version = "0.11"
+features = ["lua54", "vendored"]
+
+[[bin]]
+name = "sample_thermo_evaluation"
+path = "sample/thermo_evaluation.rs"
+
+[[bin]]
+name = "sample_autodiff_evaluation"
+path = "sample/autodiff_evaluation.rs"
+
+[[bin]]
+name = "sample_equilibrium_evaluation"
+path = "sample/equilibrium_evaluation.rs"
+
+[[bin]]
+name = "sample_species_tabulation"
+path = "sample/species_tabulation.rs"
+
+[[bin]]
+name = "sample_composition_tabulation"
+path = "sample/composition_tabulation.rs"

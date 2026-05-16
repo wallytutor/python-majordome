@@ -33,6 +33,8 @@ description: Provides directives for generating and modifying Rust code.
 
 - Instead of using Rust typical guidelines for style, stick to PEP8 adapted for Rust whenever possible.
 
+- Use a blank line before if, match, for, while, and loop keywords.
+
 - Use 2 blank lines between functions and 2 blank lines between methods in a struct/enum.
 
 - Lines are preferrably less than 80 characters long, with a maximum of 100 characters.

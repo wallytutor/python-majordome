@@ -48,3 +48,5 @@ __pycache__/
 .fsdocs/
 output/
 tmp/watch/
+
+/.luarc.json
