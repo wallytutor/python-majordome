@@ -37,4 +37,8 @@ description: Provides directives for generating and modifying Rust code.
 
 - Use 2 blank lines between functions and 2 blank lines between methods in a struct/enum.
 
+- Whenever reasonable, allow aligning `=>` in matches so that it remains *tabular*.
+
+- For any non-trivial match, use braces and indent the code block (no-inline).
+
 - Lines are preferrably less than 80 characters long, with a maximum of 100 characters.
