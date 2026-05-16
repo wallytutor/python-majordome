@@ -1,3 +1,9 @@
+pub const T_REF: f64 = 298.15;
+
+pub const P_REF: f64 = 101325.0;
+
+pub const R_GAS: f64 = 8.31446261815324;
+
 pub mod autodiff {
     use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -216,6 +222,7 @@ pub mod autodiff {
         + Sub<Self, Output = Self>
         + Mul<Self, Output = Self>
         + Div<Self, Output = Self>
+        + Neg<Output = Self>
     {
         fn from_f64(v: f64) -> Self;
         fn to_f64(self) -> f64;
@@ -337,7 +344,166 @@ pub mod autodiff {
     }
 }
 
+pub mod functions {
+    use crate::R_GAS;
+    use crate::autodiff::Numeric;
+
+    pub fn cp_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T) -> T {
+        a + b * t + c / (t * t)
+    }
+
+    pub fn cp_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, t: T) -> T {
+        let poly = a1 + t * (a2 + t * (a3 + t * (a4 + t * a5)));
+        T::from_f64(self::R_GAS) * poly
+    }
+
+    pub fn cp_nasa9<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, a6: T, a7: T, t: T) -> T {
+        let poly = a1 / (t * t) + a2 / t + a3 + t * (a4 + t * (a5 + t * (a6 + t * a7)));
+        T::from_f64(self::R_GAS) * poly
+    }
+
+    pub fn cp_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, t: T) -> T {
+        let tt = t / T::from_f64(1000.0);
+        let poly = a + tt * (b + tt * (c + tt * d));
+        poly + e / (tt * tt)
+    }
+
+    pub fn cp_gibbs_polynomial<T: Numeric>(c: T, d: T, e: T, f: T, g: T, t: T) -> T {
+        // G = a + bT + cT ln T + dT^2 + eT^3 + fT^4 + g/T
+        // S = -dG/dT = -b - c(ln T + 1) - 2dT - 3eT^2 - 4fT^3 + g/T^2
+        // H = G + TS = a - cT + dT^2 + 2eT^3 + 3fT^4 + 2g/T
+        // Cp = dH/dT = -c + 2dT + 6eT^2 + 12fT^3 - 2g/T^2
+        let c2 = T::from_f64(2.0);
+        let c6 = T::from_f64(6.0);
+        let c12 = T::from_f64(12.0);
+        (-c) + c2 * d * t + c6 * e * (t * t) + c12 * f * (t * t * t) - c2 * g / (t * t)
+    }
+
+    pub fn enthalpy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, h_ref: T) -> T {
+        let half = T::from_f64(0.5);
+        let delta_h = a * (t - t_ref) + half * b * (t * t - t_ref * t_ref)
+            - c * (T::from_f64(1.0) / t - T::from_f64(1.0) / t_ref);
+        h_ref + delta_h
+    }
+
+    pub fn enthalpy_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, a6: T, t: T) -> T {
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let c5 = T::from_f64(1.0 / 5.0);
+        let poly = a6 / t + a1 + t * (c2 * a2 + t * (c3 * a3 + t * (c4 * a4 + t * (c5 * a5))));
+        T::from_f64(self::R_GAS) * poly * t
+    }
+
+    pub fn enthalpy_nasa9<T: Numeric>(
+        a1: T,
+        a2: T,
+        a3: T,
+        a4: T,
+        a5: T,
+        a6: T,
+        a7: T,
+        a8: T,
+        t: T,
+    ) -> T {
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let c5 = T::from_f64(1.0 / 5.0);
+        let poly = -a1 / (t * t)
+            + a2 * t.ln() / t
+            + a3
+            + a4 * t * c2
+            + a5 * (t * t) * c3
+            + a6 * (t * t * t) * c4
+            + a7 * (t * t * t * t) * c5
+            + a8 / t;
+        T::from_f64(self::R_GAS) * poly * t
+    }
+
+    pub fn enthalpy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, f: T, t: T) -> T {
+        let tt = t / T::from_f64(1000.0);
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let poly = f - e / tt + tt * (a + tt * (c2 * b + tt * (c3 * c + tt * (c4 * d))));
+        T::from_f64(1000.0) * poly
+    }
+
+    pub fn enthalpy_gibbs_polynomial<T: Numeric>(a: T, c: T, d: T, e: T, f: T, g: T, t: T) -> T {
+        // H = a - cT + dT^2 + 2eT^3 + 3fT^4 + 2g/T
+        let c2 = T::from_f64(2.0);
+        let c3 = T::from_f64(3.0);
+        a - c * t + d * (t * t) + c2 * e * (t * t * t) + c3 * f * (t * t * t * t) + c2 * g / t
+    }
+
+    pub fn entropy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, s_ref: T) -> T {
+        let half = T::from_f64(0.5);
+        let delta_s = a * (t / t_ref).ln() + b * (t - t_ref)
+            - half * c * (T::from_f64(1.0) / (t * t) - T::from_f64(1.0) / (t_ref * t_ref));
+        s_ref + delta_s
+    }
+
+    pub fn entropy_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, a7: T, t: T) -> T {
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let poly = a7 + a1 * t.ln() + t * (a2 + t * (c2 * a3 + t * (c3 * a4 + t * (c4 * a5))));
+        T::from_f64(self::R_GAS) * poly
+    }
+
+    pub fn entropy_nasa9<T: Numeric>(
+        a1: T,
+        a2: T,
+        a3: T,
+        a4: T,
+        a5: T,
+        a6: T,
+        a7: T,
+        a9: T,
+        t: T,
+    ) -> T {
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let c4 = T::from_f64(1.0 / 4.0);
+        let poly = -a1 / (c2 * t * t) - a2 / t
+            + a3 * t.ln()
+            + a4 * t
+            + a5 * (t * t) * c2
+            + a6 * (t * t * t) * c3
+            + a7 * (t * t * t * t) * c4
+            + a9;
+        T::from_f64(self::R_GAS) * poly
+    }
+
+    pub fn entropy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, g: T, t: T) -> T {
+        let tt = t / T::from_f64(1000.0);
+        let c2 = T::from_f64(1.0 / 2.0);
+        let c3 = T::from_f64(1.0 / 3.0);
+        let poly = g + a * tt.ln() - e / (T::from_f64(2.0) * tt * tt)
+            + tt * (b + tt * (c2 * c + tt * (c3 * d)));
+        poly
+    }
+
+    pub fn entropy_gibbs_polynomial<T: Numeric>(b: T, c: T, d: T, e: T, f: T, g: T, t: T) -> T {
+        // S = -b - c(ln T + 1) - 2dT - 3eT^2 - 4fT^3 + g/T^2
+        let c2 = T::from_f64(2.0);
+        let c3 = T::from_f64(3.0);
+        let c4 = T::from_f64(4.0);
+        (-b) - c * (t.ln() + T::from_f64(1.0))
+            - c2 * d * t
+            - c3 * e * (t * t)
+            - c4 * f * (t * t * t)
+            + g / (t * t)
+    }
+}
+
 pub mod core {
+    use crate::T_REF;
+    use crate::autodiff::Numeric;
+    use crate::functions::*;
+    use std::collections::HashMap;
+
     pub fn get_atomic_weight(symbol: &str) -> Option<f64> {
         match symbol {
             "H" => Some(1.008),
@@ -428,15 +594,6 @@ pub mod core {
         }
     }
 
-    use crate::autodiff::Numeric;
-    use std::collections::HashMap;
-
-    pub const T_REF: f64 = 298.15;
-
-    pub const P_REF: f64 = 101325.0;
-
-    pub const R_GAS: f64 = 8.31446261815324;
-
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum AggregationType {
         Solid,
@@ -512,70 +669,6 @@ pub mod core {
         pub aggregation_type: AggregationType,
     }
 
-    fn cp_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T) -> T {
-        a + b * t + c / (t * t)
-    }
-
-    fn cp_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, t: T) -> T {
-        let poly = a1 + t * (a2 + t * (a3 + t * (a4 + t * a5)));
-        T::from_f64(R_GAS) * poly
-    }
-
-    fn cp_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, t: T) -> T {
-        let tt = t / T::from_f64(1000.0);
-        let poly = a + tt * (b + tt * (c + tt * d));
-        poly + e / (tt * tt)
-    }
-
-    fn enthalpy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, h_ref: T) -> T {
-        let half = T::from_f64(0.5);
-        let delta_h = a * (t - t_ref) + half * b * (t * t - t_ref * t_ref)
-            - c * (T::from_f64(1.0) / t - T::from_f64(1.0) / t_ref);
-        h_ref + delta_h
-    }
-
-    fn enthalpy_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, a6: T, t: T) -> T {
-        let c2 = T::from_f64(1.0 / 2.0);
-        let c3 = T::from_f64(1.0 / 3.0);
-        let c4 = T::from_f64(1.0 / 4.0);
-        let c5 = T::from_f64(1.0 / 5.0);
-        let poly = a6 + t * (a1 + t * (c2 * a2 + t * (c3 * a3 + t * (c4 * a4 + t * (c5 * a5)))));
-        T::from_f64(R_GAS) * poly
-    }
-
-    fn enthalpy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, f: T, t: T) -> T {
-        let tt = t / T::from_f64(1000.0);
-        let c2 = T::from_f64(1.0 / 2.0);
-        let c3 = T::from_f64(1.0 / 3.0);
-        let c4 = T::from_f64(1.0 / 4.0);
-        let poly = f - e / tt + tt * (a + tt * (c2 * b + tt * (c3 * c + tt * (c4 * d))));
-        T::from_f64(1000.0) * poly
-    }
-
-    fn entropy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, s_ref: T) -> T {
-        let half = T::from_f64(0.5);
-        let delta_s = a * (t / t_ref).ln() + b * (t - t_ref)
-            - half * c * (T::from_f64(1.0) / (t * t) - T::from_f64(1.0) / (t_ref * t_ref));
-        s_ref + delta_s
-    }
-
-    fn entropy_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, a7: T, t: T) -> T {
-        let c2 = T::from_f64(1.0 / 2.0);
-        let c3 = T::from_f64(1.0 / 3.0);
-        let c4 = T::from_f64(1.0 / 4.0);
-        let poly = a7 + a1 * t.ln() + t * (a2 + t * (c2 * a3 + t * (c3 * a4 + t * (c4 * a5))));
-        T::from_f64(R_GAS) * poly
-    }
-
-    fn entropy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, g: T, t: T) -> T {
-        let tt = t / T::from_f64(1000.0);
-        let c2 = T::from_f64(1.0 / 2.0);
-        let c3 = T::from_f64(1.0 / 3.0);
-        let poly = g + a * tt.ln() - e / (T::from_f64(2.0) * tt * tt)
-            + tt * (b + tt * (c2 * c + tt * (c3 * d)));
-        poly
-    }
-
     impl Substance {
         pub fn get_range(&self, t: f64) -> &TemperatureRange {
             for r in &self.ranges {
@@ -606,6 +699,25 @@ pub mod core {
                     T::from_f64(a5),
                     t,
                 ),
+                Parameterization::NASA9 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7,
+                    ..
+                } => cp_nasa9(
+                    T::from_f64(a1),
+                    T::from_f64(a2),
+                    T::from_f64(a3),
+                    T::from_f64(a4),
+                    T::from_f64(a5),
+                    T::from_f64(a6),
+                    T::from_f64(a7),
+                    t,
+                ),
                 Parameterization::Shomate { a, b, c, d, e, .. } => cp_shomate(
                     T::from_f64(a),
                     T::from_f64(b),
@@ -614,7 +726,14 @@ pub mod core {
                     T::from_f64(e),
                     t,
                 ),
-                _ => unimplemented!(),
+                Parameterization::GibbsPolynomial { c, d, e, f, g, .. } => cp_gibbs_polynomial(
+                    T::from_f64(c),
+                    T::from_f64(d),
+                    T::from_f64(e),
+                    T::from_f64(f),
+                    T::from_f64(g),
+                    t,
+                ),
             }
         }
 
@@ -647,6 +766,27 @@ pub mod core {
                     T::from_f64(a6),
                     t,
                 ),
+                Parameterization::NASA9 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7,
+                    a8,
+                    ..
+                } => enthalpy_nasa9(
+                    T::from_f64(a1),
+                    T::from_f64(a2),
+                    T::from_f64(a3),
+                    T::from_f64(a4),
+                    T::from_f64(a5),
+                    T::from_f64(a6),
+                    T::from_f64(a7),
+                    T::from_f64(a8),
+                    t,
+                ),
                 Parameterization::Shomate {
                     a, b, c, d, e, f, ..
                 } => enthalpy_shomate(
@@ -658,7 +798,17 @@ pub mod core {
                     T::from_f64(f),
                     t,
                 ),
-                _ => unimplemented!(),
+                Parameterization::GibbsPolynomial {
+                    a, c, d, e, f, g, ..
+                } => enthalpy_gibbs_polynomial(
+                    T::from_f64(a),
+                    T::from_f64(c),
+                    T::from_f64(d),
+                    T::from_f64(e),
+                    T::from_f64(f),
+                    T::from_f64(g),
+                    t,
+                ),
             }
         }
 
@@ -692,6 +842,27 @@ pub mod core {
                     T::from_f64(a7),
                     t,
                 ),
+                Parameterization::NASA9 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7,
+                    a9,
+                    ..
+                } => entropy_nasa9(
+                    T::from_f64(a1),
+                    T::from_f64(a2),
+                    T::from_f64(a3),
+                    T::from_f64(a4),
+                    T::from_f64(a5),
+                    T::from_f64(a6),
+                    T::from_f64(a7),
+                    T::from_f64(a9),
+                    t,
+                ),
                 Parameterization::Shomate {
                     a, b, c, d, e, g, ..
                 } => entropy_shomate(
@@ -703,7 +874,17 @@ pub mod core {
                     T::from_f64(g),
                     t,
                 ),
-                _ => unimplemented!(),
+                Parameterization::GibbsPolynomial {
+                    b, c, d, e, f, g, ..
+                } => entropy_gibbs_polynomial(
+                    T::from_f64(b),
+                    T::from_f64(c),
+                    T::from_f64(d),
+                    T::from_f64(e),
+                    T::from_f64(f),
+                    T::from_f64(g),
+                    t,
+                ),
             }
         }
 
@@ -749,7 +930,7 @@ pub mod data {
     use crate::core::Substance;
     use crate::core::TemperatureRange;
     use crate::core::get_atomic_weight;
-    use crate::core::{P_REF, R_GAS, T_REF};
+    use crate::{P_REF, R_GAS, T_REF};
     use mlua::prelude::*;
     use std::collections::HashMap;
     use std::fs::read_to_string;
@@ -837,6 +1018,7 @@ pub mod data {
                     f: table.get("f")?,
                     g: table.get("g")?,
                 }),
+
                 _ => Err(LuaError::FromLuaConversionError {
                     from: "Table",
                     to: "Parameterization".to_string(),
@@ -876,7 +1058,9 @@ pub mod data {
 
             let name: String = table.get("name")?;
             let elements: HashMap<String, f64> = table.get("elements")?;
-            let aggregation_type: AggregationType = table.get("aggregation_type")?;
+            let aggregation_type: AggregationType = table
+                .get("aggregation_type")
+                .unwrap_or(AggregationType::Solid);
 
             let mut molar_mass = 0.0;
             for (symbol, count) in &elements {
@@ -889,66 +1073,163 @@ pub mod data {
             let molar_volume = if aggregation_type == AggregationType::Gas {
                 (R_GAS * T_REF / P_REF) * 1e6 // cm3/mol
             } else {
-                table.get("molar_volume")?
+                table.get("molar_volume").unwrap_or(0.0)
             };
 
             Ok(Substance {
                 name,
                 molar_mass,
                 molar_volume,
-                s0: table.get("s0")?,
+                s0: table.get("s0").unwrap_or(0.0),
                 ranges: table.get("ranges")?,
                 elements,
-                reference: table.get("reference")?,
+                reference: table.get("reference").unwrap_or_else(|_| "".to_string()),
                 aggregation_type,
             })
         }
     }
 
-    pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substance>> {
-        let lua = Lua::new();
-        let globals = lua.globals();
+    fn get_coeff(t: &LuaTable, i: usize, name: &str) -> LuaResult<f64> {
+        match t.get::<f64>(i) {
+            Ok(v) => Ok(v),
+            Err(_) => t.get::<f64>(name),
+        }
+    }
 
-        // Register MaierKelley constructor
-        let mk_fn = lua.create_function(|lua, (a, b, c, h_ref): (f64, f64, f64, f64)| {
+    fn create_lua_maier_kelley(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|lua, args: LuaMultiValue| {
             let table = lua.create_table()?;
             table.set("type", "MaierKelley")?;
-            table.set("a", a)?;
-            table.set("b", b)?;
-            table.set("c", c)?;
-            table.set("h_ref", h_ref)?;
+            if args.len() == 1 {
+                if let Some(t) = args[0].as_table() {
+                    table.set("a", get_coeff(t, 1, "a")?)?;
+                    table.set("b", get_coeff(t, 2, "b")?)?;
+                    table.set("c", get_coeff(t, 3, "c")?)?;
+                    table.set("h_ref", get_coeff(t, 4, "h_ref")?)?;
+                    return Ok(table);
+                }
+            }
+            let mut iter = args.into_iter();
+            table.set(
+                "a",
+                f64::from_lua(iter.next().unwrap_or(LuaValue::Nil), lua)?,
+            )?;
+            table.set(
+                "b",
+                f64::from_lua(iter.next().unwrap_or(LuaValue::Nil), lua)?,
+            )?;
+            table.set(
+                "c",
+                f64::from_lua(iter.next().unwrap_or(LuaValue::Nil), lua)?,
+            )?;
+            table.set(
+                "h_ref",
+                f64::from_lua(iter.next().unwrap_or(LuaValue::Nil), lua)?,
+            )?;
             Ok(table)
-        })?;
-        globals.set("MaierKelley", mk_fn)?;
+        })
+    }
 
-        // Register NASA7 constructor (takes a table/list of 7 coefficients)
-        let nasa7_fn = lua.create_function(|lua, coeffs: Vec<f64>| {
+    fn create_lua_nasa7(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|lua, args: LuaMultiValue| {
             let table = lua.create_table()?;
             table.set("type", "NASA7")?;
-            if coeffs.len() < 7 {
-                let err = "NASA7 requires 7 coefficients".to_string();
-                return Err(LuaError::RuntimeError(err));
+            if args.len() == 1 {
+                if let Some(t) = args[0].as_table() {
+                    for i in 1..=7 {
+                        let name = format!("a{}", i);
+                        table.set(name.clone(), get_coeff(t, i, &name)?)?;
+                    }
+                    return Ok(table);
+                }
             }
-            for (i, &val) in coeffs.iter().enumerate().take(7) {
-                table.set(format!("a{}", i + 1), val)?;
+            for (i, arg) in args.into_iter().enumerate() {
+                if i < 7 {
+                    table.set(format!("a{}", i + 1), f64::from_lua(arg, lua)?)?;
+                }
             }
             Ok(table)
-        })?;
-        globals.set("NASA7", nasa7_fn)?;
+        })
+    }
 
-        // Register Range constructor
-        let range_fn =
-            lua.create_function(|lua, (t_min, t_max, model): (f64, f64, LuaValue)| {
-                let table = lua.create_table()?;
-                table.set("t_min", t_min)?;
-                table.set("t_max", t_max)?;
-                table.set("model", model)?;
-                Ok(table)
-            })?;
-        globals.set("Range", range_fn)?;
+    fn create_lua_nasa9(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|lua, args: LuaMultiValue| {
+            let table = lua.create_table()?;
+            table.set("type", "NASA9")?;
+            if args.len() == 1 {
+                if let Some(t) = args[0].as_table() {
+                    for i in 1..=9 {
+                        let name = format!("a{}", i);
+                        table.set(name.clone(), get_coeff(t, i, &name)?)?;
+                    }
+                    return Ok(table);
+                }
+            }
+            for (i, arg) in args.into_iter().enumerate() {
+                if i < 9 {
+                    table.set(format!("a{}", i + 1), f64::from_lua(arg, lua)?)?;
+                }
+            }
+            Ok(table)
+        })
+    }
 
-        // Register Substance helper (adds defaults)
-        let substance_fn = lua.create_function(|_, table: LuaTable| {
+    fn create_lua_shomate(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|lua, args: LuaMultiValue| {
+            let table = lua.create_table()?;
+            table.set("type", "Shomate")?;
+            let keys = ["a", "b", "c", "d", "e", "f", "g", "h"];
+            if args.len() == 1 {
+                if let Some(t) = args[0].as_table() {
+                    for (i, key) in keys.iter().enumerate() {
+                        table.set(*key, get_coeff(t, i + 1, *key)?)?;
+                    }
+                    return Ok(table);
+                }
+            }
+            for (i, arg) in args.into_iter().enumerate() {
+                if i < 8 {
+                    table.set(keys[i], f64::from_lua(arg, lua)?)?;
+                }
+            }
+            Ok(table)
+        })
+    }
+
+    fn create_lua_gibbs_polynomial(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|lua, args: LuaMultiValue| {
+            let table = lua.create_table()?;
+            table.set("type", "GibbsPolynomial")?;
+            let keys = ["a", "b", "c", "d", "e", "f", "g"];
+            if args.len() == 1 {
+                if let Some(t) = args[0].as_table() {
+                    for (i, key) in keys.iter().enumerate() {
+                        table.set(*key, get_coeff(t, i + 1, *key)?)?;
+                    }
+                    return Ok(table);
+                }
+            }
+            for (i, arg) in args.into_iter().enumerate() {
+                if i < 7 {
+                    table.set(keys[i], f64::from_lua(arg, lua)?)?;
+                }
+            }
+            Ok(table)
+        })
+    }
+
+    fn create_lua_temperature_range(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|lua, (t_min, t_max, model): (f64, f64, LuaValue)| {
+            let table = lua.create_table()?;
+            table.set("t_min", t_min)?;
+            table.set("t_max", t_max)?;
+            table.set("model", model)?;
+            Ok(table)
+        })
+    }
+
+    fn create_lua_substance(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|_lua, table: LuaTable| {
             if !table.contains_key("reference")? {
                 table.set("reference", "")?;
             }
@@ -956,7 +1237,33 @@ pub mod data {
                 table.set("aggregation_type", "Solid")?;
             }
             Ok(table)
-        })?;
+        })
+    }
+
+    pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substance>> {
+        let lua = Lua::new();
+        let globals = lua.globals();
+
+        let mk_fn = create_lua_maier_kelley(&lua)?;
+        globals.set("MaierKelley", mk_fn)?;
+
+        let nasa7_fn = create_lua_nasa7(&lua)?;
+        globals.set("NASA7", nasa7_fn)?;
+
+        let nasa9_fn = create_lua_nasa9(&lua)?;
+        globals.set("NASA9", nasa9_fn)?;
+
+        let shomate_fn = create_lua_shomate(&lua)?;
+        globals.set("Shomate", shomate_fn)?;
+
+        let gibbs_polynomial_fn = create_lua_gibbs_polynomial(&lua)?;
+        globals.set("GibbsPolynomial", gibbs_polynomial_fn)?;
+
+        let temperature_range_fn = create_lua_temperature_range(&lua)?;
+        globals.set("TemperatureRange", temperature_range_fn.clone())?;
+        globals.set("Range", temperature_range_fn)?;
+
+        let substance_fn = create_lua_substance(&lua)?;
         globals.set("Substance", substance_fn)?;
 
         let content =
