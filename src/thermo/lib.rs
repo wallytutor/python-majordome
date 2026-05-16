@@ -648,7 +648,286 @@ pub mod core {
             f: f64,
             g: f64,
         },
+        Compound {
+            components: Vec<(Box<Substance>, f64)>,
+            deviation: Box<Parameterization>,
+        },
     }
+
+    impl Parameterization {
+        pub fn cp<T: Numeric>(&self, t: T) -> T {
+            match self {
+                Parameterization::MaierKelley { a, b, c, .. } => {
+                    cp_maierkelley(T::from_f64(*a), T::from_f64(*b), T::from_f64(*c), t)
+                }
+                Parameterization::NASA7 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    ..
+                } => cp_nasa7(
+                    T::from_f64(*a1),
+                    T::from_f64(*a2),
+                    T::from_f64(*a3),
+                    T::from_f64(*a4),
+                    T::from_f64(*a5),
+                    t,
+                ),
+                Parameterization::NASA9 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7,
+                    ..
+                } => cp_nasa9(
+                    T::from_f64(*a1),
+                    T::from_f64(*a2),
+                    T::from_f64(*a3),
+                    T::from_f64(*a4),
+                    T::from_f64(*a5),
+                    T::from_f64(*a6),
+                    T::from_f64(*a7),
+                    t,
+                ),
+                Parameterization::Shomate {
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    ..
+                } => cp_shomate(
+                    T::from_f64(*a),
+                    T::from_f64(*b),
+                    T::from_f64(*c),
+                    T::from_f64(*d),
+                    T::from_f64(*e),
+                    t,
+                ),
+                Parameterization::GibbsPolynomial { c, d, e, f, g, .. } => cp_gibbs_polynomial(
+                    T::from_f64(*c),
+                    T::from_f64(*d),
+                    T::from_f64(*e),
+                    T::from_f64(*f),
+                    T::from_f64(*g),
+                    t,
+                ),
+                Parameterization::Compound {
+                    components,
+                    deviation,
+                } => {
+                    let mut cp = deviation.cp(t);
+                    for (substance, coeff) in components {
+                        cp = cp + T::from_f64(*coeff) * substance.cp(t);
+                    }
+                    cp
+                }
+            }
+        }
+
+        pub fn enthalpy<T: Numeric>(&self, t: T) -> T {
+            match self {
+                Parameterization::MaierKelley {
+                    a,
+                    b,
+                    c,
+                    h_ref,
+                    ..
+                } => enthalpy_maierkelley(
+                    T::from_f64(*a),
+                    T::from_f64(*b),
+                    T::from_f64(*c),
+                    t,
+                    T::from_f64(T_REF),
+                    T::from_f64(*h_ref),
+                ),
+                Parameterization::NASA7 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    ..
+                } => enthalpy_nasa7(
+                    T::from_f64(*a1),
+                    T::from_f64(*a2),
+                    T::from_f64(*a3),
+                    T::from_f64(*a4),
+                    T::from_f64(*a5),
+                    T::from_f64(*a6),
+                    t,
+                ),
+                Parameterization::NASA9 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7,
+                    a8,
+                    ..
+                } => enthalpy_nasa9(
+                    T::from_f64(*a1),
+                    T::from_f64(*a2),
+                    T::from_f64(*a3),
+                    T::from_f64(*a4),
+                    T::from_f64(*a5),
+                    T::from_f64(*a6),
+                    T::from_f64(*a7),
+                    T::from_f64(*a8),
+                    t,
+                ),
+                Parameterization::Shomate {
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    f,
+                    ..
+                } => enthalpy_shomate(
+                    T::from_f64(*a),
+                    T::from_f64(*b),
+                    T::from_f64(*c),
+                    T::from_f64(*d),
+                    T::from_f64(*e),
+                    T::from_f64(*f),
+                    t,
+                ),
+                Parameterization::GibbsPolynomial {
+                    a,
+                    c,
+                    d,
+                    e,
+                    f,
+                    g,
+                    ..
+                } => enthalpy_gibbs_polynomial(
+                    T::from_f64(*a),
+                    T::from_f64(*c),
+                    T::from_f64(*d),
+                    T::from_f64(*e),
+                    T::from_f64(*f),
+                    T::from_f64(*g),
+                    t,
+                ),
+                Parameterization::Compound {
+                    components,
+                    deviation,
+                } => {
+                    let mut h = deviation.enthalpy(t);
+                    for (substance, coeff) in components {
+                        h = h + T::from_f64(*coeff) * substance.enthalpy(t);
+                    }
+                    h
+                }
+            }
+        }
+
+        pub fn entropy<T: Numeric>(&self, t: T) -> T {
+            match self {
+                Parameterization::MaierKelley { a, b, c, .. } => entropy_maierkelley(
+                    T::from_f64(*a),
+                    T::from_f64(*b),
+                    T::from_f64(*c),
+                    t,
+                    T::from_f64(T_REF),
+                    T::from_f64(0.0), // s0 is handled at substance level
+                ),
+                Parameterization::NASA7 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a7,
+                    ..
+                } => entropy_nasa7(
+                    T::from_f64(*a1),
+                    T::from_f64(*a2),
+                    T::from_f64(*a3),
+                    T::from_f64(*a4),
+                    T::from_f64(*a5),
+                    T::from_f64(*a7),
+                    t,
+                ),
+                Parameterization::NASA9 {
+                    a1,
+                    a2,
+                    a3,
+                    a4,
+                    a5,
+                    a6,
+                    a7,
+                    a9,
+                    ..
+                } => entropy_nasa9(
+                    T::from_f64(*a1),
+                    T::from_f64(*a2),
+                    T::from_f64(*a3),
+                    T::from_f64(*a4),
+                    T::from_f64(*a5),
+                    T::from_f64(*a6),
+                    T::from_f64(*a7),
+                    T::from_f64(*a9),
+                    t,
+                ),
+                Parameterization::Shomate {
+                    a,
+                    b,
+                    c,
+                    d,
+                    e,
+                    g,
+                    ..
+                } => entropy_shomate(
+                    T::from_f64(*a),
+                    T::from_f64(*b),
+                    T::from_f64(*c),
+                    T::from_f64(*d),
+                    T::from_f64(*e),
+                    T::from_f64(*g),
+                    t,
+                ),
+                Parameterization::GibbsPolynomial {
+                    b,
+                    c,
+                    d,
+                    e,
+                    f,
+                    g,
+                    ..
+                } => entropy_gibbs_polynomial(
+                    T::from_f64(*b),
+                    T::from_f64(*c),
+                    T::from_f64(*d),
+                    T::from_f64(*e),
+                    T::from_f64(*f),
+                    T::from_f64(*g),
+                    t,
+                ),
+                Parameterization::Compound {
+                    components,
+                    deviation,
+                } => {
+                    let mut s = deviation.entropy(t);
+                    for (substance, coeff) in components {
+                        s = s + T::from_f64(*coeff) * substance.entropy(t);
+                    }
+                    s
+                }
+            }
+        }
+    }
+
+
 
     #[derive(Debug, Clone)]
     pub struct TemperatureRange {
@@ -685,208 +964,26 @@ pub mod core {
         pub fn cp<T: Numeric>(&self, t: T) -> T {
             let t_val = t.to_f64();
             let range = self.get_range(t_val);
-            match range.model {
-                Parameterization::MaierKelley { a, b, c, .. } => {
-                    cp_maierkelley(T::from_f64(a), T::from_f64(b), T::from_f64(c), t)
-                }
-                Parameterization::NASA7 {
-                    a1, a2, a3, a4, a5, ..
-                } => cp_nasa7(
-                    T::from_f64(a1),
-                    T::from_f64(a2),
-                    T::from_f64(a3),
-                    T::from_f64(a4),
-                    T::from_f64(a5),
-                    t,
-                ),
-                Parameterization::NASA9 {
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    a6,
-                    a7,
-                    ..
-                } => cp_nasa9(
-                    T::from_f64(a1),
-                    T::from_f64(a2),
-                    T::from_f64(a3),
-                    T::from_f64(a4),
-                    T::from_f64(a5),
-                    T::from_f64(a6),
-                    T::from_f64(a7),
-                    t,
-                ),
-                Parameterization::Shomate { a, b, c, d, e, .. } => cp_shomate(
-                    T::from_f64(a),
-                    T::from_f64(b),
-                    T::from_f64(c),
-                    T::from_f64(d),
-                    T::from_f64(e),
-                    t,
-                ),
-                Parameterization::GibbsPolynomial { c, d, e, f, g, .. } => cp_gibbs_polynomial(
-                    T::from_f64(c),
-                    T::from_f64(d),
-                    T::from_f64(e),
-                    T::from_f64(f),
-                    T::from_f64(g),
-                    t,
-                ),
-            }
+            range.model.cp(t)
         }
+
+
 
         pub fn enthalpy<T: Numeric>(&self, t: T) -> T {
             let t_val = t.to_f64();
             let range = self.get_range(t_val);
-            match range.model {
-                Parameterization::MaierKelley { a, b, c, h_ref } => enthalpy_maierkelley(
-                    T::from_f64(a),
-                    T::from_f64(b),
-                    T::from_f64(c),
-                    t,
-                    T::from_f64(T_REF),
-                    T::from_f64(h_ref),
-                ),
-                Parameterization::NASA7 {
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    a6,
-                    ..
-                } => enthalpy_nasa7(
-                    T::from_f64(a1),
-                    T::from_f64(a2),
-                    T::from_f64(a3),
-                    T::from_f64(a4),
-                    T::from_f64(a5),
-                    T::from_f64(a6),
-                    t,
-                ),
-                Parameterization::NASA9 {
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    a6,
-                    a7,
-                    a8,
-                    ..
-                } => enthalpy_nasa9(
-                    T::from_f64(a1),
-                    T::from_f64(a2),
-                    T::from_f64(a3),
-                    T::from_f64(a4),
-                    T::from_f64(a5),
-                    T::from_f64(a6),
-                    T::from_f64(a7),
-                    T::from_f64(a8),
-                    t,
-                ),
-                Parameterization::Shomate {
-                    a, b, c, d, e, f, ..
-                } => enthalpy_shomate(
-                    T::from_f64(a),
-                    T::from_f64(b),
-                    T::from_f64(c),
-                    T::from_f64(d),
-                    T::from_f64(e),
-                    T::from_f64(f),
-                    t,
-                ),
-                Parameterization::GibbsPolynomial {
-                    a, c, d, e, f, g, ..
-                } => enthalpy_gibbs_polynomial(
-                    T::from_f64(a),
-                    T::from_f64(c),
-                    T::from_f64(d),
-                    T::from_f64(e),
-                    T::from_f64(f),
-                    T::from_f64(g),
-                    t,
-                ),
-            }
+            range.model.enthalpy(t)
         }
+
+
 
         pub fn entropy<T: Numeric>(&self, t: T) -> T {
             let t_val = t.to_f64();
             let range = self.get_range(t_val);
-
-            match range.model {
-                Parameterization::MaierKelley { a, b, c, .. } => entropy_maierkelley(
-                    T::from_f64(a),
-                    T::from_f64(b),
-                    T::from_f64(c),
-                    t,
-                    T::from_f64(T_REF),
-                    T::from_f64(self.s0),
-                ),
-                Parameterization::NASA7 {
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    a7,
-                    ..
-                } => entropy_nasa7(
-                    T::from_f64(a1),
-                    T::from_f64(a2),
-                    T::from_f64(a3),
-                    T::from_f64(a4),
-                    T::from_f64(a5),
-                    T::from_f64(a7),
-                    t,
-                ),
-                Parameterization::NASA9 {
-                    a1,
-                    a2,
-                    a3,
-                    a4,
-                    a5,
-                    a6,
-                    a7,
-                    a9,
-                    ..
-                } => entropy_nasa9(
-                    T::from_f64(a1),
-                    T::from_f64(a2),
-                    T::from_f64(a3),
-                    T::from_f64(a4),
-                    T::from_f64(a5),
-                    T::from_f64(a6),
-                    T::from_f64(a7),
-                    T::from_f64(a9),
-                    t,
-                ),
-                Parameterization::Shomate {
-                    a, b, c, d, e, g, ..
-                } => entropy_shomate(
-                    T::from_f64(a),
-                    T::from_f64(b),
-                    T::from_f64(c),
-                    T::from_f64(d),
-                    T::from_f64(e),
-                    T::from_f64(g),
-                    t,
-                ),
-                Parameterization::GibbsPolynomial {
-                    b, c, d, e, f, g, ..
-                } => entropy_gibbs_polynomial(
-                    T::from_f64(b),
-                    T::from_f64(c),
-                    T::from_f64(d),
-                    T::from_f64(e),
-                    T::from_f64(f),
-                    T::from_f64(g),
-                    t,
-                ),
-            }
+            range.model.entropy(t) + T::from_f64(self.s0)
         }
+
+
 
         pub fn gibbs<T: Numeric>(&self, t: T) -> T {
             self.enthalpy(t) - t * self.entropy(t)
@@ -1018,8 +1115,24 @@ pub mod data {
                     f: table.get("f")?,
                     g: table.get("g")?,
                 }),
+                "Compound" => {
+                    let components_table: LuaTable = table.get("components")?;
+                    let mut components = Vec::new();
+                    for pair in components_table.sequence_values::<LuaTable>() {
+                        let pair = pair?;
+                        let substance: Substance = pair.get(1)?;
+                        let coeff: f64 = pair.get(2)?;
+                        components.push((Box::new(substance), coeff));
+                    }
+                    let deviation: Parameterization = table.get("deviation")?;
+                    Ok(Parameterization::Compound {
+                        components,
+                        deviation: Box::new(deviation),
+                    })
+                }
 
                 _ => Err(LuaError::FromLuaConversionError {
+
                     from: "Table",
                     to: "Parameterization".to_string(),
                     message: Some(format!("Unknown parameterization type: {}", model_type)),
@@ -1218,7 +1331,29 @@ pub mod data {
         })
     }
 
+    fn create_lua_compound(lua: &Lua) -> LuaResult<LuaFunction> {
+        lua.create_function(|_lua, table: LuaTable| {
+            if !table.contains_key("type")? {
+                table.set("type", "Compound")?;
+            }
+            if !table.contains_key("deviation")? {
+                let dev = _lua.create_table()?;
+                dev.set("type", "GibbsPolynomial")?;
+                dev.set("a", 0.0)?;
+                dev.set("b", 0.0)?;
+                dev.set("c", 0.0)?;
+                dev.set("d", 0.0)?;
+                dev.set("e", 0.0)?;
+                dev.set("f", 0.0)?;
+                dev.set("g", 0.0)?;
+                table.set("deviation", dev)?;
+            }
+            Ok(table)
+        })
+    }
+
     fn create_lua_temperature_range(lua: &Lua) -> LuaResult<LuaFunction> {
+
         lua.create_function(|lua, (t_min, t_max, model): (f64, f64, LuaValue)| {
             let table = lua.create_table()?;
             table.set("t_min", t_min)?;
@@ -1259,7 +1394,11 @@ pub mod data {
         let gibbs_polynomial_fn = create_lua_gibbs_polynomial(&lua)?;
         globals.set("GibbsPolynomial", gibbs_polynomial_fn)?;
 
+        let compound_fn = create_lua_compound(&lua)?;
+        globals.set("Compound", compound_fn)?;
+
         let temperature_range_fn = create_lua_temperature_range(&lua)?;
+
         globals.set("TemperatureRange", temperature_range_fn.clone())?;
         globals.set("Range", temperature_range_fn)?;
 
