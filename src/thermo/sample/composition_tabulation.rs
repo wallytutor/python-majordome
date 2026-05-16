@@ -1,21 +1,19 @@
 use thermo::core::T_REF;
-use thermo::data::{get_al2o3, get_calcite, get_co2, get_diaspore, get_h2o, get_lime};
+use thermo::data::load_substances_from_lua;
 use thermo::equil::compute_elemental_fractions;
 use thermo::equil::evaluate_local_equilibrium;
 
 fn main() {
-    let calcite = get_calcite();
-    let lime = get_lime();
-    let co2 = get_co2();
-    let diaspore = get_diaspore();
-    let h2o = get_h2o();
-    let al2o3 = get_al2o3();
-
-    let species = [&calcite, &lime, &co2, &diaspore, &h2o, &al2o3];
+    let db = load_substances_from_lua("data.lua").expect("Failed to load data.lua");
+    
+    let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
+    let species: Vec<_> = names.iter().map(|n| db.get(*n).unwrap()).collect();
     let elements = ["Ca", "C", "O", "Al", "H"];
 
     // Mix corresponding to 1 part CaCO3, 1 part Diaspore
-    let mix = [(&calcite, 1.0), (&diaspore, 1.0)];
+    let calcite = db.get("Calcite").unwrap();
+    let diaspore = db.get("Diaspore").unwrap();
+    let mix = [(calcite, 1.0), (diaspore, 1.0)];
     let b = compute_elemental_fractions(&mix, &elements);
 
     println!("\n=== Composition Tabulation (300 K - 1200 K) ===");

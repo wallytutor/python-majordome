@@ -1,22 +1,14 @@
-use thermo::data::get_al2o3;
-use thermo::data::get_calcite;
-use thermo::data::get_co2;
-use thermo::data::get_diaspore;
-use thermo::data::get_h2o;
-use thermo::data::get_lime;
+use thermo::data::load_substances_from_lua;
 use thermo::equil::compute_elemental_fractions;
 use thermo::equil::evaluate_local_equilibrium;
 
 fn main() {
-    let calcite = get_calcite();
-    let lime = get_lime();
-    let co2 = get_co2();
-    let diaspore = get_diaspore();
-    let h2o = get_h2o();
-    let al2o3 = get_al2o3();
-
-    let species = [&calcite, &lime, &co2, &diaspore, &h2o, &al2o3];
-    let names = [
+    let db = load_substances_from_lua("data.lua").expect("Failed to load data.lua");
+    
+    let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
+    let species: Vec<_> = names.iter().map(|n| db.get(*n).unwrap()).collect();
+    
+    let display_names = [
         "CaCO3(s)",
         "CaO(s)",
         "CO2(g)",
@@ -30,7 +22,9 @@ fn main() {
     let p_user = 1.0_f64; // bar
 
     // Mixture representing 1 mole of CaCO3 + 1 mole of Diaspore
-    let mix = [(&calcite, 1.0), (&diaspore, 1.0)];
+    let calcite = db.get("Calcite").unwrap();
+    let diaspore = db.get("Diaspore").unwrap();
+    let mix = [(calcite, 1.0), (diaspore, 1.0)];
     let b = compute_elemental_fractions(&mix, &elements);
 
     println!("\n=== Generic CALPHAD Local Equilibrium ===");
@@ -42,6 +36,6 @@ fn main() {
 
     println!("\nEquilibrium amounts:");
     for i in 0..6 {
-        println!("  {:<12}: {:.6} mol", names[i], equilibrium_phi[i]);
+        println!("  {:<12}: {:.6} mol", display_names[i], equilibrium_phi[i]);
     }
 }

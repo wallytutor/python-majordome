@@ -69,6 +69,7 @@ pub struct TemperatureRange {
 
 #[derive(Debug, Clone)]
 pub struct Substance {
+    pub name: String,
     pub molar_mass: f64,
     pub molar_volume: f64,
     pub delta_gf: f64,
@@ -97,8 +98,7 @@ fn cp_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, t: T) -> T {
 
 fn enthalpy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, h_ref: T) -> T {
     let half = T::from_f64(0.5);
-    let delta_h = a * (t - t_ref)
-        + half * b * (t * t - t_ref * t_ref)
+    let delta_h = a * (t - t_ref) + half * b * (t * t - t_ref * t_ref)
         - c * (T::from_f64(1.0) / t - T::from_f64(1.0) / t_ref);
     h_ref + delta_h
 }
@@ -123,8 +123,7 @@ fn enthalpy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, f: T, t: T) -> T {
 
 fn entropy_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T, t_ref: T, s_ref: T) -> T {
     let half = T::from_f64(0.5);
-    let delta_s = a * (t / t_ref).ln()
-        + b * (t - t_ref)
+    let delta_s = a * (t / t_ref).ln() + b * (t - t_ref)
         - half * c * (T::from_f64(1.0) / (t * t) - T::from_f64(1.0) / (t_ref * t_ref));
     s_ref + delta_s
 }
@@ -141,8 +140,8 @@ fn entropy_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, g: T, t: T) -> T {
     let tt = t / T::from_f64(1000.0);
     let c2 = T::from_f64(1.0 / 2.0);
     let c3 = T::from_f64(1.0 / 3.0);
-    let poly =
-        g + a * tt.ln() - e / (T::from_f64(2.0) * tt * tt) + tt * (b + tt * (c2 * c + tt * (c3 * d)));
+    let poly = g + a * tt.ln() - e / (T::from_f64(2.0) * tt * tt)
+        + tt * (b + tt * (c2 * c + tt * (c3 * d)));
     poly
 }
 
@@ -284,13 +283,13 @@ impl Substance {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::autodiff::{Dual, diff};
-    use crate::data::{get_calcite, get_h2o};
+    use crate::data::load_substances_from_lua;
 
     #[test]
     fn test_thermo_derivatives() {
-        let calcite = get_calcite();
+        let db = load_substances_from_lua("data.lua").unwrap();
+        let calcite = db.get("Calcite").unwrap();
         let g = |t: Dual<f64>| calcite.gibbs(t);
 
         let expected = -calcite.entropy(300.0);
@@ -305,7 +304,8 @@ mod tests {
 
     #[test]
     fn test_h2o_nasa7() {
-        let h2o = get_h2o();
+        let db = load_substances_from_lua("data.lua").unwrap();
+        let h2o = db.get("H2O").unwrap();
         let val = h2o.cp(300.0);
         assert!(val > 0.0);
     }

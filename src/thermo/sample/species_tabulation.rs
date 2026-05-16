@@ -1,31 +1,14 @@
-use thermo::data::get_al2o3;
-use thermo::data::get_calcite;
-use thermo::data::get_co2;
-use thermo::data::get_diaspore;
-use thermo::data::get_h2o;
-use thermo::data::get_lime;
+use thermo::data::load_substances_from_lua;
 
 fn main() {
-    let calcite = get_calcite();
-    let lime = get_lime();
-    let co2 = get_co2();
-    let diaspore = get_diaspore();
-    let h2o = get_h2o();
-    let al2o3 = get_al2o3();
-
-    let species = [&calcite, &lime, &co2, &diaspore, &h2o, &al2o3];
-    let names = [
-        "CaCO3(s)",
-        "CaO(s)",
-        "CO2(g)",
-        "Diaspore(s)",
-        "H2O(g)",
-        "Al2O3(s)",
-    ];
+    let db = load_substances_from_lua("data.lua").expect("Failed to load data.lua");
+    
+    let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
+    let species: Vec<_> = names.iter().map(|n| db.get(*n).unwrap()).collect();
 
     println!("\n=== Species Thermodynamic Tabulation (300 K - 1200 K) ===");
-    for (i, s) in species.iter().enumerate() {
-        println!("\n--- {} ---", names[i]);
+    for s in species.iter() {
+        println!("\n--- {} ---", s.name);
         println!(
             "{:<8} | {:<12} | {:<12} | {:<14} | {:<14}",
             "T (K)", "Cp", "S", "-(G-H298)/T", "H-H298"
