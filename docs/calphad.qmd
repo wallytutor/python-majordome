@@ -1,0 +1,8 @@
+# Calphad
+
+*aka majordome.calphad*
+
+```{python}
+# from majordome.documents import *
+# from majordome.calphad import *
+```
