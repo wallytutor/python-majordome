@@ -151,3 +151,21 @@ print(
     sep="\n",
 )
 ```
+
+## Equilibrium calculations
+
+### Calcium carbonate and diaspore decomposition
+
+- Single equilibrium point:
+
+*WIP*
+
+- Temperature scanning:
+
+*WIP*
+
+### Al-Ca-O system by Hallstedt (1990)
+
+- Composition scanning:
+
+*WIP*
