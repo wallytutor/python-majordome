@@ -62,8 +62,8 @@ pub fn exponential_fmt(value: f64) -> String {
 // ---------------------------------------------------------------------------
 
 pub mod autodiff {
-    use std::ops::{Add, Div, Mul, Neg, Sub};
     use pyo3::prelude::*;
+    use std::ops::{Add, Div, Mul, Neg, Sub};
 
     // --------------------------------------------------------------------------------------------
     // AutoDiff - Forward Mode
@@ -358,7 +358,10 @@ pub mod autodiff {
         }
 
         pub fn __repr__(&self) -> String {
-            format!("Dual(value={}, deriv={})", self.inner.value, self.inner.deriv)
+            format!(
+                "Dual(value={}, deriv={})",
+                self.inner.value, self.inner.deriv
+            )
         }
 
         pub fn __str__(&self) -> String {
@@ -367,58 +370,90 @@ pub mod autodiff {
 
         pub fn __add__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
             if let Ok(other_dual) = other.extract::<PyDual>() {
-                Ok(PyDual { inner: self.inner + other_dual.inner })
+                Ok(PyDual {
+                    inner: self.inner + other_dual.inner,
+                })
             } else if let Ok(other_f64) = other.extract::<f64>() {
-                Ok(PyDual { inner: self.inner + other_f64 })
+                Ok(PyDual {
+                    inner: self.inner + other_f64,
+                })
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Unsupported type for addition"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Unsupported type for addition",
+                ))
             }
         }
 
         pub fn __radd__(&self, other: f64) -> Self {
-            PyDual { inner: other + self.inner }
+            PyDual {
+                inner: other + self.inner,
+            }
         }
 
         pub fn __sub__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
             if let Ok(other_dual) = other.extract::<PyDual>() {
-                Ok(PyDual { inner: self.inner - other_dual.inner })
+                Ok(PyDual {
+                    inner: self.inner - other_dual.inner,
+                })
             } else if let Ok(other_f64) = other.extract::<f64>() {
-                Ok(PyDual { inner: self.inner - other_f64 })
+                Ok(PyDual {
+                    inner: self.inner - other_f64,
+                })
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Unsupported type for subtraction"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Unsupported type for subtraction",
+                ))
             }
         }
 
         pub fn __rsub__(&self, other: f64) -> Self {
-            PyDual { inner: other - self.inner }
+            PyDual {
+                inner: other - self.inner,
+            }
         }
 
         pub fn __mul__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
             if let Ok(other_dual) = other.extract::<PyDual>() {
-                Ok(PyDual { inner: self.inner * other_dual.inner })
+                Ok(PyDual {
+                    inner: self.inner * other_dual.inner,
+                })
             } else if let Ok(other_f64) = other.extract::<f64>() {
-                Ok(PyDual { inner: self.inner * other_f64 })
+                Ok(PyDual {
+                    inner: self.inner * other_f64,
+                })
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Unsupported type for multiplication"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Unsupported type for multiplication",
+                ))
             }
         }
 
         pub fn __rmul__(&self, other: f64) -> Self {
-            PyDual { inner: other * self.inner }
+            PyDual {
+                inner: other * self.inner,
+            }
         }
 
         pub fn __truediv__(&self, other: &Bound<'_, PyAny>) -> PyResult<Self> {
             if let Ok(other_dual) = other.extract::<PyDual>() {
-                Ok(PyDual { inner: self.inner / other_dual.inner })
+                Ok(PyDual {
+                    inner: self.inner / other_dual.inner,
+                })
             } else if let Ok(other_f64) = other.extract::<f64>() {
-                Ok(PyDual { inner: self.inner / other_f64 })
+                Ok(PyDual {
+                    inner: self.inner / other_f64,
+                })
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Unsupported type for division"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Unsupported type for division",
+                ))
             }
         }
 
         pub fn __rtruediv__(&self, other: f64) -> Self {
-            PyDual { inner: other / self.inner }
+            PyDual {
+                inner: other / self.inner,
+            }
         }
 
         pub fn __neg__(&self) -> Self {
@@ -1032,6 +1067,80 @@ pub mod core {
         pub fn gibbs<T: Numeric>(&self, t: T) -> T {
             self.enthalpy(t) - t * self.entropy(t)
         }
+
+        pub fn tabulate(
+            &self,
+            t_min: Option<f64>,
+            t_max: Option<f64>,
+            step: Option<f64>,
+        ) -> String {
+            let t_start = t_min.unwrap_or_else(|| self.ranges.first().unwrap().t_min);
+            let t_end = t_max.unwrap_or_else(|| self.ranges.last().unwrap().t_max);
+            let step_val = step.unwrap_or(100.0);
+
+            let mut temps = Vec::new();
+            temps.push(t_start);
+            temps.push(t_end);
+
+            if T_REF >= t_start && T_REF <= t_end {
+                temps.push(T_REF);
+            }
+
+            for r in &self.ranges {
+                if r.t_min >= t_start && r.t_min <= t_end {
+                    temps.push(r.t_min);
+                }
+                if r.t_max >= t_start && r.t_max <= t_end {
+                    temps.push(r.t_max);
+                }
+            }
+
+            let first_multiple = (t_start / step_val).ceil() * step_val;
+            let mut current = first_multiple;
+            while current <= t_end {
+                temps.push(current);
+                current += step_val;
+            }
+
+            temps.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+
+            let mut unique_temps = Vec::new();
+            for &t in &temps {
+                if unique_temps.is_empty() || (t - unique_temps.last().unwrap()).abs() > 1e-6 {
+                    unique_temps.push(t);
+                }
+            }
+
+            let mut lines = Vec::new();
+            lines.push(format!("--- {} ---", self.name));
+            lines.push(format!(
+                "{:<8} | {:<12} | {:<12} | {:<14} | {:<14}",
+                "T (K)", "Cp", "S", "-(G-H298)/T", "H-H298"
+            ));
+            lines.push(format!(
+                "{:-<8}-+-{:-<12}-+-{:-<12}-+-{:-<14}-+-{:-<14}-",
+                "", "", "", "", ""
+            ));
+
+            let h_ref = self.enthalpy(T_REF);
+
+            for t in unique_temps {
+                let cp_val = self.cp(t);
+                let h_val = self.enthalpy(t);
+                let s_val = self.entropy(t);
+                let g_val = self.gibbs(t);
+
+                let free_energy_func = if t > 1e-6 { -(g_val - h_ref) / t } else { 0.0 };
+                let h_diff = h_val - h_ref;
+
+                lines.push(format!(
+                    "{:<8.2} | {:<12.4} | {:<12.4} | {:<14.4} | {:<14.2}",
+                    t, cp_val, s_val, free_energy_func, h_diff
+                ));
+            }
+
+            lines.join("\n")
+        }
     }
 
     #[pymethods]
@@ -1077,7 +1186,11 @@ pub mod core {
         }
 
         #[pyo3(name = "cp")]
-        pub fn cp_py<'py>(&self, py: Python<'py>, t: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+        pub fn cp_py<'py>(
+            &self,
+            py: Python<'py>,
+            t: &Bound<'py, PyAny>,
+        ) -> PyResult<Bound<'py, PyAny>> {
             if let Ok(dual_t) = t.extract::<PyDual>() {
                 let res = self.cp(dual_t.inner);
                 let bound = PyDual { inner: res }.into_pyobject(py)?;
@@ -1087,12 +1200,18 @@ pub mod core {
                 let bound = res.into_pyobject(py)?;
                 Ok(bound.into_any())
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Expected f64 or Dual"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Expected f64 or Dual",
+                ))
             }
         }
 
         #[pyo3(name = "enthalpy")]
-        pub fn enthalpy_py<'py>(&self, py: Python<'py>, t: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+        pub fn enthalpy_py<'py>(
+            &self,
+            py: Python<'py>,
+            t: &Bound<'py, PyAny>,
+        ) -> PyResult<Bound<'py, PyAny>> {
             if let Ok(dual_t) = t.extract::<PyDual>() {
                 let res = self.enthalpy(dual_t.inner);
                 let bound = PyDual { inner: res }.into_pyobject(py)?;
@@ -1102,12 +1221,18 @@ pub mod core {
                 let bound = res.into_pyobject(py)?;
                 Ok(bound.into_any())
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Expected f64 or Dual"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Expected f64 or Dual",
+                ))
             }
         }
 
         #[pyo3(name = "entropy")]
-        pub fn entropy_py<'py>(&self, py: Python<'py>, t: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+        pub fn entropy_py<'py>(
+            &self,
+            py: Python<'py>,
+            t: &Bound<'py, PyAny>,
+        ) -> PyResult<Bound<'py, PyAny>> {
             if let Ok(dual_t) = t.extract::<PyDual>() {
                 let res = self.entropy(dual_t.inner);
                 let bound = PyDual { inner: res }.into_pyobject(py)?;
@@ -1117,12 +1242,18 @@ pub mod core {
                 let bound = res.into_pyobject(py)?;
                 Ok(bound.into_any())
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Expected f64 or Dual"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Expected f64 or Dual",
+                ))
             }
         }
 
         #[pyo3(name = "gibbs")]
-        pub fn gibbs_py<'py>(&self, py: Python<'py>, t: &Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
+        pub fn gibbs_py<'py>(
+            &self,
+            py: Python<'py>,
+            t: &Bound<'py, PyAny>,
+        ) -> PyResult<Bound<'py, PyAny>> {
             if let Ok(dual_t) = t.extract::<PyDual>() {
                 let res = self.gibbs(dual_t.inner);
                 let bound = PyDual { inner: res }.into_pyobject(py)?;
@@ -1132,7 +1263,9 @@ pub mod core {
                 let bound = res.into_pyobject(py)?;
                 Ok(bound.into_any())
             } else {
-                Err(pyo3::exceptions::PyTypeError::new_err("Expected f64 or Dual"))
+                Err(pyo3::exceptions::PyTypeError::new_err(
+                    "Expected f64 or Dual",
+                ))
             }
         }
 
@@ -1206,6 +1339,16 @@ pub mod core {
 
             lines.push(format!("\nReference: {}", self.reference));
             lines.join("\n")
+        }
+
+        #[pyo3(name = "tabulate", signature = (t_min = None, t_max = None, step = None))]
+        pub fn tabulate_py(
+            &self,
+            t_min: Option<f64>,
+            t_max: Option<f64>,
+            step: Option<f64>,
+        ) -> String {
+            self.tabulate(t_min, t_max, step)
         }
     }
 

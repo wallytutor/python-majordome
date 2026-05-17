@@ -4,6 +4,7 @@ use thermo::data::DatabaseLoader;
 fn main() {
     loading_data();
     autodiff_verification();
+    species_tabulation_demo();
 }
 
 fn loading_data() {
@@ -33,4 +34,17 @@ fn autodiff_verification() {
     println!("  -S(T) (computed) = {:.6} J/(mol.K)", neg_s);
     println!("  Difference       = {:.6e} J/(mol.K)", (dg - neg_s).abs());
     println!();
+}
+
+fn species_tabulation_demo() {
+    println!("=== Species Thermodynamic Tabulation ===\n");
+
+    let db = DatabaseLoader::new("data/data.lua".to_string(), None).unwrap();
+    let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
+
+    for name in &names {
+        if let Some(substance) = db.data.get(*name) {
+            println!("{}\n", substance.tabulate(None, None, None));
+        }
+    }
 }

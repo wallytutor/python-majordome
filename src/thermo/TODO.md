@@ -22,7 +22,7 @@
 
 - [x] Export `autodiff` to Python and add example showing that Gibbs energy derivative with temperature matches entropy at reference state. Goal of replacing `autodiff_evaluation.rs`.
 
-- [ ] Make species tabulation a default feature of substances. Goal to replace `species_tabulation.rs` and expose method in Python.
+- [x] Make species tabulation a default feature of substances. Goal to replace `species_tabulation.rs` and expose method in Python.
 
 - [ ] Expose (in draft mode) the `evaluate_local_equilibrium` interface to Python so that `equilibrium_evaluation.rs` can be replaced by an API example.
 
