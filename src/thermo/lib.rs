@@ -1112,7 +1112,10 @@ pub mod core {
             }
 
             let mut lines = Vec::new();
-            lines.push(format!("--- {} ---", self.name));
+            lines.push(format!(
+                "--- {} ({:?}) ---\n",
+                self.name, self.aggregation_type
+            ));
             lines.push(format!(
                 "{:<8} | {:<12} | {:<12} | {:<14} | {:<14}",
                 "T (K)", "Cp", "S", "-(G-H298)/T", "H-H298"
@@ -1275,12 +1278,9 @@ pub mod core {
             };
 
             let mut lines = Vec::new();
-            lines.push(format!("--- {} ---", self.name));
-
-            lines.push(tabulate(
-                "Aggregation",
-                "",
-                format!("{:?}", self.aggregation_type).as_str(),
+            lines.push(format!(
+                "--- {} ({:?}) ---\n",
+                self.name, self.aggregation_type
             ));
 
             lines.push(tabulate(
