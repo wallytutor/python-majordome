@@ -62,13 +62,26 @@ def main():
     print("-" * 40 + "\n")
 
     # ---------------------------------------------------------
-    # Verifying Getters
+    # 6. Automatic Differentiation Verification
     # ---------------------------------------------------------
-    print("5. Verifying Python API Getters on SystemComposition:")
-    print(f"  elements:           {comp_moles.elements}")
-    print(f"  fractions:          {comp_moles.fractions}")
-    print(f"  input_method:       {comp_moles.input_method}")
-    print(f"  input_proportions:  {comp_moles.input_proportions}")
+    print("\n========================================")
+    print("DEMONSTRATING AUTOMATIC DIFFERENTIATION (Dual)")
+    print("========================================")
+    
+    # Instantiate Dual for temperature at 300 K with deriv = 1.0 (dx/dx)
+    t = _calphad.Dual.variable(300.0)
+    
+    # Evaluate Gibbs energy using the Substance dynamic method
+    g = calcite.gibbs(t)
+    
+    # Compute direct entropy at 300.0 K
+    s = calcite.entropy(300.0)
+    
+    print(f"Gibbs energy at T = {t.value:.2f} K (Dual):")
+    print(f"  G(T)             = {g.value:.6f} J/mol")
+    print(f"  dG/dT (autodiff) = {g.deriv:.6f} J/(mol.K)")
+    print(f"  -S(T) (computed) = {-s:.6f} J/(mol.K)")
+    print(f"  Difference       = {abs(g.deriv - (-s)):.6e} J/(mol.K)")
     print("========================================")
 
 

@@ -20,7 +20,9 @@
 
 - [x] Create a wrapper API allowing for specification of system composition in terms of compount mass or moles (or respective proportions) and internally normalizing the elemental composition to one mole of matter.
 
-- [ ] Export `autodiff` to Python and add example showing that Gibbs energy derivative with temperature matches entropy at reference state. Goal of replacing `autodiff_evaluation.rs`.
+- [x] Export `autodiff` to Python and add example showing that Gibbs energy derivative with temperature matches entropy at reference state. Goal of replacing `autodiff_evaluation.rs`.
+
+- [ ] Make species tabulation a default feature of substances. Goal to replace `species_tabulation.rs` and expose method in Python.
 
 - [ ] Expose (in draft mode) the `evaluate_local_equilibrium` interface to Python so that `equilibrium_evaluation.rs` can be replaced by an API example.
 

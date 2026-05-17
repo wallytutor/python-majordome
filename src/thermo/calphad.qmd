@@ -18,6 +18,7 @@ spec.loader.exec_module(calphad)
 
 DatabaseLoader = calphad.DatabaseLoader
 SystemComposition = calphad.SystemComposition
+Dual = calphad.Dual
 ```
 
 ## Data loading and inspection
@@ -104,6 +105,33 @@ print(
     f"input_proportions:  {comp_moles.input_proportions}",
     f"elements:           {comp_moles.elements}",
     f"balace:             {sum(comp_moles.fractions)}",
+    sep="\n",
+)
+```
+
+## Automatic differentiation
+
+```{python}
+db_path = "data/data.lua"
+
+db = DatabaseLoader(db_path, phases=["Calcite"])
+calcite = db.get_data()["Calcite"]
+
+# Instantiate Dual for temperature at 300 K with deriv = 1.0 (dx/dx)
+t = Dual.variable(300.0)
+
+# Evaluate Gibbs energy using the Substance dynamic method
+g = calcite.gibbs(t)
+
+# Compute direct entropy at 300.0 K
+s = calcite.entropy(300.0)
+
+print(
+    f"Calcite at T = {t.value:.2f} K:",
+    f"  G(T)             = {g.value:.6f} J/mol",
+    f"  dG/dT (autodiff) = {g.deriv:.6f} J/(mol.K)",
+    f"  -S(T) (computed) = {-s:.6f} J/(mol.K)",
+    f"  Difference       = {abs(g.deriv - (-s)):.6e} J/(mol.K)",
     sep="\n",
 )
 ```

@@ -23,10 +23,6 @@ name = "usage"
 path = "sample/usage.rs"
 
 [[bin]]
-name = "sample_autodiff_evaluation"
-path = "sample/autodiff_evaluation.rs"
-
-[[bin]]
 name = "sample_equilibrium_evaluation"
 path = "sample/equilibrium_evaluation.rs"
 
