@@ -42,3 +42,13 @@ description: Provides directives for generating and modifying Rust code.
 - For any non-trivial match, use braces and indent the code block (no-inline).
 
 - Lines are preferrably less than 80 characters long, with a maximum of 100 characters.
+
+### Python bindings with PyO3
+
+- Do not use direct *in-struct* attribute PyO3 annotations, i.e., keep the python API logic completely disconnected from Rust structure. All elements to be exposed shall be given a dedicated interface in the `[#pymethods] impl` block.
+
+- Do not use attributes to bypass any warning, such as `skip_from_py_object`. Instead, implement the new recommended approach so that the code base is already compliant with new standards.
+
+- When creating Python API's, do not use `py_` naming schemes. Any created API must look native as they are the primary goal. Find alternatives in the code structure.
+
+- Inside `[#pymethods] impl` override the requirement for 2 blank lines between functions and use a single line, as in Python classes.
