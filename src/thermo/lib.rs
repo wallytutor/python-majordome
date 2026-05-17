@@ -1,3 +1,5 @@
+use pyo3::prelude::*;
+
 // ---------------------------------------------------------------------------
 
 pub const T_REF: f64 = 298.15;
@@ -423,6 +425,7 @@ pub mod core {
     use crate::T_REF;
     use crate::autodiff::Numeric;
     use crate::functions::*;
+    use pyo3::prelude::*;
     use std::collections::HashMap;
 
     pub fn get_atomic_weight(symbol: &str) -> Option<f64> {
@@ -541,6 +544,7 @@ pub mod core {
             a6: f64,
             a7: f64,
         },
+
         NASA9 {
             a1: f64,
             a2: f64,
@@ -552,6 +556,7 @@ pub mod core {
             a8: f64,
             a9: f64,
         },
+
         Shomate {
             a: f64,
             b: f64,
@@ -562,6 +567,7 @@ pub mod core {
             g: f64,
             h: f64,
         },
+
         GibbsPolynomial {
             a: f64,
             b: f64,
@@ -571,6 +577,7 @@ pub mod core {
             f: f64,
             g: f64,
         },
+
         Compound {
             components: Vec<(Box<Substance>, f64)>,
             deviation: Box<Parameterization>,
@@ -816,6 +823,7 @@ pub mod core {
         pub model: Parameterization,
     }
 
+    #[pyclass(from_py_object)]
     #[derive(Debug, Clone)]
     pub struct Substance {
         pub name: String,
@@ -863,6 +871,64 @@ pub mod core {
             self.enthalpy(t) - t * self.entropy(t)
         }
     }
+
+    #[pymethods]
+    impl Substance {
+        #[getter]
+        pub fn name(&self) -> String {
+            self.name.clone()
+        }
+
+        #[getter]
+        pub fn molar_mass(&self) -> f64 {
+            self.molar_mass
+        }
+
+        #[getter]
+        pub fn molar_volume(&self) -> f64 {
+            self.molar_volume
+        }
+
+        #[getter]
+        pub fn s0(&self) -> f64 {
+            self.s0
+        }
+
+        #[getter]
+        pub fn elements(&self) -> HashMap<String, f64> {
+            self.elements.clone()
+        }
+
+        #[getter]
+        pub fn reference(&self) -> String {
+            self.reference.clone()
+        }
+
+        #[getter]
+        pub fn aggregation_type(&self) -> String {
+            format!("{:?}", self.aggregation_type)
+        }
+
+        #[pyo3(name = "cp")]
+        pub fn cp_at(&self, t: f64) -> f64 {
+            self.cp(t)
+        }
+
+        #[pyo3(name = "enthalpy")]
+        pub fn enthalpy_at(&self, t: f64) -> f64 {
+            self.enthalpy(t)
+        }
+
+        #[pyo3(name = "entropy")]
+        pub fn entropy_at(&self, t: f64) -> f64 {
+            self.entropy(t)
+        }
+
+        #[pyo3(name = "gibbs")]
+        pub fn gibbs_at(&self, t: f64) -> f64 {
+            self.gibbs(t)
+        }
+    }
 }
 
 pub mod data {
@@ -873,6 +939,8 @@ pub mod data {
     use crate::core::get_atomic_weight;
     use crate::{P_REF, R_GAS, T_REF};
     use mlua::prelude::*;
+    use pyo3::prelude::*;
+    use pyo3::types::PyDict;
     use std::collections::HashMap;
     use std::fs::read_to_string;
 
@@ -1267,6 +1335,68 @@ pub mod data {
         let map: HashMap<String, Substance> = lua.load(&content).eval()?;
         Ok(map)
     }
+
+    #[pyclass]
+    pub struct DatabaseLoader {
+        pub(crate) path: String,
+        pub(crate) phases: Vec<String>,
+        pub(crate) data: HashMap<String, Substance>,
+    }
+
+    #[pymethods]
+    impl DatabaseLoader {
+        #[new]
+        #[pyo3(signature = (path, phases = None))]
+        pub fn new(path: String, phases: Option<Vec<String>>) -> PyResult<Self> {
+            let mut raw_data = load_substances_from_lua(&path)
+                .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+
+            let phases = if let Some(ref selected_phases) = phases {
+                raw_data.retain(|k, _| selected_phases.contains(k));
+                selected_phases.clone()
+            } else {
+                raw_data.keys().cloned().collect::<Vec<String>>()
+            };
+
+            Ok(Self {
+                path,
+                phases,
+                data: raw_data,
+            })
+        }
+
+        #[getter]
+        pub fn path(&self) -> String {
+            self.path.clone()
+        }
+
+        #[getter]
+        pub fn phases(&self) -> Vec<String> {
+            self.phases.clone()
+        }
+
+        pub fn get_data<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+            let dict = PyDict::new(py);
+
+            for (k, v) in &self.data {
+                dict.set_item(k, v.clone())?;
+            }
+
+            Ok(dict)
+        }
+
+        pub fn load_compound(&self, name: String) -> PyResult<Substance> {
+            let db = load_substances_from_lua(&self.path)
+                .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+
+            db.get(&name).cloned().ok_or_else(|| {
+                pyo3::exceptions::PyKeyError::new_err(format!(
+                    "Compound '{}' not found in database",
+                    name
+                ))
+            })
+        }
+    }
 }
 
 pub mod equil {
@@ -1637,6 +1767,44 @@ mod data_test {
             AggregationType::Gas
         );
     }
+
+    #[test]
+    fn test_database_loader() {
+        let loader = DatabaseLoader::new("data/data.lua".to_string(), None).unwrap();
+        assert_eq!(loader.path, "data/data.lua");
+        assert!(loader.phases.len() >= 6);
+        assert!(loader.phases.contains(&"Calcite".to_string()));
+
+        let data = loader.data;
+        assert!(data.len() >= 6);
+        assert!(data.contains_key("Calcite"));
+
+        // Test loading phase list filtering
+        let loader_filtered = DatabaseLoader::new(
+            "data/data.lua".to_string(),
+            Some(vec!["Calcite".to_string(), "CO2".to_string()]),
+        )
+        .unwrap();
+        assert_eq!(loader_filtered.data.len(), 2);
+        assert!(loader_filtered.data.contains_key("Calcite"));
+        assert!(loader_filtered.data.contains_key("CO2"));
+        assert!(!loader_filtered.data.contains_key("Lime"));
+
+        // Test load_compound retrieving new data
+        let compound = loader_filtered.load_compound("Lime".to_string()).unwrap();
+        assert_eq!(compound.name, "Lime");
+    }
+}
+
+// ---------------------------------------------------------------------------
+
+#[pymodule(name = "_calphad")]
+pub mod calphad {
+    #[pymodule_export]
+    use crate::data::DatabaseLoader;
+
+    #[pymodule_export]
+    use crate::core::Substance;
 }
 
 // ---------------------------------------------------------------------------
