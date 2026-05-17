@@ -1270,6 +1270,7 @@ pub mod data {
 }
 
 pub mod equil {
+    use super::R_GAS;
     use crate::core::AggregationType;
     use crate::core::Substance;
 
@@ -1365,7 +1366,6 @@ pub mod equil {
     ) -> Vec<f64> {
         let n_s = species.len();
         let n_e = elements.len();
-        let r = 8.314_f64;
 
         // 1. Precompute molar Gibbs energies
         let mut g_0 = vec![0.0; n_s];
@@ -1373,7 +1373,7 @@ pub mod equil {
             let s = species[i];
             let mut g = s.gibbs(t);
             if s.aggregation_type == AggregationType::Gas {
-                g += r * t * (p / 101325.0).ln();
+                g += R_GAS * t * (p / 101325.0).ln();
             }
             g_0[i] = g;
         }
