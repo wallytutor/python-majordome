@@ -8,6 +8,57 @@ pub const P_REF: f64 = 101325.0;
 
 pub const R_GAS: f64 = 8.31446261815324;
 
+use std::fmt;
+
+// ---------------------------------------------------------------------------
+
+/// A float wrapper that prints in scientific notation with:
+/// - configurable total width and precision
+/// - controlled exponent width and total width
+/// - exponent always display a sign (+/-)
+pub struct SciFmt {
+    pub value: f64,
+    pub precision: usize,
+    pub total_width: usize,
+    pub exponent_width: usize,
+}
+
+impl fmt::Display for SciFmt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // 1) Format using Rust's scientific notation
+        let raw = format!("{:.*e}", self.precision, self.value);
+
+        // 2) Split mantissa and exponent
+        let (mant, exp) = raw.split_once('e').unwrap();
+
+        // 3) Parse exponent and reformat with +02 / -05 / +10
+        let exp_val: i32 = exp.parse().unwrap();
+        let exp_fixed = format!("{:+0width$}", exp_val, width = 1 + self.exponent_width);
+
+        // 4) Reassemble
+        let final_str = format!("{mant}e{exp_fixed}");
+
+        // 5) Apply width/alignment from the struct
+        let width = std::cmp::max(self.total_width, final_str.len());
+
+        if self.value > 0.0 {
+            write!(f, " {:>width$}", final_str, width = width)
+        } else {
+            write!(f, "{:>width$}", final_str, width = width)
+        }
+    }
+}
+
+pub fn exponential_fmt(value: f64) -> String {
+    let fmt = SciFmt {
+        value,
+        precision: 8,
+        total_width: 12,
+        exponent_width: 2,
+    };
+    fmt.to_string()
+}
+
 // ---------------------------------------------------------------------------
 
 pub mod autodiff {
@@ -424,6 +475,7 @@ pub mod functions {
 pub mod core {
     use crate::T_REF;
     use crate::autodiff::Numeric;
+    use crate::exponential_fmt;
     use crate::functions::*;
     use pyo3::prelude::*;
     use std::collections::HashMap;
@@ -909,6 +961,11 @@ pub mod core {
             format!("{:?}", self.aggregation_type)
         }
 
+        #[getter]
+        pub fn formation_enthalpy(&self) -> f64 {
+            self.enthalpy(298.15)
+        }
+
         #[pyo3(name = "cp")]
         pub fn cp_at(&self, t: f64) -> f64 {
             self.cp(t)
@@ -927,6 +984,78 @@ pub mod core {
         #[pyo3(name = "gibbs")]
         pub fn gibbs_at(&self, t: f64) -> f64 {
             self.gibbs(t)
+        }
+
+        pub fn report(&self, t: f64) -> String {
+            let tabulate = |label: &str, units: &str, value: &str| {
+                format!("{:15} | {:10} | {}", label, units, value)
+            };
+
+            let mut lines = Vec::new();
+            lines.push(format!("--- {} ---", self.name));
+
+            lines.push(tabulate(
+                "Aggregation",
+                "",
+                format!("{:?}", self.aggregation_type).as_str(),
+            ));
+
+            lines.push(tabulate(
+                "Molar mass",
+                "g/mol",
+                &exponential_fmt(self.molar_mass),
+            ));
+
+            lines.push(tabulate(
+                "Molar volume",
+                "cm³/mol",
+                &exponential_fmt(self.molar_volume),
+            ));
+
+            lines.push(tabulate(
+                "Entropy S0",
+                "J/(mol.K)",
+                &exponential_fmt(self.s0),
+            ));
+            lines.push(tabulate(
+                "Delta-Hf298",
+                "kJ/mol",
+                exponential_fmt(self.formation_enthalpy() / 1000.0).as_str(),
+            ));
+
+            let mut sorted_elements: Vec<(&String, &f64)> = self.elements.iter().collect();
+            sorted_elements.sort_by(|a, b| a.0.cmp(b.0));
+
+            lines.push("\nElements:".to_string());
+
+            for (el, coeff) in sorted_elements {
+                lines.push(format!("  * {:>2}: {:.6}", el, coeff));
+            }
+
+            lines.push(format!("\nProperties at {:.2} K:", t));
+            lines.push(tabulate(
+                " Specific heat",
+                "J/(mol.K)",
+                exponential_fmt(self.cp(t)).as_str(),
+            ));
+            lines.push(tabulate(
+                " Entropy",
+                "J/(mol.K)",
+                exponential_fmt(self.entropy(t)).as_str(),
+            ));
+            lines.push(tabulate(
+                " Gibbs energy",
+                "kJ/mol",
+                exponential_fmt(self.gibbs(t) / 1000.0).as_str(),
+            ));
+            lines.push(tabulate(
+                " Enthalpy",
+                "kJ/mol",
+                exponential_fmt(self.enthalpy(t) / 1000.0).as_str(),
+            ));
+
+            lines.push(format!("\nReference: {}", self.reference));
+            lines.join("\n")
         }
     }
 }
