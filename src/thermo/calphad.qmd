@@ -52,7 +52,7 @@ for phase in phases.values():
 - Tabulate with default bounds and step (100 K)
 
 ```{python}
-print(phases["Calcite"].tabulate())
+print(phases["Lime"].tabulate())
 ```
 
 - Tabulate with custom bounds and step:

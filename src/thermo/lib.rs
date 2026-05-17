@@ -1730,7 +1730,7 @@ pub mod data {
                 molar_mass,
                 molar_volume,
                 s0: table.get("s0").unwrap_or(0.0),
-                ranges: table.get("ranges")?,
+                ranges,
                 elements,
                 reference: table.get("reference").unwrap_or_else(|_| "".to_string()),
                 aggregation_type,
