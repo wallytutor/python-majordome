@@ -18,7 +18,7 @@
 
 - [x] Add a substance printer method to allow inspecting properties at a given state. Goal of replacing `thermo_evaluation.rs`.
 
-- [ ] Create a wrapper API allowing for specification of system composition in terms of compount mass or moles (or respective proportions) and internally normalizing the elemental composition to one mole of matter.
+- [x] Create a wrapper API allowing for specification of system composition in terms of compount mass or moles (or respective proportions) and internally normalizing the elemental composition to one mole of matter.
 
 - [ ] Export `autodiff` to Python and add example showing that Gibbs energy derivative with temperature matches entropy at reference state. Goal of replacing `autodiff_evaluation.rs`.
 

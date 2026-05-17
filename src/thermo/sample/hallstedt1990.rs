@@ -1,13 +1,17 @@
-use thermo::data::load_substances_from_lua;
-use thermo::equil::compute_elemental_fractions;
+use thermo::core::{Substance, SystemComposition};
+use thermo::data::DatabaseLoader;
 use thermo::equil::evaluate_local_equilibrium;
 
 fn main() {
-    let db = load_substances_from_lua("data/hallstedt1990.lua").expect("Failed to load hallstedt1990.lua");
+    let db = DatabaseLoader::new("data/hallstedt1990.lua".to_string(), None)
+        .expect("Failed to load hallstedt1990.lua");
 
     let names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"];
-    let species: Vec<_> = names.iter().map(|n| db.get(*n).expect(&format!("{} not found", n))).collect();
-    let elements = ["Ca", "Al", "O"];
+    let species_cloned: Vec<_> = names
+        .iter()
+        .map(|n| db.data.get(*n).expect(&format!("{} not found", n)).clone())
+        .collect();
+    let species: Vec<&Substance> = species_cloned.iter().collect();
 
     let t_eval = 1400.0;
     let p_eval = 101325.0;
@@ -17,28 +21,25 @@ fn main() {
     println!();
     println!(
         "{:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10} | {:<10}",
-        "x(Al2O3)",
-        "HALITE",
-        "C3A1",
-        "C1A1",
-        "C1A2",
-        "C1A6",
-        "CORUNDUM"
+        "x(Al2O3)", "HALITE", "C3A1", "C1A1", "C1A2", "C1A6", "CORUNDUM"
     );
     println!(
         "{:-<10}-+-{:-<10}-+-{:-<10}-+-{:-<10}-+-{:-<10}-+-{:-<10}-+-{:-<10}-",
         "", "", "", "", "", "", ""
     );
 
-    let halite = db.get("HALITE").unwrap();
-    let corundum = db.get("CORUNDUM").unwrap();
+    let halite = db.data.get("HALITE").unwrap();
+    let corundum = db.data.get("CORUNDUM").unwrap();
 
     let mut x = 0.0;
     while x <= 1.0001 {
         // System corresponds to (1-x) CaO + x Al2O3
-        // Note: compute_elemental_fractions takes a mix of substances and coefficients
-        let mix = [(halite, 1.0 - x), (corundum, x)];
-        let b = compute_elemental_fractions(&mix, &elements);
+        let mix = vec![(halite.clone(), 1.0 - x), (corundum.clone(), x)];
+
+        let comp = SystemComposition::from_compound_moles(mix).unwrap();
+        let elements_vec = comp.elements();
+        let elements: Vec<&str> = elements_vec.iter().map(|s| s.as_str()).collect();
+        let b = comp.fractions();
 
         let phi = evaluate_local_equilibrium(&species, &elements, &b, t_eval, p_eval);
         let total_phi: f64 = phi.iter().sum();

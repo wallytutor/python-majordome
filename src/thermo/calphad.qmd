@@ -15,6 +15,9 @@ loader = ExtensionFileLoader(module_name, str(calphad_lib))
 spec = spec_from_loader(module_name, loader)
 calphad = module_from_spec(spec)
 spec.loader.exec_module(calphad)
+
+DatabaseLoader = calphad.DatabaseLoader
+SystemComposition = calphad.SystemComposition
 ```
 
 ## Data loading and inspection
@@ -22,14 +25,14 @@ spec.loader.exec_module(calphad)
 ```{python}
 db_path = "data/data.lua"
 
-db = calphad.DatabaseLoader(db_path)
+db = DatabaseLoader(db_path)
 db.phases
 ```
 
 ```{python}
 phases = ["Calcite", "Lime", "CO2"]
 
-db = calphad.DatabaseLoader(db_path, phases=phases)
+db = DatabaseLoader(db_path, phases=phases)
 db.phases
 ```
 
@@ -45,4 +48,62 @@ print(phases["Calcite"].report(300.0))
 ```{python}
 for phase in phases.values():
     print(phase.report(300.0), "\n")
+```
+
+## Composition specification
+
+```{python}
+db = DatabaseLoader(db_path, phases=["Calcite", "Diaspore"])
+phases = db.get_data()
+
+caco3 = phases["Calcite"]
+alooh = phases["Diaspore"]
+```
+
+- Specification by compound moles (1.5 mol calcite + 2.0 mol diaspore):
+
+```{python}
+comp_moles = SystemComposition.from_compound_moles(
+    [(caco3, 1.5), (alooh, 2.0)]
+)
+print(comp_moles.report())
+```
+
+- Specification by compound masses (100.0 g calcite + 120.0 g diaspore):
+
+```{python}
+comp_masses = SystemComposition.from_compound_masses(
+    [(caco3, 100.0), (alooh, 120.0)]
+)
+print(comp_masses.report())
+```
+
+- Specification by elemental moles (1.0 mol Ca, 1.0 mol C, 3.0 mol O):
+
+```{python}
+elem_moles = SystemComposition.from_elemental_moles(
+    [("Ca", 1.0), ("C", 1.0), ("O", 3.0)]
+)
+print(elem_moles.report())
+```
+
+-  Specification by elemental masses (40.078 g Ca, 12.011 g C, 47.997 g O):
+
+```{python}
+elem_masses = SystemComposition.from_elemental_masses(
+    [("Ca", 40.078), ("C", 12.011), ("O", 47.997)]
+)
+print(elem_masses.report())
+```
+
+- Verifying Python API getters on `SystemComposition`:
+
+```{python}
+print(
+    f"input_method:       {comp_moles.input_method}",
+    f"input_proportions:  {comp_moles.input_proportions}",
+    f"elements:           {comp_moles.elements}",
+    f"balace:             {sum(comp_moles.fractions)}",
+    sep="\n",
+)
 ```

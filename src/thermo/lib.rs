@@ -1058,6 +1058,195 @@ pub mod core {
             lines.join("\n")
         }
     }
+
+    #[pyclass(from_py_object)]
+    #[derive(Debug, Clone)]
+    pub struct SystemComposition {
+        pub(crate) elements: Vec<String>,
+        pub(crate) fractions: Vec<f64>,
+        pub(crate) input_method: String,
+        pub(crate) input_proportions: HashMap<String, f64>,
+    }
+
+    #[pymethods]
+    impl SystemComposition {
+        #[staticmethod]
+        pub fn from_compound_moles(compounds: Vec<(Substance, f64)>) -> PyResult<Self> {
+            let mut element_moles = HashMap::new();
+            let mut input_proportions = HashMap::new();
+
+            for (substance, moles) in &compounds {
+                input_proportions.insert(substance.name.clone(), *moles);
+                for (el, coeff) in &substance.elements {
+                    *element_moles.entry(el.clone()).or_insert(0.0) += moles * coeff;
+                }
+            }
+
+            let mut elements: Vec<String> = element_moles.keys().cloned().collect();
+            elements.sort();
+
+            let total_moles: f64 = element_moles.values().sum();
+            let fractions = if total_moles > 0.0 {
+                elements
+                    .iter()
+                    .map(|el| element_moles.get(el).unwrap() / total_moles)
+                    .collect()
+            } else {
+                vec![0.0; elements.len()]
+            };
+
+            Ok(Self {
+                elements,
+                fractions,
+                input_method: "Compound Moles".to_string(),
+                input_proportions,
+            })
+        }
+
+        #[staticmethod]
+        pub fn from_compound_masses(compounds: Vec<(Substance, f64)>) -> PyResult<Self> {
+            let mut element_moles = HashMap::new();
+            let mut input_proportions = HashMap::new();
+
+            for (substance, mass) in &compounds {
+                input_proportions.insert(substance.name.clone(), *mass);
+                let moles = mass / substance.molar_mass;
+                for (el, coeff) in &substance.elements {
+                    *element_moles.entry(el.clone()).or_insert(0.0) += moles * coeff;
+                }
+            }
+
+            let mut elements: Vec<String> = element_moles.keys().cloned().collect();
+            elements.sort();
+
+            let total_moles: f64 = element_moles.values().sum();
+            let fractions = if total_moles > 0.0 {
+                elements
+                    .iter()
+                    .map(|el| element_moles.get(el).unwrap() / total_moles)
+                    .collect()
+            } else {
+                vec![0.0; elements.len()]
+            };
+
+            Ok(Self {
+                elements,
+                fractions,
+                input_method: "Compound Masses".to_string(),
+                input_proportions,
+            })
+        }
+
+        #[staticmethod]
+        pub fn from_elemental_moles(elements_in: Vec<(String, f64)>) -> PyResult<Self> {
+            let mut element_moles = HashMap::new();
+            let mut input_proportions = HashMap::new();
+
+            for (el, moles) in elements_in {
+                input_proportions.insert(el.clone(), moles);
+                *element_moles.entry(el).or_insert(0.0) += moles;
+            }
+
+            let mut elements: Vec<String> = element_moles.keys().cloned().collect();
+            elements.sort();
+
+            let total_moles: f64 = element_moles.values().sum();
+            let fractions = if total_moles > 0.0 {
+                elements
+                    .iter()
+                    .map(|el| element_moles.get(el).unwrap() / total_moles)
+                    .collect()
+            } else {
+                vec![0.0; elements.len()]
+            };
+
+            Ok(Self {
+                elements,
+                fractions,
+                input_method: "Elemental Moles".to_string(),
+                input_proportions,
+            })
+        }
+
+        #[staticmethod]
+        pub fn from_elemental_masses(elements_in: Vec<(String, f64)>) -> PyResult<Self> {
+            let mut element_moles = HashMap::new();
+            let mut input_proportions = HashMap::new();
+
+            for (el, mass) in elements_in {
+                input_proportions.insert(el.clone(), mass);
+                let atomic_w = get_atomic_weight(&el).ok_or_else(|| {
+                    pyo3::exceptions::PyValueError::new_err(format!(
+                        "Unknown element symbol: '{}'",
+                        el
+                    ))
+                })?;
+                let moles = mass / atomic_w;
+                *element_moles.entry(el).or_insert(0.0) += moles;
+            }
+
+            let mut elements: Vec<String> = element_moles.keys().cloned().collect();
+            elements.sort();
+
+            let total_moles: f64 = element_moles.values().sum();
+            let fractions = if total_moles > 0.0 {
+                elements
+                    .iter()
+                    .map(|el| element_moles.get(el).unwrap() / total_moles)
+                    .collect()
+            } else {
+                vec![0.0; elements.len()]
+            };
+
+            Ok(Self {
+                elements,
+                fractions,
+                input_method: "Elemental Masses".to_string(),
+                input_proportions,
+            })
+        }
+
+        #[getter]
+        pub fn elements(&self) -> Vec<String> {
+            self.elements.clone()
+        }
+
+        #[getter]
+        pub fn fractions(&self) -> Vec<f64> {
+            self.fractions.clone()
+        }
+
+        #[getter]
+        pub fn input_method(&self) -> String {
+            self.input_method.clone()
+        }
+
+        #[getter]
+        pub fn input_proportions(&self) -> HashMap<String, f64> {
+            self.input_proportions.clone()
+        }
+
+        pub fn report(&self) -> String {
+            let mut lines = Vec::new();
+            lines.push("=== System Composition Report ===".to_string());
+            lines.push(format!("Input Method: {}", self.input_method));
+            lines.push("\nInput Proportions:".to_string());
+
+            let mut sorted_inputs: Vec<(&String, &f64)> = self.input_proportions.iter().collect();
+            sorted_inputs.sort_by(|a, b| a.0.cmp(b.0));
+            for (name, prop) in sorted_inputs {
+                lines.push(format!("  * {}: {:.6}", name, prop));
+            }
+
+            lines.push(
+                "\nComputed Elemental Mole Fractions (normalized to 1 mole of atoms):".to_string(),
+            );
+            for (i, el) in self.elements.iter().enumerate() {
+                lines.push(format!("  * {:>2}: {:.6}", el, self.fractions[i]));
+            }
+            lines.join("\n")
+        }
+    }
 }
 
 pub mod data {
@@ -1735,29 +1924,6 @@ pub mod equil {
             find_particular_solution(&a, b, n_s, n_e)
         }
     }
-
-    pub fn compute_elemental_fractions(mix: &[(&Substance, f64)], elements: &[&str]) -> Vec<f64> {
-        let mut moles_of_elements = vec![0.0; elements.len()];
-
-        for (substance, amount) in mix {
-            for (i, &el) in elements.iter().enumerate() {
-                if let Some(&moles_in_substance) = substance.elements.get(el) {
-                    moles_of_elements[i] += amount * moles_in_substance;
-                }
-            }
-        }
-
-        let total_moles: f64 = moles_of_elements.iter().sum();
-
-        if total_moles > 0.0 {
-            moles_of_elements
-                .into_iter()
-                .map(|m| m / total_moles)
-                .collect()
-        } else {
-            moles_of_elements
-        }
-    }
 }
 
 // ---------------------------------------------------------------------------
@@ -1868,6 +2034,29 @@ mod core_test {
         let val = h2o.cp(300.0);
         assert!(val > 0.0);
     }
+
+    #[test]
+    fn test_system_composition() {
+        use crate::core::SystemComposition;
+        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let calcite = db.get("Calcite").unwrap();
+        let diaspore = db.get("Diaspore").unwrap();
+        let mix = vec![(calcite.clone(), 1.0), (diaspore.clone(), 1.0)];
+
+        let comp = SystemComposition::from_compound_moles(mix).unwrap();
+        let elements = comp.elements();
+        assert_eq!(elements, vec!["Al", "C", "Ca", "H", "O"]);
+
+        let b = comp.fractions();
+        assert!((b[0] - 1.0 / 9.0).abs() < 1e-9);
+        assert!((b[1] - 1.0 / 9.0).abs() < 1e-9);
+        assert!((b[2] - 1.0 / 9.0).abs() < 1e-9);
+        assert!((b[3] - 1.0 / 9.0).abs() < 1e-9);
+        assert!((b[4] - 5.0 / 9.0).abs() < 1e-9);
+
+        let rep = comp.report();
+        assert!(rep.contains("Input Method: Compound Moles"));
+    }
 }
 
 #[cfg(test)]
@@ -1934,6 +2123,9 @@ pub mod calphad {
 
     #[pymodule_export]
     use crate::core::Substance;
+
+    #[pymodule_export]
+    use crate::core::SystemComposition;
 }
 
 // ---------------------------------------------------------------------------
