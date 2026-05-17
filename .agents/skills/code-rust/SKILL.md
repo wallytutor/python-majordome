@@ -37,6 +37,8 @@ description: Provides directives for generating and modifying Rust code.
 
 - Use 2 blank lines between functions and 2 blank lines between methods in a struct/enum.
 
+- Inside `impl` and `[#pymethods] impl` blocks override the requirement for 2 blank lines between functions and use a single line, as in Python classes.
+
 - Whenever reasonable, allow aligning `=>` in matches so that it remains *tabular*.
 
 - For any non-trivial match, use braces and indent the code block (no-inline).
@@ -50,5 +52,3 @@ description: Provides directives for generating and modifying Rust code.
 - Do not use attributes to bypass any warning, such as `skip_from_py_object`. Instead, implement the new recommended approach so that the code base is already compliant with new standards.
 
 - When creating Python API's, do not use `py_` naming schemes. Any created API must look native as they are the primary goal. Find alternatives in the code structure.
-
-- Inside `[#pymethods] impl` override the requirement for 2 blank lines between functions and use a single line, as in Python classes.
