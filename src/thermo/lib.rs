@@ -1467,9 +1467,9 @@ pub mod data {
 
     #[pyclass]
     pub struct DatabaseLoader {
-        pub(crate) path: String,
-        pub(crate) phases: Vec<String>,
-        pub(crate) data: HashMap<String, Substance>,
+        pub path: String,
+        pub phases: Vec<String>,
+        pub data: HashMap<String, Substance>,
     }
 
     #[pymethods]

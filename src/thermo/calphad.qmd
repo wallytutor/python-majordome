@@ -1,0 +1,48 @@
+# Evaluating thermodynamic properties
+
+```{python}
+import os
+from importlib.util import spec_from_loader
+from importlib.util import module_from_spec
+from importlib.machinery import ExtensionFileLoader
+from pathlib import Path
+
+module_name = "_calphad"
+calphad_lib = Path(os.getcwd()) / "target/debug/thermo.dll"
+calphad_lib.exists()
+
+loader = ExtensionFileLoader(module_name, str(calphad_lib))
+spec = spec_from_loader(module_name, loader)
+calphad = module_from_spec(spec)
+spec.loader.exec_module(calphad)
+```
+
+## Data loading and inspection
+
+```{python}
+db_path = "data/data.lua"
+
+db = calphad.DatabaseLoader(db_path)
+db.phases
+```
+
+```{python}
+phases = ["Calcite", "Lime", "CO2"]
+
+db = calphad.DatabaseLoader(db_path, phases=phases)
+db.phases
+```
+
+```{python}
+phases = db.get_data()
+phases
+```
+
+```{python}
+print(phases["Calcite"].report(300.0))
+```
+
+```{python}
+for phase in phases.values():
+    print(phase.report(300.0), "\n")
+```
