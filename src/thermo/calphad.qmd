@@ -23,32 +23,48 @@ Dual = calphad.Dual
 
 ## Data loading and inspection
 
+- Loading a whole database:
+
 ```{python}
 db_path = "data/data.lua"
-
 db = DatabaseLoader(db_path)
 db.phases
 ```
 
+- Loading a selection of components:
+
 ```{python}
+db_path = "data/data.lua"
 phases = ["Calcite", "Lime", "CO2"]
-
 db = DatabaseLoader(db_path, phases=phases)
-db.phases
-```
 
-```{python}
 phases = db.get_data()
 phases
 ```
 
-```{python}
-print(phases["Calcite"].report(300.0))
-```
+- Reporting properties at a given temperature:
 
 ```{python}
 for phase in phases.values():
     print(phase.report(300.0), "\n")
+```
+
+- Tabulate with default bounds and step (100 K)
+
+```{python}
+print(phases["Calcite"].tabulate())
+```
+
+- Tabulate with custom bounds and step:
+
+```{python}
+print(phases["Calcite"].tabulate(t_min=237.0, t_max=1200.0, step=100.0))
+```
+
+- Tabulate phase with multiple temperature ranges (even with a step that does not match perfectly, the 1000 K will be printed):
+
+```{python}
+print(phases["CO2"].tabulate(step=300.0))
 ```
 
 ## Composition specification
