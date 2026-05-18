@@ -38,20 +38,35 @@ fn main() {
 
         let comp = SystemComposition::from_compound_moles(mix).unwrap();
         let elements_vec = comp.elements();
-        let elements: Vec<&str> = elements_vec.iter().map(|s| s.as_str()).collect();
-        let b = comp.fractions();
+        let fractions = comp.fractions();
+        let mut b_map = std::collections::HashMap::new();
+        for i in 0..elements_vec.len() {
+            b_map.insert(elements_vec[i].clone(), fractions[i]);
+        }
 
-        let phi = equilibrate_stoichiometric(&species, &elements, &b, t_eval, p_eval);
-        let total_phi: f64 = phi.iter().sum();
-        let norm_phi: Vec<f64> = if total_phi > 0.0 {
-            phi.iter().map(|&p| p / total_phi).collect()
-        } else {
-            phi
+        let phi = equilibrate_stoichiometric(&species, &b_map, t_eval, p_eval);
+        let mut total_phi = 0.0;
+        for name in &names {
+            total_phi += phi.get(*name).copied().unwrap_or(0.0);
+        }
+
+        let get_norm = |name: &str| {
+            if total_phi > 0.0 {
+                phi.get(name).copied().unwrap_or(0.0) / total_phi
+            } else {
+                0.0
+            }
         };
 
         println!(
             "{:<10.2} | {:<10.4} | {:<10.4} | {:<10.4} | {:<10.4} | {:<10.4} | {:<10.4}",
-            x, norm_phi[0], norm_phi[2], norm_phi[3], norm_phi[4], norm_phi[5], norm_phi[1]
+            x,
+            get_norm("HALITE"),
+            get_norm("C3A1"),
+            get_norm("C1A1"),
+            get_norm("C1A2"),
+            get_norm("C1A6"),
+            get_norm("CORUNDUM")
         );
 
         x += 0.05;

@@ -20,8 +20,11 @@ fn main() {
 
     let comp = SystemComposition::from_compound_moles(mix).unwrap();
     let elements_vec = comp.elements();
-    let elements: Vec<&str> = elements_vec.iter().map(|s| s.as_str()).collect();
-    let b = comp.fractions();
+    let fractions = comp.fractions();
+    let mut b_map = std::collections::HashMap::new();
+    for i in 0..elements_vec.len() {
+        b_map.insert(elements_vec[i].clone(), fractions[i]);
+    }
 
     println!("\n=== Composition Tabulation (300 K - 1200 K) ===");
     println!(
@@ -46,25 +49,27 @@ fn main() {
     let p = 101325.0;
 
     // Compute reference state at T_REF (298.15 K)
-    let phi_ref = equilibrate_stoichiometric(&species, &elements, &b, T_REF, p);
+    let phi_ref = equilibrate_stoichiometric(&species, &b_map, T_REF, p);
     let mut h_sys_ref = 0.0;
     let mut m_sys = 0.0; // Mass is constant across all temperatures
     for i in 0..species.len() {
         let s = &species[i];
         let h_i = s.enthalpy(T_REF);
-        h_sys_ref += phi_ref[i] * h_i;
-        m_sys += phi_ref[i] * s.molar_mass;
+        let amount = phi_ref.get(&s.name).copied().unwrap_or(0.0);
+        h_sys_ref += amount * h_i;
+        m_sys += amount * s.molar_mass;
     }
 
     let mut t = t_min;
     while t <= t_max {
-        let phi = equilibrate_stoichiometric(&species, &elements, &b, t, p);
+        let phi = equilibrate_stoichiometric(&species, &b_map, t, p);
 
         let mut h_sys = 0.0;
         for i in 0..species.len() {
             let s = &species[i];
             let h_i = s.enthalpy(t);
-            h_sys += phi[i] * h_i;
+            let amount = phi.get(&s.name).copied().unwrap_or(0.0);
+            h_sys += amount * h_i;
         }
         let h_sys_mass_change = if m_sys > 0.0 {
             (h_sys - h_sys_ref) / m_sys
@@ -74,7 +79,14 @@ fn main() {
 
         println!(
             "{:<10.2} | {:<12.6} | {:<12.6} | {:<12.6} | {:<14.6} | {:<12.6} | {:<12.6} | {:<14.2}",
-            t, phi[0], phi[1], phi[2], phi[3], phi[4], phi[5], h_sys_mass_change
+            t,
+            phi.get("Calcite").copied().unwrap_or(0.0),
+            phi.get("Lime").copied().unwrap_or(0.0),
+            phi.get("CO2").copied().unwrap_or(0.0),
+            phi.get("Diaspore").copied().unwrap_or(0.0),
+            phi.get("H2O").copied().unwrap_or(0.0),
+            phi.get("Al2O3").copied().unwrap_or(0.0),
+            h_sys_mass_change
         );
         t += t_inc;
     }

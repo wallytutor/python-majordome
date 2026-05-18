@@ -1025,13 +1025,6 @@ pub mod core {
         res
     }
 
-    #[pyfunction]
-    #[pyo3(name = "extract_elements")]
-    pub fn extract_elements_py(species: Vec<Substance>) -> Vec<String> {
-        let refs: Vec<&Substance> = species.iter().collect();
-        extract_elements(&refs)
-    }
-
     #[derive(Debug, Clone)]
     pub struct TemperatureRange {
         pub t_min: f64,
@@ -2076,18 +2069,18 @@ pub mod equil {
     use crate::core::Substance;
     use pyo3::prelude::*;
 
+    use std::collections::HashMap;
+
     #[pyfunction]
-    #[pyo3(name = "equilibrate_stoichiometric", signature = (species, elements, b, t, p = 101325.0))]
+    #[pyo3(name = "equilibrate_stoichiometric", signature = (species, b, t, p = 101325.0))]
     pub fn equilibrate_stoichiometric_py(
         species: Vec<Substance>,
-        elements: Vec<String>,
-        b: Vec<f64>,
+        b: HashMap<String, f64>,
         t: f64,
         p: f64,
-    ) -> Vec<f64> {
+    ) -> HashMap<String, f64> {
         let refs: Vec<&Substance> = species.iter().collect();
-        let element_strs: Vec<&str> = elements.iter().map(|s| s.as_str()).collect();
-        equilibrate_stoichiometric(&refs, &element_strs, &b, t, p)
+        equilibrate_stoichiometric(&refs, &b, t, p)
     }
 
     /// Find a particular solution to the mass balance equations A * phi = b.
@@ -2136,11 +2129,11 @@ pub mod equil {
     /// This solver is more robust and significantly faster than brute-force support search.
     pub fn equilibrate_stoichiometric(
         species: &[&Substance],
-        elements: &[&str],
-        b: &[f64],
+        b: &HashMap<String, f64>,
         t: f64,
         p: f64,
-    ) -> Vec<f64> {
+    ) -> HashMap<String, f64> {
+        let elements = crate::core::extract_elements(species);
         let n_s = species.len();
         let n_e = elements.len();
 
@@ -2159,8 +2152,14 @@ pub mod equil {
         let mut a = vec![vec![0.0; n_s]; n_e];
         for i in 0..n_e {
             for j in 0..n_s {
-                a[i][j] = species[j].elements.get(elements[i]).copied().unwrap_or(0.0);
+                a[i][j] = species[j].elements.get(&elements[i]).copied().unwrap_or(0.0);
             }
+        }
+
+        // Construct mass balance vector b_vec (n_e) matching the extracted elements
+        let mut b_vec = vec![0.0; n_e];
+        for i in 0..n_e {
+            b_vec[i] = b.get(&elements[i]).copied().unwrap_or(0.0);
         }
 
         let mut best_phi = vec![0.0; n_s];
@@ -2168,10 +2167,6 @@ pub mod equil {
         let mut found_solution = false;
 
         // 3. Support-Based Solver
-        // For stoichiometric phases, the equilibrium is a Basic Feasible Solution (BFS).
-        // A BFS has at most rank(A) species.
-        // Since n_s is small, we iterate through all subsets.
-
         for mask in 1..(1 << n_s) {
             let mut active = Vec::new();
             for k in 0..n_s {
@@ -2184,8 +2179,6 @@ pub mod equil {
                 continue;
             }
 
-            // Solve A_sub * phi_sub = b using Normal Equations for robustness:
-            // (A_sub^T * A_sub) * phi_sub = A_sub^T * b
             let n_a = active.len();
             let mut m = vec![vec![0.0; n_a]; n_a];
             let mut rhs = vec![0.0; n_a];
@@ -2198,12 +2191,11 @@ pub mod equil {
                     }
                     m[i][j] = sum;
                 }
-                // Regularization to handle rank-deficiency in the support
                 m[i][i] += 1e-9;
 
                 let mut sum_rhs = 0.0;
                 for k in 0..n_e {
-                    sum_rhs += a[k][active[i]] * b[k];
+                    sum_rhs += a[k][active[i]] * b_vec[k];
                 }
                 rhs[i] = sum_rhs;
             }
@@ -2220,14 +2212,13 @@ pub mod equil {
                 }
 
                 if valid {
-                    // Check mass balance accuracy
                     let mut max_err: f64 = 0.0;
                     for i in 0..n_e {
                         let mut sum = 0.0;
                         for k in 0..n_s {
                             sum += a[i][k] * phi[k];
                         }
-                        max_err = max_err.max((sum - b[i]).abs());
+                        max_err = max_err.max((sum - b_vec[i]).abs());
                     }
 
                     if max_err < 1e-5 {
@@ -2235,7 +2226,6 @@ pub mod equil {
                         for k in 0..n_s {
                             g += phi[k] * g_0[k];
                         }
-                        // Use a small epsilon to prefer smaller supports if Gibbs is same
                         let score = g + (active.len() as f64) * 1e-6;
                         if score < min_g {
                             min_g = score;
@@ -2247,12 +2237,17 @@ pub mod equil {
             }
         }
 
-        if found_solution {
+        let final_phi = if found_solution {
             best_phi
         } else {
-            // panic!("Unable to find physical solution!");
-            find_particular_solution(&a, b, n_s, n_e)
+            find_particular_solution(&a, &b_vec, n_s, n_e)
+        };
+
+        let mut result = HashMap::new();
+        for i in 0..n_s {
+            result.insert(species[i].name.clone(), final_phi[i]);
         }
+        result
     }
 }
 
@@ -2493,18 +2488,22 @@ mod equil_test {
         let al2o3 = db.get("Al2O3").unwrap();
 
         let species = vec![calcite, lime, co2, diaspore, h2o, al2o3];
-        let elements = vec!["Al", "C", "Ca", "H", "O"];
-        // System with 1 mole of CaCO3 + 1 mole of Diaspore: Ca=1, C=1, Al=1, H=1, O=5
-        let b = vec![1.0, 1.0, 1.0, 1.0, 5.0];
+        
+        let mut b = std::collections::HashMap::new();
+        b.insert("Ca".to_string(), 1.0);
+        b.insert("C".to_string(), 1.0);
+        b.insert("Al".to_string(), 1.0);
+        b.insert("H".to_string(), 1.0);
+        b.insert("O".to_string(), 5.0);
 
-        let phi = equilibrate_stoichiometric(&species, &elements, &b, 1173.15, 1.0);
+        let phi = equilibrate_stoichiometric(&species, &b, 1173.15, 1.0);
         assert_eq!(phi.len(), 6);
-        assert!((phi[0]).abs() < 1e-4); // CaCO3 (Calcite) is decomposed
-        assert!((phi[1] - 1.0).abs() < 1e-4); // CaO (Lime) is 1 mole
-        assert!((phi[2] - 1.0).abs() < 1e-4); // CO2 is 1 mole
-        assert!((phi[3]).abs() < 1e-4); // AlOOH (Diaspore) is decomposed
-        assert!((phi[4] - 0.5).abs() < 1e-4); // H2O is 0.5 mole
-        assert!((phi[5] - 0.5).abs() < 1e-4); // Al2O3 is 0.5 mole
+        assert!((phi.get("Calcite").copied().unwrap_or(0.0)).abs() < 1e-4);
+        assert!((phi.get("Lime").copied().unwrap_or(0.0) - 1.0).abs() < 1e-4);
+        assert!((phi.get("CO2").copied().unwrap_or(0.0) - 1.0).abs() < 1e-4);
+        assert!((phi.get("Diaspore").copied().unwrap_or(0.0)).abs() < 1e-4);
+        assert!((phi.get("H2O").copied().unwrap_or(0.0) - 0.5).abs() < 1e-4);
+        assert!((phi.get("Al2O3").copied().unwrap_or(0.0) - 0.5).abs() < 1e-4);
     }
 }
 
@@ -2523,9 +2522,6 @@ pub mod calphad {
 
     #[pymodule_export]
     use crate::autodiff::PyDual;
-
-    #[pymodule_export]
-    use crate::core::extract_elements_py as extract_elements;
 
     #[pymodule_export]
     use crate::equil::equilibrate_stoichiometric_py as equilibrate_stoichiometric;

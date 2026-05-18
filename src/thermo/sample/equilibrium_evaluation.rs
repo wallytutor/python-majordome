@@ -31,17 +31,21 @@ fn main() {
 
     let comp = SystemComposition::from_compound_moles(mix).unwrap();
     let elements_vec = comp.elements();
-    let elements: Vec<&str> = elements_vec.iter().map(|s| s.as_str()).collect();
-    let b = comp.fractions();
+    let fractions = comp.fractions();
+    let mut b_map = std::collections::HashMap::new();
+    for i in 0..elements_vec.len() {
+        b_map.insert(elements_vec[i].clone(), fractions[i]);
+    }
 
     println!("\n=== Generic CALPHAD Local Equilibrium ===");
     println!("T = {} K, P = {} bar", t, p_user);
     println!("{}", comp.report());
 
-    let equilibrium_phi = equilibrate_stoichiometric(&species, &elements, &b, t, p_user);
+    let equilibrium_phi = equilibrate_stoichiometric(&species, &b_map, t, p_user);
 
     println!("\nEquilibrium amounts:");
     for i in 0..6 {
-        println!("  {:<12}: {:.6} mol", display_names[i], equilibrium_phi[i]);
+        let amount = equilibrium_phi.get(names[i]).copied().unwrap_or(0.0);
+        println!("  {:<12}: {:.6} mol", display_names[i], amount);
     }
 }
