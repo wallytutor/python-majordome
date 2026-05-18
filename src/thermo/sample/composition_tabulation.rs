@@ -1,7 +1,7 @@
 use thermo::T_REF;
 use thermo::core::{Substance, SystemComposition};
 use thermo::data::DatabaseLoader;
-use thermo::equil::evaluate_local_equilibrium;
+use thermo::equil::equilibrate_stoichiometric;
 
 fn main() {
     let db = DatabaseLoader::new("data/data.lua".to_string(), None).unwrap();
@@ -46,7 +46,7 @@ fn main() {
     let p = 101325.0;
 
     // Compute reference state at T_REF (298.15 K)
-    let phi_ref = evaluate_local_equilibrium(&species, &elements, &b, T_REF, p);
+    let phi_ref = equilibrate_stoichiometric(&species, &elements, &b, T_REF, p);
     let mut h_sys_ref = 0.0;
     let mut m_sys = 0.0; // Mass is constant across all temperatures
     for i in 0..species.len() {
@@ -58,7 +58,7 @@ fn main() {
 
     let mut t = t_min;
     while t <= t_max {
-        let phi = evaluate_local_equilibrium(&species, &elements, &b, t, p);
+        let phi = equilibrate_stoichiometric(&species, &elements, &b, t, p);
 
         let mut h_sys = 0.0;
         for i in 0..species.len() {

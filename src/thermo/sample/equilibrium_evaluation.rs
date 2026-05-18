@@ -1,6 +1,6 @@
 use thermo::core::{Substance, SystemComposition};
 use thermo::data::DatabaseLoader;
-use thermo::equil::evaluate_local_equilibrium;
+use thermo::equil::equilibrate_stoichiometric;
 
 fn main() {
     let db = DatabaseLoader::new("data/data.lua".to_string(), None).unwrap();
@@ -38,7 +38,7 @@ fn main() {
     println!("T = {} K, P = {} bar", t, p_user);
     println!("{}", comp.report());
 
-    let equilibrium_phi = evaluate_local_equilibrium(&species, &elements, &b, t, p_user);
+    let equilibrium_phi = equilibrate_stoichiometric(&species, &elements, &b, t, p_user);
 
     println!("\nEquilibrium amounts:");
     for i in 0..6 {

@@ -24,7 +24,12 @@
 
 - [x] Make species tabulation a default feature of substances. Goal to replace `species_tabulation.rs` and expose method in Python.
 
-- [ ] Expose (in draft mode) the `evaluate_local_equilibrium` interface to Python so that `equilibrium_evaluation.rs` can be replaced by an API example.
+- [x] Create module `linalg` for methods not related to the core equilibrium calculations (e.g. `dense_gaussian_solver`).
+
+- [x] Rename local equilibrium solver to `equilibrate_stoichiometric` as it is dedicated to stoichiometric systems.
+
+- [x] Expose `equilibrate_stoichiometric` and `extract_elements` to Python.
+
 
 ## 2026-05-16
 

@@ -1013,6 +1013,25 @@ pub mod core {
         }
     }
 
+    pub fn extract_elements(compounds: &[&Substance]) -> Vec<String> {
+        let mut uniq = std::collections::HashSet::new();
+        for s in compounds {
+            for el in s.elements.keys() {
+                uniq.insert(el.clone());
+            }
+        }
+        let mut res: Vec<String> = uniq.into_iter().collect();
+        res.sort();
+        res
+    }
+
+    #[pyfunction]
+    #[pyo3(name = "extract_elements")]
+    pub fn extract_elements_py(species: Vec<Substance>) -> Vec<String> {
+        let refs: Vec<&Substance> = species.iter().collect();
+        extract_elements(&refs)
+    }
+
     #[derive(Debug, Clone)]
     pub struct TemperatureRange {
         pub t_min: f64,
@@ -1375,8 +1394,8 @@ pub mod core {
                 }
             }
 
-            let mut elements: Vec<String> = element_moles.keys().cloned().collect();
-            elements.sort();
+            let subs: Vec<&Substance> = compounds.iter().map(|(s, _)| s).collect();
+            let elements = extract_elements(&subs);
 
             let total_moles: f64 = element_moles.values().sum();
             let fractions = if total_moles > 0.0 {
@@ -1409,8 +1428,8 @@ pub mod core {
                 }
             }
 
-            let mut elements: Vec<String> = element_moles.keys().cloned().collect();
-            elements.sort();
+            let subs: Vec<&Substance> = compounds.iter().map(|(s, _)| s).collect();
+            let elements = extract_elements(&subs);
 
             let total_moles: f64 = element_moles.values().sum();
             let fractions = if total_moles > 0.0 {
@@ -2010,14 +2029,10 @@ pub mod data {
     }
 }
 
-pub mod equil {
-    use super::R_GAS;
-    use crate::core::AggregationType;
-    use crate::core::Substance;
-
+pub mod linalg {
     /// Solves a linear system Ax = b using Gaussian elimination with partial pivoting.
     /// Returns None if the matrix is singular.
-    pub fn solve_linear_system(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Vec<f64>> {
+    pub fn dense_gaussian_solver(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Vec<f64>> {
         let n = b.len();
         for i in 0..n {
             // Pivoting
@@ -2052,6 +2067,27 @@ pub mod equil {
             x[i] = (b[i] - sum) / a[i][i];
         }
         Some(x)
+    }
+}
+
+pub mod equil {
+    use super::R_GAS;
+    use crate::core::AggregationType;
+    use crate::core::Substance;
+    use pyo3::prelude::*;
+
+    #[pyfunction]
+    #[pyo3(name = "equilibrate_stoichiometric", signature = (species, elements, b, t, p = 101325.0))]
+    pub fn equilibrate_stoichiometric_py(
+        species: Vec<Substance>,
+        elements: Vec<String>,
+        b: Vec<f64>,
+        t: f64,
+        p: f64,
+    ) -> Vec<f64> {
+        let refs: Vec<&Substance> = species.iter().collect();
+        let element_strs: Vec<&str> = elements.iter().map(|s| s.as_str()).collect();
+        equilibrate_stoichiometric(&refs, &element_strs, &b, t, p)
     }
 
     /// Find a particular solution to the mass balance equations A * phi = b.
@@ -2098,7 +2134,7 @@ pub mod equil {
     /// 4. Returns the feasible solution with the global minimum Gibbs energy.
     /// Evaluates the local chemical equilibrium using the Dual (Element Potential) Method.
     /// This solver is more robust and significantly faster than brute-force support search.
-    pub fn evaluate_local_equilibrium(
+    pub fn equilibrate_stoichiometric(
         species: &[&Substance],
         elements: &[&str],
         b: &[f64],
@@ -2172,7 +2208,7 @@ pub mod equil {
                 rhs[i] = sum_rhs;
             }
 
-            if let Some(x) = solve_linear_system(m, rhs) {
+            if let Some(x) = crate::linalg::dense_gaussian_solver(m, rhs) {
                 let mut phi = vec![0.0; n_s];
                 let mut valid = true;
                 for (j, &val) in x.iter().enumerate() {
@@ -2214,6 +2250,7 @@ pub mod equil {
         if found_solution {
             best_phi
         } else {
+            // panic!("Unable to find physical solution!");
             find_particular_solution(&a, b, n_s, n_e)
         }
     }
@@ -2407,6 +2444,70 @@ mod data_test {
     }
 }
 
+#[cfg(test)]
+mod linalg_test {
+    use crate::linalg::dense_gaussian_solver;
+
+    #[test]
+    fn test_dense_gaussian_solver() {
+        // Solve:
+        //  2x +  y = 5
+        //   x - 3y = -8
+        // Solution: x = 1, y = 3
+        let a = vec![vec![2.0, 1.0], vec![1.0, -3.0]];
+        let b = vec![5.0, -8.0];
+        let x = dense_gaussian_solver(a, b).unwrap();
+        assert!((x[0] - 1.0).abs() < 1e-9);
+        assert!((x[1] - 3.0).abs() < 1e-9);
+
+        // Singular matrix
+        let a_singular = vec![vec![1.0, 2.0], vec![2.0, 4.0]];
+        let b_singular = vec![3.0, 6.0];
+        assert!(dense_gaussian_solver(a_singular, b_singular).is_none());
+    }
+}
+
+#[cfg(test)]
+mod equil_test {
+    use crate::core::extract_elements;
+    use crate::data::load_substances_from_lua;
+    use crate::equil::equilibrate_stoichiometric;
+
+    #[test]
+    fn test_extract_elements() {
+        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let calcite = db.get("Calcite").unwrap();
+        let diaspore = db.get("Diaspore").unwrap();
+        let elements = extract_elements(&[calcite, diaspore]);
+        assert_eq!(elements, vec!["Al", "C", "Ca", "H", "O"]);
+    }
+
+    #[test]
+    fn test_equilibrate_stoichiometric() {
+        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let calcite = db.get("Calcite").unwrap();
+        let lime = db.get("Lime").unwrap();
+        let co2 = db.get("CO2").unwrap();
+        let diaspore = db.get("Diaspore").unwrap();
+        let h2o = db.get("H2O").unwrap();
+        let al2o3 = db.get("Al2O3").unwrap();
+
+        let species = vec![calcite, lime, co2, diaspore, h2o, al2o3];
+        let elements = vec!["Al", "C", "Ca", "H", "O"];
+        // System with 1 mole of CaCO3 + 1 mole of Diaspore: Ca=1, C=1, Al=1, H=1, O=5
+        let b = vec![1.0, 1.0, 1.0, 1.0, 5.0];
+
+        let phi = equilibrate_stoichiometric(&species, &elements, &b, 1173.15, 1.0);
+        assert_eq!(phi.len(), 6);
+        assert!((phi[0]).abs() < 1e-4); // CaCO3 (Calcite) is decomposed
+        assert!((phi[1] - 1.0).abs() < 1e-4); // CaO (Lime) is 1 mole
+        assert!((phi[2] - 1.0).abs() < 1e-4); // CO2 is 1 mole
+        assert!((phi[3]).abs() < 1e-4); // AlOOH (Diaspore) is decomposed
+        assert!((phi[4] - 0.5).abs() < 1e-4); // H2O is 0.5 mole
+        assert!((phi[5] - 0.5).abs() < 1e-4); // Al2O3 is 0.5 mole
+    }
+}
+
 // ---------------------------------------------------------------------------
 
 #[pymodule(name = "_calphad")]
@@ -2422,6 +2523,12 @@ pub mod calphad {
 
     #[pymodule_export]
     use crate::autodiff::PyDual;
+
+    #[pymodule_export]
+    use crate::core::extract_elements_py as extract_elements;
+
+    #[pymodule_export]
+    use crate::equil::equilibrate_stoichiometric_py as equilibrate_stoichiometric;
 }
 
 // ---------------------------------------------------------------------------

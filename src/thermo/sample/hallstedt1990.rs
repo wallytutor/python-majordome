@@ -1,6 +1,6 @@
 use thermo::core::{Substance, SystemComposition};
 use thermo::data::DatabaseLoader;
-use thermo::equil::evaluate_local_equilibrium;
+use thermo::equil::equilibrate_stoichiometric;
 
 fn main() {
     let db = DatabaseLoader::new("data/hallstedt1990.lua".to_string(), None)
@@ -41,7 +41,7 @@ fn main() {
         let elements: Vec<&str> = elements_vec.iter().map(|s| s.as_str()).collect();
         let b = comp.fractions();
 
-        let phi = evaluate_local_equilibrium(&species, &elements, &b, t_eval, p_eval);
+        let phi = equilibrate_stoichiometric(&species, &elements, &b, t_eval, p_eval);
         let total_phi: f64 = phi.iter().sum();
         let norm_phi: Vec<f64> = if total_phi > 0.0 {
             phi.iter().map(|&p| p / total_phi).collect()
