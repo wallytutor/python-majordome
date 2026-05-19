@@ -19,6 +19,7 @@ spec.loader.exec_module(calphad)
 DatabaseLoader = calphad.DatabaseLoader
 SystemComposition = calphad.SystemComposition
 Dual = calphad.Dual
+equilibrate_stoichiometric = calphad.equilibrate_stoichiometric
 ```
 
 ## Data loading and inspection
@@ -156,9 +157,30 @@ print(
 
 ### Calcium carbonate and diaspore decomposition
 
-- Single equilibrium point:
+- Single equilibrium point (1.0 mol CaCO3 + 1.0 mol AlOOH):
 
-*WIP*
+```{python}
+t_eval = 1173.15
+p_eval = 101325.0
+X_eval = {"Calcite": 1.0, "Diaspore": 1.0}
+
+loader = DatabaseLoader("data/data.lua")
+db_data = loader.get_data()
+
+species = list(db_data.values())
+
+comp = SystemComposition.from_compound_moles(species, X_eval)
+print(comp.report().strip())
+
+# Construct target elemental composition b:
+b = dict(zip(comp.elements, comp.fractions))
+phi = equilibrate_stoichiometric(species, b, t_eval, p_eval)
+phi = dict(sorted(phi.items(), key=lambda x: x[0]))
+
+print("\nEquilibrium amounts (mol of elements base):")
+for name, amount in phi.items():
+    print(f"  - {name:<10}: {amount:.6f} mol")
+```
 
 - Temperature scanning:
 

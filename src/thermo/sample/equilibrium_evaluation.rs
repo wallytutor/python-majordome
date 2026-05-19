@@ -25,11 +25,11 @@ fn main() {
     let p_user = 1.0_f64; // bar
 
     // Mixture representing 1 mole of CaCO3 + 1 mole of Diaspore
-    let calcite = db.data.get("Calcite").unwrap();
-    let diaspore = db.data.get("Diaspore").unwrap();
-    let mix = vec![(calcite.clone(), 1.0), (diaspore.clone(), 1.0)];
+    let mut proportions = std::collections::HashMap::new();
+    proportions.insert("Calcite".to_string(), 1.0);
+    proportions.insert("Diaspore".to_string(), 1.0);
 
-    let comp = SystemComposition::from_compound_moles(mix).unwrap();
+    let comp = SystemComposition::from_compound_moles(species_cloned.clone(), proportions).unwrap();
     let elements_vec = comp.elements();
     let fractions = comp.fractions();
     let mut b_map = std::collections::HashMap::new();

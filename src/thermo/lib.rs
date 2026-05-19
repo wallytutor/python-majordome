@@ -1376,25 +1376,36 @@ pub mod core {
     #[pymethods]
     impl SystemComposition {
         #[staticmethod]
-        pub fn from_compound_moles(compounds: Vec<(Substance, f64)>) -> PyResult<Self> {
+        pub fn from_compound_moles(
+            species: Vec<Substance>,
+            proportions: HashMap<String, f64>,
+        ) -> PyResult<Self> {
             let mut element_moles = HashMap::new();
             let mut input_proportions = HashMap::new();
 
-            for (substance, moles) in &compounds {
+            let species_map: HashMap<String, &Substance> = species.iter().map(|s| (s.name.clone(), s)).collect();
+
+            for (name, moles) in &proportions {
+                let substance = species_map.get(name).ok_or_else(|| {
+                    pyo3::exceptions::PyValueError::new_err(format!(
+                        "Substance '{}' specified in composition not found in species list",
+                        name
+                    ))
+                })?;
                 input_proportions.insert(substance.name.clone(), *moles);
                 for (el, coeff) in &substance.elements {
                     *element_moles.entry(el.clone()).or_insert(0.0) += moles * coeff;
                 }
             }
 
-            let subs: Vec<&Substance> = compounds.iter().map(|(s, _)| s).collect();
+            let subs: Vec<&Substance> = species.iter().collect();
             let elements = extract_elements(&subs);
 
             let total_moles: f64 = element_moles.values().sum();
             let fractions = if total_moles > 0.0 {
                 elements
                     .iter()
-                    .map(|el| element_moles.get(el).unwrap() / total_moles)
+                    .map(|el| element_moles.get(el).copied().unwrap_or(0.0) / total_moles)
                     .collect()
             } else {
                 vec![0.0; elements.len()]
@@ -1409,11 +1420,22 @@ pub mod core {
         }
 
         #[staticmethod]
-        pub fn from_compound_masses(compounds: Vec<(Substance, f64)>) -> PyResult<Self> {
+        pub fn from_compound_masses(
+            species: Vec<Substance>,
+            proportions: HashMap<String, f64>,
+        ) -> PyResult<Self> {
             let mut element_moles = HashMap::new();
             let mut input_proportions = HashMap::new();
 
-            for (substance, mass) in &compounds {
+            let species_map: HashMap<String, &Substance> = species.iter().map(|s| (s.name.clone(), s)).collect();
+
+            for (name, mass) in &proportions {
+                let substance = species_map.get(name).ok_or_else(|| {
+                    pyo3::exceptions::PyValueError::new_err(format!(
+                        "Substance '{}' specified in composition not found in species list",
+                        name
+                    ))
+                })?;
                 input_proportions.insert(substance.name.clone(), *mass);
                 let moles = mass / substance.molar_mass;
                 for (el, coeff) in &substance.elements {
@@ -1421,14 +1443,14 @@ pub mod core {
                 }
             }
 
-            let subs: Vec<&Substance> = compounds.iter().map(|(s, _)| s).collect();
+            let subs: Vec<&Substance> = species.iter().collect();
             let elements = extract_elements(&subs);
 
             let total_moles: f64 = element_moles.values().sum();
             let fractions = if total_moles > 0.0 {
                 elements
                     .iter()
-                    .map(|el| element_moles.get(el).unwrap() / total_moles)
+                    .map(|el| element_moles.get(el).copied().unwrap_or(0.0) / total_moles)
                     .collect()
             } else {
                 vec![0.0; elements.len()]
@@ -1978,7 +2000,9 @@ pub mod data {
                 raw_data.retain(|k, _| selected_phases.contains(k));
                 selected_phases.clone()
             } else {
-                raw_data.keys().cloned().collect::<Vec<String>>()
+                let mut p = raw_data.keys().cloned().collect::<Vec<String>>();
+                p.sort();
+                p
             };
 
             Ok(Self {
@@ -2001,18 +2025,17 @@ pub mod data {
         pub fn get_data<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
             let dict = PyDict::new(py);
 
-            for (k, v) in &self.data {
-                dict.set_item(k, v.clone())?;
+            for phase_name in &self.phases {
+                if let Some(v) = self.data.get(phase_name) {
+                    dict.set_item(phase_name, v.clone())?;
+                }
             }
 
             Ok(dict)
         }
 
         pub fn load_compound(&self, name: String) -> PyResult<Substance> {
-            let db = load_substances_from_lua(&self.path)
-                .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
-
-            db.get(&name).cloned().ok_or_else(|| {
+            self.data.get(&name).cloned().ok_or_else(|| {
                 pyo3::exceptions::PyKeyError::new_err(format!(
                     "Compound '{}' not found in database",
                     name
@@ -2366,9 +2389,13 @@ mod core_test {
         let db = load_substances_from_lua("data/data.lua").unwrap();
         let calcite = db.get("Calcite").unwrap();
         let diaspore = db.get("Diaspore").unwrap();
-        let mix = vec![(calcite.clone(), 1.0), (diaspore.clone(), 1.0)];
+        let species = vec![calcite.clone(), diaspore.clone()];
 
-        let comp = SystemComposition::from_compound_moles(mix).unwrap();
+        let mut proportions = std::collections::HashMap::new();
+        proportions.insert("Calcite".to_string(), 1.0);
+        proportions.insert("Diaspore".to_string(), 1.0);
+
+        let comp = SystemComposition::from_compound_moles(species, proportions).unwrap();
         let elements = comp.elements();
         assert_eq!(elements, vec!["Al", "C", "Ca", "H", "O"]);
 
@@ -2418,7 +2445,7 @@ mod data_test {
         assert!(loader.phases.len() >= 6);
         assert!(loader.phases.contains(&"Calcite".to_string()));
 
-        let data = loader.data;
+        let data = &loader.data;
         assert!(data.len() >= 6);
         assert!(data.contains_key("Calcite"));
 
@@ -2433,9 +2460,12 @@ mod data_test {
         assert!(loader_filtered.data.contains_key("CO2"));
         assert!(!loader_filtered.data.contains_key("Lime"));
 
-        // Test load_compound retrieving new data
-        let compound = loader_filtered.load_compound("Lime".to_string()).unwrap();
-        assert_eq!(compound.name, "Lime");
+        // Test load_compound retrieving data from cache
+        let compound = loader_filtered.load_compound("Calcite".to_string()).unwrap();
+        assert_eq!(compound.name, "Calcite");
+
+        let compound2 = loader.load_compound("Lime".to_string()).unwrap();
+        assert_eq!(compound2.name, "Lime");
     }
 }
 
