@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Split modules with lazy imports (no impact for application programs), largely decreasing the typical import time of library functions.
+
 - Increased maturity and documentation of `majordome.engineering.SkinFrictionFactor` and the associated `majordome.engineering.WallGradingCalculator`.
 
 ## 1.2.0 - 2026-05-13

@@ -38,6 +38,8 @@
 
 ## General code features
 
+- [x] Use module level __getattr__ to improve import speed.
+
 - [x] Fix launching of rust binaries in uv environments; test a branch of majordome simplified to a uv/maturin workflow Creating projects | uv Project Layout - Maturin User Guide before going further. Created a new project with uv init --python 3.12 --build-backend maturin majordome. Migration performed and project management became extremely simple compared to previous version.
 
 - [ ] Migrate gpxpy usage to plain XML for better maintainability.
