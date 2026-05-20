@@ -166,10 +166,10 @@ phi
 
 - Temperature scanning:
 
-*WIP*
+*WIP for composition_tabulation*
 
 ### Al-Ca-O system by Hallstedt (1990)
 
 - Composition scanning:
 
-*WIP*
+*WIP for hallstedt1990*

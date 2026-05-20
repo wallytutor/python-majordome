@@ -37,3 +37,5 @@
 - [x] Add `into_elemental_fractions` helper to `SystemComposition`.
 
 - [x] Implement the `Equilibrium` class with full thermodynamic details and a gorgeous report formatter.
+
+- [ ] Currently the Python/Rust equilibrium functions do not share the same interface (passing a dict in Python); make Python become the source of truth.
