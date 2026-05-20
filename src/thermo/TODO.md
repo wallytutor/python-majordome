@@ -28,15 +28,11 @@
 
 - [x] Rename local equilibrium solver to `equilibrate_stoichiometric` as it is dedicated to stoichiometric systems.
 
-- [x] Expose `equilibrate_stoichiometric` and `extract_elements` to Python.
+- [x] Expose `equilibrate_stoichiometric` to Python.
 
+## 2026-05-20
 
-## 2026-05-16
+- [x] Simplify `SystemComposition` constructors to take a `HashMap` database.
+- [x] Add `into_elemental_fractions` helper to `SystemComposition`.
+- [x] Implement the `Equilibrium` class with full thermodynamic details and a gorgeous report formatter.
 
-- [x] Create library file `lib.rs` and several entry points to expose rust sample applications. Each entry point exposes a single feature for human inspection.
-
-- [x] Use Lua modules for database construction. This is accomplished by adding a data loader that exposes the data creation to Lua scripts.
-
-- [x] Add PyO3 to be able to interact with python and test the module.
-
-- [x] Create `devel.py` file and use it to add new data and check the use of automatic differentiation.

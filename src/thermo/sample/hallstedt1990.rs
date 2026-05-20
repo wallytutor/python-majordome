@@ -36,7 +36,7 @@ fn main() {
         proportions.insert("HALITE".to_string(), 1.0 - x);
         proportions.insert("CORUNDUM".to_string(), x);
 
-        let comp = SystemComposition::from_compound_moles(species_cloned.clone(), proportions).unwrap();
+        let comp = SystemComposition::from_compound_moles(db.data.clone(), proportions).unwrap();
         let elements_vec = comp.elements();
         let fractions = comp.fractions();
         let mut b_map = std::collections::HashMap::new();
@@ -44,7 +44,8 @@ fn main() {
             b_map.insert(elements_vec[i].clone(), fractions[i]);
         }
 
-        let phi = equilibrate_stoichiometric(&species, &b_map, t_eval, p_eval);
+        let eq = equilibrate_stoichiometric(&species, &b_map, t_eval, p_eval);
+        let phi = &eq.amounts;
         let mut total_phi = 0.0;
         for name in &names {
             total_phi += phi.get(*name).copied().unwrap_or(0.0);

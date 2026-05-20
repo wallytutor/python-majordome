@@ -18,7 +18,7 @@ fn main() {
     proportions.insert("Calcite".to_string(), 1.0);
     proportions.insert("Diaspore".to_string(), 1.0);
 
-    let comp = SystemComposition::from_compound_moles(species_cloned.clone(), proportions).unwrap();
+    let comp = SystemComposition::from_compound_moles(db.data.clone(), proportions).unwrap();
     let elements_vec = comp.elements();
     let fractions = comp.fractions();
     let mut b_map = std::collections::HashMap::new();
@@ -49,7 +49,8 @@ fn main() {
     let p = 101325.0;
 
     // Compute reference state at T_REF (298.15 K)
-    let phi_ref = equilibrate_stoichiometric(&species, &b_map, T_REF, p);
+    let eq_ref = equilibrate_stoichiometric(&species, &b_map, T_REF, p);
+    let phi_ref = &eq_ref.amounts;
     let mut h_sys_ref = 0.0;
     let mut m_sys = 0.0; // Mass is constant across all temperatures
     for i in 0..species.len() {
@@ -62,7 +63,8 @@ fn main() {
 
     let mut t = t_min;
     while t <= t_max {
-        let phi = equilibrate_stoichiometric(&species, &b_map, t, p);
+        let eq = equilibrate_stoichiometric(&species, &b_map, t, p);
+        let phi = &eq.amounts;
 
         let mut h_sys = 0.0;
         for i in 0..species.len() {

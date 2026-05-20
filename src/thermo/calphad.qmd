@@ -73,45 +73,38 @@ print(phases["CO2"].tabulate(step=300.0))
 ```{python}
 db = DatabaseLoader(db_path, phases=["Calcite", "Diaspore"])
 phases = db.get_data()
-
-caco3 = phases["Calcite"]
-alooh = phases["Diaspore"]
 ```
 
 - Specification by compound moles (1.5 mol calcite + 2.0 mol diaspore):
 
 ```{python}
-comp_moles = SystemComposition.from_compound_moles(
-    [(caco3, 1.5), (alooh, 2.0)]
-)
-print(comp_moles.report())
+X = {"Calcite": 1.5, "Diaspore": 2.0}
+comp = SystemComposition.from_compound_moles(phases, X)
+print(comp.report())
 ```
 
 - Specification by compound masses (100.0 g calcite + 120.0 g diaspore):
 
 ```{python}
-comp_masses = SystemComposition.from_compound_masses(
-    [(caco3, 100.0), (alooh, 120.0)]
-)
-print(comp_masses.report())
+Y = {"Calcite": 100.0, "Diaspore": 200.0}
+comp = SystemComposition.from_compound_masses(phases, Y)
+print(comp.report())
 ```
 
 - Specification by elemental moles (1.0 mol Ca, 1.0 mol C, 3.0 mol O):
 
 ```{python}
-elem_moles = SystemComposition.from_elemental_moles(
-    [("Ca", 1.0), ("C", 1.0), ("O", 3.0)]
-)
-print(elem_moles.report())
+elements = {"Ca": 1.0, "C": 1.0, "O": 3.0}
+comp = SystemComposition.from_elemental_moles(elements)
+print(comp.report())
 ```
 
 -  Specification by elemental masses (40.078 g Ca, 12.011 g C, 47.997 g O):
 
 ```{python}
-elem_masses = SystemComposition.from_elemental_masses(
-    [("Ca", 40.078), ("C", 12.011), ("O", 47.997)]
-)
-print(elem_masses.report())
+elements = {"Ca": 40.078, "C": 12.011, "O": 47.997}
+comp = SystemComposition.from_elemental_masses(elements)
+print(comp.report())
 ```
 
 - Verifying Python API getters on `SystemComposition`:
@@ -165,21 +158,24 @@ p_eval = 101325.0
 X_eval = {"Calcite": 1.0, "Diaspore": 1.0}
 
 loader = DatabaseLoader("data/data.lua")
-db_data = loader.get_data()
+phases = loader.get_data()
 
-species = list(db_data.values())
-
-comp = SystemComposition.from_compound_moles(species, X_eval)
+comp = SystemComposition.from_compound_moles(phases, X_eval)
 print(comp.report().strip())
 
 # Construct target elemental composition b:
-b = dict(zip(comp.elements, comp.fractions))
-phi = equilibrate_stoichiometric(species, b, t_eval, p_eval)
-phi = dict(sorted(phi.items(), key=lambda x: x[0]))
+b = comp.
+phi = equilibrate_stoichiometric(phases, b, t_eval, p_eval)
 
-print("\nEquilibrium amounts (mol of elements base):")
-for name, amount in phi.items():
-    print(f"  - {name:<10}: {amount:.6f} mol")
+# phi = dict(sorted(phi.items(), key=lambda x: x[0]))
+
+# print("\nEquilibrium amounts (mol of elements base):")
+# for name, amount in phi.items():
+#     print(f"  - {name:<10}: {amount:.6f} mol")
+```
+
+```{python}
+comp.input_proportions
 ```
 
 - Temperature scanning:

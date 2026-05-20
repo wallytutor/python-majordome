@@ -12,14 +12,6 @@ fn main() {
         .collect();
     let species: Vec<&Substance> = species_cloned.iter().collect();
 
-    let display_names = [
-        "CaCO3(s)",
-        "CaO(s)",
-        "CO2(g)",
-        "Diaspore(s)",
-        "H2O(g)",
-        "Al2O3(s)",
-    ];
 
     let t = 1173.15_f64; // K
     let p_user = 1.0_f64; // bar
@@ -29,7 +21,7 @@ fn main() {
     proportions.insert("Calcite".to_string(), 1.0);
     proportions.insert("Diaspore".to_string(), 1.0);
 
-    let comp = SystemComposition::from_compound_moles(species_cloned.clone(), proportions).unwrap();
+    let comp = SystemComposition::from_compound_moles(db.data.clone(), proportions).unwrap();
     let elements_vec = comp.elements();
     let fractions = comp.fractions();
     let mut b_map = std::collections::HashMap::new();
@@ -41,11 +33,7 @@ fn main() {
     println!("T = {} K, P = {} bar", t, p_user);
     println!("{}", comp.report());
 
-    let equilibrium_phi = equilibrate_stoichiometric(&species, &b_map, t, p_user);
+    let eq = equilibrate_stoichiometric(&species, &b_map, t, p_user);
 
-    println!("\nEquilibrium amounts:");
-    for i in 0..6 {
-        let amount = equilibrium_phi.get(names[i]).copied().unwrap_or(0.0);
-        println!("  {:<12}: {:.6} mol", display_names[i], amount);
-    }
+    println!("{}", eq.report());
 }

@@ -1377,18 +1377,16 @@ pub mod core {
     impl SystemComposition {
         #[staticmethod]
         pub fn from_compound_moles(
-            species: Vec<Substance>,
+            species: HashMap<String, Substance>,
             proportions: HashMap<String, f64>,
         ) -> PyResult<Self> {
             let mut element_moles = HashMap::new();
             let mut input_proportions = HashMap::new();
 
-            let species_map: HashMap<String, &Substance> = species.iter().map(|s| (s.name.clone(), s)).collect();
-
             for (name, moles) in &proportions {
-                let substance = species_map.get(name).ok_or_else(|| {
+                let substance = species.get(name).ok_or_else(|| {
                     pyo3::exceptions::PyValueError::new_err(format!(
-                        "Substance '{}' specified in composition not found in species list",
+                        "Substance '{}' specified in composition not found in species database",
                         name
                     ))
                 })?;
@@ -1398,7 +1396,7 @@ pub mod core {
                 }
             }
 
-            let subs: Vec<&Substance> = species.iter().collect();
+            let subs: Vec<&Substance> = species.values().collect();
             let elements = extract_elements(&subs);
 
             let total_moles: f64 = element_moles.values().sum();
@@ -1421,18 +1419,16 @@ pub mod core {
 
         #[staticmethod]
         pub fn from_compound_masses(
-            species: Vec<Substance>,
+            species: HashMap<String, Substance>,
             proportions: HashMap<String, f64>,
         ) -> PyResult<Self> {
             let mut element_moles = HashMap::new();
             let mut input_proportions = HashMap::new();
 
-            let species_map: HashMap<String, &Substance> = species.iter().map(|s| (s.name.clone(), s)).collect();
-
             for (name, mass) in &proportions {
-                let substance = species_map.get(name).ok_or_else(|| {
+                let substance = species.get(name).ok_or_else(|| {
                     pyo3::exceptions::PyValueError::new_err(format!(
-                        "Substance '{}' specified in composition not found in species list",
+                        "Substance '{}' specified in composition not found in species database",
                         name
                     ))
                 })?;
@@ -1443,7 +1439,7 @@ pub mod core {
                 }
             }
 
-            let subs: Vec<&Substance> = species.iter().collect();
+            let subs: Vec<&Substance> = species.values().collect();
             let elements = extract_elements(&subs);
 
             let total_moles: f64 = element_moles.values().sum();
@@ -1464,8 +1460,17 @@ pub mod core {
             })
         }
 
+        #[pyo3(name = "into_elemental_fractions")]
+        pub fn into_elemental_fractions(&self) -> HashMap<String, f64> {
+            let mut map = HashMap::new();
+            for (el, frac) in self.elements.iter().zip(self.fractions.iter()) {
+                map.insert(el.clone(), *frac);
+            }
+            map
+        }
+
         #[staticmethod]
-        pub fn from_elemental_moles(elements_in: Vec<(String, f64)>) -> PyResult<Self> {
+        pub fn from_elemental_moles(elements_in: HashMap<String, f64>) -> PyResult<Self> {
             let mut element_moles = HashMap::new();
             let mut input_proportions = HashMap::new();
 
@@ -1496,7 +1501,7 @@ pub mod core {
         }
 
         #[staticmethod]
-        pub fn from_elemental_masses(elements_in: Vec<(String, f64)>) -> PyResult<Self> {
+        pub fn from_elemental_masses(elements_in: HashMap<String, f64>) -> PyResult<Self> {
             let mut element_moles = HashMap::new();
             let mut input_proportions = HashMap::new();
 
@@ -2094,6 +2099,100 @@ pub mod equil {
 
     use std::collections::HashMap;
 
+    #[pyclass]
+    #[derive(Debug, Clone)]
+    pub struct Equilibrium {
+        #[pyo3(get)]
+        pub amounts: HashMap<String, f64>,
+        #[pyo3(get)]
+        pub gibbs_energies: HashMap<String, f64>,
+        #[pyo3(get)]
+        pub total_gibbs: f64,
+        #[pyo3(get)]
+        pub temperature: f64,
+        #[pyo3(get)]
+        pub pressure: f64,
+        pub substances: Vec<Substance>,
+    }
+
+    #[pymethods]
+    impl Equilibrium {
+        #[new]
+        pub fn new(
+            amounts: HashMap<String, f64>,
+            gibbs_energies: HashMap<String, f64>,
+            total_gibbs: f64,
+            temperature: f64,
+            pressure: f64,
+            substances: Vec<Substance>,
+        ) -> Self {
+            Self {
+                amounts,
+                gibbs_energies,
+                total_gibbs,
+                temperature,
+                pressure,
+                substances,
+            }
+        }
+
+        #[pyo3(name = "report")]
+        pub fn report(&self) -> String {
+            let mut s = String::new();
+            s.push_str("================================================================================\n");
+            s.push_str("                           CHEMICAL EQUILIBRIUM REPORT                          \n");
+            s.push_str("================================================================================\n");
+
+            s.push_str("  CONDITIONS:\n");
+            s.push_str(&format!("    Temperature .....: {:.2} K ({:.2} °C)\n", self.temperature, self.temperature - 273.15));
+            s.push_str(&format!("    Pressure ........: {:.5} bar ({:.1} Pa)\n", self.pressure / 100000.0, self.pressure));
+
+            s.push_str("\n  GLOBAL THERMODYNAMIC PROPERTIES:\n");
+            s.push_str(&format!("    Total Gibbs Energy (G) : {:.4} J\n", self.total_gibbs));
+
+            s.push_str("\n  PHASE ASSEMBLAGE DATA:\n");
+            s.push_str(&format!(
+                "    {:<15} | {:<8} | {:<12} | {:<15} | {:<15}\n",
+                "Phase Name", "Status", "Amount (mol)", "Pure Gibbs (J)", "Total Gibbs (J)"
+            ));
+            s.push_str("    ----------------------------------------------------------------------------\n");
+
+            let mut sorted_substances = self.substances.clone();
+            sorted_substances.sort_by(|a, b| a.name.cmp(&b.name));
+
+            for sub in &sorted_substances {
+                let amount = self.amounts.get(&sub.name).copied().unwrap_or(0.0);
+                let status = if amount > 1e-6 { "Stable" } else { "Inactive" };
+                let pure_g = self.gibbs_energies.get(&sub.name).copied().unwrap_or(0.0);
+                let contrib_g = amount * pure_g;
+
+                s.push_str(&format!(
+                    "    {:<15} | {:<8} | {:<12.6E} | {:<15.4} | {:<15.4}\n",
+                    sub.name, status, amount, pure_g, contrib_g
+                ));
+
+                let mut el_strs = Vec::new();
+                let mut sorted_els: Vec<_> = sub.elements.keys().collect();
+                sorted_els.sort();
+                for el in sorted_els {
+                    let coeff = sub.elements.get(el).copied().unwrap_or(0.0);
+                    el_strs.push(format!("{}: {}", el, coeff));
+                }
+                s.push_str(&format!("      Composition: {}\n", el_strs.join(", ")));
+            }
+            s.push_str("================================================================================\n");
+            s
+        }
+
+        fn __repr__(&self) -> String {
+            self.report()
+        }
+
+        fn __str__(&self) -> String {
+            self.report()
+        }
+    }
+
     #[pyfunction]
     #[pyo3(name = "equilibrate_stoichiometric", signature = (species, b, t, p = 101325.0))]
     pub fn equilibrate_stoichiometric_py(
@@ -2101,7 +2200,7 @@ pub mod equil {
         b: HashMap<String, f64>,
         t: f64,
         p: f64,
-    ) -> HashMap<String, f64> {
+    ) -> Equilibrium {
         let refs: Vec<&Substance> = species.iter().collect();
         equilibrate_stoichiometric(&refs, &b, t, p)
     }
@@ -2155,7 +2254,7 @@ pub mod equil {
         b: &HashMap<String, f64>,
         t: f64,
         p: f64,
-    ) -> HashMap<String, f64> {
+    ) -> Equilibrium {
         let elements = crate::core::extract_elements(species);
         let n_s = species.len();
         let n_e = elements.len();
@@ -2266,11 +2365,31 @@ pub mod equil {
             find_particular_solution(&a, &b_vec, n_s, n_e)
         };
 
-        let mut result = HashMap::new();
+        let mut amounts = HashMap::new();
         for i in 0..n_s {
-            result.insert(species[i].name.clone(), final_phi[i]);
+            amounts.insert(species[i].name.clone(), final_phi[i]);
         }
-        result
+
+        let mut gibbs_energies = HashMap::new();
+        for i in 0..n_s {
+            gibbs_energies.insert(species[i].name.clone(), g_0[i]);
+        }
+
+        let mut total_gibbs = 0.0;
+        for i in 0..n_s {
+            total_gibbs += final_phi[i] * g_0[i];
+        }
+
+        let substances: Vec<Substance> = species.iter().map(|&s| s.clone()).collect();
+
+        Equilibrium {
+            amounts,
+            gibbs_energies,
+            total_gibbs,
+            temperature: t,
+            pressure: p,
+            substances,
+        }
     }
 }
 
@@ -2387,15 +2506,12 @@ mod core_test {
     fn test_system_composition() {
         use crate::core::SystemComposition;
         let db = load_substances_from_lua("data/data.lua").unwrap();
-        let calcite = db.get("Calcite").unwrap();
-        let diaspore = db.get("Diaspore").unwrap();
-        let species = vec![calcite.clone(), diaspore.clone()];
 
         let mut proportions = std::collections::HashMap::new();
         proportions.insert("Calcite".to_string(), 1.0);
         proportions.insert("Diaspore".to_string(), 1.0);
 
-        let comp = SystemComposition::from_compound_moles(species, proportions).unwrap();
+        let comp = SystemComposition::from_compound_moles(db, proportions).unwrap();
         let elements = comp.elements();
         assert_eq!(elements, vec!["Al", "C", "Ca", "H", "O"]);
 
@@ -2526,7 +2642,8 @@ mod equil_test {
         b.insert("H".to_string(), 1.0);
         b.insert("O".to_string(), 5.0);
 
-        let phi = equilibrate_stoichiometric(&species, &b, 1173.15, 1.0);
+        let eq = equilibrate_stoichiometric(&species, &b, 1173.15, 1.0);
+        let phi = &eq.amounts;
         assert_eq!(phi.len(), 6);
         assert!((phi.get("Calcite").copied().unwrap_or(0.0)).abs() < 1e-4);
         assert!((phi.get("Lime").copied().unwrap_or(0.0) - 1.0).abs() < 1e-4);
@@ -2552,6 +2669,9 @@ pub mod calphad {
 
     #[pymodule_export]
     use crate::autodiff::PyDual;
+
+    #[pymodule_export]
+    use crate::equil::Equilibrium;
 
     #[pymodule_export]
     use crate::equil::equilibrate_stoichiometric_py as equilibrate_stoichiometric;
