@@ -2,6 +2,7 @@
 
 ```{python}
 import os
+import numpy as np
 from importlib.util import spec_from_loader
 from importlib.util import module_from_spec
 from importlib.machinery import ExtensionFileLoader
@@ -219,36 +220,50 @@ while t <= 1200.0:
 - Composition scanning (x(Al₂O₃) from 0 to 1 at 1400 K):
 
 ```{python}
-db_h = DatabaseLoader("data/hallstedt1990.lua")
-h_phases = db_h.get_data()
-phase_names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"]
+names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"]
 
-t_h = 1400.0
-p_h = 101325.0
+db = DatabaseLoader("data/hallstedt1990.lua", names)
+phases = db.get_data()
+
+t = 1400.0
+p = 101325.0
 
 header = (
-    f"{'x(Al2O3)':<10} | {'HALITE':>8} | {'C3A1':>8}"
-    f" | {'C1A1':>8} | {'C1A2':>8} | {'C1A6':>8} | {'CORUNDUM':>10}"
+    f"{'x(Al2O3)':<10} | "
+    f"{'HALITE':>8} | "
+    f"{'C3A1':>8} | "
+    f"{'C1A1':>8} | "
+    f"{'C1A2':>8} | "
+    f"{'C1A6':>8} | "
+    f"{'CORUNDUM':>10}"
 )
 print(header)
 print("-" * len(header))
 
-x = 0.0
-while x <= 1.001:
+x_arr = np.arange(0.0, 1.01, 0.05).tolist()
+x_arr = sorted(x_arr + [2/3, 6/7])
+
+for x in x_arr:
     X_moles = {"HALITE": 1.0 - x, "CORUNDUM": x}
-    comp_h = SystemComposition.from_compound_moles(h_phases, X_moles)
-    eq_h   = equilibrate_stoichiometric(h_phases, comp_h, t_h, p_h)
-    total  = sum(eq_h.amounts.get(n, 0.0) for n in phase_names)
-    norm   = lambda n: eq_h.amounts.get(n, 0.0) / total if total > 0 else 0.0
+
+    comp  = SystemComposition.from_compound_moles(phases, X_moles)
+    eq    = equilibrate_stoichiometric(phases, comp, t, p)
+
+    total = sum(eq.amounts.get(n, 0.0) for n in names)
+
+    def norm(n):
+        if total <= 0:
+            return 0.0
+
+        return abs(eq.amounts.get(n, 0.0)) / total
 
     print(
-        f"{x:<10.2f} | "
-        f"{norm('HALITE'):>8.4f} | "
-        f"{norm('C3A1'):>8.4f} | "
-        f"{norm('C1A1'):>8.4f} | "
-        f"{norm('C1A2'):>8.4f} | "
-        f"{norm('C1A6'):>8.4f} | "
+        f"{x:<10.4f} | "
+        f"{norm('HALITE'):>8.2f} | "
+        f"{norm('C3A1'):>8.2f} | "
+        f"{norm('C1A1'):>8.2f} | "
+        f"{norm('C1A2'):>8.2f} | "
+        f"{norm('C1A6'):>8.2f} | "
         f"{norm('CORUNDUM'):>10.4f}"
     )
-    x += 0.05
 ```
