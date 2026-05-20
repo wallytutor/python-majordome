@@ -33,6 +33,7 @@
 ## 2026-05-20
 
 - [x] Simplify `SystemComposition` constructors to take a `HashMap` database.
-- [x] Add `into_elemental_fractions` helper to `SystemComposition`.
-- [x] Implement the `Equilibrium` class with full thermodynamic details and a gorgeous report formatter.
 
+- [x] Add `into_elemental_fractions` helper to `SystemComposition`.
+
+- [x] Implement the `Equilibrium` class with full thermodynamic details and a gorgeous report formatter.

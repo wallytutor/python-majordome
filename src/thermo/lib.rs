@@ -2095,11 +2095,12 @@ pub mod equil {
     use super::R_GAS;
     use crate::core::AggregationType;
     use crate::core::Substance;
+    use crate::core::SystemComposition;
     use pyo3::prelude::*;
 
     use std::collections::HashMap;
 
-    #[pyclass]
+    #[pyclass(from_py_object)]
     #[derive(Debug, Clone)]
     pub struct Equilibrium {
         #[pyo3(get)]
@@ -2144,11 +2145,22 @@ pub mod equil {
             s.push_str("================================================================================\n");
 
             s.push_str("  CONDITIONS:\n");
-            s.push_str(&format!("    Temperature .....: {:.2} K ({:.2} °C)\n", self.temperature, self.temperature - 273.15));
-            s.push_str(&format!("    Pressure ........: {:.5} bar ({:.1} Pa)\n", self.pressure / 100000.0, self.pressure));
+            s.push_str(&format!(
+                "    Temperature .....: {:.2} K ({:.2} °C)\n",
+                self.temperature,
+                self.temperature - 273.15
+            ));
+            s.push_str(&format!(
+                "    Pressure ........: {:.5} bar ({:.1} Pa)\n",
+                self.pressure / 100000.0,
+                self.pressure
+            ));
 
             s.push_str("\n  GLOBAL THERMODYNAMIC PROPERTIES:\n");
-            s.push_str(&format!("    Total Gibbs Energy (G) : {:.4} J\n", self.total_gibbs));
+            s.push_str(&format!(
+                "    Total Gibbs Energy (G) : {:.4} J\n",
+                self.total_gibbs
+            ));
 
             s.push_str("\n  PHASE ASSEMBLAGE DATA:\n");
             s.push_str(&format!(
@@ -2194,14 +2206,19 @@ pub mod equil {
     }
 
     #[pyfunction]
-    #[pyo3(name = "equilibrate_stoichiometric", signature = (species, b, t, p = 101325.0))]
+    #[pyo3(
+        name = "equilibrate_stoichiometric",
+        signature = (species, composition, t, p = 101325.0)
+    )]
     pub fn equilibrate_stoichiometric_py(
-        species: Vec<Substance>,
-        b: HashMap<String, f64>,
+        species: HashMap<String, Substance>,
+        composition: SystemComposition,
         t: f64,
         p: f64,
     ) -> Equilibrium {
-        let refs: Vec<&Substance> = species.iter().collect();
+        // let refs: Vec<&Substance> = species.iter().collect();
+        let refs: Vec<&Substance> = species.values().collect();
+        let b: HashMap<String, f64> = composition.into_elemental_fractions();
         equilibrate_stoichiometric(&refs, &b, t, p)
     }
 
@@ -2274,7 +2291,11 @@ pub mod equil {
         let mut a = vec![vec![0.0; n_s]; n_e];
         for i in 0..n_e {
             for j in 0..n_s {
-                a[i][j] = species[j].elements.get(&elements[i]).copied().unwrap_or(0.0);
+                a[i][j] = species[j]
+                    .elements
+                    .get(&elements[i])
+                    .copied()
+                    .unwrap_or(0.0);
             }
         }
 
@@ -2577,7 +2598,9 @@ mod data_test {
         assert!(!loader_filtered.data.contains_key("Lime"));
 
         // Test load_compound retrieving data from cache
-        let compound = loader_filtered.load_compound("Calcite".to_string()).unwrap();
+        let compound = loader_filtered
+            .load_compound("Calcite".to_string())
+            .unwrap();
         assert_eq!(compound.name, "Calcite");
 
         let compound2 = loader.load_compound("Lime".to_string()).unwrap();
@@ -2634,7 +2657,7 @@ mod equil_test {
         let al2o3 = db.get("Al2O3").unwrap();
 
         let species = vec![calcite, lime, co2, diaspore, h2o, al2o3];
-        
+
         let mut b = std::collections::HashMap::new();
         b.insert("Ca".to_string(), 1.0);
         b.insert("C".to_string(), 1.0);

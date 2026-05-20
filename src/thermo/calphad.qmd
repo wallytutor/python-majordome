@@ -111,10 +111,10 @@ print(comp.report())
 
 ```{python}
 print(
-    f"input_method:       {comp_moles.input_method}",
-    f"input_proportions:  {comp_moles.input_proportions}",
-    f"elements:           {comp_moles.elements}",
-    f"balace:             {sum(comp_moles.fractions)}",
+    f"input_method:       {comp.input_method}",
+    f"input_proportions:  {comp.input_proportions}",
+    f"elements:           {comp.elements}",
+    f"balace:             {sum(comp.fractions)}",
     sep="\n",
 )
 ```
@@ -157,25 +157,11 @@ t_eval = 1173.15
 p_eval = 101325.0
 X_eval = {"Calcite": 1.0, "Diaspore": 1.0}
 
-loader = DatabaseLoader("data/data.lua")
-phases = loader.get_data()
-
+phases = DatabaseLoader("data/data.lua").get_data()
 comp = SystemComposition.from_compound_moles(phases, X_eval)
-print(comp.report().strip())
+phi = equilibrate_stoichiometric(phases, comp, t_eval, p_eval)
 
-# Construct target elemental composition b:
-b = comp.
-phi = equilibrate_stoichiometric(phases, b, t_eval, p_eval)
-
-# phi = dict(sorted(phi.items(), key=lambda x: x[0]))
-
-# print("\nEquilibrium amounts (mol of elements base):")
-# for name, amount in phi.items():
-#     print(f"  - {name:<10}: {amount:.6f} mol")
-```
-
-```{python}
-comp.input_proportions
+phi
 ```
 
 - Temperature scanning:
