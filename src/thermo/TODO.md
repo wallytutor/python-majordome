@@ -2,8 +2,6 @@
 
 **Short-term goals:**
 
-- Eliminate all Rust examples by exposing functionalities through Python API.
-
 - Improve robustness of the optimization routines and document its behavior.
 
 - Create a database of substances that I work on a regular basis for ease access.
@@ -38,4 +36,58 @@
 
 - [x] Implement the `Equilibrium` class with full thermodynamic details and a gorgeous report formatter.
 
-- [ ] Currently the Python/Rust equilibrium functions do not share the same interface (passing a dict in Python); make Python become the source of truth.
+- [x] Make Python the source of truth: `equilibrate_stoichiometric` now accepts a `SystemComposition` object directly from Python; the Rust-only variant uses `&HashMap` as before.
+
+## 2026-05-21
+
+- [x] Migrate `composition_tabulation` and `hallstedt1990` into a unified `usage.rs` at the crate root; remove `sample/` binaries.
+
+- [x] Rename `data/data.lua` → `data/sample/simple-calcination.lua`; propagate path everywhere.
+
+- [x] Fill WIP sections in `calphad.qmd` for temperature scan and Hallstedt composition scan.
+
+- [x] Rewrite README with authoritative status and capability table.
+
+## Next steps — Ionic Liquid Model (Hallstedt 1990)
+
+The TDB defines an `IONIC_LIQ` phase with two sublattices:
+
+```
+PHASE IONIC_LIQ:Y % 2 2 3 !
+  CONSTITUENT IONIC_LIQ:Y : AL+3,CA+2 : O-2,VA : !
+```
+
+Implementing this requires the following stages:
+
+- [ ] **Ion species registry** – Add `IonSpecies` to the Lua DSL with a charge
+  field; extend `load_substances_from_lua` to recognise and load them without
+  error.
+
+- [ ] **Sublattice model struct** – Introduce a `SublatticePhase` type holding:
+  - site multiplicities (`p`, `q`)
+  - a list of cation species with site fractions `y_c`
+  - a list of anion/vacancy species with site fractions `y_a`
+  - end-member Gibbs parameters `G(IONIC_LIQ, cation:anion)`
+  - interaction (Redlich–Kister) parameters `L(…;0)`, `L(…;1)`
+
+- [ ] **Gibbs energy of mixing** – Implement the two-sublattice ionic liquid
+  expression:
+  - Ideal configurational entropy: `RT [p Σ y_c ln y_c + q Σ y_a ln y_a]`
+  - Excess term: `Σ y_c y_c' y_a (L0 + L1(y_c - y_c')) `  (Redlich–Kister)
+
+- [ ] **Internal site-fraction optimizer** – Given temperature and overall
+  composition, minimize the sublattice Gibbs energy w.r.t. site fractions
+  subject to charge neutrality and site-fraction sum constraints (likely a
+  Newton–Raphson inner loop).
+
+- [ ] **Outer equilibrium coupling** – Feed the liquid-phase Gibbs energy
+  (now a function of internal site fractions and T) into the outer
+  `equilibrate_stoichiometric` as a black-box phase Gibbs value, or extend
+  the equilibrium solver to handle non-stoichiometric (solution) phases.
+
+- [ ] **Python exposure** – Wrap `SublatticePhase` in PyO3 so that the
+  liquid-phase degree of freedom is accessible from Python, similarly to
+  how `Substance` is currently exposed.
+
+- [ ] **Validation** – Reproduce Figure 1 of Hallstedt (1990): liquidus and
+  eutectic temperatures in the CaO–Al₂O₃ binary at 1 bar.

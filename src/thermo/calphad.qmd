@@ -20,6 +20,9 @@ DatabaseLoader = calphad.DatabaseLoader
 SystemComposition = calphad.SystemComposition
 Dual = calphad.Dual
 equilibrate_stoichiometric = calphad.equilibrate_stoichiometric
+
+T_REF = 298.15
+P_REF = 101325.0
 ```
 
 ## Data loading and inspection
@@ -27,7 +30,7 @@ equilibrate_stoichiometric = calphad.equilibrate_stoichiometric
 - Loading a whole database:
 
 ```{python}
-db_path = "data/data.lua"
+db_path = "data/sample/simple-calcination.lua"
 db = DatabaseLoader(db_path)
 db.phases
 ```
@@ -35,7 +38,6 @@ db.phases
 - Loading a selection of components:
 
 ```{python}
-db_path = "data/data.lua"
 phases = ["Calcite", "Lime", "CO2"]
 db = DatabaseLoader(db_path, phases=phases)
 
@@ -122,8 +124,6 @@ print(
 ## Automatic differentiation
 
 ```{python}
-db_path = "data/data.lua"
-
 db = DatabaseLoader(db_path, phases=["Calcite"])
 calcite = db.get_data()["Calcite"]
 
@@ -157,19 +157,98 @@ t_eval = 1173.15
 p_eval = 101325.0
 X_eval = {"Calcite": 1.0, "Diaspore": 1.0}
 
-phases = DatabaseLoader("data/data.lua").get_data()
+phases = DatabaseLoader(db_path).get_data()
 comp = SystemComposition.from_compound_moles(phases, X_eval)
 phi = equilibrate_stoichiometric(phases, comp, t_eval, p_eval)
 
 phi
 ```
 
-- Temperature scanning:
+- Temperature scanning (300 K – 1200 K, step 100 K):
 
-*WIP for composition_tabulation*
+```{python}
+phases = DatabaseLoader(db_path).get_data()
+species_names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"]
+comp = SystemComposition.from_compound_moles(phases, X_eval)
+
+eq_ref = equilibrate_stoichiometric(phases, comp, T_REF, p_eval)
+h_ref  = sum(
+    eq_ref.amounts.get(n, 0.0) * phases[n].enthalpy(T_REF)
+    for n in species_names
+)
+m_sys = sum(
+    eq_ref.amounts.get(n, 0.0) * phases[n].molar_mass
+    for n in species_names
+)
+
+header = (
+    f"{'T (K)':<10} | {'CaCO3':>8} | {'CaO':>8} | {'CO2':>8}"
+    f" | {'Diaspore':>10} | {'H2O':>8} | {'Al2O3':>8} | {'dH (J/g)':>10}"
+)
+print(header)
+print("-" * len(header))
+
+def print_eq(t, eq, dh):
+    print(
+        f"{t:<10.2f} | "
+        f"{eq.amounts.get('Calcite',  0.0):>8.4f} | "
+        f"{eq.amounts.get('Lime',     0.0):>8.4f} | "
+        f"{eq.amounts.get('CO2',      0.0):>8.4f} | "
+        f"{eq.amounts.get('Diaspore', 0.0):>10.4f} | "
+        f"{eq.amounts.get('H2O',      0.0):>8.4f} | "
+        f"{eq.amounts.get('Al2O3',    0.0):>8.4f} | "
+        f"{dh:>10.2f}"
+    )
+
+print_eq(T_REF, eq_ref, 0.0)
+
+t = 300.0
+while t <= 1200.0:
+    eq  = equilibrate_stoichiometric(phases, comp, t, p_eval)
+    h_t = sum(
+        eq.amounts.get(n, 0.0) * phases[n].enthalpy(t)
+        for n in species_names
+    )
+    dh = (h_t - h_ref) / m_sys if m_sys > 0 else 0.0
+    print_eq(t, eq, dh)
+    t += 100.0
+```
 
 ### Al-Ca-O system by Hallstedt (1990)
 
-- Composition scanning:
+- Composition scanning (x(Al₂O₃) from 0 to 1 at 1400 K):
 
-*WIP for hallstedt1990*
+```{python}
+db_h = DatabaseLoader("data/hallstedt1990.lua")
+h_phases = db_h.get_data()
+phase_names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"]
+
+t_h = 1400.0
+p_h = 101325.0
+
+header = (
+    f"{'x(Al2O3)':<10} | {'HALITE':>8} | {'C3A1':>8}"
+    f" | {'C1A1':>8} | {'C1A2':>8} | {'C1A6':>8} | {'CORUNDUM':>10}"
+)
+print(header)
+print("-" * len(header))
+
+x = 0.0
+while x <= 1.001:
+    X_moles = {"HALITE": 1.0 - x, "CORUNDUM": x}
+    comp_h = SystemComposition.from_compound_moles(h_phases, X_moles)
+    eq_h   = equilibrate_stoichiometric(h_phases, comp_h, t_h, p_h)
+    total  = sum(eq_h.amounts.get(n, 0.0) for n in phase_names)
+    norm   = lambda n: eq_h.amounts.get(n, 0.0) / total if total > 0 else 0.0
+
+    print(
+        f"{x:<10.2f} | "
+        f"{norm('HALITE'):>8.4f} | "
+        f"{norm('C3A1'):>8.4f} | "
+        f"{norm('C1A1'):>8.4f} | "
+        f"{norm('C1A2'):>8.4f} | "
+        f"{norm('C1A6'):>8.4f} | "
+        f"{norm('CORUNDUM'):>10.4f}"
+    )
+    x += 0.05
+```

@@ -2501,7 +2501,7 @@ mod core_test {
 
     #[test]
     fn test_thermo_derivatives() {
-        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let db = load_substances_from_lua("data/sample/simple-calcination.lua").unwrap();
         let calcite = db.get("Calcite").unwrap();
         let g = |t: Dual<f64>| calcite.gibbs(t);
 
@@ -2517,7 +2517,7 @@ mod core_test {
 
     #[test]
     fn test_h2o_nasa7() {
-        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let db = load_substances_from_lua("data/sample/simple-calcination.lua").unwrap();
         let h2o = db.get("H2O").unwrap();
         let val = h2o.cp(300.0);
         assert!(val > 0.0);
@@ -2526,7 +2526,7 @@ mod core_test {
     #[test]
     fn test_system_composition() {
         use crate::core::SystemComposition;
-        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let db = load_substances_from_lua("data/sample/simple-calcination.lua").unwrap();
 
         let mut proportions = std::collections::HashMap::new();
         proportions.insert("Calcite".to_string(), 1.0);
@@ -2555,7 +2555,7 @@ mod data_test {
 
     #[test]
     fn test_load_from_lua() {
-        let result = load_substances_from_lua("data/data.lua");
+        let result = load_substances_from_lua("data/sample/simple-calcination.lua");
         assert!(
             result.is_ok(),
             "Failed to load from lua: {:?}",
@@ -2577,8 +2577,11 @@ mod data_test {
 
     #[test]
     fn test_database_loader() {
-        let loader = DatabaseLoader::new("data/data.lua".to_string(), None).unwrap();
-        assert_eq!(loader.path, "data/data.lua");
+        let loader = DatabaseLoader::new(
+            "data/sample/simple-calcination.lua".to_string(),
+            None,
+        ).unwrap();
+        assert_eq!(loader.path, "data/sample/simple-calcination.lua");
         assert!(loader.phases.len() >= 6);
         assert!(loader.phases.contains(&"Calcite".to_string()));
 
@@ -2588,7 +2591,7 @@ mod data_test {
 
         // Test loading phase list filtering
         let loader_filtered = DatabaseLoader::new(
-            "data/data.lua".to_string(),
+            "data/sample/simple-calcination.lua".to_string(),
             Some(vec!["Calcite".to_string(), "CO2".to_string()]),
         )
         .unwrap();
@@ -2639,7 +2642,7 @@ mod equil_test {
 
     #[test]
     fn test_extract_elements() {
-        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let db = load_substances_from_lua("data/sample/simple-calcination.lua").unwrap();
         let calcite = db.get("Calcite").unwrap();
         let diaspore = db.get("Diaspore").unwrap();
         let elements = extract_elements(&[calcite, diaspore]);
@@ -2648,7 +2651,7 @@ mod equil_test {
 
     #[test]
     fn test_equilibrate_stoichiometric() {
-        let db = load_substances_from_lua("data/data.lua").unwrap();
+        let db = load_substances_from_lua("data/sample/simple-calcination.lua").unwrap();
         let calcite = db.get("Calcite").unwrap();
         let lime = db.get("Lime").unwrap();
         let co2 = db.get("CO2").unwrap();

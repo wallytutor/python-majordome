@@ -20,12 +20,4 @@ features = ["lua54", "vendored"]
 
 [[bin]]
 name = "usage"
-path = "sample/usage.rs"
-
-[[bin]]
-name = "sample_composition_tabulation"
-path = "sample/composition_tabulation.rs"
-
-[[bin]]
-name = "sample_hallstedt1990"
-path = "sample/hallstedt1990.rs"
+path = "usage.rs"
