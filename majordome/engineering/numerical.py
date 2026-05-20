@@ -76,6 +76,7 @@ class StabilizeNvarsConvergenceCheck:
                  rtol: float = 1.0e-10,  atol: float = 1.0e-20,
                  equal_nan: bool = False, log_iter: bool = False,
                  ) -> None:
+        # TODO add some validation here.
         self._min_iter = min_iter
         self._max_iter = max_iter
         self._patience = patience
@@ -103,27 +104,38 @@ class StabilizeNvarsConvergenceCheck:
         state: NDArray[np.float64]
             Current solution state to be checked for convergence.
         """
+        # Increase counter:
         self._niter += 1
 
+        # Logical checks for leaving:
         converge_enough_times  = self._count >= self._patience
         reached_min_iterations = self._niter >= self._min_iter
 
+        # If converging for a while, good, but for a minimum iterations!
         if converge_enough_times and reached_min_iterations:
             if self._log_iter:
                 logging.info(f"Converged after {self._niter} iterations")
             return True
 
+        # If reached each, we are *good* here...
         if self._niter >= self._max_iter:
             warn(f"Leaving after 'max_iter={self._max_iter}' iterations. "
                  f"Reviewing the setup is recommended.")
             return True
 
+        # Converge once, count it, otherwise reset counter:
         if np.all(self._compare(self._last, state)):
             self._count += 1
         else:
             self._count = 0
 
+        # TODO report variables lacking convergence?
+        # capture results of self._compare.
+
+        # Swap solution states for next call:
         self._last[:] = state
+
+        # Not good, call me back later, folks!
         return False
 
     @property
@@ -166,6 +178,7 @@ class ComposedStabilizedConvergence:
         if len(arrs) != self._conv.shape[0]:
             raise RuntimeError("Bad number of arrays to verify")
 
+        # XXX: run until a first failure only (lazy evaluation).
         for data, conv in zip(arrs, self._conv):
             if not conv(data):
                 return False

@@ -81,6 +81,8 @@ def _split_composition(species):
                  f"setting composition to unit '{species}:1'")
         return species, 1.0
 
+    # TODO also support things as "2 * species" ?
+
     name, value = species.split(":")
     return name.strip(), float(value.strip())
 
@@ -411,6 +413,7 @@ class PlugFlowChainCantera:
     def __init__(self, mechanism: str, phase: str, z: NDArray[np.float64],
                  V: NDArray[np.float64], P: float = ct.one_atm, K: float = 1.0,
                  smoot_flux: bool = False, cantera_steady: bool = True) -> None:
+        # Store coordinates and volume of slices:
         self._z = z
         self._V = V
         self._P = P
@@ -418,38 +421,60 @@ class PlugFlowChainCantera:
         self._smoot_flux = smoot_flux
         self._advance_steady_cantera = cantera_steady
 
+        # Create solutions from compatible mechanism:
         self._f_sources = ct.composite.Solution(mechanism, phase, basis="mass")
         self._f_content = ct.composite.Solution(mechanism, phase, basis="mass")
         self._f_outflow = ct.composite.Solution(mechanism, phase, basis="mass")
 
+        # Enforce operating pressure:
         self._f_sources.TP = None, self._P
         self._f_content.TP = None, self._P
         self._f_outflow.TP = None, self._P
 
+        # Create reactors and reservoirs for system:
         self._r_sources = ct.Reservoir(self._f_sources,       clone=False)
         self._r_content = ct.IdealGasReactor(self._f_content, clone=False)
         self._r_outflow = ct.Reservoir(self._f_outflow,       clone=False)
 
+        # Connect the reactor to the *world* (unit area wall). Notice
+        # that imposing `A=1.0` means that when setting up the heat flux
+        # that value is identical to the absolute integral exchange. The
+        # contents of the system are set as the right reactor so that a
+        # positive flux means energy being supplied to the system.
         conf = dict(A=1.0, K=0.0, U=0.0, Q=0.0, velocity=0.0)
         self._w_world = ct.Wall(self._r_outflow, self._r_content, **conf)
         self._w_world.emissivity = 0.0
 
+        # Connect chain of reactors:
         self._mfc = ct.MassFlowController(self._r_sources, self._r_content)
         self._vlv = ct.Valve(self._r_content, self._r_outflow, K=K)
 
+        # Setup reactor network:
         self._net = ct.ReactorNet([self._r_content])
         self._net.max_time_step = 0.1
         self._net.initialize()
 
+        # Create array of states for results:
         extra = {"z_cell": z, "V_cell": V, "Q_cell": self._Q,
                  "m_cell": 0.0, "mdot_cell": 0.0}
         self._states = ct.SolutionArray(self._r_content.phase,
                                         shape = (z.shape[0],),
                                         extra = extra)
 
+        # TODO allocate own external sources object to be able to
+        # eliminate `loop`, changing the API to update with the
+        # built-in sources object!
+
+        # Flag if (previous) solution is available:
         self._has_solution = False
+
+        # Store failures encountered during last `loop`:
         self._failures = []
+
+        # Characteristic time of reactor:
         self._tau = None
+
+        # Registered heat flow:
         self._ext_index = None
         self._ext_flow = None
 
@@ -517,19 +542,25 @@ class PlugFlowChainCantera:
 
     def _prepare(self, hpy_reac, qty_next, V, Q, **opts) -> None:
         """ Prepare reactor for next iteration. """
+        # Get time scale for approaching steady-state:
         self._tau = self._r_content.mass / qty_next.mass
         self._tau *= opts.get("t_mult", 10)
 
+        # Modify volume of reactor:
         self._r_content.volume = V
 
+        # Prepare source for next injection:
         self._f_sources.HPY = qty_next.HPY
         self._r_sources.syncState()
 
+        # Apply total external external exchanges:
         self._w_world.heat_flux = self._heat_flux(Q)
 
+        # State current reactor close to inlet or previous state:
         self._f_content.HPY = hpy_reac
         self._r_content.syncState()
 
+        # Update injection mass flow:
         self._mfc.mass_flow_rate = qty_next.mass
 
     def _fallback(self, hpy_reac, qty_next, V, Q, **opts):
@@ -540,14 +571,24 @@ class PlugFlowChainCantera:
         try:
             self._net.reinitialize()
             self._net.initial_time = 0.0
+
+            # TODO maybe consider this stepping instead?
+            # t_now = 0
+            # t_end = self._net.time + self._tau
+            #
+            # while t_now < t_end:
+            #     t_now = self._net.step()
+
             self._net.advance(self._net.time + self._tau)
         except Exception as err:
+            # TODO: if fail, force equilibrium? Find another fallback!
             self._failures.append(f"Fall-back also failed:\n{err}")
 
     def _step(self, hpy_reac, qty_next, V, Q, **opts):
         """ Advance reactor to steady state with given inflow. """
         self._prepare(hpy_reac, qty_next, V, Q, **opts)
 
+        # Reinitialize reactor network and advance to steady state:
         self._net.reinitialize()
         self._net.initial_time = 0.0
         self._net.advance_to_steady_state(
@@ -565,6 +606,10 @@ class PlugFlowChainCantera:
         """ Ensure that a solution is available. """
         if not self._has_solution:
             raise RuntimeError("No solution available, run `loop` first!")
+
+    # -----------------------------------------------------------------
+    # API (methods)
+    # -----------------------------------------------------------------
 
     def use_smooth_flux(self, state: bool) -> None:
         """ Select if smoothed heat flux is to be used. """
@@ -584,14 +629,32 @@ class PlugFlowChainCantera:
              Y_source: NDArray[np.float64],
              Q: NDArray[np.float64] | None = None,
              save_history: bool = False, **opts) -> pd.DataFrame | None:
-        """ Loop over the slices of the plug-flow reactor. """
+        """ Loop over the slices of the plug-flow reactor.
+
+        In case of solver failure, one might try the following configurations;
+        it is recommended to start by reducing `max_time_step` before tweaking
+        other parameters.
+
+        ```python
+        pfc.network.atol = 1.0e-12
+        pfc.network.rtol = 1.0e-06
+        pfc.network.max_time_step = 0.1
+        pfc.network.linear_solver_type = "GMRES"
+        pfc.network.max_err_test_fails = 10
+        pfc.network.max_order = 5
+        pfc.network.max_steps = 2000
+        ```
+        """
         stats = []
         qty_prev = None
 
         self._Q[:] = 0 if Q is None else Q
+
         self._failures = []
 
         for n_slice in range(self._z.shape[0]):
+            # Track the current slice for external communication with
+            # registered heat flow function, if any.
             self._ext_index = n_slice
 
             V = self._V[n_slice]
@@ -635,6 +698,10 @@ class PlugFlowChainCantera:
         """ Provides properly dimensioned data structure for sources. """
         return get_reactor_data(self)
 
+    # -----------------------------------------------------------------
+    # API (properties)
+    # -----------------------------------------------------------------
+
     @property
     def failures(self) -> list[str]:
         """ List of failures encountered during last `loop`. """
@@ -665,6 +732,10 @@ class PlugFlowChainCantera:
     def network(self) -> ct.ReactorNet:
         """ Provides access to the reactor network. """
         return self._net
+
+    # -----------------------------------------------------------------
+    # API (other)
+    # -----------------------------------------------------------------
 
     @MajordomePlot.new(shape=(2, 1), sharex=True, grid=True, size=(8, 8))
     def quick_plot(self, *, plot: MajordomePlot, selected=None,

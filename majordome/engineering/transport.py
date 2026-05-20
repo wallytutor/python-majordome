@@ -82,6 +82,14 @@ class EffectiveThermalConductivity:
 class SolutionDimless:
     """ Provides evaluation of dimensionless numbers for a solution.
 
+    For keeping the API simple (as are the main use cases of this class),
+    after accessing `solution` to setting its state, it is up to the user
+    to call `update` as there is no pre-defined hook. It is not possible
+    to implement such behavior of automatic call because you may simply
+    retrieve the solution object and set the state later, after a hook
+    has been called. The recommended way of setting state of the mixture
+    is through `set_state` (see below).
+
     Parameters
     ----------
     mech: str
@@ -96,6 +104,7 @@ class SolutionDimless:
         if (model := self._sol.transport_model) not in supported:
             raise ValueError(f"Unsupported transport model {model}")
 
+        # XXX: this alsow will create all the symbols on first call
         self._reset_memory()
 
     def _reset_memory(self):
@@ -117,6 +126,10 @@ class SolutionDimless:
         """ Return required diffusion coefficients. """
         D = getattr(self._sol, vname)
         return D[D > 0]
+
+    # -----------------------------------------------------------------
+    # BY DEFINITION
+    # -----------------------------------------------------------------
 
     @staticmethod
     def bydef_reynolds(rho, mu, U, L):
@@ -148,8 +161,20 @@ class SolutionDimless:
         """ Rayleigh number by definition. """
         return beta * g * (Tw - T) * H**3 / (nu * alpha)
 
+    # -----------------------------------------------------------------
+    # WRAPPERS
+    # -----------------------------------------------------------------
+
     def reynolds(self, U: float, L: float) -> float:
-        """ Evaluates Reynolds number for solution. """
+        """ Evaluates Reynolds number for solution.
+
+        Parameters
+        ----------
+        U : float
+            Flow characteristic velocity [m/s].
+        L : float
+            Problem characteristic length [m].
+        """
         self._re = self.bydef_reynolds(self._rho, self._mu, U, L)
         self._re_data = f"U={U}, L={L}"
         return self._re
@@ -161,7 +186,15 @@ class SolutionDimless:
         return self._pr
 
     def schmidt(self, vname: str = "mix_diff_coeffs") -> float:
-        """ Evaluates Schmidt number for solution. """
+        """ Evaluates Schmidt number for solution.
+
+        Parameters
+        ----------
+        vname: str = "mix_diff_coeffs"
+            Name of diffusion coefficient attribute to use, depending on
+            the mass/mole units needs in your calculations. For more details
+            please consult `cantera.Solution` documentation.
+        """
         D = max(self._diff_coefs(vname))
         self._sc = self.bydef_schmidt(self._rho, self._mu, D)
         self._sc_data = vname
@@ -169,21 +202,51 @@ class SolutionDimless:
 
     def peclet_mass(self, U: float, L: float,
                     vname: str = "mix_diff_coeffs") -> float:
-        """ Evaluates the mass Péclet number for solution. """
+        """ Evaluates the mass Péclet number for solution.
+
+        Parameters
+        ----------
+        U : float
+            Flow characteristic velocity [m/s].
+        L : float
+            Problem characteristic axial length [m].
+        vname: str = "mix_diff_coeffs"
+            Name of diffusion coefficient attribute to use, depending on
+            the mass/mole units needs in your calculations. For more details
+            please consult `cantera.Solution` documentation.
+        """
         D = max(self._diff_coefs(vname))
         self._pe_mass = self.bydef_peclet(U, L, D)
         self._pe_mass_data = f"U={U}, L={L}, {vname}"
         return self._pe_mass
 
     def peclet_heat(self, U: float, L: float) -> float:
-        """ Evaluates the heat Péclet number for solution. """
+        """ Evaluates the heat Péclet number for solution.
+
+        Parameters
+        ----------
+        U : float
+            Flow characteristic velocity [m/s].
+        L : float
+            Problem characteristic axial length [m].
+        """
         self._pe_heat = self.bydef_peclet(U, L, self._alpha)
         self._pe_heat_data = f"U={U}, L={L}"
         return self._pe_heat
 
     def grashof(self, Tw: float, H: float,
                 g: float = constants.GRAVITY) -> float:
-        """ Evaluates the Grashof number for solution. """
+        """ Evaluates the Grashof number for solution.
+
+        Parameters
+        ----------
+        Tw : float
+            Reactor characteristic wall temperature [K].
+        H : float
+            Problem characteristic (often vertical) length [m].
+        g: float = constants.GRAVITY
+            Acceleration of gravity at location [m/s²].
+        """
         self._gr = self.bydef_grashof(Tw, self._sol.T, self._beta,
                                       self._nu, g, H)
         self._gr_data = f"Tw={Tw}, H={H}, g={g}"
@@ -191,11 +254,25 @@ class SolutionDimless:
 
     def rayleigh(self, Tw: float, H: float,
                  g: float = constants.GRAVITY) -> float:
-        """ Evaluates the Rayleigh number for solution. """
+        """ Evaluates the Rayleigh number for solution.
+
+        Parameters
+        ----------
+        Tw : float
+            Reactor characteristic wall temperature [K].
+        H : float
+            Problem characteristic (often vertical) length [m].
+        g: float = constants.GRAVITY
+            Acceleration of gravity at location [m/s²].
+        """
         self._ra = self.bydef_rayleigh(Tw, self._sol.T, self._alpha,
                                        self._beta, self._nu, g, H)
         self._ra_data = f"Tw={Tw}, H={H}, g={g}"
         return self._ra
+
+    # -----------------------------------------------------------------
+    # UTILITIES
+    # -----------------------------------------------------------------
 
     def update(self):
         """ Retrieve all required properties from solution. """
@@ -239,24 +316,61 @@ class SolutionDimless:
         return tabulate(data)
 
 
+# XXX WIP
 class SkinFrictionFactor:
     """ Skin friction factors for y+ calculations. """
     @staticmethod
     def laminar(Re) -> float:
-        """ Laminar limit theoretical value. """
+        """ Laminar limit theoretical value.
+
+        Parameters
+        ----------
+        Re: float
+            Reynolds number of flow.
+        """
         return 64 / Re
 
     @staticmethod
     def smooth_wall(Re, check: bool = True) -> float:
-        """ Blasius smooth wall approximation. """
+        """ Blasius smooth wall approximation.
+
+        As described [here](https://doi.org/10.1007/978-3-662-02239-9_1).
+
+        Parameters
+        ----------
+        Re: float
+            Reynolds number of flow.
+        check: bool = True
+            Whether to check if Reynolds number is in the valid range for this approximation, which is [4e3; 1e5]. If not, a warning is printed.
+        """
         if check and not (4_000 < Re < 100_000):
             warn(f"Out-of-range Re = {Re:.2e} not in [4e3; 1e5]")
 
         return 0.3164 * Re**(-1/4)
 
 
+# XXX WIP
 class WallGradingCalculator:
-    """ Helper class for estimating first cell thickness given y+. """
+    """ Helper class for estimating first cell thickness given y+.
+
+    Parameters
+    ----------
+    L: float
+        Characteristic length of problem [m].
+    U: float
+        Characteristic velocity of problem [m/s].
+    rho: float
+        Density of fluid [kg/m³].
+    mu: float
+        Dynamic viscosity of fluid [Pa.s].
+    skin_factor: Callable | None = None
+        Skin friction factor to be used for calculating wall shear stress
+        and friction velocity; if None, then these values are not computed
+        and `first_layer` method will raise an error if called. If provided,
+        it should be a callable that takes Reynolds number as input and
+        returns the skin friction factor. Some examples of skin friction
+        factors are provided in `SkinFrictionFactor` class.
+    """
     def __init__(self, *,
             L: float,
             U: float,
@@ -275,29 +389,76 @@ class WallGradingCalculator:
     @classmethod
     def from_solution(cls, obj: SolutionDimless, L: float, U: float,
                       skin_factor: Callable | None = None) -> Self:
-        """ Alternative constructor from dimensionless solution. """
+        """ Alternative constructor from dimensionless solution.
+
+        Parameters
+        ----------
+        obj: SolutionDimless
+            Object providing access to solution and its properties.
+        L: float
+            Characteristic length of problem [m].
+        U: float
+            Characteristic velocity of problem [m/s].
+        skin_factor: Callable | None = None
+            See `__init__` for details.
+        """
         sol = obj.solution
         return cls(L=L, U=U, rho=sol.density_mass, mu=sol.viscosity,
                    skin_factor=skin_factor)
 
     def set_skin_factor(self, skin_factor: Callable) -> None:
-        """ Set skin friction factor and compute related properties. """
+        """ Set skin friction factor and compute related properties.
+
+        Parameters
+        ----------
+        skin_factor: Callable
+            See `__init__` for details.
+        """
         self._Cf = skin_factor(self._Re)
         self._tw = self.wall_shear_stress(self._rho, self._U, self._Cf)
         self._ut = self.friction_velocity(self._tw, self._rho)
+        # print(f"Skin coefficient .... {self._Cf}")
+        # print(f"Wall shear stress ... {self._tw}")
+        # print(f"Friction velocity ... {self._ut}")
 
     @staticmethod
     def wall_shear_stress(rho, U, Cf) -> float:
-        """ Wall shear stress estimater from friction factor [Pa]. """
+        """ Wall shear stress estimater from friction factor [Pa].
+
+        Parameters
+        ----------
+        rho: float
+            Density of fluid [kg/m³].
+        U: float
+            Characteristic velocity of problem [m/s].
+        Cf: float
+            Skin friction factor [-].
+        """
         return Cf * rho * U**2
 
     @staticmethod
     def friction_velocity(tw, rho) -> float:
-        """ Dimensionless friction velocity. """
+        """ Dimensionless friction velocity.
+
+        Parameters
+        ----------
+        tw: float
+            Wall shear stress [Pa].
+        rho: float
+            Density of fluid [kg/m³].
+        """
         return (tw / rho)**(1/2)
 
     def first_layer(self, y_plus, skin_factor: Callable | None = None) -> float:
-        """ Height of first cell for given y+ value [m]. """
+        """ Height of first cell for given y+ value [m].
+
+        Parameters
+        ----------
+        y_plus: float
+            Desired y+ value for first cell.
+        skin_factor: Callable | None = None
+            See `__init__` for details.
+        """
         if skin_factor is not None:
             self.set_skin_factor(skin_factor)
 
@@ -308,7 +469,15 @@ class WallGradingCalculator:
 
 
 class SutherlandFitting:
-    """ Helper for fitting Sutherland parameters for all species in solution. """
+    """ Helper for fitting Sutherland parameters for all species in solution.
+
+    Parameters
+    ----------
+    mech: str
+        Name or path to Cantera YAML solution mechanism.
+    name = None
+        Name of phase in mechanism if not a single one is present.
+    """
     def __init__(self, mech: str, *, name: str | None = None) -> None:
         self._sol = ct.composite.Solution(mech, name)
         self._data = None
@@ -319,6 +488,7 @@ class SutherlandFitting:
         allowed_species = self._sol.species_names
 
         if species_names is not None:
+            # TODO add some warnings here for unknown species
             return [n for n in species_names if n in allowed_species]
 
         return allowed_species
@@ -326,7 +496,26 @@ class SutherlandFitting:
     def fit(self, T: NDArray[np.float64], P: float = ct.one_atm,
             species_names: list[str] = None,
             p0: tuple[float, float] = (1.0, 1000)) -> None:
-        """ Manage fitting of selected species from mechanism. """
+        """ Manage fitting of selected species from mechanism.
+
+        Parameters
+        ----------
+        T: NDArray[float]
+            Array of temperatures over which fit model [K].
+        P: float = ct.one_atm
+            Operating pressure for fitting [Pa].
+        species_names: list[str] = None
+            Names of species to be fitted; if none is provided, then
+            all species in database are processed.
+        p0: tuple[float, float] = (1.0, 1000)
+            Initial guess for fitting; values are provided in (uPa.s, K)
+            units (not the usual Pa.s values for readability of values).
+
+        Returns
+        -------
+        pd.DataFrame
+            Table with evaluated proper
+        """
         data = []
         visc = pd.DataFrame({"T": T})
         arr = ct.composite.SolutionArray(self._sol, shape=(T.shape[0],))
@@ -348,7 +537,26 @@ class SutherlandFitting:
 
     @staticmethod
     def bydef(T: NDArray[np.float64], As: float, Ts: float) -> NDArray[np.float64]:
-        """ Sutherland transport parametric model as used in OpenFOAM. """
+        """ Sutherland transport parametric model as used in OpenFOAM.
+
+        Function provided to be used in curve fitting to establish Sutherland
+        coefficients from data computed by Cantera using Lennard-Jones model.
+        Reference: https://cfd.direct/openfoam/user-guide/thermophysical.
+
+        Parameters
+        ----------
+        T : NDArray[np.float64]
+            Temperature array given in kelvin.
+        As : float
+            Sutherland coefficient.
+        Ts : float
+            Sutherland temperature.
+
+        Returns
+        -------
+        NDArray[np.float64]
+            The viscosity in terms of temperature.
+        """
         return As * np.sqrt(T) / (1 + Ts / T)
 
     @MajordomePlot.new(shape=(1, 2), size=(10, 5))
@@ -459,7 +667,31 @@ class AbstractWSGG(AbstractRadiationModel):
 
 
 class WSGGRadlibBordbar2020(AbstractWSGG):
-    """ Weighted sum of gray gases radiation properties model. """
+    """ Weighted sum of gray gases radiation properties model.
+
+    Pure Python implementation of Radlib model from Bordbar (2020).
+
+    Attributes
+    ----------
+    NUM_COEFS = 5
+        Number of coefficients in polynomials (order + 1).
+    NUM_GRAYS = 4
+        Number of gray gases accounted for without clear gas.
+    T_MIN = 300.0
+        Minimum temperature accepted by the model [K].
+    T_MAX = 2400.0
+        Maximum temperature accepted by the model [K].
+    T_RED = 1200.0
+        Temperature used for computing dimensionless temperature [K].
+    P_TOL = 1.0e-10
+        Tolerance of carbon dioxide partial pressure [atm].
+    MR_LIM_CO2 = 0.01
+        Limit of `Mr` corresponding to CO2-rich mixtures.
+    MR_LIM_H2O = 4.0
+        Limit of `Mr` corresponding to H2O-rich mixtures.
+    MR_LIM_INF = 1.0e+08
+        Maximum allowed value of `Mr`.
+    """
     NUM_COEFS = 5
     NUM_GRAYS = 4
     T_MIN = 300.0
@@ -479,6 +711,10 @@ class WSGGRadlibBordbar2020(AbstractWSGG):
         self._parse_coefs(data)
         self._build_polynomials()
 
+    # -----------------------------------------------------------------
+    # Construction
+    # -----------------------------------------------------------------
+
     def _parse_coefs(self, data):
         """ Retrieve coefficients from ranges of database. """
         self._cCoef = data[0:20]
@@ -492,19 +728,26 @@ class WSGGRadlibBordbar2020(AbstractWSGG):
         self._cCoef = self._cCoef.reshape(shape)
 
     def _build_polynomials(self):
+        # Parse `cCoef` and balance clear band.
         self._p_ccoefs = list(map(lambda c: list(map(Polynomial, c)), self._cCoef))
         self._p_ccoefs.insert(0, (1.0 - np.sum(self._p_ccoefs, axis=0)).tolist())
 
+        # Parse `dCoef` and add zero-valued clear band.
         self._p_dcoefs = list(map(Polynomial, self._dCoef))
         self._p_dcoefs.insert(0, Polynomial([0]))
 
         def get_poly_spec(b):
+            """ Parse species coefficients and balance clear band. """
             p = list(map(Polynomial, b))
             p.insert(0, 1.0 - sum(p))
             return p
 
         self._p_bco2 = get_poly_spec(self._bco2)
         self._p_bh2o = get_poly_spec(self._bh2o)
+
+    # -----------------------------------------------------------------
+    # Models
+    # -----------------------------------------------------------------
 
     def _domain_h2o(self, iband, Mr, Tr, pfac, kabs, awts):
         """ Add modified contribution to H2O-rich mixtures. """
@@ -551,9 +794,34 @@ class WSGGRadlibBordbar2020(AbstractWSGG):
         for iband in range(self.NUM_GRAYS + 1):
             self._eval_band(iband, Ml, Mr, Tr, P_h2o, P_co2, fvsoot)
 
+    # -----------------------------------------------------------------
+    # API
+    # -----------------------------------------------------------------
+
     def __call__(self, L: float, T: float, P: float, x_h2o: float,
                  x_co2: float, fvsoot: float = 0.0) -> float:
-        """ Evaluate total emissivity of gas over path. """
+        """ Evaluate total emissivity of gas over path.
+
+        Parameters
+        ----------
+        L: float
+            Optical path for emissivity calculation [m].
+        T: float
+            Gas temperature [K].
+        P: float
+            Gas total pressure [Pa].
+        x_h2o: float
+            Mole fraction of water [-].
+        x_co2: float
+            Mole fraction of carbon dioxide [-]
+        fvsoot: float
+            Volume fraction soot [-].
+
+        Returns
+        -------
+        float
+            Total emissivity integrated over optical path.
+        """
         P_atm = P / 101325
         P_h2o = P_atm * x_h2o
         P_co2 = P_atm * x_co2

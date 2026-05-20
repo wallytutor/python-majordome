@@ -199,6 +199,7 @@ def _init_combustion_power_supply(cls):
     parser.add("species", default="O2")
     parser.add("emissions", default=True)
     parser.add("basis", default="mass")
+    # TODO support phase name
 
     @wraps(orig_init)
     def new_init(self, *args, **kwargs):
@@ -426,6 +427,9 @@ class CombustionAtmosphereMixer:
         P: float = ct.one_atm
             Solution pressure in pascal.
         """
+        # XXX: maybe consider this and add warning!
+        # SMALL_MASS = 1.0e-12
+        # mass = mass if mass > 0 else SMALL_MASS
         quantity = self._new_quantity(mass, T, P, X)
 
         if self._quantity is None:
@@ -490,6 +494,7 @@ def _init_cantera_energy_source(cls):
         self._power  = parser.get("power") * 1000.0
         self._phase  = parser.get("phase")
 
+        # XXX to be set by derived classes:
         self._fluid = None
 
         orig_init(self, *parser.args, **parser.kwargs)
@@ -508,9 +513,17 @@ class CanteraEnergySource(AbstractEnergySource):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    # -----------------------------------------------------------------------
+    # Internal API
+    # -----------------------------------------------------------------------
+
     def _new_solution(self) -> Solution:
         """ Creates a new Cantera solution object. """
         return Solution(self._source, self._phase)
+
+    # -----------------------------------------------------------------------
+    # From AbstractEnergySource
+    # -----------------------------------------------------------------------
 
     @property
     def power(self) -> float:
@@ -532,6 +545,10 @@ class CanteraEnergySource(AbstractEnergySource):
         data.extend([("Source", "", self.source),
                       ("Phase", "", self.phase)])
         return data
+
+    # -----------------------------------------------------------------------
+    # Extension API
+    # -----------------------------------------------------------------------
 
     @property
     def fluid(self) -> SolutionLikeType:
@@ -578,6 +595,10 @@ class GasFlowEnergySource(CanteraEnergySource):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    # -----------------------------------------------------------------------
+    # From AbstractEnergySource
+    # -----------------------------------------------------------------------
+
     def report_data(self, *args, **kwargs) -> list[tuple[str, str, Any]]:
         """ Provides data for assemblying the object report. """
         data = super().report_data(*args, **kwargs)
@@ -588,6 +609,10 @@ class GasFlowEnergySource(CanteraEnergySource):
             ("Momentum flux", "kg.m/s²", self.momentum_flux),
         ])
         return data
+
+    # -----------------------------------------------------------------------
+    # Extension API
+    # -----------------------------------------------------------------------
 
     @property
     def momentum_flux(self) -> float:
@@ -644,6 +669,10 @@ class HeatedGasEnergySource(GasFlowEnergySource):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    # -----------------------------------------------------------------------
+    # Internal API
+    # -----------------------------------------------------------------------
+
     def _compute_operation(self) -> None:
         """ Computes the operating temperature [K] and density [kg/m³]. """
         sol = self._new_solution()
@@ -659,6 +688,10 @@ class HeatedGasEnergySource(GasFlowEnergySource):
         self._phase = sol.name
         self._fluid = ct.Quantity(sol, mass=self._mdot)
 
+    # -----------------------------------------------------------------------
+    # From AbstractEnergySource
+    # -----------------------------------------------------------------------
+
     def report_data(self, *args, **kwargs) -> list[tuple[str, str, Any]]:
         data = super().report_data(*args, **kwargs)
         data.extend([
@@ -667,6 +700,10 @@ class HeatedGasEnergySource(GasFlowEnergySource):
             *solution_report(self.solution, **kwargs),
         ])
         return data
+
+    # -----------------------------------------------------------------------
+    # From CanteraEnergySource
+    # -----------------------------------------------------------------------
 
     @property
     def solution(self) -> Solution:
@@ -685,6 +722,7 @@ def _init_combustion_energy_source(cls):
 
     @wraps(orig_init)
     def new_init(self, *args, **kwargs):
+        # Temporary to get the mechanism (improve this!)....
         tmp = CanteraEnergySource(*(*args, -1), **kwargs)
 
         parser.update(*args, **kwargs)
@@ -693,11 +731,13 @@ def _init_combustion_energy_source(cls):
         if operation is None:
             raise ValueError("Operation parameters must be provided")
 
+        # XXX: do not write to _power, let base class handle it!
         power = self._compute_power(operation, tmp)
         args = (*parser.args, power)
         orig_init(self, *args, **parser.kwargs)
         parser.close()
 
+        # Override base class (negative up to this point!)
         self._mdot  = self._qty_flue.mass
         self._rho   = self._qty_flue.density_mass
         self._phase = self._qty_flue.phase.name
@@ -715,6 +755,10 @@ class CombustionEnergySource(GasFlowEnergySource):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    # -----------------------------------------------------------------------
+    # Internal API
+    # -----------------------------------------------------------------------
 
     def _compute_power(self, operation, tmp) -> float:
         """ Computes the power output of the energy source. """
@@ -740,6 +784,9 @@ class CombustionEnergySource(GasFlowEnergySource):
                 case _:
                     raise ValueError("Flow mode must be 'mass' or 'volume'")
 
+            # XXX: the hard-coded "O2: 1" is here by definition! The heating
+            # value is always computed with respect to pure oxidizer. Notice
+            # that the oxidizer must be parametrized in the future!
             ca = CombustionAtmosphereCHON(tmp.source, basis="mole")
             lhv = ca.solution_heating_value(self._fuel, "O2: 1")
             power = lhv * mdot_fuel * 1000.0
@@ -764,6 +811,10 @@ class CombustionEnergySource(GasFlowEnergySource):
         self._qty_flue.equilibrate("HP")
         return power
 
+    # -----------------------------------------------------------------------
+    # From AbstractEnergySource
+    # -----------------------------------------------------------------------
+
     def report_data(self, *args, **kwargs) -> list[tuple[str, str, Any]]:
         data = super().report_data(*args, **kwargs)
         data.extend([
@@ -776,12 +827,20 @@ class CombustionEnergySource(GasFlowEnergySource):
         ])
         return data
 
+    # -----------------------------------------------------------------------
+    # From CanteraEnergySource
+    # -----------------------------------------------------------------------
+
     @property
     def solution(self) -> Solution:
         """ Provides access to a new Cantera solution object. """
         sol = self._new_solution()
         sol.TPY = self._qty_flue.phase.TPY
         return sol
+
+    # -----------------------------------------------------------------------
+    # Extension API
+    # -----------------------------------------------------------------------
 
     @property
     def fuel(self) -> CompositionType:

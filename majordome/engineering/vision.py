@@ -136,7 +136,21 @@ class CropGuidesDisplay:
         self._w = self._image.shape[1]
 
     def add_guides(self, **kwargs) -> NDArray:
-        """ Draw guide lines at relevant coordinates of the image. """
+        """ Draw guide lines at relevant coordinates of the image.
+
+        Parameters
+        ----------
+        positions : list, optional
+            List of percentages (0-100) indicating where to draw the guide
+            lines. Default is [20, 40, 60, 80].
+        depth_guide : int, optional
+            Depth of the guide lines as a percentage of the image size.
+            Default is 5.
+        guide_thickness : int, optional
+            Thickness of the guide lines. Default is 4.
+        guide_color : tuple, optional
+            Color of the guide lines in RGB format. Default is (0, 255, 0).
+        """
         positions = kwargs.get("positions", [20, 40, 60, 80])
         depth     = kwargs.get("depth", 5)
         thick     = kwargs.get("thickness", 4)
@@ -167,7 +181,19 @@ class CropGuidesDisplay:
         return self._image
 
     def add_crop_lines(self, sides: CropTuple, **kwargs) -> NDArray:
-        """ Draw crop lines on the image for visualization. """
+        """ Draw crop lines on the image for visualization.
+
+        Parameters
+        ----------
+        sides : tuple
+            Tuple of four numbers indicating the percentage to crop
+            from each side in the order (top, bottom, left, right).
+        crop_thickness : int, optional
+            Thickness of the crop rectangle border. Default is 5.
+        crop_color : tuple, optional
+            Color of the crop rectangle border in RGB format.
+            Default is (255, 0, 0).
+        """
         thick = kwargs.get("thickness", 5)
         color = kwargs.get("color", (255, 0, 0))
 
@@ -261,6 +287,12 @@ class ThresholdImage(StrEnum):
     MANUAL = auto()
     OTSU   = auto()
 
+    # NOTE: we intentionally don't define a `verbose` attribute here because
+    # attributes in Enum bodies become enum members. Instead we provide a
+    # class-controlled verbosity flag `_verbose` (set after the class
+    # definition) with accessors below. This keeps verbosity out of the
+    # enumeration members while allowing run-time control.
+
     @classmethod
     def get_verbose(cls) -> bool:
         """ Return the class-level verbosity flag for ThresholdImage. """
@@ -301,7 +333,24 @@ class ThresholdImage(StrEnum):
 
 
 class LabelizeRegions:
-    """ Label connected regions in a binary mask and extract contours. """
+    """ Label connected regions in a binary mask and extract contours.
+
+    Parameters
+    ----------
+    mask : ndarray
+        Binary mask where regions of interest are marked as 1.
+    clean_border : bool, optional
+        Whether to remove objects touching the border, by default True.
+    max_size : int | None, optional
+        Remove objects whose contiguous area (or volume, in N-D) contains
+        this number of pixels or fewer. See `remove_small_objects` in
+        `skimage.morphology` for details.
+    max_ratio : float | None, optional
+        Remove elongated objects based on their eccentricity. Objects with
+        eccentricity above the threshold corresponding to this ratio will
+        be removed. For example, a max_ratio of 10 corresponds to an
+        eccentricity threshold of sqrt(1 - (1/10)^2) ≈ 0.995.
+    """
     __slots__ = ("_mask", "_labels", "_contours", "_regions", "_table")
 
     def __init__(self,
@@ -356,7 +405,18 @@ class LabelizeRegions:
             color: tuple[int, int, int] = (255, 0, 0),
             width: int = 2
         ) -> Image.Image:
-        """ Overlay contours on the input image. """
+        """ Overlay contours on the input image.
+
+        Parameters
+        ----------
+        image : ndarray | None, optional
+            Image on which to overlay the contours. If None, uses the
+            internal mask, by default None.
+        color : tuple, optional
+            Color of the contour lines, by default (255, 0, 0).
+        width : int, optional
+            Width of the contour lines, by default 2.
+        """
         if image is None:
             image = self._mask
 
@@ -367,6 +427,7 @@ class LabelizeRegions:
         draw = ImageDraw.Draw(tmp)
 
         for contour in self._contours:
+            # Convert (row, col) to (x, y) and to tuples
             points = [tuple(point[::-1]) for point in contour]
             draw.line(points, fill=color, width=width)
 
@@ -461,8 +522,10 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
     def __init__(self, filepath: Path) -> None:
         super().__init__()
 
+        # Load image that will remain unmodified:
         self.__original = hs_load(filepath)
 
+        # Create empty slots for inheritors:
         self._image = Signal2D([[], []])
         self._pixel_size = -1.0
         self._title = ""
@@ -533,6 +596,7 @@ class HyperSpySEMImageLoaderStub(AbstractSEMImageLoader):
 
     def spectrum_plot(self, window=True, vstep=2):
         """ Plot the power spectrum of the internal image. """
+        """ Plot the FFT spectrum with proper calibration. """
         (Nx, Ny), (Lx, Ly) = self.shape, self.dimensions
         F = self._image.fft(shift=True, apodization=window)
         P = np.log10(np.abs(F.data)**2)
@@ -564,6 +628,7 @@ class CharacteristicLengthSEMImage:
             return f.fft(window)
 
         if window:
+            # Apply a 2D (cosine) Hann window to the field f.
             wx = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Nx) / Nx))
             wy = 0.5 * (1 - np.cos(2 * np.pi * np.arange(Ny) / Ny))
             f = f * np.outer(wy, wx)
@@ -587,8 +652,10 @@ class CharacteristicLengthSEMImage:
         k_bins = np.linspace(0, K.max(), nbins+1)
         k = 0.5 * (k_bins[:-1] + k_bins[1:])
 
+        # Digitize all points at once
         idx = np.digitize(K.ravel(), k_bins)
 
+        # Vectorized radial average
         E = np.zeros(nbins, dtype=P.dtype)
 
         for i in range(1, nbins+1):
@@ -602,6 +669,7 @@ class CharacteristicLengthSEMImage:
     def characteristic_length(self):
         """ Retrieve characteristic length from the spectrum. """
         if not hasattr(self, "_length"):
+            # Skip zero-frequency bin:
             i_peak = np.argmax(self._spectrum[1:]) + 1
             k_peak = self._k_centers[i_peak]
             self._length = 1.0 / k_peak
@@ -612,9 +680,13 @@ class CharacteristicLengthSEMImage:
     def table(self) -> pd.DataFrame:
         """ Retrieve the computed spectrum as a pandas DataFrame. """
         if not hasattr(self, "_table"):
+            # Retrieve the data:
             x = self._k_centers.copy()
             y = self._spectrum.copy()
 
+            # Normalize y to have area = 1 under the curve (PDF) and compute the
+            # cumulative distribution function (CDF); notice that we actually
+            # evaluate 1-CDF because of plotting in physical (length) space:
             pdf = y / simpson(y, x=x)
             cdf = 1 - cumulative_simpson(pdf, x=x, initial=0)
             z = 1 / x
@@ -686,7 +758,15 @@ class CharacteristicLengthSEMImage:
         ax[0].legend(loc="best", fontsize=9)
 
     def plot_spectrum(self, full: bool = False, cutoff: float | None = None):
-        """ Plot the characteristic length spectrum. """
+        """ Plot the characteristic length spectrum.
+
+        Parameters
+        ----------
+        full : bool = True
+            If True, plot both PDF and CDF. If False, plot only PDF.
+        cutoff : float | None = None
+            If provided, limit the x-axis to [0, cutoff].
+        """
         if full:
             return self._plot_spectrum_full(cutoff=cutoff)
 
@@ -694,7 +774,16 @@ class CharacteristicLengthSEMImage:
 
 
 def load_metadata(fname: Path, backend: str = "HS"):
-    """ Wrap metadata loading for readability of constructor. """
+    """ Wrap metadata loading for readability of constructor.
+
+    Parameters
+    ----------
+    fname: Path
+        Path to the file to be parsed.
+    backend: str = "HS"
+        Data extraction backend. Supports "HS" for HyperSpy, "PIL" for
+        PIL, and "EXIFREAD" for exifread packages.
+    """
     match backend.upper():
         case "HS":
             return hs_load(fname).original_metadata
@@ -718,6 +807,7 @@ def metadata_exifread(fname: Path) -> dict:
 def metadata_pil(fname: Path) -> dict:
     """ Extract metadata using PIL.Image package. """
     with Image.open(fname) as img:
+        # XXX: using more complete private method!
         data = img._getexif()
         exif_data = {}
 
