@@ -905,7 +905,7 @@ pub mod handlers {
     use super::constants;
 
     #[pymodule_export]
-    use super::calphad;
+    use super::calphad::calphad;
 
     #[pymodule_export]
     use super::tool_majordome::majordome_entrypoint;

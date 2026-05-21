@@ -4,6 +4,7 @@ use super::core::Substance;
 use super::core::TemperatureRange;
 use super::core::get_atomic_weight;
 use super::{P_REF, R_GAS, T_REF};
+use super::resolve_data_path;
 use mlua::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -366,6 +367,8 @@ fn create_lua_substance(lua: &Lua) -> LuaResult<LuaFunction> {
 }
 
 pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substance>> {
+    let resolved = resolve_data_path(path);
+
     let lua = Lua::new();
     let globals = lua.globals();
 
@@ -395,8 +398,8 @@ pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substan
     let substance_fn = create_lua_substance(&lua)?;
     globals.set("Substance", substance_fn)?;
 
-    let content =
-        read_to_string(path).map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
+    let content = read_to_string(&resolved)
+        .map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
 
     let map: HashMap<String, Substance> = lua.load(&content).eval()?;
     Ok(map)
@@ -414,7 +417,13 @@ impl DatabaseLoader {
     #[new]
     #[pyo3(signature = (path, phases = None))]
     pub fn new(path: String, phases: Option<Vec<String>>) -> PyResult<Self> {
-        let mut raw_data = load_substances_from_lua(&path)
+        // Resolve the user-supplied path against the global data-directory registry
+        // so callers can use bare filenames after calling `add_data_directory`.
+        let resolved_path = resolve_data_path(&path)
+            .to_string_lossy()
+            .into_owned();
+
+        let mut raw_data = load_substances_from_lua(&resolved_path)
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
 
         let phases = if let Some(ref selected_phases) = phases {
@@ -470,9 +479,14 @@ mod data_test {
     use crate::calphad::core::AggregationType;
     use crate::calphad::data::*;
 
+    const SIMPLE_CALCINATION: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/majordome/data/calphad/sample/simple-calcination.lua"
+    );
+
     #[test]
     fn test_load_from_lua() {
-        let result = load_substances_from_lua("data/sample/simple-calcination.lua");
+        let result = load_substances_from_lua(SIMPLE_CALCINATION);
         assert!(
             result.is_ok(),
             "Failed to load from lua: {:?}",
@@ -494,9 +508,8 @@ mod data_test {
 
     #[test]
     fn test_database_loader() {
-        let loader =
-            DatabaseLoader::new("data/sample/simple-calcination.lua".to_string(), None).unwrap();
-        assert_eq!(loader.path, "data/sample/simple-calcination.lua");
+        let loader = DatabaseLoader::new(SIMPLE_CALCINATION.to_string(), None).unwrap();
+        assert_eq!(loader.path, SIMPLE_CALCINATION);
         assert!(loader.phases.len() >= 6);
         assert!(loader.phases.contains(&"Calcite".to_string()));
 
@@ -506,7 +519,7 @@ mod data_test {
 
         // Test loading phase list filtering
         let loader_filtered = DatabaseLoader::new(
-            "data/sample/simple-calcination.lua".to_string(),
+            SIMPLE_CALCINATION.to_string(),
             Some(vec!["Calcite".to_string(), "CO2".to_string()]),
         )
         .unwrap();

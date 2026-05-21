@@ -337,9 +337,14 @@ mod equil_test {
     use crate::calphad::core::extract_elements;
     use crate::calphad::data::load_substances_from_lua;
 
+    const SIMPLE_CALCINATION: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/majordome/data/calphad/sample/simple-calcination.lua"
+    );
+
     #[test]
     fn test_extract_elements() {
-        let db = load_substances_from_lua("data/sample/simple-calcination.lua").unwrap();
+        let db = load_substances_from_lua(SIMPLE_CALCINATION).unwrap();
         let calcite = db.get("Calcite").unwrap();
         let diaspore = db.get("Diaspore").unwrap();
         let elements = extract_elements(&[calcite, diaspore]);
@@ -348,7 +353,7 @@ mod equil_test {
 
     #[test]
     fn test_equilibrate_stoichiometric() {
-        let db = load_substances_from_lua("data/sample/simple-calcination.lua").unwrap();
+        let db = load_substances_from_lua(SIMPLE_CALCINATION).unwrap();
         let calcite = db.get("Calcite").unwrap();
         let lime = db.get("Lime").unwrap();
         let co2 = db.get("CO2").unwrap();

@@ -1,12 +1,62 @@
 use crate::constants::{GAS_CONSTANT, P_NORMAL, T_REFERENCE};
 use pyo3::prelude::*;
 use std::fmt;
+use std::path::{Path, PathBuf};
+use std::sync::RwLock;
 
 // ---------------------------------------------------------------------------
 
 pub const T_REF: f64 = T_REFERENCE;
 pub const P_REF: f64 = P_NORMAL;
 pub const R_GAS: f64 = GAS_CONSTANT;
+
+// ---------------------------------------------------------------------------
+
+/// Global list of directories searched when loading data files by relative path.
+static DATA_DIRS: RwLock<Vec<PathBuf>> = RwLock::new(Vec::new());
+
+/// Register an additional directory to search when resolving data-file paths.
+///
+/// Call this before `DatabaseLoader::new` (or `load_substances_from_lua`) so
+/// that relative paths such as `"data/sample/simple-calcination.lua"` are
+/// looked up inside every registered directory in the order they were added.
+pub fn add_data_directory_rs(dir: impl AsRef<Path>) {
+    let path = dir.as_ref().to_path_buf();
+    DATA_DIRS.write().unwrap().push(path);
+}
+
+/// Resolve a (possibly relative) file path against the global data-directory
+/// registry.  Returns the first match that exists on disk; if none matches,
+/// returns the original path unchanged so callers get a meaningful OS error.
+pub fn resolve_data_path(path: &str) -> PathBuf {
+    let p = Path::new(path);
+    if p.is_absolute() {
+        return p.to_path_buf();
+    }
+    let dirs = DATA_DIRS.read().unwrap();
+    for dir in dirs.iter() {
+        let candidate = dir.join(p);
+        if candidate.exists() {
+            return candidate;
+        }
+    }
+    // Fallback: let the caller get a natural "file not found" error.
+    p.to_path_buf()
+}
+
+/// Python-facing wrapper: register a search directory for data files.
+///
+/// # Example (Python)
+///
+/// ```text
+/// import majordome.calphad as calphad
+/// calphad.add_data_directory("/path/to/my/data")
+/// db = calphad.DatabaseLoader("my-phases.lua")
+/// ```
+#[pyfunction(name = "add_data_directory")]
+pub fn add_data_directory_py(path: String) {
+    add_data_directory_rs(path);
+}
 
 // ---------------------------------------------------------------------------
 
@@ -66,7 +116,7 @@ pub mod functions;
 
 // ---------------------------------------------------------------------------
 
-#[pymodule(name = "calphad")]
+#[pymodule]
 pub mod calphad {
     #[pymodule_export]
     use super::data::DatabaseLoader;
@@ -85,4 +135,7 @@ pub mod calphad {
 
     #[pymodule_export]
     use super::equil::equilibrate_stoichiometric_py as equilibrate_stoichiometric;
+
+    #[pymodule_export]
+    use super::add_data_directory_py as add_data_directory;
 }
