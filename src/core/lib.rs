@@ -80,95 +80,121 @@ pub mod constants {
     ///
     /// Functional alias for constants.PI.
     #[pyfunction]
-    fn pi() -> f64 { PI }
+    fn pi() -> f64 {
+        PI
+    }
 
     /// Avogadro's number [1/mol].
     ///
     /// Functional alias for constants.AVOGADRO.
     #[pyfunction]
-    fn avogadro() -> f64 { AVOGADRO }
+    fn avogadro() -> f64 {
+        AVOGADRO
+    }
 
     /// Boltzmann constant [J/K].
     ///
     /// Functional alias for constants.BOLTZMANN.
     #[pyfunction]
-    fn boltzmann() -> f64 { BOLTZMANN }
+    fn boltzmann() -> f64 {
+        BOLTZMANN
+    }
 
     /// Elementary charge [C].
     ///
     /// Functional alias for constants.ELECTRON_CHARGE.
     #[pyfunction]
-    fn electron_charge() -> f64 { ELECTRON_CHARGE }
+    fn electron_charge() -> f64 {
+        ELECTRON_CHARGE
+    }
 
     /// Faraday constant [C/mol].
     ///
     /// Functional alias for constants.FARADAY.
     #[pyfunction]
-    fn faraday() -> f64 { FARADAY }
+    fn faraday() -> f64 {
+        FARADAY
+    }
 
     /// Universal gas constant [J/(mol·K)].
     ///
     /// Functional alias for constants.GAS_CONSTANT.
     #[pyfunction]
-    fn gas_constant() -> f64 { GAS_CONSTANT }
+    fn gas_constant() -> f64 {
+        GAS_CONSTANT
+    }
 
     /// Conventional gravitational acceleration on Earth [m/s²].
     ///
     /// Functional alias for constants.GRAVITY.
     #[pyfunction]
-    fn gravity() -> f64 { GRAVITY }
+    fn gravity() -> f64 {
+        GRAVITY
+    }
 
     /// Planck constant [J·s].
     ///
     /// Functional alias for constants.PLANCK.
     #[pyfunction]
-    fn planck() -> f64 { PLANCK }
+    fn planck() -> f64 {
+        PLANCK
+    }
 
     /// Speed of light in vacuum [m/s].
     ///
     /// Functional alias for constants.SPEED_OF_LIGHT.
     #[pyfunction]
-    fn speed_of_light() -> f64 { SPEED_OF_LIGHT }
+    fn speed_of_light() -> f64 {
+        SPEED_OF_LIGHT
+    }
 
     /// Stefan-Boltzmann constant [W/(m²·K⁴)].
     ///
     /// Functional alias for constants.STEFAN_BOLTZMANN.
     #[pyfunction]
-    fn stefan_boltzmann() -> f64 { STEFAN_BOLTZMANN }
+    fn stefan_boltzmann() -> f64 {
+        STEFAN_BOLTZMANN
+    }
 
     /// Thermodynamic reference temperature [K].
     ///
     /// Functional alias for constants.T_REFERENCE.
     #[pyfunction]
-    fn t_reference() -> f64 { T_REFERENCE }
+    fn t_reference() -> f64 {
+        T_REFERENCE
+    }
 
     /// Normal state reference temperature [K].
     ///
     /// Functional alias for constants.T_NORMAL.
     #[pyfunction]
-    fn t_normal() -> f64 { T_NORMAL }
+    fn t_normal() -> f64 {
+        T_NORMAL
+    }
 
     /// Normal state reference pressure [Pa].
     ///
     /// Functional alias for constants.P_NORMAL.
     #[pyfunction]
-    fn p_normal() -> f64 { P_NORMAL }
-
+    fn p_normal() -> f64 {
+        P_NORMAL
+    }
 }
 // endregion: constants
 
 // region: modules
-pub mod utils;
 pub mod calphad;
 pub mod diffusion;
+pub mod num;
+pub mod utils;
 // endregion: modules
 
 // region: tool_majordome
 mod tool_majordome {
-    use serde_json::json;
+    use crate::{VERSION, constants::*, utils::*};
     use pyo3::prelude::*;
     use pyo3::types::{PyDict, PyModule};
-    use crate::{VERSION, constants::*, utils::*};
+    use serde_json::json;
 
     const DEFAULT_KERNEL_NAME: &str = "majordome";
     const DEFAULT_DISPLAY_NAME: &str = "Majordome";
@@ -185,16 +211,17 @@ mod tool_majordome {
                 // exception so we will not return the context manager state.
                 let globals = start_globals(py)?;
                 start_ipython(py, globals, args)
-            },
+            }
 
             RunMode::Kernel(args) => {
                 let globals = start_globals(py)?;
                 start_ipykernel(py, globals, args)
-            },
-
-            RunMode::InstallKernel { kernel_name, display_name } => {
-                install_jupyter_kernel(py, &kernel_name, &display_name)
             }
+
+            RunMode::InstallKernel {
+                kernel_name,
+                display_name,
+            } => install_jupyter_kernel(py, &kernel_name, &display_name),
         })?;
 
         Ok(())
@@ -204,7 +231,10 @@ mod tool_majordome {
     pub enum RunMode {
         Ipython(Vec<String>),
         Kernel(Vec<String>),
-        InstallKernel { kernel_name: String, display_name: String }
+        InstallKernel {
+            kernel_name: String,
+            display_name: String,
+        },
     }
 
     fn parse_mode(args: Vec<String>) -> RunMode {
@@ -280,17 +310,15 @@ mod tool_majordome {
     }
 
     fn print_usage() {
-        println!(
-            concat!(
-                "Usage:\n",
-                "  majordome [IPYTHON_ARGS...]\n",
-                "  majordome --kernel -f <connection_file>\n",
-                "  majordome --install-kernel",
-                " [--kernel-name NAME]",
-                " [--display-name NAME]",
-                "\n\n---\n\n"
-            )
-        );
+        println!(concat!(
+            "Usage:\n",
+            "  majordome [IPYTHON_ARGS...]\n",
+            "  majordome --kernel -f <connection_file>\n",
+            "  majordome --install-kernel",
+            " [--kernel-name NAME]",
+            " [--display-name NAME]",
+            "\n\n---\n\n"
+        ));
     }
 
     fn start_globals(py: Python<'_>) -> PyResult<Py<PyDict>> {
@@ -307,33 +335,32 @@ mod tool_majordome {
         let py_majordome = PyModule::import(py, "majordome")?;
         globals.set_item("mj", py_majordome)?;
 
-        globals.set_item("PI",               PI)?;
-        globals.set_item("AVOGADRO",         AVOGADRO)?;
-        globals.set_item("BOLTZMANN",        BOLTZMANN)?;
-        globals.set_item("ELECTRON_CHARGE",  ELECTRON_CHARGE)?;
-        globals.set_item("FARADAY",          FARADAY)?;
-        globals.set_item("GAS_CONSTANT",     GAS_CONSTANT)?;
-        globals.set_item("GRAVITY",          GRAVITY)?;
-        globals.set_item("PLANCK",           PLANCK)?;
-        globals.set_item("SPEED_OF_LIGHT",   SPEED_OF_LIGHT)?;
+        globals.set_item("PI", PI)?;
+        globals.set_item("AVOGADRO", AVOGADRO)?;
+        globals.set_item("BOLTZMANN", BOLTZMANN)?;
+        globals.set_item("ELECTRON_CHARGE", ELECTRON_CHARGE)?;
+        globals.set_item("FARADAY", FARADAY)?;
+        globals.set_item("GAS_CONSTANT", GAS_CONSTANT)?;
+        globals.set_item("GRAVITY", GRAVITY)?;
+        globals.set_item("PLANCK", PLANCK)?;
+        globals.set_item("SPEED_OF_LIGHT", SPEED_OF_LIGHT)?;
         globals.set_item("STEFAN_BOLTZMANN", STEFAN_BOLTZMANN)?;
-        globals.set_item("T_REFERENCE",      T_REFERENCE)?;
-        globals.set_item("T_NORMAL",         T_NORMAL)?;
-        globals.set_item("P_NORMAL",         P_NORMAL)?;
+        globals.set_item("T_REFERENCE", T_REFERENCE)?;
+        globals.set_item("T_NORMAL", T_NORMAL)?;
+        globals.set_item("P_NORMAL", P_NORMAL)?;
 
         Ok(globals.into())
     }
 
     fn install_jupyter_kernel(
-            py: Python<'_>,
-            kernel_name: &str,
-            display_name: &str
-        ) -> PyResult<()> {
-        let executable = std::env::current_exe()
-            .map_err(to_runtime_error)?;
+        py: Python<'_>,
+        kernel_name: &str,
+        display_name: &str,
+    ) -> PyResult<()> {
+        let executable = std::env::current_exe().map_err(to_runtime_error)?;
 
-        let temporary_dir = create_temp_kernel_spec(executable, display_name)
-            .map_err(to_runtime_error)?;
+        let temporary_dir =
+            create_temp_kernel_spec(executable, display_name).map_err(to_runtime_error)?;
 
         let install_result = (|| -> PyResult<String> {
             let kernelspec = PyModule::import(py, "jupyter_client.kernelspec")?;
@@ -352,22 +379,15 @@ mod tool_majordome {
             destination.extract()
         })();
 
-        std::fs::remove_dir_all(&temporary_dir)
-            .map_err(to_runtime_error)?;
+        std::fs::remove_dir_all(&temporary_dir).map_err(to_runtime_error)?;
 
         let destination = install_result?;
-        println!(
-            "Installed kernel '{kernel_name}' as '{display_name}' in {destination}"
-        );
+        println!("Installed kernel '{kernel_name}' as '{display_name}' in {destination}");
 
         Ok(())
     }
 
-    fn start_ipython(
-            py: Python<'_>,
-            globals: Py<PyDict>,
-            args: Vec<String>
-        ) -> PyResult<()> {
+    fn start_ipython(py: Python<'_>, globals: Py<PyDict>, args: Vec<String>) -> PyResult<()> {
         let kwargs = PyDict::new(py);
         kwargs.set_item("user_ns", globals)?;
 
@@ -377,11 +397,7 @@ mod tool_majordome {
         Ok(())
     }
 
-    fn start_ipykernel(
-            py: Python<'_>,
-            globals: Py<PyDict>,
-            args: Vec<String>
-        ) -> PyResult<()> {
+    fn start_ipykernel(py: Python<'_>, globals: Py<PyDict>, args: Vec<String>) -> PyResult<()> {
         let kwargs = PyDict::new(py);
         kwargs.set_item("argv", args)?;
         kwargs.set_item("user_ns", globals)?;
@@ -394,9 +410,9 @@ mod tool_majordome {
     }
 
     fn create_temp_kernel_spec(
-            executable: std::path::PathBuf,
-            display_name: &str
-        ) -> std::io::Result<std::path::PathBuf> {
+        executable: std::path::PathBuf,
+        display_name: &str,
+    ) -> std::io::Result<std::path::PathBuf> {
         let mut directory = std::env::temp_dir();
 
         let pid = std::process::id();
@@ -446,7 +462,11 @@ mod tool_majordome {
 
         #[test]
         fn explicit_args_bypass_process_argv_lookup() {
-            let args = vec!["--kernel".to_string(), "-f".to_string(), "conn.json".to_string()];
+            let args = vec![
+                "--kernel".to_string(),
+                "-f".to_string(),
+                "conn.json".to_string(),
+            ];
 
             assert_eq!(resolve_args(Some(args.clone())), args);
         }
@@ -456,13 +476,13 @@ mod tool_majordome {
 
 // region: tool_containerize
 mod tool_containerize {
+    use crate::utils::*;
+    use pyo3::prelude::*;
+    use std::env;
     use std::fs::File;
     use std::path::Path;
+    use std::process::ExitStatus;
     use std::process::exit;
-    use std::process::{ExitStatus};
-    use std::env;
-    use pyo3::prelude::*;
-    use crate::utils::*;
 
     #[pyfunction]
     #[pyo3(signature = (args=None))]
@@ -602,7 +622,7 @@ mod tool_containerize {
         container: ContainerRuntime,
         cleanup: bool,
         generate_tar: bool,
-        generate_sif: bool
+        generate_sif: bool,
     }
 
     impl ContainerConfig {
@@ -631,7 +651,6 @@ mod tool_containerize {
                     // -----------------------------------------------------------
                     // Handle --help/-h option
                     // -----------------------------------------------------------
-
                     "--help" | "-h" => {
                         ContainerConfig::usage(name);
                     }
@@ -639,7 +658,6 @@ mod tool_containerize {
                     // -----------------------------------------------------------
                     // Handle --container option
                     // -----------------------------------------------------------
-
                     "--container" => {
                         if i + 1 >= args.len() {
                             Self::early_exit(name, "--container requires a value");
@@ -662,7 +680,6 @@ mod tool_containerize {
                     // -----------------------------------------------------------
                     // Handle --cleanup option
                     // -----------------------------------------------------------
-
                     "--cleanup" => {
                         cleanup = true;
                         i += 1;
@@ -671,7 +688,6 @@ mod tool_containerize {
                     // -----------------------------------------------------------
                     // Handle --no-tar and --no-sif options
                     // -----------------------------------------------------------
-
                     "--no-dump" => {
                         generate_tar = false;
                         generate_sif = false;
@@ -686,7 +702,6 @@ mod tool_containerize {
                     // -----------------------------------------------------------
                     // Handle project or unexpected option
                     // -----------------------------------------------------------
-
                     arg if !arg.starts_with("--") => {
                         if project.is_none() {
                             project = Some(arg);
@@ -700,7 +715,6 @@ mod tool_containerize {
                     // -----------------------------------------------------------
                     // Handle unknown option
                     // -----------------------------------------------------------
-
                     _ => {
                         let msg = format!("unknown option '{}'", args[i]);
                         Self::early_exit(name, &msg);
@@ -725,7 +739,7 @@ mod tool_containerize {
                 container,
                 cleanup,
                 generate_tar,
-                generate_sif
+                generate_sif,
             }
         }
 
@@ -740,7 +754,8 @@ mod tool_containerize {
 
         fn usage(name: &str) -> ! {
             let color = "\x1b[36m";
-            let usage = &format!("
+            let usage = &format!(
+                "
                 usage: {0} <project-name> [OPTIONS]
 
                 Options:
@@ -755,7 +770,9 @@ mod tool_containerize {
                     {0} my-project --container docker
                     {0} my-project --cleanup
                     {0} my-project science-devel --container podman --no-sif
-                ", name);
+                ",
+                name
+            );
 
             println!("{color}{}\x1b[0m", dedent(usage));
             exit(1);
@@ -791,25 +808,29 @@ mod tool_containerize {
                         env::set_var("DOCKER_BUILDKIT", "1");
                     }
 
-                    run_command(&logfile, "docker", &[
+                    run_command(
+                        &logfile,
+                        "docker",
+                        &[
                             "build",
                             "--network=host",
-                            "--build-arg", "BUILDKIT_INLINE_CACHE=1",
+                            "--build-arg",
+                            "BUILDKIT_INLINE_CACHE=1",
                             "--progress=plain",
-                            "-t", &config.project,
-                            "-f", "Containerfile",
-                            "."
-                        ])
-                },
-
-                ContainerRuntime::Podman => {
-                    run_command(&logfile, "podman", &[
-                            "build",
-                            "-t", &config.project,
-                            "-f", "Containerfile",
-                            "."
-                        ])
+                            "-t",
+                            &config.project,
+                            "-f",
+                            "Containerfile",
+                            ".",
+                        ],
+                    )
                 }
+
+                ContainerRuntime::Podman => run_command(
+                    &logfile,
+                    "podman",
+                    &["build", "-t", &config.project, "-f", "Containerfile", "."],
+                ),
             }
         }
 
@@ -821,23 +842,27 @@ mod tool_containerize {
             print_header!("\n→ Check log.{}.dump for details\n", config.project);
 
             match self {
-                ContainerRuntime::Docker => {
-                    run_command(&logfile, "docker", &[
+                ContainerRuntime::Docker => run_command(
+                    &logfile,
+                    "docker",
+                    &[
                         "save",
                         "-o",
                         &config.tar_file(),
-                        &config.project.to_string()
-                    ])
-                },
+                        &config.project.to_string(),
+                    ],
+                ),
 
-                ContainerRuntime::Podman => {
-                    run_command(&logfile, "podman", &[
+                ContainerRuntime::Podman => run_command(
+                    &logfile,
+                    "podman",
+                    &[
                         "save",
                         "-o",
                         &config.tar_file(),
-                        &format!("localhost/{}", config.project)
-                    ])
-                }
+                        &format!("localhost/{}", config.project),
+                    ],
+                ),
             }
         }
 
@@ -848,11 +873,15 @@ mod tool_containerize {
             print_header!("\n→ Converting to Apptainer SIF...");
             print_header!("\n→ Check log.{}.convert for details\n", config.project);
 
-            run_command(&logfile, "apptainer", &[
-                "build",
-                &config.sif_file(),
-                &format!("docker-archive://{}", config.tar_file())
-            ])
+            run_command(
+                &logfile,
+                "apptainer",
+                &[
+                    "build",
+                    &config.sif_file(),
+                    &format!("docker-archive://{}", config.tar_file()),
+                ],
+            )
         }
     }
 }
@@ -868,10 +897,15 @@ pub mod handlers {
 
     /// Version of majordome.
     #[pyfunction]
-    fn version() -> String { format!("{}", super::VERSION) }
+    fn version() -> String {
+        format!("{}", super::VERSION)
+    }
 
     #[pymodule_export]
     use super::constants;
+
+    #[pymodule_export]
+    use super::calphad;
 
     #[pymodule_export]
     use super::tool_majordome::majordome_entrypoint;

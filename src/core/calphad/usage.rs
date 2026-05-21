@@ -1,8 +1,8 @@
-use thermo::T_REF;
-use thermo::autodiff::{Dual, diff};
-use thermo::core::SystemComposition;
-use thermo::data::DatabaseLoader;
-use thermo::equil::equilibrate_stoichiometric;
+use crate::num::autodiff::{Dual, diff};
+use crate::calphad:::T_REF;
+use crate::calphad:::core::SystemComposition;
+use crate::calphad:::data::DatabaseLoader;
+use crate::calphad:::equil::equilibrate_stoichiometric;
 
 fn main() {
     loading_data();
