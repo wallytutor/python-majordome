@@ -887,6 +887,33 @@ mod tool_containerize {
 }
 // endregion: tool_containerize
 
+#[pymodule]
+pub mod py_num {
+    #[pymodule_export]
+    use super::num::autodiff::PyDual;
+}
+
+#[pymodule]
+pub mod py_calphad {
+    #[pymodule_export]
+    use super::calphad::data::DatabaseLoader;
+
+    #[pymodule_export]
+    use super::calphad::core::Substance;
+
+    #[pymodule_export]
+    use super::calphad::core::SystemComposition;
+
+    #[pymodule_export]
+    use super::calphad::equil::Equilibrium;
+
+    #[pymodule_export]
+    use super::calphad::equil::equilibrate_stoichiometric_py as equilibrate_stoichiometric;
+
+    #[pymodule_export]
+    use super::calphad::add_data_directory_py as add_data_directory;
+}
+
 #[pymodule(name = "_core")]
 pub mod handlers {
     use pyo3::prelude::*;
@@ -904,8 +931,15 @@ pub mod handlers {
     #[pymodule_export]
     use super::constants;
 
+    // -----------------------------------------------------------------------
+
     #[pymodule_export]
-    use super::calphad::calphad;
+    use super::py_num;
+
+    #[pymodule_export]
+    use super::py_calphad;
+
+    // -----------------------------------------------------------------------
 
     #[pymodule_export]
     use super::tool_majordome::majordome_entrypoint;

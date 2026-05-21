@@ -3,29 +3,10 @@
 *aka majordome.calphad*
 
 ```{python}
-# from majordome.documents import *
-# from majordome.calphad import *
-
-import os
+from majordome.documents import *
+from majordome.calphad import *
+from majordome.autodiff import Dual
 import numpy as np
-from importlib.util import spec_from_loader
-from importlib.util import module_from_spec
-from importlib.machinery import ExtensionFileLoader
-from pathlib import Path
-
-module_name = "_calphad"
-calphad_lib = Path(os.getcwd()) / "target/debug/thermo.dll"
-calphad_lib.exists()
-
-loader = ExtensionFileLoader(module_name, str(calphad_lib))
-spec = spec_from_loader(module_name, loader)
-calphad = module_from_spec(spec)
-spec.loader.exec_module(calphad)
-
-DatabaseLoader = calphad.DatabaseLoader
-SystemComposition = calphad.SystemComposition
-Dual = calphad.Dual
-equilibrate_stoichiometric = calphad.equilibrate_stoichiometric
 
 T_REF = 298.15
 P_REF = 101325.0
@@ -36,7 +17,7 @@ P_REF = 101325.0
 - Loading a whole database:
 
 ```{python}
-db_path = "data/sample/simple-calcination.lua"
+db_path = "sample/simple-calcination.lua"
 db = DatabaseLoader(db_path)
 db.phases
 ```
@@ -206,10 +187,10 @@ def print_eq(t, eq, dh):
         f"{dh:>10.2f}"
     )
 
-print_eq(T_REF, eq_ref, 0.0)
+t_arr = np.arange(300.0, 1500.1, 100.0).tolist()
+t_arr = sorted(t_arr + [T_REF])
 
-t = 300.0
-while t <= 1200.0:
+for t in t_arr:
     eq  = equilibrate_stoichiometric(phases, comp, t, p_eval)
     h_t = sum(
         eq.amounts.get(n, 0.0) * phases[n].enthalpy(t)
@@ -217,7 +198,6 @@ while t <= 1200.0:
     )
     dh = (h_t - h_ref) / m_sys if m_sys > 0 else 0.0
     print_eq(t, eq, dh)
-    t += 100.0
 ```
 
 ### Al-Ca-O system by Hallstedt (1990)
@@ -227,7 +207,7 @@ while t <= 1200.0:
 ```{python}
 names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"]
 
-db = DatabaseLoader("data/hallstedt1990.lua", names)
+db = DatabaseLoader("hallstedt1990.lua", names)
 phases = db.get_data()
 
 t = 1400.0

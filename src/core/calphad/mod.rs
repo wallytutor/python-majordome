@@ -115,27 +115,3 @@ pub mod equil;
 pub mod functions;
 
 // ---------------------------------------------------------------------------
-
-#[pymodule]
-pub mod calphad {
-    #[pymodule_export]
-    use super::data::DatabaseLoader;
-
-    #[pymodule_export]
-    use super::core::Substance;
-
-    #[pymodule_export]
-    use super::core::SystemComposition;
-
-    #[pymodule_export]
-    use crate::num::autodiff::PyDual;
-
-    #[pymodule_export]
-    use super::equil::Equilibrium;
-
-    #[pymodule_export]
-    use super::equil::equilibrate_stoichiometric_py as equilibrate_stoichiometric;
-
-    #[pymodule_export]
-    use super::add_data_directory_py as add_data_directory;
-}

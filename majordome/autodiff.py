@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 from . import _core
-from .data import DATA
 
-mod = _core.py_calphad
-mod.add_data_directory(str(DATA / "calphad"))
+mod = _core.py_num
 
 
 __all__ = [
-    "DatabaseLoader",
-    "Substance",
-    "SystemComposition",
-    "Equilibrium",
-    "equilibrate_stoichiometric",
-    "add_data_directory",
+    "Dual",
 ]
 
 
