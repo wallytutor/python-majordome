@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Added preliminary version of `majordome.calphad` in experimental mode.
+
 - Split modules with lazy imports (no impact for application programs), largely decreasing the typical import time of library functions.
 
 - Increased maturity and documentation of `majordome.engineering.SkinFrictionFactor` and the associated `majordome.engineering.WallGradingCalculator`.
