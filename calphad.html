@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>11&nbsp; Slycke’s Models – Majordome</title>
+<title>1&nbsp; Calphad – Majordome</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,49 +20,29 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for citations */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-  margin-bottom: 0em;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}</style>
+</style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../devel/python.html" rel="next">
-<link href="../diffusion/index.html" rel="prev">
-<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-49bf9995813b73fc9d466afa58da3ad1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./engineering.html" rel="next">
+<link href="./index.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-597958c53c93a607afca12fd375c57ed.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-49bf9995813b73fc9d466afa58da3ad1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -91,35 +71,6 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
@@ -132,7 +83,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../diffusion/index.html">Diffusion in Solids</a></li><li class="breadcrumb-item"><a href="../diffusion/slycke.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Slycke’s Models</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./calphad.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./calphad.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Calphad</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -147,7 +98,7 @@ window.Quarto = {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">Majordome</a> 
+      <a href="./">Majordome</a> 
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -159,7 +110,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Majordome</span></a>
   </div>
 </li>
@@ -174,37 +125,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../calphad.html" class="sidebar-item-text sidebar-link">
+  <a href="./calphad.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Calphad</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../engineering.html" class="sidebar-item-text sidebar-link">
+  <a href="./engineering.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Engineering</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../simulation.html" class="sidebar-item-text sidebar-link">
+  <a href="./simulation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Simulation</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../utilities.html" class="sidebar-item-text sidebar-link">
+  <a href="./utilities.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Utilities</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../documents.html" class="sidebar-item-text sidebar-link">
+  <a href="./documents.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Documents</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../magic.html" class="sidebar-item-text sidebar-link">
+  <a href="./magic.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
@@ -221,19 +172,19 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reactors/acetylene-pyrolysis-reactor.html" class="sidebar-item-text sidebar-link">
+  <a href="./reactors/acetylene-pyrolysis-reactor.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Acetylene pyrolysis</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reactors/counter-current-pfr.html" class="sidebar-item-text sidebar-link">
+  <a href="./reactors/counter-current-pfr.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Counter-current PFR</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reactors/converting-nasa-poly.html" class="sidebar-item-text sidebar-link">
+  <a href="./reactors/converting-nasa-poly.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Fitting NASA9 data</span></span></a>
   </div>
 </li>
@@ -250,13 +201,13 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../diffusion/index.html" class="sidebar-item-text sidebar-link">
+  <a href="./diffusion/index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Diffusion in solids</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../diffusion/slycke.html" class="sidebar-item-text sidebar-link active">
+  <a href="./diffusion/slycke.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Slycke’s Models</span></span></a>
   </div>
 </li>
@@ -273,13 +224,13 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../devel/python.html" class="sidebar-item-text sidebar-link">
+  <a href="./devel/python.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Core library</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../devel/dotnet.html" class="sidebar-item-text sidebar-link">
+  <a href="./devel/dotnet.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">.NET Extras</span></span></a>
   </div>
 </li>
@@ -287,7 +238,7 @@ window.Quarto = {
   </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../references.html" class="sidebar-item-text sidebar-link">
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">References</span></a>
   </div>
 </li>
@@ -301,19 +252,23 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preliminary-calculations" id="toc-preliminary-calculations" class="nav-link active" data-scroll-target="#preliminary-calculations"><span class="header-section-number">11.1</span> Preliminary calculations</a></li>
-  <li><a href="#convergence-analysis" id="toc-convergence-analysis" class="nav-link" data-scroll-target="#convergence-analysis"><span class="header-section-number">11.2</span> Convergence analysis</a></li>
-  <li><a href="#discretization-methods" id="toc-discretization-methods" class="nav-link" data-scroll-target="#discretization-methods"><span class="header-section-number">11.3</span> Discretization methods</a></li>
-  <li><a href="#comparison-to-validation-data" id="toc-comparison-to-validation-data" class="nav-link" data-scroll-target="#comparison-to-validation-data"><span class="header-section-number">11.4</span> Comparison to validation data</a></li>
+  <li><a href="#data-loading-and-inspection" id="toc-data-loading-and-inspection" class="nav-link active" data-scroll-target="#data-loading-and-inspection"><span class="header-section-number">1.1</span> Data loading and inspection</a></li>
+  <li><a href="#composition-specification" id="toc-composition-specification" class="nav-link" data-scroll-target="#composition-specification"><span class="header-section-number">1.2</span> Composition specification</a></li>
+  <li><a href="#automatic-differentiation" id="toc-automatic-differentiation" class="nav-link" data-scroll-target="#automatic-differentiation"><span class="header-section-number">1.3</span> Automatic differentiation</a></li>
+  <li><a href="#equilibrium-calculations" id="toc-equilibrium-calculations" class="nav-link" data-scroll-target="#equilibrium-calculations"><span class="header-section-number">1.4</span> Equilibrium calculations</a>
+  <ul class="collapse">
+  <li><a href="#calcium-carbonate-and-diaspore-decomposition" id="toc-calcium-carbonate-and-diaspore-decomposition" class="nav-link" data-scroll-target="#calcium-carbonate-and-diaspore-decomposition"><span class="header-section-number">1.4.1</span> Calcium carbonate and diaspore decomposition</a></li>
+  <li><a href="#al-ca-o-system-by-hallstedt-1990" id="toc-al-ca-o-system-by-hallstedt-1990" class="nav-link" data-scroll-target="#al-ca-o-system-by-hallstedt-1990"><span class="header-section-number">1.4.2</span> Al-Ca-O system by Hallstedt (1990)</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../diffusion/index.html">Diffusion in Solids</a></li><li class="breadcrumb-item"><a href="../diffusion/slycke.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Slycke’s Models</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./calphad.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./calphad.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Calphad</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Slycke’s Models</span></h1>
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Calphad</span></h1>
 </div>
 
 
@@ -330,98 +285,366 @@ window.Quarto = {
 </header>
 
 
-<div class="callout callout-style-simple callout-none no-icon">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-body-container">
-<p>Educational code for simulating diffusion processes in solids. Example application based on <a href="https://doi.org/10.1007/BF02833226">Slycke’s</a> models of carbonitriding processes in steel.</p>
-</div>
-</div>
-</div>
-<section id="preliminary-calculations" class="level2" data-number="11.1">
-<h2 data-number="11.1" class="anchored" data-anchor-id="preliminary-calculations"><span class="header-section-number">11.1</span> Preliminary calculations</h2>
-<p>The problem as formulated by <span class="citation" data-cites="Slycke1981a">Slycke and Ericsson (<a href="../references.html#ref-Slycke1981a" role="doc-biblioref">1981</a>)</span> is expressed in terms of concentrations, while the diffusion coefficients (which are based on geometric exclusion principles) require molar fractions. There may be some overhead in simulations if handling of unit conversion is not done carefully, so in this section we will derive the necessary relationships to convert between the two.</p>
-<p>The problem may seen nonlinear, as density might be considered as a function of composition (in general for carbonitriding it is reasonable to assume that the density of the steel is constant, but we will not make this assumption here). From the definition o molar fraction, one can derive the mean number of atoms of a kind per unit cell in terms of the total number of atoms per unit cell and the molar fractions. For instance, for carbon and nitrogen we have:</p>
-<div id="e8ca96c0" class="cell" data-execution_count="6">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(x_{c} = \frac{N_{c}}{N_{c} + N_{f} + N_{n}}, \quad x_{n} = \frac{N_{n}}{N_{c} + N_{f} + N_{n}}\)</span></p>
+<p><em>aka majordome.calphad</em></p>
+<section id="data-loading-and-inspection" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="data-loading-and-inspection"><span class="header-section-number">1.1</span> Data loading and inspection</h2>
+<ul>
+<li>Loading a whole database:</li>
+</ul>
+<div id="faf61aa4" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>['Al2O3', 'CO2', 'Calcite', 'Diaspore', 'H2O', 'Lime']</code></pre>
 </div>
 </div>
-<p>With a little manipulation, we can express the number of atoms per unit cell of carbon and nitrogen as a function of the molar fractions and the total number of atoms of iron <span class="math inline">\(N_f\)</span> (which dependends only on the crystal structure, here for FCC <span class="math inline">\(N_f = 4\)</span>) per unit cell:</p>
-<div id="c4620ada" class="cell" data-execution_count="8">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(N_c = - \frac{N_{f} x_{c}}{x_{c} + x_{n} - 1}, \quad N_n = - \frac{N_{f} x_{n}}{x_{c} + x_{n} - 1}\)</span></p>
+<ul>
+<li>Loading a selection of components:</li>
+</ul>
+<div id="375f757d" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>{'Calcite': &lt;Substance at 0x2b194bbc500&gt;,
+ 'Lime': &lt;Substance at 0x2b194bbc450&gt;,
+ 'CO2': &lt;Substance at 0x2b194bbc5b0&gt;}</code></pre>
 </div>
 </div>
-<p>In the absence of interstitial atoms, the density of plain iron expressed in terms of the unit cell parameters (see any introductory text on Materials Science, <em>e.g.</em> <span class="citation" data-cites="Callister2007">Callister (<a href="../references.html#ref-Callister2007" role="doc-biblioref">2007</a>)</span>) can be expressed as:</p>
-<div id="377ac698" class="cell" data-execution_count="10">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(\rho_0 = \frac{M_{f} N_{f}}{A_{v} V_{c}}\)</span></p>
+<ul>
+<li>Reporting properties at a given temperature:</li>
+</ul>
+<div id="59a5c104" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-stdout">
+<pre><code>--- Calcite (Solid) ---
+
+Molar mass      | g/mol      |  1.00086000e+02
+Molar volume    | cm³/mol    |  3.69340000e+01
+Entropy S0      | J/(mol.K)  |  9.17800000e+01
+Delta-Hf298     | kJ/mol     | -1.20760500e+03
+
+Elements:
+  *  C: 1.000000
+  * Ca: 1.000000
+  *  O: 3.000000
+
+Properties at 300.00 K:
+ Specific heat  | J/(mol.K)  |  8.38182222e+01
+ Entropy        | J/(mol.K)  |  9.22974039e+01
+ Gibbs energy   | kJ/mol     | -1.23513948e+03
+ Enthalpy       | kJ/mol     | -1.20745026e+03
+
+Reference: Robie et al. (1979) 
+
+--- Lime (Solid) ---
+
+Molar mass      | g/mol      |  5.60770000e+01
+Molar volume    | cm³/mol    |  1.67600000e+01
+Entropy S0      | J/(mol.K)  |  3.81000000e+01
+Delta-Hf298     | kJ/mol     | -6.34920000e+02
+
+Elements:
+  * Ca: 1.000000
+  *  O: 1.000000
+
+Properties at 300.00 K:
+ Specific heat  | J/(mol.K)  |  4.21808889e+01
+ Entropy        | J/(mol.K)  |  3.83605068e+01
+ Gibbs energy   | kJ/mol     | -6.46350241e+02
+ Enthalpy       | kJ/mol     | -6.34842089e+02
+
+Reference:  
+
+--- CO2 (Gas) ---
+
+Molar mass      | g/mol      |  4.40090000e+01
+Molar volume    | cm³/mol    |  2.44654037e+04
+Entropy S0      | J/(mol.K)  |  2.13780000e+02
+Delta-Hf298     | kJ/mol     | -3.93507679e+02
+
+Elements:
+  *  C: 1.000000
+  *  O: 2.000000
+
+Properties at 300.00 K:
+ Specific heat  | J/(mol.K)  |  3.72177412e+01
+ Entropy        | J/(mol.K)  |  2.14016203e+02
+ Gibbs energy   | kJ/mol     | -4.57643763e+02
+ Enthalpy       | kJ/mol     | -3.93438902e+02
+
+Reference: NASA 
+</code></pre>
 </div>
 </div>
-<p>Including the additional interstitial atoms - and neglecting their effect on lattice parameter, which is not a bad hypothesis at high temperature - the density of the system can be expressed as:</p>
-<div id="3ce48367" class="cell" data-execution_count="12">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(\rho = \frac{N_{f} \left(- M_{c} x_{c} + M_{f} \left(x_{c} + x_{n} - 1\right) - M_{n} x_{n}\right)}{A_{v} V_{c} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
+<ul>
+<li>Tabulate with default bounds and step (100 K)</li>
+</ul>
+<div id="310f11b9" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-stdout">
+<pre><code>--- Lime (Solid) ---
+
+T (K)    | Cp           | S            | -(G-H298)/T    | H-H298        
+---------+--------------+--------------+----------------+----------------
+298.15   | 42.0468      | 38.1000      | 38.1000        | 0.00          
+300.00   | 42.1809      | 38.3605      | 38.1008        | 77.91         
+400.00   | 46.9797      | 51.2463      | 39.8251        | 4568.48       
+500.00   | 49.3320      | 62.0084      | 43.2168        | 9395.78       
+600.00   | 50.7212      | 71.1350      | 47.1289        | 14403.64      
+700.00   | 51.6558      | 79.0279      | 51.1349        | 19525.15      
+800.00   | 52.3479      | 85.9728      | 55.0643        | 24726.83      
+900.00   | 52.8992      | 92.1714      | 58.8491        | 29990.09      
+1000.00  | 53.3630      | 97.7695      | 62.4657        | 35303.78      
+1100.00  | 53.7696      | 102.8750     | 65.9106        | 40660.80      
+1200.00  | 54.1373      | 107.5695     | 69.1892        | 46056.41      </code></pre>
 </div>
 </div>
-<p>Notice the common factors between the two expressions, which allows us to express the density of the system as a function of the density of pure iron and the molar fractions:</p>
-<div id="3b75084b" class="cell" data-execution_count="14">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(\rho = \frac{\rho_{0} \left(- M_{c} x_{c} + M_{f} \left(x_{c} + x_{n} - 1\right) - M_{n} x_{n}\right)}{M_{f} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
+<ul>
+<li>Tabulate with custom bounds and step:</li>
+</ul>
+<div id="ccbb22bd" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-stdout">
+<pre><code>--- Calcite (Solid) ---
+
+T (K)    | Cp           | S            | -(G-H298)/T    | H-H298        
+---------+--------------+--------------+----------------+----------------
+237.00   | 67.6803      | 74.3162      | 94.0244        | -4670.83      
+298.15   | 83.4699      | 91.7800      | 91.7800        | 0.00          
+300.00   | 83.8182      | 92.2974      | 91.7816        | 154.74        
+400.00   | 97.0005      | 118.4319     | 95.2554        | 9270.61       
+500.00   | 104.5480     | 140.9480     | 102.1980       | 19375.01      
+600.00   | 109.8776     | 160.5024     | 110.3219       | 30108.28      
+700.00   | 114.1599     | 177.7711     | 118.7479       | 41316.27      
+800.00   | 117.8841     | 193.2627     | 127.1104       | 52921.91      
+900.00   | 121.2838     | 207.3462     | 135.2547       | 64882.39      
+1000.00  | 124.4820     | 220.2917     | 143.1197       | 77172.01      
+1100.00  | 127.5485     | 232.3007     | 150.6876       | 89774.43      
+1200.00  | 130.5254     | 243.5271     | 157.9615       | 102678.74     </code></pre>
 </div>
 </div>
-<p>The concentration is the ratio between the solution density and its mean molar mass. Writing the molar mass of the system as a function of the molar fractions and molar masses of the individual components is straightforward:</p>
-<div id="acd76d8f" class="cell" data-execution_count="16">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(\bar{M} = M_{c} x_{c} + M_{f} \left(- x_{c} - x_{n} + 1\right) + M_{n} x_{n}\)</span></p>
+<ul>
+<li>Tabulate phase with multiple temperature ranges (even with a step that does not match perfectly, the 1000 K will be printed):</li>
+</ul>
+<div id="cf5f4a80" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-stdout">
+<pre><code>--- CO2 (Gas) ---
+
+T (K)    | Cp           | S            | -(G-H298)/T    | H-H298        
+---------+--------------+--------------+----------------+----------------
+200.00   | 32.3282      | 199.9539     | 217.0335       | -3415.91      
+298.15   | 37.1352      | 213.7862     | 213.7862       | 0.00          
+300.00   | 37.2177      | 214.0162     | 213.7869       | 68.78         
+600.00   | 47.3559      | 243.2653     | 221.7589       | 12903.82      
+900.00   | 52.9739      | 263.6338     | 232.4882       | 28031.09      
+1000.00  | 54.3209      | 269.2862     | 235.8891       | 33397.06      
+1200.00  | 56.3061      | 279.3739     | 242.3165       | 44468.94      
+1500.00  | 58.3964      | 292.1799     | 251.0484       | 61697.22      
+1800.00  | 59.7373      | 302.9543     | 258.8254       | 79432.10      
+2100.00  | 60.6144      | 312.2332     | 265.8077       | 97493.49      
+2400.00  | 61.2367      | 320.3697     | 272.1299       | 115775.52     
+2700.00  | 61.7372      | 327.6120     | 277.8996       | 134223.60     
+3000.00  | 62.1722      | 334.1397     | 283.2025       | 152811.54     
+3300.00  | 62.5221      | 340.0827     | 288.1074       | 171518.68     
+3500.00  | 62.6638      | 343.7662     | 291.1836       | 184038.93     </code></pre>
 </div>
 </div>
-<p>With this expression we find the trivial result:</p>
-<div id="1a8696b5" class="cell" data-execution_count="18">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(C = - \frac{\rho_{0}}{M_{f} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
-</div>
-</div>
-<p>and for the individual components:</p>
-<div id="44145d6b" class="cell" data-execution_count="20">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(C_c = - \frac{\rho_{0} x_{c}}{M_{f} \left(x_{c} + x_{n} - 1\right)}, \quad C_n = - \frac{\rho_{0} x_{n}}{M_{f} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
-</div>
-</div>
-<p>With these expressions, we can express the molar fractions as a function of the concentrations:</p>
-<div id="de629f1d" class="cell" data-execution_count="22">
-<div class="cell-output cell-output-display cell-output-markdown">
-<p><span class="math inline">\(x_c = \frac{C_{c} M_{f}}{C_{c} M_{f} + C_{n} M_{f} + \rho_{0}}, \quad x_n = \frac{C_{n} M_{f}}{C_{c} M_{f} + C_{n} M_{f} + \rho_{0}}\)</span></p>
-</div>
-</div>
-<p>The preliminary conclusions from the above calculations are:</p>
-<ol type="1">
-<li><p>Problem is to be initialized in terms of concentrations, which are computed from the molar fractions and the density of plain iron.</p></li>
-<li><p>Solution is carried interativelly, so we do not need to handle the non-linearity arising from the dependence of composition with both species.</p></li>
-<li><p>The model is responsible by converting from concentrations to mole fractions internally, so there is no impact on the solver.</p></li>
-</ol>
 </section>
-<section id="convergence-analysis" class="level2" data-number="11.2">
-<h2 data-number="11.2" class="anchored" data-anchor-id="convergence-analysis"><span class="header-section-number">11.2</span> Convergence analysis</h2>
+<section id="composition-specification" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="composition-specification"><span class="header-section-number">1.2</span> Composition specification</h2>
+<ul>
+<li>Specification by compound moles (1.5 mol calcite + 2.0 mol diaspore):</li>
+</ul>
+<div id="db2cef61" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-stdout">
+<pre><code>=== System Composition Report ===
+Input Method: Compound Moles
+
+Input Proportions:
+  * Calcite: 1.500000
+  * Diaspore: 2.000000
+
+Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
+  * Al: 0.129032
+  *  C: 0.096774
+  * Ca: 0.096774
+  *  H: 0.129032
+  *  O: 0.548387</code></pre>
+</div>
+</div>
+<ul>
+<li>Specification by compound masses (100.0 g calcite + 120.0 g diaspore):</li>
+</ul>
+<div id="2378a6ac" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-stdout">
+<pre><code>=== System Composition Report ===
+Input Method: Compound Masses
+
+Input Proportions:
+  * Calcite: 100.000000
+  * Diaspore: 200.000000
+
+Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
+  * Al: 0.181871
+  *  C: 0.054503
+  * Ca: 0.054503
+  *  H: 0.181871
+  *  O: 0.527252</code></pre>
+</div>
+</div>
+<ul>
+<li>Specification by elemental moles (1.0 mol Ca, 1.0 mol C, 3.0 mol O):</li>
+</ul>
+<div id="ab66582e" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-stdout">
+<pre><code>=== System Composition Report ===
+Input Method: Elemental Moles
+
+Input Proportions:
+  * C: 1.000000
+  * Ca: 1.000000
+  * O: 3.000000
+
+Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
+  *  C: 0.200000
+  * Ca: 0.200000
+  *  O: 0.600000</code></pre>
+</div>
+</div>
+<ul>
+<li>Specification by elemental masses (40.078 g Ca, 12.011 g C, 47.997 g O):</li>
+</ul>
+<div id="3074e90d" class="cell" data-execution_count="12">
+<div class="cell-output cell-output-stdout">
+<pre><code>=== System Composition Report ===
+Input Method: Elemental Masses
+
+Input Proportions:
+  * C: 12.011000
+  * Ca: 40.078000
+  * O: 47.997000
+
+Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
+  *  C: 0.200000
+  * Ca: 0.200000
+  *  O: 0.600000</code></pre>
+</div>
+</div>
+<ul>
+<li>Verifying Python API getters on <code>SystemComposition</code>:</li>
+</ul>
+<div id="5a368ade" class="cell" data-execution_count="13">
+<div class="cell-output cell-output-stdout">
+<pre><code>input_method:       Elemental Masses
+input_proportions:  {'C': 12.011, 'Ca': 40.078, 'O': 47.997}
+elements:           ['C', 'Ca', 'O']
+balace:             1.0</code></pre>
+</div>
+</div>
 </section>
-<section id="discretization-methods" class="level2" data-number="11.3">
-<h2 data-number="11.3" class="anchored" data-anchor-id="discretization-methods"><span class="header-section-number">11.3</span> Discretization methods</h2>
+<section id="automatic-differentiation" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="automatic-differentiation"><span class="header-section-number">1.3</span> Automatic differentiation</h2>
+<div id="f11e2f47" class="cell" data-execution_count="14">
+<div class="cell-output cell-output-stdout">
+<pre><code>Calcite at T = 300.00 K:
+  G(T)             = -1235139.478760 J/mol
+  dG/dT (autodiff) = -92.297404 J/(mol.K)
+  -S(T) (computed) = -92.297404 J/(mol.K)
+  Difference       = 1.421085e-14 J/(mol.K)</code></pre>
+</div>
+</div>
 </section>
-<section id="comparison-to-validation-data" class="level2" data-number="11.4">
-<h2 data-number="11.4" class="anchored" data-anchor-id="comparison-to-validation-data"><span class="header-section-number">11.4</span> Comparison to validation data</h2>
+<section id="equilibrium-calculations" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="equilibrium-calculations"><span class="header-section-number">1.4</span> Equilibrium calculations</h2>
+<section id="calcium-carbonate-and-diaspore-decomposition" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="calcium-carbonate-and-diaspore-decomposition"><span class="header-section-number">1.4.1</span> Calcium carbonate and diaspore decomposition</h3>
+<ul>
+<li>Single equilibrium point (1.0 mol CaCO3 + 1.0 mol AlOOH):</li>
+</ul>
+<div id="25033994" class="cell" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>================================================================================
+                           CHEMICAL EQUILIBRIUM REPORT                          
+================================================================================
+  CONDITIONS:
+    Temperature .....: 1173.15 K (900.00 °C)
+    Pressure ........: 1.01325 bar (101325.0 Pa)
+
+  GLOBAL THERMODYNAMIC PROPERTIES:
+    Total Gibbs Energy (G) : -282444.8379 J
+
+  PHASE ASSEMBLAGE DATA:
+    Phase Name      | Status   | Amount (mol) | Pure Gibbs (J)  | Total Gibbs (J)
+    ----------------------------------------------------------------------------
+    Al2O3           | Stable   | 5.555556E-2  | -1810814.6226   | -100600.8124   
+      Composition: Al: 2, O: 3
+    CO2             | Stable   | 1.111111E-1  | -676803.2891    | -75200.3654    
+      Composition: C: 1, O: 2
+    Calcite         | Inactive | 0.000000E0   | -1390659.4916   | -0.0000        
+      Composition: C: 1, Ca: 1, O: 3
+    Diaspore        | Inactive | 0.000000E0   | -1097036.8940   | -0.0000        
+      Composition: Al: 1, H: 1, O: 2
+    H2O             | Stable   | 5.555556E-2  | -489435.5800    | -27190.8656    
+      Composition: H: 2, O: 1
+    Lime            | Stable   | 1.111111E-1  | -715075.1512    | -79452.7945    
+      Composition: Ca: 1, O: 1
+================================================================================</code></pre>
+</div>
+</div>
+<ul>
+<li>Temperature scanning (300 K – 1200 K, step 100 K):</li>
+</ul>
+<div id="fc81ac9e" class="cell" data-execution_count="16">
+<div class="cell-output cell-output-stdout">
+<pre><code>T (K)      |    CaCO3 |      CaO |      CO2 |   Diaspore |      H2O |    Al2O3 |   dH (J/g)
+-------------------------------------------------------------------------------------------
+298.15     |   0.1111 |   0.0000 |   0.0000 |     0.1111 |   0.0000 |   0.0000 |       0.00
+300.00     |   0.1111 |   0.0000 |   0.0000 |     0.1111 |   0.0000 |   0.0000 |       1.58
+400.00     |   0.1111 |   0.0000 |   0.0000 |     0.1111 |   0.0000 |   0.0000 |      95.99
+500.00     |   0.1111 |   0.0000 |   0.0000 |     0.1111 |   0.0000 |   0.0000 |     202.81
+600.00     |   0.1111 |   0.0000 |   0.0000 |     0.0000 |   0.0556 |   0.0556 |     580.42
+700.00     |   0.1111 |   0.0000 |   0.0000 |     0.0000 |   0.0556 |   0.0556 |     697.68
+800.00     |   0.1111 |   0.0000 |   0.0000 |     0.0000 |   0.0556 |   0.0556 |     819.07
+900.00     |   0.1111 |   0.0000 |   0.0000 |     0.0000 |   0.0556 |   0.0556 |     944.13
+1000.00    |   0.1111 |   0.0000 |   0.0000 |     0.0000 |   0.0556 |   0.0556 |    1072.57
+1100.00    |   0.1111 |   0.0000 |   0.0000 |     0.0000 |   0.0556 |   0.0556 |    1204.27
+1200.00    |   0.0000 |   0.1111 |   0.1111 |     0.0000 |   0.0556 |   0.0556 |    2382.46
+1300.00    |   0.0000 |   0.1111 |   0.1111 |     0.0000 |   0.0556 |   0.0556 |    2507.13
+1400.00    |   0.0000 |   0.1111 |   0.1111 |     0.0000 |   0.0556 |   0.0556 |    2633.57
+1500.00    |   0.0000 |   0.1111 |   0.1111 |     0.0000 |   0.0556 |   0.0556 |    2761.69</code></pre>
+</div>
+</div>
+</section>
+<section id="al-ca-o-system-by-hallstedt-1990" class="level3" data-number="1.4.2">
+<h3 data-number="1.4.2" class="anchored" data-anchor-id="al-ca-o-system-by-hallstedt-1990"><span class="header-section-number">1.4.2</span> Al-Ca-O system by Hallstedt (1990)</h3>
+<ul>
+<li>Composition scanning (x(Al₂O₃) from 0 to 1 at 1400 K):</li>
+</ul>
+<div id="ba02b67a" class="cell" data-execution_count="17">
+<div class="cell-output cell-output-stdout">
+<pre><code>x(Al2O3)   |   HALITE |     C3A1 |     C1A1 |     C1A2 |     C1A6 |   CORUNDUM
+------------------------------------------------------------------------------
+0.0000     |     1.00 |     0.00 |     0.00 |     0.00 |     0.00 |     0.0000
+0.0500     |     0.94 |     0.06 |     0.00 |     0.00 |     0.00 |     0.0000
+0.1000     |     0.86 |     0.14 |     0.00 |     0.00 |     0.00 |     0.0000
+0.1500     |     0.73 |     0.27 |     0.00 |     0.00 |     0.00 |     0.0000
+0.2000     |     0.50 |     0.50 |     0.00 |     0.00 |     0.00 |     0.0000
+0.2500     |     0.00 |     1.00 |     0.00 |     0.00 |     0.00 |     0.0000
+0.3000     |     0.00 |     0.67 |     0.33 |     0.00 |     0.00 |     0.0000
+0.3500     |     0.00 |     0.43 |     0.57 |     0.00 |     0.00 |     0.0000
+0.4000     |     0.00 |     0.25 |     0.75 |     0.00 |     0.00 |     0.0000
+0.4500     |     0.00 |     0.11 |     0.89 |     0.00 |     0.00 |     0.0000
+0.5000     |     0.00 |     0.00 |     1.00 |     0.00 |     0.00 |     0.0000
+0.5500     |     0.00 |     0.00 |     0.78 |     0.22 |     0.00 |     0.0000
+0.6000     |     0.00 |     0.00 |     0.50 |     0.50 |     0.00 |     0.0000
+0.6500     |     0.00 |     0.00 |     0.14 |     0.86 |     0.00 |     0.0000
+0.6667     |     0.00 |     0.00 |     0.00 |     1.00 |     0.00 |     0.0000
+0.7000     |     0.00 |     0.00 |     0.00 |     0.92 |     0.08 |     0.0000
+0.7500     |     0.00 |     0.00 |     0.00 |     0.75 |     0.25 |     0.0000
+0.8000     |     0.00 |     0.00 |     0.00 |     0.50 |     0.50 |     0.0000
+0.8500     |     0.00 |     0.00 |     0.00 |     0.08 |     0.92 |     0.0000
+0.8571     |     0.00 |     0.00 |     0.00 |     0.00 |     1.00 |     0.0000
+0.9000     |     0.00 |     0.00 |     0.00 |     0.00 |     0.25 |     0.7500
+0.9500     |     0.00 |     0.00 |     0.00 |     0.00 |     0.07 |     0.9286
+1.0000     |     0.00 |     0.00 |     0.00 |     0.00 |     0.00 |     1.0000</code></pre>
+</div>
+</div>
 
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
-<div id="ref-Callister2007" class="csl-entry" role="listitem">
-Callister, William D. 2007. <em>Materials Science and Engineering: An Introduction</em>. Seventh edition. New York, NY: Wiley.
-</div>
-<div id="ref-Slycke1981a" class="csl-entry" role="listitem">
-Slycke, J., and T. Ericsson. 1981. <span>“A Study of Reactions Occurring During the Carbonitriding Process Part II.”</span> <em>Journal of Heat Treatment</em> 2: 97–112. <a href="https://doi.org/10.1007/BF02833226">https://doi.org/10.1007/BF02833226</a>.
-</div>
-</div>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -827,13 +1050,13 @@ Slycke, J., and T. Ericsson. 1981. <span>“A Study of Reactions Occurring Durin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../diffusion/index.html" class="pagination-link" aria-label="Diffusion in solids">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Diffusion in solids</span></span>
+      <a href="./index.html" class="pagination-link" aria-label="Majordome">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Majordome</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../devel/python.html" class="pagination-link" aria-label="Core library">
-        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Core library</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./engineering.html" class="pagination-link" aria-label="Engineering">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Engineering</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
