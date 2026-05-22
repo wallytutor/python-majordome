@@ -822,9 +822,14 @@ class WSGGRadlibBordbar2020(AbstractWSGG):
         float
             Total emissivity integrated over optical path.
         """
-        P_atm = P / 101325
+        P_atm = P / 101325.0
         P_h2o = P_atm * x_h2o
         P_co2 = P_atm * x_co2
 
         self._eval_coefs(T, P_h2o, P_co2, fvsoot)
-        return self.emissivity((P_h2o + P_co2) * L)
+
+        # XXX it was noticed that in the original paper the coefficients
+        # already include the partial pressures, so, the following was
+        # wrong (but not much in terms of values):
+        # return self.emissivity((P_h2o + P_co2) * L)
+        return self.emissivity(L)
