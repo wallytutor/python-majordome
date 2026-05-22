@@ -1,14 +1,20 @@
+// | `loading_data`            | CaCO₃/CaO/CO₂ + Diaspore    | Report thermodynamic properties
+// | `autodiff_verification`   | Calcite                      | Verify dG/dT = -S via autodiff
+// | `species_tabulation_demo` | CaCO₃/CaO/CO₂ + Diaspore    | Property tabulation 298–1200 K
+// | `single_equilibrium`      | CaCO₃ + AlOOH          | Single-point Gibbs minimization
+// | `composition_tabulation`  | CaCO₃ + AlOOH                | Temperature scan 300–1200 K
+// | `hallstedt1990_scan`      | CaO–Al₂O₃ (Hallstedt 1990)  | Composition scan at 1400 K
+use crate::calphad::T_REF;
+use crate::calphad::core::SystemComposition;
+use crate::calphad::data::DatabaseLoader;
+use crate::calphad::equil::equilibrate_stoichiometric;
 use crate::num::autodiff::{Dual, diff};
-use crate::calphad:::T_REF;
-use crate::calphad:::core::SystemComposition;
-use crate::calphad:::data::DatabaseLoader;
-use crate::calphad:::equil::equilibrate_stoichiometric;
 
 fn main() {
     loading_data();
     autodiff_verification();
     species_tabulation_demo();
-    single_equilibrium_evaluation();
+    single_equilibrium();
     composition_tabulation();
     hallstedt1990_scan();
 }
@@ -16,7 +22,7 @@ fn main() {
 fn loading_data() {
     println!("=== Thermodynamic Properties ===\n");
 
-    let db = DatabaseLoader::new("data/sample/simple-calcination.lua".to_string(), None).unwrap();
+    let db = DatabaseLoader::new("sample/simple-calcination.lua".to_string(), None).unwrap();
 
     for (_name, phase) in db.data.iter() {
         println!("{}\n", phase.report(300.0));
@@ -26,7 +32,7 @@ fn loading_data() {
 fn autodiff_verification() {
     println!("=== Automatic Differentiation Verification ===\n");
 
-    let db = DatabaseLoader::new("data/sample/simple-calcination.lua".to_string(), None).unwrap();
+    let db = DatabaseLoader::new("sample/simple-calcination.lua".to_string(), None).unwrap();
     let calcite = db.data.get("Calcite").unwrap();
 
     let t_eval = 300.0;
@@ -45,7 +51,7 @@ fn autodiff_verification() {
 fn species_tabulation_demo() {
     println!("=== Species Thermodynamic Tabulation ===\n");
 
-    let db = DatabaseLoader::new("data/sample/simple-calcination.lua".to_string(), None).unwrap();
+    let db = DatabaseLoader::new("sample/simple-calcination.lua".to_string(), None).unwrap();
     let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
 
     for name in &names {
@@ -55,8 +61,8 @@ fn species_tabulation_demo() {
     }
 }
 
-fn single_equilibrium_evaluation() {
-    let db = DatabaseLoader::new("data/sample/simple-calcination.lua".to_string(), None).unwrap();
+fn single_equilibrium() {
+    let db = DatabaseLoader::new("sample/simple-calcination.lua".to_string(), None).unwrap();
 
     let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
     let species: Vec<_> = names.iter().map(|n| db.data.get(*n).unwrap()).collect();
@@ -83,7 +89,7 @@ fn single_equilibrium_evaluation() {
 /// Reports phase amounts and mass-specific enthalpy change from 300 K to 1200 K,
 /// using 298.15 K as the reference state.
 fn composition_tabulation() {
-    let db = DatabaseLoader::new("data/sample/simple-calcination.lua".to_string(), None).unwrap();
+    let db = DatabaseLoader::new("sample/simple-calcination.lua".to_string(), None).unwrap();
 
     let names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"];
     let species: Vec<_> = names.iter().map(|n| db.data.get(*n).unwrap()).collect();
@@ -169,7 +175,7 @@ fn composition_tabulation() {
 /// Varies x(Al2O3) from 0 to 1 at 1400 K and reports the normalized
 /// mole fraction of each stoichiometric phase at equilibrium.
 fn hallstedt1990_scan() {
-    let db = DatabaseLoader::new("data/hallstedt1990.lua".to_string(), None)
+    let db = DatabaseLoader::new("hallstedt1990.lua".to_string(), None)
         .expect("Failed to load hallstedt1990.lua");
 
     let names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"];

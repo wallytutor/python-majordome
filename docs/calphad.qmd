@@ -12,6 +12,51 @@ T_REF = 298.15
 P_REF = 101325.0
 ```
 
+## Capabilities
+
+### Data layer
+
+- Lua-based dynamic species registry with named-indexed loading.
+
+- Supported parameterizations: **Maier-Kelley**, **NASA7**, **NASA9**,
+  **Shomate**, **GibbsPolynomial**, **Compound** (linear combination with
+  optional Gibbs deviation term).
+
+- Automatic molar mass calculation from elemental composition.
+
+- `DatabaseLoader` supports full-database or phase-subset loading.
+
+### Thermodynamic engine
+
+- Evaluation of Cp, H, S, G for all parameterization models.
+
+- Generic over `f64` and `Dual<f64>` (automatic differentiation).
+
+- Multi-range substances with correct range-boundary interpolation.
+
+- Tabulation of thermodynamic properties over a temperature scan.
+
+### System composition
+
+- `SystemComposition` constructors:
+  - `from_compound_moles` / `from_compound_masses`
+  - `from_elemental_moles` / `from_elemental_masses`
+
+- Internal normalization to one mole of atoms.
+
+- Report formatter with elemental fractions.
+
+### Equilibrium solver
+
+- `equilibrate_stoichiometric`: support-based Gibbs minimization for
+  stoichiometric phase assemblages.
+
+- Handles gas phases with pressure correction `RT ln(p/p°)`.
+
+- Exposed to Python as `equilibrate_stoichiometric(phases, comp, T, P)`.
+
+- Returns `Equilibrium` with amounts, Gibbs energies and a report formatter.
+
 ## Data loading and inspection
 
 - Loading a whole database:

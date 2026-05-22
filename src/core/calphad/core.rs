@@ -410,6 +410,7 @@ pub struct TemperatureRange {
 }
 
 // ---------------------------------------------------------------------------
+
 #[pyclass(from_py_object)]
 #[derive(Debug, Clone)]
 pub struct Substance {
@@ -960,6 +961,7 @@ impl SystemComposition {
 }
 
 // ---------------------------------------------------------------------------
+
 #[cfg(test)]
 mod core_test {
     use super::SystemComposition;
@@ -1020,5 +1022,3 @@ mod core_test {
 }
 
 // ---------------------------------------------------------------------------
-
-
