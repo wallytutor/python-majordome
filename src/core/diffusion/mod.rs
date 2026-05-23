@@ -1,27 +1,25 @@
 // FIXME: this code was experimental and now does not meet quality standards.
 // It needs to be revisited, cleaned up, and properly tested.
 
+use majordome_constants::GAS_CONSTANT;
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyList};
-
-use crate::constants::GAS_CONSTANT;
 
 fn validate_callback_xt(callback: &Bound<'_, PyAny>) -> PyResult<()> {
     if !callback.is_callable() {
         return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-            "callback must be callable with signature: fn(x[], T)"
+            "callback must be callable with signature: fn(x[], T)",
         ));
     }
     Ok(())
 }
 
 fn validate_array_type(array: &Bound<'_, PyAny>) -> PyResult<()> {
-    let is_valid = array.is_instance_of::<PyList>()
-        || array.hasattr("__array__").unwrap_or(false);
+    let is_valid = array.is_instance_of::<PyList>() || array.hasattr("__array__").unwrap_or(false);
 
     if !is_valid {
         return Err(PyErr::new::<pyo3::exceptions::PyTypeError, _>(
-            "array must be a list or numpy array"
+            "array must be a list or numpy array",
         ));
     }
     Ok(())
@@ -64,9 +62,10 @@ pub struct ArrheniusModifiedDiffusivity {
 impl Clone for PreExponentialFactor {
     fn clone(&self) -> Self {
         PreExponentialFactor {
-            callback: self.callback.as_ref().map(|cb| {
-                Python::attach(|py| cb.clone_ref(py))
-            }),
+            callback: self
+                .callback
+                .as_ref()
+                .map(|cb| Python::attach(|py| cb.clone_ref(py))),
             rust_callback: self.rust_callback,
         }
     }
@@ -75,9 +74,10 @@ impl Clone for PreExponentialFactor {
 impl Clone for ActivationEnergy {
     fn clone(&self) -> Self {
         ActivationEnergy {
-            callback: self.callback.as_ref().map(|cb| {
-                Python::attach(|py| cb.clone_ref(py))
-            }),
+            callback: self
+                .callback
+                .as_ref()
+                .map(|cb| Python::attach(|py| cb.clone_ref(py))),
             rust_callback: self.rust_callback,
         }
     }
@@ -89,21 +89,24 @@ impl Clone for ActivationEnergy {
 
 impl PreExponentialFactor {
     pub fn from_rust_fn(rust_fn: RustCallback) -> Self {
-        PreExponentialFactor { callback: None, rust_callback: Some(rust_fn) }
+        PreExponentialFactor {
+            callback: None,
+            rust_callback: Some(rust_fn),
+        }
     }
 }
 
 impl ActivationEnergy {
     pub fn from_rust_fn(rust_fn: RustCallback) -> Self {
-        ActivationEnergy { callback: None, rust_callback: Some(rust_fn) }
+        ActivationEnergy {
+            callback: None,
+            rust_callback: Some(rust_fn),
+        }
     }
 }
 
 impl ArrheniusModifiedDiffusivity {
-    pub fn from_rust_fns(
-        pre_exp_fn: RustCallback,
-        act_eng_fn: RustCallback,
-    ) -> Self {
+    pub fn from_rust_fns(pre_exp_fn: RustCallback, act_eng_fn: RustCallback) -> Self {
         ArrheniusModifiedDiffusivity {
             pre_exponential: PreExponentialFactor::from_rust_fn(pre_exp_fn),
             activation_energy: ActivationEnergy::from_rust_fn(act_eng_fn),
@@ -144,7 +147,7 @@ impl PreExponentialFactor {
             })
         } else {
             Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
-                "No callback available"
+                "No callback available",
             ))
         }
     }
@@ -179,7 +182,7 @@ impl ActivationEnergy {
             })
         } else {
             Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(
-                "No callback available"
+                "No callback available",
             ))
         }
     }
@@ -241,8 +244,8 @@ impl ArrheniusModifiedDiffusivity {
             // Error: invalid combination
             _ => Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
                 "Must provide either (pre_exponential, activation_energy) objects \
-                 or (pre_exponential_func, activation_energy_func) functions"
-            ))
+                 or (pre_exponential_func, activation_energy_func) functions",
+            )),
         }
     }
 
@@ -264,7 +267,8 @@ impl ArrheniusModifiedDiffusivity {
 //////////////////////////////////////////////////////////////////////////////
 
 fn composition_dependence(x: &[f64]) -> f64 {
-    if x.len() != 2 { // XXX While we cannot enforce compile-time length!
+    if x.len() != 2 {
+        // XXX While we cannot enforce compile-time length!
         panic!("composition array must have at least two elements");
     }
 

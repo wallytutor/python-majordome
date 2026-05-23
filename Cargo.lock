@@ -111,9 +111,17 @@ dependencies = [
 name = "majordome"
 version = "1.2.0"
 dependencies = [
+ "majordome_constants",
  "mlua",
  "pyo3",
  "serde_json",
+]
+
+[[package]]
+name = "majordome_constants"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
 ]
 
 [[package]]

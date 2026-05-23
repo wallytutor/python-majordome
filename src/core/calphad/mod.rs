@@ -1,4 +1,4 @@
-use crate::constants::{GAS_CONSTANT, P_NORMAL, T_REFERENCE};
+use majordome_constants::{GAS_CONSTANT, P_NORMAL, T_REFERENCE};
 use pyo3::prelude::*;
 use std::fmt;
 use std::path::{Path, PathBuf};

@@ -12,6 +12,9 @@ name = "_core"
 path = "src/core/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
+[dependencies]
+majordome_constants = { path = "crates/constants" }
+
 [dependencies.pyo3]
 version = "0.28.2"
 features = ["extension-module", "abi3-py312", "multiple-pymethods"]
