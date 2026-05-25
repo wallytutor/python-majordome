@@ -3,7 +3,7 @@ use super::core::AggregationType;
 use super::core::Substance;
 use super::core::SystemComposition;
 use super::core::extract_elements;
-use crate::num::linear_algebra;
+use majordome_numerical::linear_algebra;
 use pyo3::prelude::*;
 
 use std::collections::HashMap;

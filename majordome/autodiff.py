@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import _core
 
-mod = _core.py_num
+mod = _core.numerical
 
 
 __all__ = [

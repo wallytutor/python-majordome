@@ -1,8 +1,8 @@
 use super::T_REF;
 use super::exponential_fmt;
 use super::functions::*;
-use crate::num::autodiff::Numeric;
-use crate::num::autodiff::PyDual;
+use majordome_numerical::autodiff::Numeric;
+use majordome_numerical::autodiff::PyDual;
 use pyo3::prelude::*;
 use std::collections::HashMap;
 
@@ -966,7 +966,7 @@ impl SystemComposition {
 mod core_test {
     use super::SystemComposition;
     use crate::calphad::data::load_substances_from_lua;
-    use crate::num::autodiff::{Dual, diff};
+    use majordome_numerical::autodiff::{Dual, diff};
 
     const SIMPLE_CALCINATION: &str = concat!(
         env!("CARGO_MANIFEST_DIR"),

@@ -38,7 +38,7 @@ pub fn dense_gaussian_solver(mut a: Vec<Vec<f64>>, mut b: Vec<f64>) -> Option<Ve
 }
 
 #[cfg(test)]
-mod linalg_test {
+mod test {
     use super::dense_gaussian_solver;
 
     #[test]

@@ -32,12 +32,9 @@ macro_rules! print_error {
 }
 // endregion: macros_colored_printing
 
-// region: modules
 pub mod calphad;
 pub mod diffusion;
-pub mod num;
 pub mod utils;
-// endregion: modules
 
 // region: tool_majordome
 mod tool_majordome {
@@ -739,12 +736,6 @@ mod tool_containerize {
 // endregion: tool_containerize
 
 #[pymodule]
-pub mod py_num {
-    #[pymodule_export]
-    use super::num::autodiff::PyDual;
-}
-
-#[pymodule]
 pub mod py_calphad {
     #[pymodule_export]
     use super::calphad::data::DatabaseLoader;
@@ -779,13 +770,13 @@ pub mod handlers {
         format!("{}", super::VERSION)
     }
 
-    #[pymodule_export]
-    use majordome_constants::constants;
-
     // -----------------------------------------------------------------------
 
     #[pymodule_export]
-    use super::py_num;
+    use majordome_constants::constants;
+
+    #[pymodule_export]
+    use majordome_numerical::numerical;
 
     #[pymodule_export]
     use super::py_calphad;

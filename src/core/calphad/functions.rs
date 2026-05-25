@@ -1,5 +1,5 @@
 use super::R_GAS;
-use crate::num::autodiff::Numeric;
+use majordome_numerical::autodiff::Numeric;
 
 pub fn cp_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T) -> T {
     a + b * t + c / (t * t)
