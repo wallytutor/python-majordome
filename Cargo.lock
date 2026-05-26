@@ -111,11 +111,23 @@ dependencies = [
 name = "majordome"
 version = "1.2.0"
 dependencies = [
+ "majordome_calphad",
  "majordome_constants",
  "majordome_numerical",
  "mlua",
  "pyo3",
  "serde_json",
+]
+
+[[package]]
+name = "majordome_calphad"
+version = "0.1.0"
+dependencies = [
+ "majordome_constants",
+ "majordome_numerical",
+ "majordome_utilities",
+ "mlua",
+ "pyo3",
 ]
 
 [[package]]
@@ -127,6 +139,13 @@ dependencies = [
 
 [[package]]
 name = "majordome_numerical"
+version = "0.1.0"
+dependencies = [
+ "pyo3",
+]
+
+[[package]]
+name = "majordome_utilities"
 version = "0.1.0"
 dependencies = [
  "pyo3",

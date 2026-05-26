@@ -32,7 +32,6 @@ macro_rules! print_error {
 }
 // endregion: macros_colored_printing
 
-pub mod calphad;
 pub mod diffusion;
 pub mod utils;
 
@@ -735,27 +734,6 @@ mod tool_containerize {
 }
 // endregion: tool_containerize
 
-#[pymodule]
-pub mod py_calphad {
-    #[pymodule_export]
-    use super::calphad::data::DatabaseLoader;
-
-    #[pymodule_export]
-    use super::calphad::core::Substance;
-
-    #[pymodule_export]
-    use super::calphad::core::SystemComposition;
-
-    #[pymodule_export]
-    use super::calphad::equil::Equilibrium;
-
-    #[pymodule_export]
-    use super::calphad::equil::equilibrate_stoichiometric_py as equilibrate_stoichiometric;
-
-    #[pymodule_export]
-    use super::calphad::add_data_directory_py as add_data_directory;
-}
-
 #[pymodule(name = "_core")]
 pub mod handlers {
     use pyo3::prelude::*;
@@ -779,7 +757,7 @@ pub mod handlers {
     use majordome_numerical::numerical;
 
     #[pymodule_export]
-    use super::py_calphad;
+    use majordome_calphad::calphad;
 
     // -----------------------------------------------------------------------
 

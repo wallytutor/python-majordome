@@ -1,5 +1,5 @@
-use super::R_GAS;
 use super::core::AggregationType;
+use super::core::R_GAS;
 use super::core::Substance;
 use super::core::SystemComposition;
 use super::core::extract_elements;
@@ -332,7 +332,7 @@ pub fn equilibrate_stoichiometric(
 }
 
 #[cfg(test)]
-mod equil_test {
+mod test {
     use super::equilibrate_stoichiometric;
     use crate::calphad::core::extract_elements;
     use crate::calphad::data::load_substances_from_lua;

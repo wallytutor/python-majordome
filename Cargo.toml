@@ -15,6 +15,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 majordome_constants = { path = "crates/constants" }
 majordome_numerical = { path = "crates/numerical" }
+majordome_calphad = { path = "crates/calphad" }
 
 [dependencies.pyo3]
 version = "0.28.2"

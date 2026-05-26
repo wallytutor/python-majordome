@@ -1,0 +1,13 @@
+[package]
+name = "majordome_utilities"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "majordome_utilities"
+path = "lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies.pyo3]
+version = "0.28.2"
+features = ["extension-module", "abi3-py312", "multiple-pymethods"]

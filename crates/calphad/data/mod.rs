@@ -3,13 +3,17 @@ use super::core::Parameterization;
 use super::core::Substance;
 use super::core::TemperatureRange;
 use super::core::get_atomic_weight;
-use super::{P_REF, R_GAS, T_REF};
-use super::resolve_data_path;
+use super::core::{P_REF, R_GAS, T_REF};
 use mlua::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::collections::HashMap;
 use std::fs::read_to_string;
+
+mod path;
+pub use path::add_data_directory_py;
+pub use path::list_data_directories_py;
+use path::resolve_data_path;
 
 impl FromLua for AggregationType {
     fn from_lua(value: LuaValue, _lua: &Lua) -> LuaResult<Self> {
@@ -398,8 +402,8 @@ pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substan
     let substance_fn = create_lua_substance(&lua)?;
     globals.set("Substance", substance_fn)?;
 
-    let content = read_to_string(&resolved)
-        .map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
+    let content =
+        read_to_string(&resolved).map_err(|e| LuaError::ExternalError(std::sync::Arc::new(e)))?;
 
     let map: HashMap<String, Substance> = lua.load(&content).eval()?;
     Ok(map)
@@ -419,9 +423,7 @@ impl DatabaseLoader {
     pub fn new(path: String, phases: Option<Vec<String>>) -> PyResult<Self> {
         // Resolve the user-supplied path against the global data-directory registry
         // so callers can use bare filenames after calling `add_data_directory`.
-        let resolved_path = resolve_data_path(&path)
-            .to_string_lossy()
-            .into_owned();
+        let resolved_path = resolve_data_path(&path).to_string_lossy().into_owned();
 
         let mut raw_data = load_substances_from_lua(&resolved_path)
             .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
