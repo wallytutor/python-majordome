@@ -113,7 +113,9 @@ version = "1.2.0"
 dependencies = [
  "majordome_calphad",
  "majordome_constants",
+ "majordome_diffusion",
  "majordome_numerical",
+ "majordome_plotting",
  "majordome_utilities",
  "mlua",
  "pyo3",
@@ -139,11 +141,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "majordome_diffusion"
+version = "0.1.0"
+dependencies = [
+ "majordome_calphad",
+ "majordome_constants",
+ "majordome_numerical",
+ "majordome_utilities",
+ "pyo3",
+]
+
+[[package]]
 name = "majordome_numerical"
 version = "0.1.0"
 dependencies = [
  "pyo3",
 ]
+
+[[package]]
+name = "majordome_plotting"
+version = "0.1.0"
 
 [[package]]
 name = "majordome_utilities"

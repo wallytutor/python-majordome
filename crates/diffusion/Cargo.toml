@@ -1,0 +1,19 @@
+[package]
+name = "majordome_diffusion"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "majordome_diffusion"
+path = "lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+majordome_numerical = { path = "../numerical" }
+majordome_calphad = { path = "../calphad" }
+majordome_constants = { path = "../constants" }
+majordome_utilities = { path = "../utilities" }
+
+[dependencies.pyo3]
+version = "0.28.2"
+features = ["extension-module", "abi3-py312", "multiple-pymethods"]

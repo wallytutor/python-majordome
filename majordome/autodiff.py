@@ -1,21 +1,19 @@
 # -*- coding: utf-8 -*-
 from . import _core
 
-mod = _core.numerical
+mod = _core.numerical.autodiff
 
 
-__all__ = [
-    "Dual",
-]
+__all__ = sorted([x for x in dir(mod) if not x.startswith("_")])
 
 
 def __getattr__(name: str):
-    if name in __all__:
+    try:
         globals()[name] = getattr(mod, name)
         return globals()[name]
-
-    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+    except AttributeError:
+        raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 def __dir__():
-    return sorted(__all__)
+    return __all__

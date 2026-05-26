@@ -6,7 +6,7 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
-    { name = "Walter Dal'Maz Silva", email = "walter.dalmazsilva@gmail.com" }
+    { name = "Walter Dal'Maz Silva", email = "walter.dalmazsilva@gmail.com" },
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -40,18 +40,19 @@ dependencies = [
 ]
 keywords = ["scientific", "simulation", "utilities", "python"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Intended Audience :: Science/Research",
-  "Topic :: Scientific/Engineering",
-  "Programming Language :: Rust",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 [project.scripts]
 containerize = "majordome.entrypoints:containerize"
 majordome = "majordome.entrypoints:majordome"
+diffusion_solver = "majordome.entrypoints:diffusion_solver"
 
 [project.urls]
 Homepage = "https://github.com/wallytutor/python-majordome"
@@ -60,9 +61,7 @@ Repository = "https://github.com/wallytutor/python-majordome.git"
 Issues = "https://github.com/wallytutor/python-majordome/issues"
 
 [project.optional-dependencies]
-test = [
-    "pytest>=9.0.3",
-]
+test = ["pytest>=9.0.3"]
 docs = [
     "ipykernel>=7.2.0",
     "jupyter-cache>=1.0.1",
@@ -92,7 +91,7 @@ cache-keys = [
     { file = "pyproject.toml" },
     { file = "src/**/*.rs" },
     { file = "Cargo.toml" },
-    { file = "Cargo.lock" }
+    { file = "Cargo.lock" },
 ]
 
 [tool.pytest.ini_options]

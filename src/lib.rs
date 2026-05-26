@@ -29,6 +29,9 @@ pub mod handlers {
     #[pymodule_export]
     use majordome_calphad::calphad;
 
+    #[pymodule_export]
+    use majordome_diffusion::diffusion;
+
     // -----------------------------------------------------------------------
 
     #[pymodule_export]
@@ -36,4 +39,7 @@ pub mod handlers {
 
     #[pymodule_export]
     use super::entrypoints::containerize_entrypoint;
+
+    #[pymodule_export]
+    use super::entrypoints::diffusion_entrypoint;
 }

@@ -17,3 +17,9 @@ def containerize():
     from ._core import containerize as main
 
     main(sys.argv[1:])
+
+
+def diffusion_solver():
+    from ._core import diffusion_solver as main
+
+    main(sys.argv[1:])

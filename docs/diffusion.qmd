@@ -1,0 +1,348 @@
+# Diffusion in Solids Python API
+
+::: {.callout .callout-info}
+High-performance 1D Carbonitriding simulation in steel based on Slycke's models. This Python API connects to our optimized Rust solver core.
+:::
+
+## Load the API
+
+First, let's import the necessary modules from `majordome.diffusion`:
+
+```{python}
+import numpy as np
+from majordome.diffusion import (
+    ImmersedNodeDomain1D,
+    CarbonitridingSolver,
+    slycke,
+    plot_diffusion_results
+)
+```
+
+## About Grid Types
+
+We can define the spatial grid using linear or geometric spaces. Let's create and inspect both grid types:
+
+```{python}
+grid_lin = ImmersedNodeDomain1D.linear(1.0, 10)
+
+print("LINEAR GRID:")
+print(grid_lin.print_info())
+```
+
+```{python}
+grid_geo = ImmersedNodeDomain1D.geometric(1.0, 10, 0.1, 0.2)
+
+print("\nGEOMETRIC GRID:")
+print(grid_geo.print_info())
+```
+
+---
+
+## Minimal Working Example (MWE)
+
+We simulate carbonitriding of a 1.0 mm thick steel domain for 2 hours (7200 seconds) at $870\text{ °C}$ ($1143.15\text{ K}$) with initial concentrations of $0.05\text{ wt}\%$ Carbon and $0.0\text{ wt}\%$ Nitrogen:
+
+```{python}
+# Domain and models
+d = 0.001  # 1.0 mm
+n = 100
+domain = ImmersedNodeDomain1D.linear(d, n)
+carbon_model = slycke.create_carbon_diffusivity()
+nitrogen_model = slycke.create_nitrogen_diffusivity()
+
+# Initial composition fields (mass fractions)
+y0_c = [0.0005] * n
+y0_n = [0.0000] * n
+
+# Discretization
+total_time = 7200.0 # 2 hours
+dt = 10.0
+time_points = np.arange(0.0, total_time + dt, dt).tolist()
+time_steps = [dt] * int(total_time / dt)
+
+# Boundary condition callables
+def ext_temp(t):
+    return 870.0 + 273.15 # 1143.15 K
+
+def ext_coefs(t):
+    return [1.0e-5, 1.0e-5]
+
+def ext_pot(t):
+    return [0.0078, 0.0040] # 0.78 wt% C, 0.40 wt% N boundary potentials
+
+# Solve
+solver = CarbonitridingSolver(
+    domain,
+    y0_c,
+    y0_n,
+    time_points,
+    time_steps,
+    carbon_model,
+    nitrogen_model,
+    ext_temp,
+    ext_coefs,
+    ext_pot
+)
+
+# Set solver controls
+solver.absolute_tolerance = 1e-10
+solver.relative_tolerance = 1e-8
+solver.relaxation_factor = 1.0
+
+# Integrate and print progress every 72 steps (12 minutes)
+solver.integrate(72)
+
+# Retrieve final composition
+yc, yn = solver.get_reinitialization()
+```
+
+---
+
+## Reference Cases with Time-Dependent Boundary Conditions
+
+We simulate different multi-phase industrial heat treatment processes. Let's configure the domain using geometric grid spacing (from $10\text{ μm}$ to $50\text{ μm}$):
+
+```{python}
+domain_ref = ImmersedNodeDomain1D.geometric(0.002, 50, 10.0e-6, 50.0e-6)
+```
+
+### Process Definitions
+
+We define time-dependent boundary conditions (step functions) for Carburizing and Carbonitriding of typical automotive and aerospace steel alloys:
+
+- Carburizing (23MnCrMo5)
+
+```{python}
+def get_carburizing_auto():
+    yc_ini = 0.0023
+    step1 = 2.0 * 3600.0
+    step2 = 3.0 * 3600.0 + step1
+    duration = step2 + 300.0 # 5 min cooling before quenching
+
+    def y_inf(t):
+        if t < step1:
+            return [0.011, 0.000] # Carburizing phase
+        elif t < step2:
+            return [0.000, 0.000] # Homogenization
+        else:
+            return [0.000, 0.000] # Cooling
+
+    def h_inf(t):
+        if t < step1:
+            return [1.0e-6, 0.0]
+        elif t < step2:
+            return [1.0e-9, 0.0]
+        else:
+            return [0.0, 0.0]
+
+    return yc_ini, duration, y_inf, h_inf
+```
+
+- Carburizing (16NiCrMo13)
+
+```{python}
+def get_carburizing_aero():
+    yc_ini = 0.0016
+    step1 = 2.0 * 3600.0
+    step2 = 1.0 * 3600.0 + step1
+    step3 = 3.0 * 3600.0 + step2
+    duration = step3 + 300.0
+
+    def y_inf(t):
+        if t < step1:
+            return [0.011, 0.000]
+        elif t < step2:
+            return [0.000, 0.000]
+        elif t < step3:
+            return [0.000, 0.000]
+        else:
+            return [0.000, 0.000]
+
+    def h_inf(t):
+        if t < step1:
+            return [1.0e-6, 0.0]
+        elif t < step2:
+            return [1.0e-9, 0.0]
+        elif t < step3:
+            return [1.0e-9, 0.0]
+        else:
+            return [0.0, 0.0]
+
+    return yc_ini, duration, y_inf, h_inf
+```
+
+- Carbonitriding (23MnCrMo5)
+
+```{python}
+def get_carbonitriding_auto():
+    yc_ini = 0.0023
+    step1 = 2.0 * 3600.0
+    step2 = 3.0 * 3600.0 + step1
+    duration = step2 + 300.0
+
+    def y_inf(t):
+        if t < step1:
+            return [0.011, 0.000] # Carburizing phase
+        elif t < step2:
+            return [0.000, 0.009] # Nitriding phase
+        else:
+            return [0.000, 0.000] # Cooling
+
+    def h_inf(t):
+        if t < step1:
+            return [1.0e-6, 0.0]
+        elif t < step2:
+            return [7.0e-9, 1.0e-6]
+        else:
+            return [0.0, 0.0]
+
+    return yc_ini, duration, y_inf, h_inf
+```
+
+- Carbonitriding (16NiCrMo13)
+
+```{python}
+def get_carbonitriding_aero():
+    yc_ini = 0.0016
+    step1 = 2.0 * 3600.0
+    step2 = 1.0 * 3600.0 + step1
+    step3 = 3.0 * 3600.0 + step2
+    duration = step3 + 300.0
+
+    def y_inf(t):
+        if t < step1:
+            return [0.011, 0.000] # Carburizing phase
+        elif t < step2:
+            return [0.000, 0.000] # Transition phase
+        elif t < step3:
+            return [0.000, 0.004] # Nitriding phase
+        else:
+            return [0.000, 0.000] # Cooling
+
+    def h_inf(t):
+        if t < step1:
+            return [1.0e-6, 0.0]
+        elif t < step2:
+            return [4.0e-9, 0.0]
+        elif t < step3:
+            return [4.0e-9, 1.0e-6]
+        else:
+            return [0.0, 0.0]
+
+    return yc_ini, duration, y_inf, h_inf
+```
+
+### Running and Plotting a Reference Process
+
+We can run any of the configured reference processes. Let's execute the **Carbonitriding (23MnCrMo5)** process:
+
+```{python}
+yc_ini, duration, y_inf, h_inf = get_carbonitriding_auto()
+
+# Create time steps (dt = 20 seconds)
+dt_ref = 20.0
+time_points_ref = np.arange(0.0, duration + dt_ref, dt_ref).tolist()
+time_steps_ref = [dt_ref] * int(duration / dt_ref)
+
+y0_c_ref = [yc_ini] * 50
+y0_n_ref = [0.0000] * 50
+
+# Instantiate solver
+solver_ref = CarbonitridingSolver(
+    domain_ref,
+    y0_c_ref,
+    y0_n_ref,
+    time_points_ref,
+    time_steps_ref,
+    carbon_model,
+    nitrogen_model,
+    lambda t: 1173.15, # constant 900 °C temperature
+    h_inf,
+    y_inf
+)
+
+solver_ref.absolute_tolerance = 1e-9
+solver_ref.relative_tolerance = 1e-6
+solver_ref.relaxation_factor = 1.0
+
+# Run simulation
+solver_ref.integrate(360)
+```
+
+---
+
+## Stepwise Simulation Solution
+
+For highly flexible industrial profiles, we can simulate step-by-step sequentially, using the output of the previous step as the input of the next step:
+
+```{python}
+# Create domain
+d_step = 0.002
+n_step = 100
+domain_step = ImmersedNodeDomain1D.linear(d_step, n_step)
+
+# Helper function to run a single step
+def run_simulation_step(
+        y_c_init,
+        y_n_init,
+        duration_hours,
+        y_inf_val,
+        h_inf_val
+    ):
+    duration = duration_hours * 3600.0
+    dt_step = 10.0
+    time_pts = np.arange(0.0, duration + dt_step, dt_step).tolist()
+    time_sts = [dt_step] * int(duration / dt_step)
+
+    solver_step = CarbonitridingSolver(
+        domain_step,
+        y_c_init,
+        y_n_init,
+        time_pts,
+        time_sts,
+        carbon_model,
+        nitrogen_model,
+        lambda t: 1173.15,
+        lambda t: h_inf_val,
+        lambda t: y_inf_val
+    )
+    solver_step.absolute_tolerance = 1e-10
+    solver_step.relative_tolerance = 1e-8
+    solver_step.relaxation_factor = 1.0
+    solver_step.integrate(360)
+    return solver_step
+
+# Step 1: Carburizing (2 hours)
+carburizing_step = run_simulation_step(
+    y_c_init=[0.0016] * n_step,
+    y_n_init=[0.0000] * n_step,
+    duration_hours=2.0,
+    y_inf_val=[0.011, 0.0],
+    h_inf_val=[1.0e-6, 0.0]
+)
+yc_step1, yn_step1 = carburizing_step.get_reinitialization()
+
+# Step 2: Homogenization (1 hour)
+homogenization_step = run_simulation_step(
+    y_c_init=yc_step1,
+    y_n_init=yn_step1,
+    duration_hours=1.0,
+    y_inf_val=[0.0, 0.0],
+    h_inf_val=[0.0, 0.0]
+)
+yc_step2, yn_step2 = homogenization_step.get_reinitialization()
+
+# Step 3: Nitriding (3 hours)
+nitriding_step = run_simulation_step(
+    y_c_init=yc_step2,
+    y_n_init=yn_step2,
+    duration_hours=3.0,
+    y_inf_val=[0.0, 0.004],
+    h_inf_val=[0.0, 1.0e-6]
+)
+yc_step3, yn_step3 = nitriding_step.get_reinitialization()
+
+print("\nStepwise simulation complete.")
+print(f"Final surface C composition: {yc_step3[0] * 100:.3f} wt%")
+print(f"Final surface N composition: {yn_step3[0] * 100:.3f} wt%")
+```

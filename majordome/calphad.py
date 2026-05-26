@@ -2,27 +2,19 @@
 from . import _core
 from .data import DATA
 
-mod = _core.py_calphad
+mod = _core.calphad
 mod.add_data_directory(str(DATA / "calphad"))
 
-
-__all__ = [
-    "DatabaseLoader",
-    "Substance",
-    "SystemComposition",
-    "Equilibrium",
-    "equilibrate_stoichiometric",
-    "add_data_directory",
-]
+__all__ = sorted([x for x in dir(mod) if not x.startswith("_")])
 
 
 def __getattr__(name: str):
-    if name in __all__:
+    try:
         globals()[name] = getattr(mod, name)
         return globals()[name]
-
-    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+    except AttributeError:
+        raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 def __dir__():
-    return sorted(__all__)
+    return __all__
