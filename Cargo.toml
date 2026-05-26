@@ -5,17 +5,18 @@ repository = "https://github.com/wallytutor/python-majordome.git"
 license-file = "LICENSE"
 version = "1.2.0"
 edition = "2024"
-build = "build.rs"
+build = "src/build.rs"
 
 [lib]
 name = "_core"
-path = "src/core/lib.rs"
+path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+majordome_calphad = { path = "crates/calphad" }
 majordome_constants = { path = "crates/constants" }
 majordome_numerical = { path = "crates/numerical" }
-majordome_calphad = { path = "crates/calphad" }
+majordome_utilities = { path = "crates/utilities" }
 
 [dependencies.pyo3]
 version = "0.28.2"
