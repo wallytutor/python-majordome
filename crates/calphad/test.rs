@@ -9,7 +9,7 @@ use majordome_numerical::autodiff::{Dual, diff};
 
 const SIMPLE_CALCINATION: &str = concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "majordome/data/calphad/sample/simple-calcination.lua"
+    "/../../majordome/data/calphad/sample/simple-calcination.lua"
 );
 
 // --------------------------------------------------------------------------
