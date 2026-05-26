@@ -8,6 +8,7 @@ mod test;
 pub mod core;
 pub mod data;
 pub mod equilibrium;
+pub mod mixture;
 
 #[pymodule]
 pub mod calphad {

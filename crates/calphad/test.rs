@@ -1,9 +1,12 @@
 use super::core::AggregationType;
 use super::core::SystemComposition;
 use super::core::extract_elements;
+use super::core::get_atomic_weight;
 use super::data::DatabaseLoader;
 use super::data::load_substances_from_lua;
 use super::equilibrium::equilibrate_stoichiometric;
+use super::mixture::FractionConverter;
+use super::mixture::InterstitialConverter;
 
 use majordome_numerical::autodiff::{Dual, diff};
 
@@ -156,4 +159,32 @@ fn test_equilibrate_stoichiometric() {
     assert!((phi.get("Diaspore").copied().unwrap_or(0.0)).abs() < 1e-4);
     assert!((phi.get("H2O").copied().unwrap_or(0.0) - 0.5).abs() < 1e-4);
     assert!((phi.get("Al2O3").copied().unwrap_or(0.0) - 0.5).abs() < 1e-4);
+}
+
+// --------------------------------------------------------------------------
+
+#[test]
+fn test_fraction_converter() {
+    let elements = ["Fe".to_string(), "C".to_string()];
+    let converter = FractionConverter::new(&elements).unwrap();
+    let mass_frac0 = vec![0.99, 0.01];
+    let mole_frac1 = converter.mass_to_mole_fraction(&mass_frac0).unwrap();
+    let mass_frac2 = converter.mole_to_mass_fraction(&mole_frac1).unwrap();
+
+    assert!((mass_frac0[0] - mass_frac2[0]).abs() < 1.0e-10);
+    assert!((mass_frac0[1] - mass_frac2[1]).abs() < 1.0e-10);
+}
+
+#[test]
+fn test_interstitial_converter() {
+    let rho_fe = 7.874;
+    let m_fe = get_atomic_weight("Fe").unwrap();
+    let converter = InterstitialConverter::new(m_fe, rho_fe);
+
+    let mole_frac0 = vec![0.01, 0.02];
+    let concentration1 = converter.mole_fraction_to_concentration(&mole_frac0);
+    let mole_frac1 = converter.concentration_to_mole_fraction(&concentration1);
+
+    assert!((mole_frac0[0] - mole_frac1[0]).abs() < 1.0e-10);
+    assert!((mole_frac0[1] - mole_frac1[1]).abs() < 1.0e-10);
 }
