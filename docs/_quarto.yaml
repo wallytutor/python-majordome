@@ -28,7 +28,6 @@ book:
       - utilities.qmd
       - documents.qmd
       - magic.qmd
-      - diffusion.qmd
 
     - part: "Reactor Engineering"
       chapters:
@@ -40,11 +39,12 @@ book:
       chapters:
         - diffusion/index.qmd
         - diffusion/slycke.qmd
+        - diffusion/sample-intro.qmd
+        - diffusion/sample-thesis.qmd
 
     - part: "Development"
       chapters:
       - devel/python.md
-      - devel/dotnet.md
 
     - references.qmd
 

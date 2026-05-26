@@ -1,0 +1,122 @@
+# Introductory samples
+
+## Load the API
+
+First, let's import the necessary modules from `majordome.diffusion`:
+
+```{python}
+#| echo: true
+import numpy as np
+from majordome.utilities import plot_xy
+from majordome.diffusion import ImmersedNodeDomain1D
+from majordome.diffusion import CarbonitridingSolver
+from majordome.diffusion import slycke
+```
+
+## About Grid Types
+
+We can define the spatial grid using linear or geometric spaces. Let's create and inspect both grid types:
+
+```{python}
+#| echo: true
+grid_lin = ImmersedNodeDomain1D.linear(1.0, 10)
+
+print("LINEAR GRID:")
+print(grid_lin.print_info())
+```
+
+```{python}
+#| echo: true
+grid_geo = ImmersedNodeDomain1D.geometric(1.0, 10, 0.1, 0.2)
+
+print("\nGEOMETRIC GRID:")
+print(grid_geo.print_info())
+```
+
+---
+
+## Minimal Working Example (MWE)
+
+We simulate carbonitriding of a 1.0 mm thick steel domain for 2 hours (7200 seconds) at $870\text{ °C}$ ($1143.15\text{ K}$) with initial concentrations of $0.05\text{ wt}\%$ Carbon and $0.0\text{ wt}\%$ Nitrogen:
+
+```{python}
+#| echo: true
+# Domain and models
+d = 0.001  # 1.0 mm
+n = 100
+domain = ImmersedNodeDomain1D.linear(d, n)
+
+# Retrieve transport coefficient models:
+carbon_model   = slycke.create_carbon_diffusivity()
+nitrogen_model = slycke.create_nitrogen_diffusivity()
+
+# Initial composition fields (mass fractions)
+y0_c = 0.0005 * np.ones(n)
+y0_n = 0.0000 * np.ones(n)
+
+# Discretization
+total_time = 7200.0 # 2 hours
+dt = 10.0
+time_points = np.arange(0.0, total_time + dt, dt).tolist()
+time_steps = [dt] * int(total_time / dt)
+
+# Boundary condition callables
+def ext_temp(t):
+    # 1143.15 K (870 °C)
+    return 870.0 + 273.15
+
+def ext_coefs(t):
+    # boundary mass transfer coefficients [m/s]
+    return [1.0e-5, 1.0e-5]
+
+def ext_pot(t):
+    # 0.78 wt% C, 0.40 wt% N boundary potentials
+    return [0.0078, 0.0040]
+
+# Solve
+solver = CarbonitridingSolver(
+    domain,
+    y0_c,
+    y0_n,
+    time_points,
+    time_steps,
+    carbon_model,
+    nitrogen_model,
+    ext_temp,
+    ext_coefs,
+    ext_pot
+)
+
+# Set solver controls
+solver.absolute_tolerance = 1.0e-10
+solver.relative_tolerance = 1.0e-08
+solver.relaxation_factor = 1.0
+
+# Integrate and print progress every 72 steps (12 minutes)
+solver.integrate(72)
+
+# Retrieve final composition
+yc, yn = solver.get_reinitialization()
+```
+
+```{python}
+#| echo: true
+x = 1000 * np.asarray(domain.to_array())
+yc = 100 * np.asarray(yc)
+yn = 100 * np.asarray(yn)
+
+p = plot_xy()
+p.add_curve(x[1:-1], yc, label="Carbon")
+p.add_curve(x[1:-1], yn, label="Nitrogen")
+p.xlabel("Position [mm]")
+p.ylabel("Concentration [wt%]")
+```
+
+```{python}
+t = np.asarray(time_points) / 60
+y = solver.total_mass_intake
+
+p = plot_xy(t, y)
+p.xlabel("Time [min]")
+p.ylabel("Total Mass Intake [g/m²]")
+```
