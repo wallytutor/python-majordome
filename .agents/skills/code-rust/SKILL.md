@@ -15,7 +15,9 @@ description: Provides directives for generating and modifying Rust code.
 
 - This project uses PyO3 to wrap Rust code in Python modules.
 
-- Rust crates live under the `src/` directory and each crate has its own `Cargo.toml` file.
+- Rust crates live under the `src/` or `crates/` directory and each crate has its own `Cargo.toml` file. Crates living under `crates/` have the `lib.rs` at the root of the crate directory (same as `Cargo.toml`) to avoid unnecessary nesting of directories in the tree.
+
+- Public code exported from submodule must be always explicitly listed in `mod.rs` files so that user code does not import from deep within the tree. For instance, using `use majordome_numerical::linear_algebra::tridiagonal::TridiagonalSolver;` is not allowed. Instead, use `use majordome_numerical::linear_algebra::TridiagonalSolver;`, where `TridiagonalSolver` is exposed by `linear_algebra::mod.rs`. In other words, the path inside the crate must be as short as possible. So, if a submodule is not meant to be used directly, it should not be exposed in `mod.rs`.
 
 - Not all crates are meant to be used directly. Some are internal implementation details.
 
