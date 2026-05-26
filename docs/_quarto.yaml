@@ -42,8 +42,8 @@ book:
 
     - part: "Development"
       chapters:
-      - devel/python.qmd
-      - devel/dotnet.qmd
+      - devel/python.md
+      - devel/dotnet.md
 
     - references.qmd
 
