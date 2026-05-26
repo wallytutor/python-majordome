@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- New methods added to `majordome.utilities.plotting.MajordomePlot` for a smoother interaction, especially when using the wrapper `plot_xy`. Now one can call `add_curve`, `xlabel`, `ylabel` with a possible `where=k` keyword argument to modify the `k`-th plot.
+
 - Split core into multiple crates for easier maintenance and faster compilation.
 
 - Added preliminary version of `majordome.autodiff` and `majordome.calphad` (in experimental mode) exposing Rust implementations.

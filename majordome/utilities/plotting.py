@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import functools
-from numbers import Number
 from pathlib import Path
 from typing import Any, Callable, ParamSpec
 
@@ -12,6 +11,7 @@ from matplotlib.figure import Figure
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import ListedColormap, TwoSlopeNorm
 from matplotlib.ticker import FuncFormatter
+from numpy.typing import ArrayLike
 from pyvista import LookupTable
 
 from .internals import majordome_warning
@@ -90,6 +90,57 @@ class MajordomePlot:
                 raise ValueError(f"Unknown label name `{name}`.")
 
         return label if isinstance(label, str) else label[k]
+
+    def _resolve_where(self, where: int) -> int:
+        """ Resolve the index of the subplot."""
+        if (where := abs(where)) >= len(self._ax):
+            raise ValueError(
+                f"Index {where} is out of bounds for axes "
+                f"with size {len(self._ax)}."
+            )
+
+        return where
+
+    def add_curve(self, x: ArrayLike, y: ArrayLike, **kwargs) -> None:
+        """ Add a curve to the plot.
+
+        Parameters
+        ----------
+        x : ArrayLike
+            X-axis values.
+        y : ArrayLike
+            Y-axis values.
+        kwargs
+            Additional keyword arguments to pass to `Axes.plot()`.
+        """
+        where = self._resolve_where(kwargs.pop("where", 0))
+        self._ax[where].plot(x, y, **kwargs)
+
+    def xlabel(self, label: str | list[str], **kwargs) -> None:
+        """ Add a label to the x-axis.
+
+        Parameters
+        ----------
+        label : str | list[str]
+            Label for the x-axis.
+        kwargs
+            Additional keyword arguments to pass to `Axes.set_xlabel()`.
+        """
+        where = self._resolve_where(kwargs.pop("where", 0))
+        self._ax[where].set_xlabel(label, **kwargs)
+
+    def ylabel(self, label: str | list[str], **kwargs) -> None:
+        """ Add a label to the y-axis.
+
+        Parameters
+        ----------
+        label : str | list[str]
+            Label for the y-axis.
+        kwargs
+            Additional keyword arguments to pass to `Axes.set_ylabel()`.
+        """
+        where = self._resolve_where(kwargs.pop("where", 0))
+        self._ax[where].set_ylabel(label, **kwargs)
 
     def resize(self, w: float, h: float) -> None:
         """ Resize a plot with width and height in inches.
