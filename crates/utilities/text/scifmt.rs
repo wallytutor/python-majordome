@@ -29,7 +29,7 @@ impl fmt::Display for SciFmt {
         // 5) Apply width/alignment from the struct
         let width = std::cmp::max(self.total_width, final_str.len());
 
-        if self.value > 0.0 {
+        if self.value >= 0.0 {
             write!(f, " {:>width$}", final_str, width = width)
         } else {
             write!(f, "{:>width$}", final_str, width = width)
