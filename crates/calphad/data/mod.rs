@@ -156,7 +156,6 @@ impl FromLua for Substance {
         let name: String = table.get("name")?;
         let s0: f64 = table.get("s0").unwrap_or(0.0);
         let mut ranges: Vec<TemperatureRange> = table.get("ranges")?;
-        // Propagate s0 to models that need it (like Maier-Kelley)
 
         for range in &mut ranges {
             if let Parameterization::MaierKelley { ref mut s_ref, .. } = range.model {
@@ -180,7 +179,7 @@ impl FromLua for Substance {
         }
 
         let molar_volume = if aggregation_type == AggregationType::Gas {
-            (R_GAS * T_REF / P_REF) * 1e6 // cm3/mol
+            (R_GAS * T_REF / P_REF) * 1e6
         } else {
             table.get("molar_volume").unwrap_or(0.0)
         };
@@ -370,6 +369,10 @@ fn create_lua_substance(lua: &Lua) -> LuaResult<LuaFunction> {
     })
 }
 
+/// Loads a database of substances from a specialized Lua data file.
+///
+/// # Arguments
+/// * `path` - Path string to the Lua script file containing substance tables.
 pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substance>> {
     let resolved = resolve_data_path(path);
 
@@ -409,6 +412,8 @@ pub fn load_substances_from_lua(path: &str) -> LuaResult<HashMap<String, Substan
     Ok(map)
 }
 
+/// Coordinates loading and retrieving substance thermodynamic database files (Lua formatted).
+/// Supports filtering active thermodynamic phases.
 #[pyclass]
 pub struct DatabaseLoader {
     pub path: String,
@@ -418,11 +423,17 @@ pub struct DatabaseLoader {
 
 #[pymethods]
 impl DatabaseLoader {
+    /// Loads a database from the given file path.
+    ///
+    /// # Arguments
+    /// * `path` - The database filename or absolute file path.
+    /// * `phases` - An optional filter list of phase names to load (e.g. `Some(vec!["Fe(s)", "Fe(l)"])`).
+    ///
+    /// # Errors
+    /// Returns a `PyValueError` if database loading or parsing fails.
     #[new]
     #[pyo3(signature = (path, phases = None))]
     pub fn new(path: String, phases: Option<Vec<String>>) -> PyResult<Self> {
-        // Resolve the user-supplied path against the global data-directory registry
-        // so callers can use bare filenames after calling `add_data_directory`.
         let resolved_path = resolve_data_path(&path).to_string_lossy().into_owned();
 
         let mut raw_data = load_substances_from_lua(&resolved_path)
@@ -444,16 +455,19 @@ impl DatabaseLoader {
         })
     }
 
+    /// Gets the loaded database file path.
     #[getter]
     pub fn path(&self) -> String {
         self.path.clone()
     }
 
+    /// Gets the list of loaded/filtered active phases.
     #[getter]
     pub fn phases(&self) -> Vec<String> {
         self.phases.clone()
     }
 
+    /// Returns the loaded database as a Python dictionary map of `Substance` records.
     pub fn get_data<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
         let dict = PyDict::new(py);
 
@@ -466,6 +480,10 @@ impl DatabaseLoader {
         Ok(dict)
     }
 
+    /// Loads a single pure substance by name from the database map.
+    ///
+    /// # Errors
+    /// Returns `PyKeyError` if the compound name is not found in the database.
     pub fn load_compound(&self, name: String) -> PyResult<Substance> {
         self.data.get(&name).cloned().ok_or_else(|| {
             pyo3::exceptions::PyKeyError::new_err(format!(

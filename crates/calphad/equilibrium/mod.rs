@@ -5,9 +5,20 @@ use super::core::SystemComposition;
 use super::core::extract_elements;
 use majordome_numerical::linear_algebra;
 use pyo3::prelude::*;
-
 use std::collections::HashMap;
 
+
+/// Represents the resolved thermodynamic state and chemical equilibrium of a system.
+///
+/// Contains computed molar amounts, individual phase Gibbs energies, and global properties
+/// at a specified temperature and pressure.
+///
+/// # Units of Properties
+/// - **amounts**: Moles of each substance present at equilibrium ($\text{mol}$).
+/// - **gibbs_energies**: Gibbs free energies of the pure phases at conditions ($\text{J/mol}$).
+/// - **total_gibbs**: Global minimized Gibbs free energy of the entire system ($\text{J}$).
+/// - **temperature**: System temperature in Kelvin ($\text{K}$).
+/// - **pressure**: System pressure in Pascals ($\text{Pa}$).
 #[pyclass(from_py_object)]
 #[derive(Debug, Clone)]
 pub struct Equilibrium {
@@ -24,8 +35,10 @@ pub struct Equilibrium {
     pub substances: Vec<Substance>,
 }
 
+
 #[pymethods]
 impl Equilibrium {
+    /// Creates a new `Equilibrium` state.
     #[new]
     pub fn new(
         amounts: HashMap<String, f64>,
@@ -45,6 +58,8 @@ impl Equilibrium {
         }
     }
 
+    /// Generates a highly detailed text report showing equilibrium conditions,
+    /// total thermodynamic Gibbs energy, and phase assemblage yields.
     #[pyo3(name = "report")]
     pub fn report(&self) -> String {
         let mut s = String::new();
@@ -102,15 +117,19 @@ impl Equilibrium {
             let mut el_strs = Vec::new();
             let mut sorted_els: Vec<_> = sub.elements.keys().collect();
             sorted_els.sort();
+
             for el in sorted_els {
                 let coeff = sub.elements.get(el).copied().unwrap_or(0.0);
                 el_strs.push(format!("{}: {}", el, coeff));
             }
+
             s.push_str(&format!("      Composition: {}\n", el_strs.join(", ")));
         }
+
         s.push_str(
             "================================================================================\n",
         );
+
         s
     }
 
@@ -123,32 +142,49 @@ impl Equilibrium {
     }
 }
 
+
+/// Evaluates stoichiometric equilibrium via a Python interface.
+///
+/// # Arguments
+/// * `species` - Map of substance name to `Substance` records.
+/// * `composition` - A `SystemComposition` specifying input proportions.
+/// * `t` - Temperature in Kelvin ($\text{K}$).
+/// * `p` - Pressure in Pascals ($\text{Pa}$, defaults to $101325.0\text{ Pa} = 1\text{ atm}$).
 #[pyfunction]
 #[pyo3(
-        name = "equilibrate_stoichiometric",
-        signature = (species, composition, t, p = 101325.0)
-    )]
+    name = "equilibrate_stoichiometric",
+    signature = (species, composition, t, p = 101325.0)
+)]
 pub fn equilibrate_stoichiometric_py(
     species: HashMap<String, Substance>,
     composition: SystemComposition,
     t: f64,
     p: f64,
 ) -> Equilibrium {
-    // let refs: Vec<&Substance> = species.iter().collect();
     let refs: Vec<&Substance> = species.values().collect();
     let b: HashMap<String, f64> = composition.into_elemental_fractions();
+
     equilibrate_stoichiometric(&refs, &b, t, p)
 }
+
 
 /// Find a particular solution to the mass balance equations A * phi = b.
 /// This uses a simple gradient descent on the squared error to find ANY solution
 /// that satisfies the elemental constraints, regardless of Gibbs energy.
 /// Used as a fallback when the support-based minimization fails.
+///
+/// # Arguments
+/// * `a` - Stoichiometric matrix ($A$), elements coefficient ratios.
+/// * `b` - Normalized system elemental constraints.
+/// * `n_s` - Total species.
+/// * `n_e` - Total elements.
 pub fn find_particular_solution(a: &[Vec<f64>], b: &[f64], n_s: usize, n_e: usize) -> Vec<f64> {
     let mut phi = vec![0.0; n_s];
     let lr = 0.01;
+
     for _ in 0..20000 {
         let mut grad = vec![0.0; n_s];
+
         for i in 0..n_e {
             let mut err = -b[i];
             for k in 0..n_s {
@@ -158,32 +194,24 @@ pub fn find_particular_solution(a: &[Vec<f64>], b: &[f64], n_s: usize, n_e: usiz
                 grad[k] += err * a[i][k];
             }
         }
+
         for k in 0..n_s {
             phi[k] -= lr * grad[k];
         }
     }
+
     phi
 }
 
-/// Evaluates the local chemical equilibrium by minimizing the total Gibbs energy.
+
+/// Find the global chemical equilibrium state of stoichiometric phases.
+/// Minimizes the total Gibbs free energy subject to elemental conservation.
 ///
-/// # Mathematical Formulation
-/// Minimize G(phi) = sum(phi_k * g_k)
-/// Subject to:
-///   1. A * phi = b (Mass Balance)
-///   2. phi_k >= 0  (Non-negativity)
-///
-/// # Algorithm: Support-Based Brute Force (Linear Programming)
-/// Since the objective G(phi) is linear (for stoichiometric phases), the minimum
-/// always occurs at a "basic feasible solution" where at most rank(A) species are present.
-///
-/// This implementation:
-/// 1. Iterates through all possible combinations (supports) of active species (2^n_s combinations).
-/// 2. For each combination, finds the mass-balance solution using gradient descent.
-/// 3. Validates feasibility (non-negativity and mass balance error).
-/// 4. Returns the feasible solution with the global minimum Gibbs energy.
-/// Evaluates the local chemical equilibrium using the Dual (Element Potential) Method.
-/// This solver is more robust and significantly faster than brute-force support search.
+/// # Arguments
+/// * `species` - Slices of `Substance` database references.
+/// * `b` - Map of element symbol to its computed normalized mole fraction constraints.
+/// * `t` - Temperature in Kelvin ($\text{K}$).
+/// * `p` - Pressure in Pascals ($\text{Pa}$).
 pub fn equilibrate_stoichiometric(
     species: &[&Substance],
     b: &HashMap<String, f64>,
@@ -196,17 +224,21 @@ pub fn equilibrate_stoichiometric(
 
     // 1. Precompute molar Gibbs energies
     let mut g_0 = vec![0.0; n_s];
+
     for i in 0..n_s {
         let s = species[i];
         let mut g = s.gibbs(t);
+
         if s.aggregation_type == AggregationType::Gas {
             g += R_GAS * t * (p / 101325.0).ln();
         }
+
         g_0[i] = g;
     }
 
     // 2. Build stoichiometry matrix A (n_e x n_s)
     let mut a = vec![vec![0.0; n_s]; n_e];
+
     for i in 0..n_e {
         for j in 0..n_s {
             a[i][j] = species[j]
@@ -219,6 +251,7 @@ pub fn equilibrate_stoichiometric(
 
     // Construct mass balance vector b_vec (n_e) matching the extracted elements
     let mut b_vec = vec![0.0; n_e];
+
     for i in 0..n_e {
         b_vec[i] = b.get(&elements[i]).copied().unwrap_or(0.0);
     }
@@ -230,6 +263,7 @@ pub fn equilibrate_stoichiometric(
     // 3. Support-Based Solver
     for mask in 1..(1 << n_s) {
         let mut active = Vec::new();
+
         for k in 0..n_s {
             if (mask & (1 << k)) != 0 {
                 active.push(k);
@@ -264,6 +298,7 @@ pub fn equilibrate_stoichiometric(
         if let Some(x) = linear_algebra::dense_gaussian_solver(m, rhs) {
             let mut phi = vec![0.0; n_s];
             let mut valid = true;
+
             for (j, &val) in x.iter().enumerate() {
                 if val < -1e-6 {
                     valid = false;
@@ -274,6 +309,7 @@ pub fn equilibrate_stoichiometric(
 
             if valid {
                 let mut max_err: f64 = 0.0;
+
                 for i in 0..n_e {
                     let mut sum = 0.0;
                     for k in 0..n_s {
@@ -288,6 +324,7 @@ pub fn equilibrate_stoichiometric(
                         g += phi[k] * g_0[k];
                     }
                     let score = g + (active.len() as f64) * 1e-6;
+
                     if score < min_g {
                         min_g = score;
                         best_phi = phi;
@@ -305,16 +342,19 @@ pub fn equilibrate_stoichiometric(
     };
 
     let mut amounts = HashMap::new();
+
     for i in 0..n_s {
         amounts.insert(species[i].name.clone(), final_phi[i]);
     }
 
     let mut gibbs_energies = HashMap::new();
+
     for i in 0..n_s {
         gibbs_energies.insert(species[i].name.clone(), g_0[i]);
     }
 
     let mut total_gibbs = 0.0;
+
     for i in 0..n_s {
         total_gibbs += final_phi[i] * g_0[i];
     }

@@ -5,6 +5,19 @@ use majordome_utilities::text::exponential_fmt;
 use pyo3::prelude::*;
 use std::collections::HashMap;
 
+/// Represents a pure chemical substance or compound with standardized thermodynamic parameterizations.
+///
+/// Provides functions to compute temperature-dependent thermodynamic properties:
+/// specific heat ($C_p$), enthalpy ($H$), entropy ($S$), and Gibbs free energy ($G$).
+///
+/// # Units of Properties
+/// - **Temperature ($T$)**: Kelvin ($\text{K}$)
+/// - **Molar Mass**: grams per mole ($\text{g/mol}$)
+/// - **Molar Volume**: cubic centimeters per mole ($\text{cm}^3\text{/mol}$)
+/// - **Specific Heat ($C_p$)**: Joules per mole-Kelvin ($\text{J/(mol·K)}$)
+/// - **Entropy ($S$, $S_0$)**: Joules per mole-Kelvin ($\text{J/(mol·K)}$)
+/// - **Enthalpy ($H$)**: Joules per mole ($\text{J/mol}$)
+/// - **Gibbs Free Energy ($G$)**: Joules per mole ($\text{J/mol}$)
 #[pyclass(from_py_object)]
 #[derive(Debug, Clone)]
 pub struct Substance {
@@ -19,40 +32,81 @@ pub struct Substance {
 }
 
 impl Substance {
+    /// Selects the appropriate `TemperatureRange` model for the given temperature.
+    ///
+    /// # Arguments
+    /// * `t` - Temperature in Kelvin ($\text{K}$).
     pub fn get_range(&self, t: f64) -> &TemperatureRange {
         for r in &self.ranges {
             if t >= r.t_min && t <= r.t_max {
                 return r;
             }
         }
+
         if t < self.ranges[0].t_min {
             return &self.ranges[0];
         }
+
         self.ranges.last().unwrap()
     }
 
+    /// Computes the molar isobaric specific heat ($C_p$) at the given temperature.
+    ///
+    /// # Arguments
+    /// * `t` - Temperature in Kelvin ($\text{K}$).
+    ///
+    /// # Returns
+    /// Specific heat in $\text{J/(mol·K)}$.
     pub fn cp<T: Numeric>(&self, t: T) -> T {
         let t_val = t.to_f64();
         let range = self.get_range(t_val);
         range.model.cp(t)
     }
 
+    /// Computes the molar enthalpy ($H$) at the given temperature.
+    ///
+    /// # Arguments
+    /// * `t` - Temperature in Kelvin ($\text{K}$).
+    ///
+    /// # Returns
+    /// Molar enthalpy in $\text{J/mol}$.
     pub fn enthalpy<T: Numeric>(&self, t: T) -> T {
         let t_val = t.to_f64();
         let range = self.get_range(t_val);
         range.model.enthalpy(t)
     }
 
+    /// Computes the absolute molar entropy ($S$) at the given temperature.
+    ///
+    /// # Arguments
+    /// * `t` - Temperature in Kelvin ($\text{K}$).
+    ///
+    /// # Returns
+    /// Absolute entropy in $\text{J/(mol·K)}$.
     pub fn entropy<T: Numeric>(&self, t: T) -> T {
         let t_val = t.to_f64();
         let range = self.get_range(t_val);
         range.model.entropy(t)
     }
 
+    /// Computes the molar Gibbs free energy ($G = H - T \cdot S$) at the given temperature.
+    ///
+    /// # Arguments
+    /// * `t` - Temperature in Kelvin ($\text{K}$).
+    ///
+    /// # Returns
+    /// Molar Gibbs free energy in $\text{J/mol}$.
     pub fn gibbs<T: Numeric>(&self, t: T) -> T {
         self.enthalpy(t) - t * self.entropy(t)
     }
 
+    /// Tabulates thermodynamic properties ($C_p$, $S$, enthalpy relative to reference temperature 298.15 K, etc.)
+    /// over a specified temperature range.
+    ///
+    /// # Arguments
+    /// * `t_min` - Minimum temperature in Kelvin ($\text{K}$). Defaults to the substance's minimum range boundary.
+    /// * `t_max` - Maximum temperature in Kelvin ($\text{K}$). Defaults to the substance's maximum range boundary.
+    /// * `step` - Temperature step increment in Kelvin ($\text{K}$). Defaults to $100\text{ K}$.
     pub fn tabulate(&self, t_min: Option<f64>, t_max: Option<f64>, step: Option<f64>) -> String {
         let t_start = t_min.unwrap_or_else(|| self.ranges.first().unwrap().t_min);
         let t_end = t_max.unwrap_or_else(|| self.ranges.last().unwrap().t_max);
@@ -77,6 +131,7 @@ impl Substance {
 
         let first_multiple = (t_start / step_val).ceil() * step_val;
         let mut current = first_multiple;
+
         while current <= t_end {
             temps.push(current);
             current += step_val;
@@ -85,6 +140,7 @@ impl Substance {
         temps.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
         let mut unique_temps = Vec::new();
+
         for &t in &temps {
             if unique_temps.is_empty() || (t - unique_temps.last().unwrap()).abs() > 1e-6 {
                 unique_temps.push(t);
@@ -128,46 +184,56 @@ impl Substance {
 
 #[pymethods]
 impl Substance {
+    /// Name of the substance.
     #[getter]
     pub fn name(&self) -> String {
         self.name.clone()
     }
 
+    /// Molar mass in grams per mole ($\text{g/mol}$).
     #[getter]
     pub fn molar_mass(&self) -> f64 {
         self.molar_mass
     }
 
+    /// Molar volume in cubic centimeters per mole ($\text{cm}^3\text{/mol}$).
     #[getter]
     pub fn molar_volume(&self) -> f64 {
         self.molar_volume
     }
 
+    /// Reference absolute entropy $S_0$ in $\text{J/(mol·K)}$.
     #[getter]
     pub fn s0(&self) -> f64 {
         self.s0
     }
 
+    /// Map of element symbols to their stoichiometric coefficients (dimensionless ratios).
     #[getter]
     pub fn elements(&self) -> HashMap<String, f64> {
         self.elements.clone()
     }
 
+    /// Bibliographic or database reference string.
     #[getter]
     pub fn reference(&self) -> String {
         self.reference.clone()
     }
 
+    /// State aggregation type description (e.g. "Gas", "Liquid", "Solid").
     #[getter]
     pub fn aggregation_type(&self) -> String {
         format!("{:?}", self.aggregation_type)
     }
 
+    /// Standard molar enthalpy of formation at $298.15\text{ K}$ ($\text{J/mol}$).
     #[getter]
     pub fn formation_enthalpy(&self) -> f64 {
         self.enthalpy(298.15)
     }
 
+    /// Computes specific heat $C_p$ at temperature `t` ($\text{K}$).
+    /// Accepts a float or a dual number for automatic differentiation.
     #[pyo3(name = "cp")]
     pub fn cp_py<'py>(
         &self,
@@ -189,6 +255,8 @@ impl Substance {
         }
     }
 
+    /// Computes enthalpy $H$ at temperature `t` ($\text{K}$).
+    /// Accepts a float or a dual number for automatic differentiation.
     #[pyo3(name = "enthalpy")]
     pub fn enthalpy_py<'py>(
         &self,
@@ -210,6 +278,8 @@ impl Substance {
         }
     }
 
+    /// Computes absolute entropy $S$ at temperature `t` ($\text{K}$).
+    /// Accepts a float or a dual number for automatic differentiation.
     #[pyo3(name = "entropy")]
     pub fn entropy_py<'py>(
         &self,
@@ -231,6 +301,8 @@ impl Substance {
         }
     }
 
+    /// Computes Gibbs free energy $G$ at temperature `t` ($\text{K}$).
+    /// Accepts a float or a dual number for automatic differentiation.
     #[pyo3(name = "gibbs")]
     pub fn gibbs_py<'py>(
         &self,
@@ -252,6 +324,7 @@ impl Substance {
         }
     }
 
+    /// Generates a complete thermodynamic properties report at temperature `t` ($\text{K}$).
     pub fn report(&self, t: f64) -> String {
         let tabulate = |label: &str, units: &str, value: &str| {
             format!("{:15} | {:10} | {}", label, units, value)
@@ -280,6 +353,7 @@ impl Substance {
             "J/(mol.K)",
             &exponential_fmt(self.s0),
         ));
+
         lines.push(tabulate(
             "Delta-Hf298",
             "kJ/mol",
@@ -321,6 +395,7 @@ impl Substance {
         lines.join("\n")
     }
 
+    /// Tabulates thermodynamic properties for Python interface.
     #[pyo3(name = "tabulate", signature = (t_min = None, t_max = None, step = None))]
     pub fn tabulate_py(&self, t_min: Option<f64>, t_max: Option<f64>, step: Option<f64>) -> String {
         self.tabulate(t_min, t_max, step)

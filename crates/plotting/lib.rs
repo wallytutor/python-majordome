@@ -57,7 +57,7 @@ impl GnuplotInteractive {
         match Command::new(exe)
             .arg("-persist")
             .stdin(Stdio::piped())
-            .stderr(Stdio::piped())
+            .stderr(Stdio::inherit())
             .spawn()
         {
             Ok(c) => child = Some(c),
@@ -79,6 +79,8 @@ impl GnuplotInteractive {
                 if let Err(e) = stdin.write_all(cmd.as_bytes()) {
                     eprintln!("Error writing to gnuplot: {}", e);
                 }
+
+                let _ = stdin.flush();
             }
         }
     }
@@ -116,3 +118,18 @@ impl GnuplotInteractive {
         self.write("EOD");
     }
 }
+
+
+impl Drop for GnuplotInteractive {
+    fn drop(&mut self) {
+        if let Some(mut child) = self.child.take() {
+            if let Some(ref mut stdin) = child.stdin {
+                let _ = stdin.write_all(b"unset output\nexit\n");
+                let _ = stdin.flush();
+            }
+
+            let _ = child.wait();
+        }
+    }
+}
+

@@ -1,8 +1,9 @@
 use majordome_numerical::linear_algebra::TridiagonalSolverNonDestroying;
 use majordome_numerical::utilities::{geometric_space, linear_space};
+use majordome_utilities::text::exponential_fmt;
 use pyo3::prelude::*;
 
-#[pyclass]
+#[pyclass(from_py_object)]
 #[derive(Debug, Clone)]
 pub struct ImmersedNodeDomain1D {
     pub cell_sizes: Vec<f64>,
@@ -53,8 +54,8 @@ impl ImmersedNodeDomain1D {
 
         let mut lines = vec![
             format!("Total points ....: {}", n_total),
-            format!("West boundary ...: {:e}", self.west_boundary),
-            format!("East boundary ...: {:e}", self.east_boundary),
+            format!("West boundary ...: {}", exponential_fmt(self.west_boundary)),
+            format!("East boundary ...: {}", exponential_fmt(self.east_boundary)),
             String::new(),
         ];
 
@@ -65,8 +66,12 @@ impl ImmersedNodeDomain1D {
             let z1 = zc + dz / 2.0;
 
             lines.push(format!(
-                "Cell {:04} at {:e}, Size = {:e}, Range = [{:e}; {:e}]",
-                i, zc, dz, z0, z1
+                "Cell {:04} at {}, Size = {}, Range = [{}; {}]",
+                i,
+                exponential_fmt(zc),
+                exponential_fmt(dz),
+                exponential_fmt(z0),
+                exponential_fmt(z1)
             ));
         }
 
@@ -80,11 +85,11 @@ impl ImmersedNodeDomain1D {
             let z1 = coordinates[i];
 
             lines.push(format!(
-                "Spacing {:04} is {:e}, Range = [{:e}; {:e}]",
+                "Spacing {:04} is {}, Range = [{}; {}]",
                 i - 1,
-                delta,
-                z0,
-                z1
+                exponential_fmt(delta),
+                exponential_fmt(z0),
+                exponential_fmt(z1)
             ));
         }
 

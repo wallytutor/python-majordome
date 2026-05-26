@@ -9,18 +9,40 @@ use majordome_numerical::linear_algebra::TridiagonalSolver;
 use pyo3::prelude::*;
 
 struct SurfaceBoundaryState {
-    carbon_boundary: f64,
-    nitrogen_boundary: f64,
-    carbon_diffusivity: f64,
-    nitrogen_diffusivity: f64,
-    carbon_flux: f64,
-    nitrogen_flux: f64,
+    boundary_concentrations: Vec<f64>,
+    diffusivities: Vec<f64>,
+    fluxes: Vec<f64>,
 }
 
-pub struct CarbonitridingSolver {
+#[pyclass(from_py_object, name = "ElementResults")]
+#[derive(Clone, Debug)]
+pub struct ElementResults {
+    pub profile: Vec<Vec<f64>>,
+    pub flux: Vec<f64>,
+    pub mass_intake: Vec<f64>,
+}
+
+#[pymethods]
+impl ElementResults {
+    #[getter]
+    pub fn profile(&self) -> Vec<Vec<f64>> {
+        self.profile.clone()
+    }
+
+    #[getter]
+    pub fn flux(&self) -> Vec<f64> {
+        self.flux.clone()
+    }
+
+    #[getter]
+    pub fn mass_intake(&self) -> Vec<f64> {
+        self.mass_intake.clone()
+    }
+}
+
+pub struct NonlinearDiffusionSolver {
     pub grid: ImmersedNodeDomain1D,
-    pub carbon_field: DiffusionField1D,
-    pub nitrogen_field: DiffusionField1D,
+    pub fields: Vec<DiffusionField1D>,
     pub num_points: usize,
     pub time_points: Vec<f64>,
     pub time_steps: Vec<f64>,
@@ -30,38 +52,30 @@ pub struct CarbonitridingSolver {
     pub absolute_tolerance: f64,
     pub relative_tolerance: f64,
 
-    pub xc_tmp: Vec<f64>,
-    pub xn_tmp: Vec<f64>,
+    pub concentrations_tmp: Vec<Vec<f64>>,
 
     pub delta_w: Vec<f64>,
     pub delta_e: Vec<f64>,
 
-    pub carbon_model: ArrheniusModifiedDiffusivity,
-    pub nitrogen_model: ArrheniusModifiedDiffusivity,
+    pub species_names: Vec<String>,
+    pub molar_masses: Vec<f64>,
+    pub results: Vec<ElementResults>,
 
-    pub xc_results: Vec<Vec<f64>>,
-    pub xn_results: Vec<Vec<f64>>,
-    pub qc_results: Vec<f64>,
-    pub qn_results: Vec<f64>,
-    pub mass_intake: Vec<f64>,
-
-    pub fraction_converter: FractionConverter,
-    pub interstitial_converter: InterstitialConverter,
-
+    pub diffusivity_callback: Box<dyn Fn(usize, &[f64], f64) -> f64 + Send + Sync>,
     pub external_temperature: Box<dyn Fn(f64) -> f64 + Send + Sync>,
     pub external_coefficients: Box<dyn Fn(f64) -> Vec<f64> + Send + Sync>,
     pub external_potential: Box<dyn Fn(f64) -> Vec<f64> + Send + Sync>,
 }
 
-impl CarbonitridingSolver {
+impl NonlinearDiffusionSolver {
     pub fn new(
         grid: ImmersedNodeDomain1D,
-        y0_c: &[f64],
-        y0_n: &[f64],
+        y0: &[Vec<f64>],
         time_points: Vec<f64>,
         time_steps: Vec<f64>,
-        carbon_model: ArrheniusModifiedDiffusivity,
-        nitrogen_model: ArrheniusModifiedDiffusivity,
+        species_names: Vec<String>,
+        molar_masses: Vec<f64>,
+        diffusivity_callback: Box<dyn Fn(usize, &[f64], f64) -> f64 + Send + Sync>,
         external_temperature: Box<dyn Fn(f64) -> f64 + Send + Sync>,
         external_coefficients: Box<dyn Fn(f64) -> Vec<f64> + Send + Sync>,
         external_potential: Box<dyn Fn(f64) -> Vec<f64> + Send + Sync>,
@@ -85,30 +99,26 @@ impl CarbonitridingSolver {
         }
 
         let n_steps = time_steps.len();
+        let num_species = species_names.len();
 
-        let fraction_converter =
-            FractionConverter::new(&["C".to_string(), "N".to_string(), "Fe".to_string()]).unwrap();
+        let mut fields = Vec::with_capacity(num_species);
+        let mut results = Vec::with_capacity(num_species);
+        let mut concentrations_tmp = Vec::with_capacity(num_species);
 
-        let interstitial_converter = InterstitialConverter::new(0.055845, 7870.0);
+        for s in 0..num_species {
+            fields.push(DiffusionField1D::from_concentration(&y0[s]));
+            concentrations_tmp.push(y0[s].clone());
 
-        // Convert initial mass fractions to concentrations
-        let mut c0 = vec![0.0; num_points];
-        let mut n0 = vec![0.0; num_points];
-
-        for i in 0..num_points {
-            let y_c = y0_c[i];
-            let y_n = y0_n[i];
-            let y = vec![y_c, y_n, 1.0 - y_c - y_n];
-            let x = fraction_converter.mass_to_mole_fraction(&y).unwrap();
-            let c = interstitial_converter.mole_fraction_to_concentration(&x[0..2]);
-            c0[i] = c[0];
-            n0[i] = c[1];
+            results.push(ElementResults {
+                profile: vec![vec![0.0; num_points]; n_steps + 1],
+                flux: vec![0.0; n_steps + 1],
+                mass_intake: vec![0.0; n_steps + 1],
+            });
         }
 
         Self {
             grid,
-            carbon_field: DiffusionField1D::from_concentration(&c0),
-            nitrogen_field: DiffusionField1D::from_concentration(&n0),
+            fields,
             num_points,
             time_points,
             time_steps,
@@ -116,19 +126,13 @@ impl CarbonitridingSolver {
             relaxation_factor: 0.75,
             absolute_tolerance: 1e-6,
             relative_tolerance: 1e-6,
-            xc_tmp: c0,
-            xn_tmp: n0,
+            concentrations_tmp,
             delta_w,
             delta_e,
-            carbon_model,
-            nitrogen_model,
-            xc_results: vec![vec![0.0; num_points]; n_steps + 1],
-            xn_results: vec![vec![0.0; num_points]; n_steps + 1],
-            qc_results: vec![0.0; n_steps + 1],
-            qn_results: vec![0.0; n_steps + 1],
-            mass_intake: vec![0.0; n_steps + 1],
-            fraction_converter,
-            interstitial_converter,
+            species_names,
+            molar_masses,
+            results,
+            diffusivity_callback,
             external_temperature,
             external_coefficients,
             external_potential,
@@ -137,102 +141,87 @@ impl CarbonitridingSolver {
 
     fn evaluate_diffusivity_at_concentration(
         &self,
-        model: &ArrheniusModifiedDiffusivity,
-        cc: f64,
-        cn: f64,
+        species_idx: usize,
+        c: &[f64],
         temp: f64,
     ) -> f64 {
-        let x = self
-            .interstitial_converter
-            .concentration_to_mole_fraction(&[cc, cn]);
-        model.evaluate(&x, temp)
+        (self.diffusivity_callback)(species_idx, c, temp)
     }
 
     fn solve_surface_boundary_state(
         &self,
         _tnow: f64,
-        xc0: f64,
-        xn0: f64,
+        c0: &[f64],
         temp: f64,
         h_inf: &[f64],
-        x_inf: &[f64],
+        c_inf: &[f64],
     ) -> SurfaceBoundaryState {
         let dl0 = self.grid.spacing[0];
         let tol = self.absolute_tolerance;
+        let num_species = c0.len();
 
-        let mut xc_boundary = xc0;
-        let mut xn_boundary = xn0;
-
-        let mut carbon_diffusivity;
-        let mut nitrogen_diffusivity;
+        let mut c_boundary = c0.to_vec();
+        let mut diffusivities = vec![0.0; num_species];
 
         let mut delta_boundary = f64::INFINITY;
         let mut iteration = 0;
 
         while delta_boundary > tol && iteration < self.max_nonlin_iter {
-            carbon_diffusivity = self.evaluate_diffusivity_at_concentration(
-                &self.carbon_model,
-                xc_boundary,
-                xn_boundary,
-                temp,
-            );
-            nitrogen_diffusivity = self.evaluate_diffusivity_at_concentration(
-                &self.nitrogen_model,
-                xc_boundary,
-                xn_boundary,
-                temp,
-            );
+            let mut max_change = 0.0;
 
-            let sh_carbon = sherwood_number(h_inf[0], dl0, carbon_diffusivity);
-            let sh_nitrogen = sherwood_number(h_inf[1], dl0, nitrogen_diffusivity);
+            for idx in 0..num_species {
+                let d = self.evaluate_diffusivity_at_concentration(idx, &c_boundary, temp);
+                diffusivities[idx] = d;
 
-            let xc_new = (xc0 + sh_carbon * x_inf[0]) / (1.0 + sh_carbon);
-            let xn_new = (xn0 + sh_nitrogen * x_inf[1]) / (1.0 + sh_nitrogen);
+                let sh = sherwood_number(h_inf[idx], dl0, d);
+                let c_new = (c0[idx] + sh * c_inf[idx]) / (1.0 + sh);
 
-            let change_c = (xc_new - xc_boundary).abs();
-            let change_n = (xn_new - xn_boundary).abs();
+                let change = (c_new - c_boundary[idx]).abs();
 
-            delta_boundary = change_c.max(change_n);
-            xc_boundary = xc_new;
-            xn_boundary = xn_new;
+                if change > max_change {
+                    max_change = change;
+                }
+
+                c_boundary[idx] = c_new;
+            }
+
+            delta_boundary = max_change;
             iteration += 1;
         }
 
-        carbon_diffusivity = self.evaluate_diffusivity_at_concentration(
-            &self.carbon_model,
-            xc_boundary,
-            xn_boundary,
-            temp,
-        );
+        let mut fluxes = vec![0.0; num_species];
 
-        nitrogen_diffusivity = self.evaluate_diffusivity_at_concentration(
-            &self.nitrogen_model,
-            xc_boundary,
-            xn_boundary,
-            temp,
-        );
+        for idx in 0..num_species {
+            let d = self.evaluate_diffusivity_at_concentration(idx, &c_boundary, temp);
+            diffusivities[idx] = d;
+            fluxes[idx] = h_inf[idx] * (c_boundary[idx] - c_inf[idx]);
+        }
 
         SurfaceBoundaryState {
-            carbon_boundary: xc_boundary,
-            nitrogen_boundary: xn_boundary,
-            carbon_diffusivity,
-            nitrogen_diffusivity,
-            carbon_flux: h_inf[0] * (xc_boundary - x_inf[0]),
-            nitrogen_flux: h_inf[1] * (xn_boundary - x_inf[1]),
+            boundary_concentrations: c_boundary,
+            diffusivities,
+            fluxes,
         }
     }
 
     fn update_diffusivities(
         num_points: usize,
         spacing: &[f64],
-        x_c: &[f64],
-        x_n: &[f64],
-        model: &ArrheniusModifiedDiffusivity,
+        species_idx: usize,
+        concentrations: &[Vec<f64>],
+        diffusivity_callback: &dyn Fn(usize, &[f64], f64) -> f64,
         field: &mut DiffusionField1D,
         temp: f64,
     ) {
+        let num_species = concentrations.len();
+        let mut node_c = vec![0.0; num_species];
+
         for i in 0..num_points {
-            field.diffusivity[i] = model.evaluate(&[x_c[i], x_n[i]], temp);
+            for s in 0..num_species {
+                node_c[s] = concentrations[s][i];
+            }
+
+            field.diffusivity[i] = diffusivity_callback(species_idx, &node_c, temp);
 
             if i > 0 {
                 let d_i = spacing[i - 1];
@@ -323,100 +312,65 @@ impl CarbonitridingSolver {
     fn outer_loop(&mut self, t: f64, tau: f64) -> (usize, f64, f64, bool) {
         let tnow = t + tau;
         let temp = (self.external_temperature)(tnow);
-        let y_inf = (self.external_potential)(tnow);
+        let c_inf = (self.external_potential)(tnow);
         let h_inf = (self.external_coefficients)(tnow);
-
-        // Convert environment potential mass fractions [yc, yn] to concentrations
-        let y_all = vec![y_inf[0], y_inf[1], 1.0 - y_inf[0] - y_inf[1]];
-        let x_all = self
-            .fraction_converter
-            .mass_to_mole_fraction(&y_all)
-            .unwrap();
-        let x_inf = self
-            .interstitial_converter
-            .mole_fraction_to_concentration(&x_all[0..2]);
 
         let mut converged = false;
         let mut iteration = 0;
         let mut abs_err = f64::NEG_INFINITY;
         let mut rel_err = f64::NEG_INFINITY;
 
+        let num_species = self.fields.len();
+
         while !converged && iteration < self.max_nonlin_iter {
-            let x_c_n: Vec<(f64, f64)> = self
-                .xc_tmp
-                .iter()
-                .zip(&self.xn_tmp)
-                .map(|(&c, &n)| {
-                    let x = self
-                        .interstitial_converter
-                        .concentration_to_mole_fraction(&[c, n]);
-                    (x[0], x[1])
-                })
-                .collect();
+            let mut c0 = vec![0.0; num_species];
 
-            let x_c: Vec<f64> = x_c_n.iter().map(|pair| pair.0).collect();
-            let x_n: Vec<f64> = x_c_n.iter().map(|pair| pair.1).collect();
+            for idx in 0..num_species {
+                c0[idx] = self.concentrations_tmp[idx][0];
+            }
 
-            let b_state = self.solve_surface_boundary_state(
-                tnow,
-                self.xc_tmp[0],
-                self.xn_tmp[0],
-                temp,
-                &h_inf,
-                &x_inf,
-            );
+            let b_state = self.solve_surface_boundary_state(tnow, &c0, temp, &h_inf, &c_inf);
 
-            self.carbon_field.surface_flux = b_state.carbon_flux;
-            self.nitrogen_field.surface_flux = b_state.nitrogen_flux;
+            let mut max_abs = 0.0;
+            let mut max_rel = 0.0;
 
-            Self::update_diffusivities(
-                self.num_points,
-                &self.grid.spacing,
-                &x_c,
-                &x_n,
-                &self.carbon_model,
-                &mut self.carbon_field,
-                temp,
-            );
+            for idx in 0..num_species {
+                Self::update_diffusivities(
+                    self.num_points,
+                    &self.grid.spacing,
+                    idx,
+                    &self.concentrations_tmp,
+                    &self.diffusivity_callback,
+                    &mut self.fields[idx],
+                    temp,
+                );
 
-            let (abs_c, rel_c) = Self::update_field_fvm(
-                self.num_points,
-                &self.delta_w,
-                &self.delta_e,
-                self.relaxation_factor,
-                self.absolute_tolerance,
-                &mut self.carbon_field,
-                b_state.carbon_boundary,
-                b_state.carbon_diffusivity,
-                tau,
-                &mut self.xc_tmp,
-            );
+                self.fields[idx].surface_flux = b_state.fluxes[idx];
 
-            Self::update_diffusivities(
-                self.num_points,
-                &self.grid.spacing,
-                &x_c,
-                &x_n,
-                &self.nitrogen_model,
-                &mut self.nitrogen_field,
-                temp,
-            );
+                let (abs_c, rel_c) = Self::update_field_fvm(
+                    self.num_points,
+                    &self.delta_w,
+                    &self.delta_e,
+                    self.relaxation_factor,
+                    self.absolute_tolerance,
+                    &mut self.fields[idx],
+                    b_state.boundary_concentrations[idx],
+                    b_state.diffusivities[idx],
+                    tau,
+                    &mut self.concentrations_tmp[idx],
+                );
 
-            let (abs_n, rel_n) = Self::update_field_fvm(
-                self.num_points,
-                &self.delta_w,
-                &self.delta_e,
-                self.relaxation_factor,
-                self.absolute_tolerance,
-                &mut self.nitrogen_field,
-                b_state.nitrogen_boundary,
-                b_state.nitrogen_diffusivity,
-                tau,
-                &mut self.xn_tmp,
-            );
+                if abs_c > max_abs {
+                    max_abs = abs_c;
+                }
 
-            abs_err = abs_c.max(abs_n);
-            rel_err = rel_c.max(rel_n);
+                if rel_c > max_rel {
+                    max_rel = rel_c;
+                }
+            }
+
+            abs_err = max_abs;
+            rel_err = max_rel;
             iteration += 1;
 
             converged = abs_err < self.absolute_tolerance && rel_err < self.relative_tolerance;
@@ -434,19 +388,19 @@ impl CarbonitridingSolver {
             let t = self.time_points[i - 1];
             let tau = self.time_steps[i - 1];
 
-            for j in 0..self.num_points {
-                self.xc_tmp[j] = self.carbon_field.concentration[j];
-                self.xn_tmp[j] = self.nitrogen_field.concentration[j];
-
-                self.carbon_field.solver.problem.d[j] = self.xc_tmp[j];
-                self.nitrogen_field.solver.problem.d[j] = self.xn_tmp[j];
+            for s in 0..self.fields.len() {
+                for j in 0..self.num_points {
+                    self.concentrations_tmp[s][j] = self.fields[s].concentration[j];
+                    self.fields[s].solver.problem.d[j] = self.concentrations_tmp[s][j];
+                }
             }
 
             let (iteration, abs_err, rel_err, converged) = self.outer_loop(t, tau);
 
-            for j in 0..self.num_points {
-                self.carbon_field.concentration[j] = self.xc_tmp[j];
-                self.nitrogen_field.concentration[j] = self.xn_tmp[j];
+            for s in 0..self.fields.len() {
+                for j in 0..self.num_points {
+                    self.fields[s].concentration[j] = self.concentrations_tmp[s][j];
+                }
             }
 
             self.store_state(i);
@@ -467,10 +421,10 @@ impl CarbonitridingSolver {
         }
 
         let mut sigma_f = 0.0;
+        let tot_intake = self.get_total_mass_intake();
 
-        for i in 1..self.mass_intake.len() {
-            let dm = 0.5 * (self.mass_intake[i - 1] + self.mass_intake[i]);
-            sigma_f += dm * self.time_steps[i - 1];
+        if !tot_intake.is_empty() {
+            sigma_f = *tot_intake.last().unwrap();
         }
 
         println!(
@@ -480,29 +434,146 @@ impl CarbonitridingSolver {
     }
 
     pub fn store_state(&mut self, idx: usize) {
-        let molar_mass_c = 12.011;
-        let molar_mass_n = 14.007;
+        let num_species = self.fields.len();
 
-        let mdot_c = -molar_mass_c * self.carbon_field.surface_flux;
-        let mdot_n = -molar_mass_n * self.nitrogen_field.surface_flux;
+        for s in 0..num_species {
+            let mdot = -self.molar_masses[s] * self.fields[s].surface_flux;
 
-        self.xc_results[idx] = self.carbon_field.concentration.clone();
-        self.xn_results[idx] = self.nitrogen_field.concentration.clone();
+            self.results[s].profile[idx] = self.fields[s].concentration.clone();
+            self.results[s].flux[idx] = mdot;
 
-        self.qc_results[idx] = mdot_c;
-        self.qn_results[idx] = mdot_n;
+            if idx == 0 {
+                self.results[s].mass_intake[0] = 0.0;
+            } else {
+                let dt = self.time_steps[idx - 1];
 
-        self.mass_intake[idx] = mdot_c + mdot_n;
+                self.results[s].mass_intake[idx] = self.results[s].mass_intake[idx - 1]
+                    + 0.5 * (self.results[s].flux[idx - 1] + self.results[s].flux[idx]) * dt;
+            }
+        }
+    }
+
+    pub fn get_total_mass_intake(&self) -> Vec<f64> {
+        let num_steps = self.time_points.len();
+        let mut total = vec![0.0; num_steps];
+
+        for s in 0..self.fields.len() {
+            for idx in 0..num_steps {
+                total[idx] += self.results[s].mass_intake[idx];
+            }
+        }
+
+        total
+    }
+}
+
+pub struct CarbonitridingSolver {
+    pub solver: NonlinearDiffusionSolver,
+    pub fraction_converter: FractionConverter,
+    pub interstitial_converter: InterstitialConverter,
+}
+
+impl CarbonitridingSolver {
+    pub fn new(
+        grid: ImmersedNodeDomain1D,
+        y0_c: &[f64],
+        y0_n: &[f64],
+        time_points: Vec<f64>,
+        time_steps: Vec<f64>,
+        carbon_model: ArrheniusModifiedDiffusivity,
+        nitrogen_model: ArrheniusModifiedDiffusivity,
+        external_temperature: Box<dyn Fn(f64) -> f64 + Send + Sync>,
+        external_coefficients: Box<dyn Fn(f64) -> Vec<f64> + Send + Sync>,
+        external_potential: Box<dyn Fn(f64) -> Vec<f64> + Send + Sync>,
+    ) -> Self {
+        let num_points = grid.interior.len();
+
+        let fraction_converter =
+            FractionConverter::new(&["C".to_string(), "N".to_string(), "Fe".to_string()]).unwrap();
+
+        let interstitial_converter = InterstitialConverter::new(0.055845, 7870.0);
+
+        let mut c0_c = vec![0.0; num_points];
+        let mut c0_n = vec![0.0; num_points];
+
+        for i in 0..num_points {
+            let y_c = y0_c[i];
+            let y_n = y0_n[i];
+            let y = vec![y_c, y_n, 1.0 - y_c - y_n];
+            let x = fraction_converter.mass_to_mole_fraction(&y).unwrap();
+            let c = interstitial_converter.mole_fraction_to_concentration(&x[0..2]);
+            c0_c[i] = c[0];
+            c0_n[i] = c[1];
+        }
+
+        let carbon_model_arc = std::sync::Arc::new(carbon_model);
+        let nitrogen_model_arc = std::sync::Arc::new(nitrogen_model);
+        let fraction_converter_arc = std::sync::Arc::new(fraction_converter.clone());
+        let interstitial_converter_arc = std::sync::Arc::new(interstitial_converter.clone());
+
+        let carbon_model_clone = carbon_model_arc.clone();
+        let nitrogen_model_clone = nitrogen_model_arc.clone();
+        let interstitial_converter_clone = interstitial_converter_arc.clone();
+
+        let diffusivity_callback = Box::new(move |species_idx: usize, c: &[f64], temp: f64| {
+            let x = interstitial_converter_clone.concentration_to_mole_fraction(c);
+
+            if species_idx == 0 {
+                carbon_model_clone.evaluate(&x, temp)
+            } else {
+                nitrogen_model_clone.evaluate(&x, temp)
+            }
+        });
+
+        let fraction_converter_clone = fraction_converter_arc.clone();
+        let interstitial_converter_clone = interstitial_converter_arc.clone();
+
+        let external_potential_wrapper = Box::new(move |t: f64| {
+            let y_inf = (external_potential)(t);
+            let y_all = vec![y_inf[0], y_inf[1], 1.0 - y_inf[0] - y_inf[1]];
+            let x_all = fraction_converter_clone
+                .mass_to_mole_fraction(&y_all)
+                .unwrap();
+            interstitial_converter_clone.mole_fraction_to_concentration(&x_all[0..2])
+        });
+
+        let y0 = vec![c0_c, c0_n];
+        let species_names = vec!["Carbon".to_string(), "Nitrogen".to_string()];
+        let molar_masses = vec![12.011, 14.007];
+
+        let solver = NonlinearDiffusionSolver::new(
+            grid,
+            &y0,
+            time_points,
+            time_steps,
+            species_names,
+            molar_masses,
+            diffusivity_callback,
+            external_temperature,
+            external_coefficients,
+            external_potential_wrapper,
+        );
+
+        Self {
+            solver,
+            fraction_converter,
+            interstitial_converter,
+        }
+    }
+
+    pub fn integrate(&mut self, every: usize) {
+        self.solver.integrate(every);
     }
 
     pub fn get_reinitialization(&self) -> (Vec<f64>, Vec<f64>) {
-        let xc_final = &self.carbon_field.concentration;
-        let xn_final = &self.nitrogen_field.concentration;
+        let num_points = self.solver.num_points;
+        let xc_final = &self.solver.fields[0].concentration;
+        let xn_final = &self.solver.fields[1].concentration;
 
-        let mut yc_final = Vec::with_capacity(self.num_points);
-        let mut yn_final = Vec::with_capacity(self.num_points);
+        let mut yc_final = Vec::with_capacity(num_points);
+        let mut yn_final = Vec::with_capacity(num_points);
 
-        for i in 0..self.num_points {
+        for i in 0..num_points {
             let x = self
                 .interstitial_converter
                 .concentration_to_mole_fraction(&[xc_final[i], xn_final[i]]);
@@ -521,13 +592,20 @@ impl CarbonitridingSolver {
     }
 
     pub fn get_surface_fluxes(&self, idx: usize) -> (f64, f64) {
-        let num_steps = self.time_points.len();
+        let num_steps = self.solver.time_points.len();
 
         if idx >= num_steps {
             panic!("Out-of-bounds index {} for {} time points.", idx, num_steps);
         }
 
-        (self.qc_results[idx], self.qn_results[idx])
+        (
+            self.solver.results[0].flux[idx],
+            self.solver.results[1].flux[idx],
+        )
+    }
+
+    pub fn get_total_mass_intake(&self) -> Vec<f64> {
+        self.solver.get_total_mass_intake()
     }
 }
 
@@ -656,28 +734,48 @@ impl CarbonitridingSolverPy {
     }
 
     #[getter]
-    pub fn xc_results(&self) -> Vec<Vec<f64>> {
-        self.solver.xc_results.clone()
+    pub fn carbon_results(&self) -> ElementResults {
+        self.solver.solver.results[0].clone()
     }
 
     #[getter]
-    pub fn xn_results(&self) -> Vec<Vec<f64>> {
-        self.solver.xn_results.clone()
+    pub fn nitrogen_results(&self) -> ElementResults {
+        self.solver.solver.results[1].clone()
     }
 
     #[getter]
-    pub fn qc_results(&self) -> Vec<f64> {
-        self.solver.qc_results.clone()
+    pub fn total_mass_intake(&self) -> Vec<f64> {
+        self.solver.get_total_mass_intake()
     }
 
     #[getter]
-    pub fn qn_results(&self) -> Vec<f64> {
-        self.solver.qn_results.clone()
+    pub fn absolute_tolerance(&self) -> f64 {
+        self.solver.solver.absolute_tolerance
+    }
+
+    #[setter]
+    pub fn set_absolute_tolerance(&mut self, val: f64) {
+        self.solver.solver.absolute_tolerance = val;
     }
 
     #[getter]
-    pub fn mass_intake(&self) -> Vec<f64> {
-        self.solver.mass_intake.clone()
+    pub fn relative_tolerance(&self) -> f64 {
+        self.solver.solver.relative_tolerance
+    }
+
+    #[setter]
+    pub fn set_relative_tolerance(&mut self, val: f64) {
+        self.solver.solver.relative_tolerance = val;
+    }
+
+    #[getter]
+    pub fn relaxation_factor(&self) -> f64 {
+        self.solver.solver.relaxation_factor
+    }
+
+    #[setter]
+    pub fn set_relaxation_factor(&mut self, val: f64) {
+        self.solver.solver.relaxation_factor = val;
     }
 }
 
@@ -713,7 +811,7 @@ mod test {
 
         solver.integrate(1);
 
-        assert_eq!(solver.xc_results.len(), 2);
-        assert_eq!(solver.xn_results.len(), 2);
+        assert_eq!(solver.solver.results[0].profile.len(), 2);
+        assert_eq!(solver.solver.results[1].profile.len(), 2);
     }
 }
