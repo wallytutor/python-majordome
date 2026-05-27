@@ -1,3 +1,8 @@
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![deny(clippy::panic)]
+#![deny(unused_must_use)]
+
 use majordome_numerical::utilities::geometric_space;
 use majordome_numerical::utilities::linear_space;
 use majordome_utilities::text::exponential_fmt;
@@ -82,6 +87,11 @@ impl std::fmt::Display for ImmersedNodeDomain1D {
 
 impl ImmersedNodeDomain1D {
     fn create_from_coordinates(zf: &[f64]) -> Self {
+        assert!(
+            zf.len() >= 2,
+            "Domain must contain at least 2 boundary coordinates"
+        );
+
         let mut dz = Vec::with_capacity(zf.len() - 1);
         let mut zc = Vec::with_capacity(zf.len() - 1);
 
@@ -97,7 +107,9 @@ impl ImmersedNodeDomain1D {
         }
 
         let half_west = zc[0] - zf[0];
-        let half_east = zf.last().unwrap() - zc.last().unwrap();
+        let zf_last = zf.last().copied().unwrap_or(0.0);
+        let zc_last = zc.last().copied().unwrap_or(0.0);
+        let half_east = zf_last - zc_last;
 
         let mut spacing = Vec::with_capacity(dc.len() + 2);
         spacing.push(half_west);
@@ -109,7 +121,7 @@ impl ImmersedNodeDomain1D {
             spacing,
             interior: zc,
             west_boundary: zf[0],
-            east_boundary: *zf.last().unwrap(),
+            east_boundary: zf_last,
         }
     }
 
@@ -132,10 +144,7 @@ impl ImmersedNodeDomain1D {
         let mut arr = vec![0.0; n_total];
         arr[0] = self.west_boundary;
         arr[n_total - 1] = self.east_boundary;
-
-        for i in 1..=n_interior {
-            arr[i] = self.interior[i - 1];
-        }
+        arr[1..=n_interior].copy_from_slice(&self.interior);
 
         arr
     }
@@ -149,16 +158,26 @@ impl ImmersedNodeDomain1D {
 
 #[pymethods]
 impl ImmersedNodeDomain1D {
-    #[staticmethod]
-    #[pyo3(name = "linear", signature = (depth, n, shift=None))]
-    fn linear_py(depth: f64, n: usize, shift: Option<f64>) -> Self {
-        Self::linear(depth, n, shift)
-    }
-
-    #[staticmethod]
-    #[pyo3(name = "geometric", signature = (depth, n, d0, d1, shift=None))]
-    fn geometric_py(depth: f64, n: usize, d0: f64, d1: f64, shift: Option<f64>) -> Self {
-        Self::geometric(depth, n, d0, d1, shift)
+    #[new]
+    #[pyo3(signature = (depth, n, *, shift=None, first_size=None, last_size=None))]
+    fn new_py(
+        depth: f64,
+        n: usize,
+        shift: Option<f64>,
+        first_size: Option<f64>,
+        last_size: Option<f64>,
+    ) -> Self {
+        match (first_size, last_size) {
+            (Some(d0), Some(d1)) => Self::geometric(depth, n, d0, d1, shift),
+            (None, None) => Self::linear(depth, n, shift),
+            _ => {
+                majordome_utilities::print_warning!(
+                    "Both first_size and last_size must be provided together. \
+                     Falling back to linear as default."
+                );
+                Self::linear(depth, n, shift)
+            }
+        }
     }
 }
 

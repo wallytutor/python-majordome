@@ -77,5 +77,11 @@ def import_extension(mode: BuildMode) -> ModuleType:
 if __name__ == "__main__":
     fvm = import_extension(BuildMode.DEBUG)
 
-    domain1 = fvm.ImmersedNodeDomain1D.linear(1.0, 10)
-    print(domain1)
+    domain = fvm.ImmersedNodeDomain1D(1.0, 10, shift=1)
+    print(domain)
+
+    domain = fvm.ImmersedNodeDomain1D(1.0, 10, first_size=0.1, last_size=0.2)
+    print(domain)
+
+    domain = fvm.ImmersedNodeDomain1D(1.0, 10, first_size=0.1, last_size=None)
+    print(domain)
