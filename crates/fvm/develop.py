@@ -4,10 +4,14 @@
 import sys
 import shutil
 
+import numpy as np
+
 from enum import StrEnum
 from pathlib import Path
 from subprocess import run
 from types import ModuleType
+
+from numpy.typing import NDArray
 
 HERE = Path(__file__).parent
 
@@ -74,14 +78,57 @@ def import_extension(mode: BuildMode) -> ModuleType:
     return majordome_fvm
 
 
+_fvm = import_extension(BuildMode.DEBUG)
+
+
+class ImmersedNodeDomain1D:
+    __doc__ = _fvm.domain1d.ImmersedNodeDomain1D.__doc__
+
+    __slots__ = ["_obj"]
+
+    def __init__(self, *args, **kwargs) -> None:
+        self._obj = _fvm.domain1d.ImmersedNodeDomain1D(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return str(self._obj)
+
+    def __repr__(self) -> str:
+        return repr(self._obj)
+
+    def __len__(self) -> int:
+        return self._obj.len()
+
+    def to_array(self) -> NDArray[np.float64]:
+        return np.array(self._obj.to_array())
+
+    @property
+    def cell_sizes(self) -> NDArray[np.float64]:
+        return np.array(self._obj.cell_sizes)
+
+    @property
+    def spacing(self) -> NDArray[np.float64]:
+        return np.array(self._obj.spacing)
+
+    @property
+    def interior(self) -> NDArray[np.float64]:
+        return np.array(self._obj.interior)
+
+    @property
+    def west_boundary(self) -> float:
+        return self._obj.west_boundary
+
+    @property
+    def east_boundary(self) -> float:
+        return self._obj.east_boundary
+
+
+
 if __name__ == "__main__":
-    fvm = import_extension(BuildMode.DEBUG)
-
-    domain = fvm.ImmersedNodeDomain1D(1.0, 10, shift=1)
+    domain = ImmersedNodeDomain1D(1.0, 10, shift=1)
     print(domain)
 
-    domain = fvm.ImmersedNodeDomain1D(1.0, 10, first_size=0.1, last_size=0.2)
+    domain = ImmersedNodeDomain1D(1.0, 10, first_size=0.1, last_size=0.2)
     print(domain)
 
-    domain = fvm.ImmersedNodeDomain1D(1.0, 10, first_size=0.1, last_size=None)
+    domain = ImmersedNodeDomain1D(1.0, 10, first_size=0.1, last_size=None)
     print(domain)

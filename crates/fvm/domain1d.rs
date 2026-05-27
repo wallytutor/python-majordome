@@ -204,18 +204,18 @@ impl ImmersedNodeDomain1D {
     }
 
     #[getter]
-    fn cell_sizes(&self) -> Vec<f64> {
-        self.cell_sizes.clone()
+    fn cell_sizes(&self) -> &[f64] {
+        &self.cell_sizes
     }
 
     #[getter]
-    fn spacing(&self) -> Vec<f64> {
-        self.spacing.clone()
+    fn spacing(&self) -> &[f64] {
+        &self.spacing
     }
 
     #[getter]
-    fn interior(&self) -> Vec<f64> {
-        self.interior.clone()
+    fn interior(&self) -> &[f64] {
+        &self.interior
     }
 
     #[getter]
