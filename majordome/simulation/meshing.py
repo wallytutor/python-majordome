@@ -125,9 +125,9 @@ class GmshOCCModel:
 
         raise ValueError(f"Unsupported option value type: {type(value)}")
 
-    def configure(self, **kws) -> None:
+    def configure(self, config: dict[str, Any]) -> None:
         """ Configure mesh parameters and display options. """
-        for key, value in kws.items():
+        for key, value in config.items():
             self.set_option(key, value)
 
     def add_points(self,
