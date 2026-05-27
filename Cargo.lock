@@ -146,6 +146,17 @@ version = "0.1.0"
 dependencies = [
  "majordome_calphad",
  "majordome_constants",
+ "majordome_fvm",
+ "majordome_numerical",
+ "majordome_utilities",
+ "pyo3",
+]
+
+[[package]]
+name = "majordome_fvm"
+version = "0.1.0"
+dependencies = [
+ "majordome_constants",
  "majordome_numerical",
  "majordome_utilities",
  "pyo3",

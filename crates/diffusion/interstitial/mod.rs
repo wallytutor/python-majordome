@@ -1,10 +1,10 @@
 use crate::coefficients::ArrheniusModifiedDiffusivity;
 use crate::fvm::DiffusionField1D;
-use crate::fvm::ImmersedNodeDomain1D;
 use crate::fvm::fourier_number_delta_sq;
 use crate::fvm::sherwood_number;
 use majordome_calphad::mixture::FractionConverter;
 use majordome_calphad::mixture::InterstitialConverter;
+use majordome_fvm::ImmersedNodeDomain1D;
 use majordome_numerical::linear_algebra::TridiagonalSolver;
 use pyo3::prelude::*;
 

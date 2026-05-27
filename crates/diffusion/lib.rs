@@ -11,7 +11,7 @@ pub mod diffusion {
     use super::slycke::slycke_py;
 
     #[pymodule_export]
-    use super::fvm::ImmersedNodeDomain1D;
+    use majordome_fvm::ImmersedNodeDomain1D;
 
     #[pymodule_export]
     use super::interstitial::CarbonitridingSolverPy as CarbonitridingSolver;

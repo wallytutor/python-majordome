@@ -1,18 +1,16 @@
 [package]
-name = "majordome_diffusion"
+name = "majordome_fvm"
 version = "0.1.0"
 edition = "2024"
 
 [lib]
-name = "majordome_diffusion"
+name = "majordome_fvm"
 path = "lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 majordome_numerical = { path = "../numerical" }
-majordome_calphad = { path = "../calphad" }
 majordome_constants = { path = "../constants" }
-majordome_fvm = { path = "../fvm" }
 majordome_utilities = { path = "../utilities" }
 
 [dependencies.pyo3]
