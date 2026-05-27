@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Build, import, and test the majordome_fvm Python extension. """
 
+import importlib
 import sys
 import shutil
 
@@ -58,7 +59,7 @@ def import_extension(mode: BuildMode) -> ModuleType:
     install_extension(mode)
 
     try:
-        import majordome_fvm
+        majordome_fvm = importlib.import_module("majordome_fvm")
 
         print("=" * 70)
         print("    Success! majordome_fvm imported successfully.")
