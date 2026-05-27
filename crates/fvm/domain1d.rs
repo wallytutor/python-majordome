@@ -83,15 +83,16 @@ impl std::fmt::Display for ImmersedNodeDomain1D {
     }
 }
 
-// ---------------------------------------------------------------------------
+impl TryFrom<&[f64]> for ImmersedNodeDomain1D {
+    type Error = String;
 
-impl ImmersedNodeDomain1D {
-    fn create_from_coordinates(zf: &[f64]) -> Self {
-        assert!(
-            zf.len() >= 2,
-            "Domain must contain at least 2 boundary coordinates"
-        );
-
+    fn try_from(zf: &[f64]) -> Result<Self, Self::Error> {
+        if zf.len() < 2 {
+            return Err(format!(
+                "Domain must contain at least 2 boundary coordinates (got {}).",
+                zf.len()
+            ));
+        }
         let mut dz = Vec::with_capacity(zf.len() - 1);
         let mut zc = Vec::with_capacity(zf.len() - 1);
 
@@ -116,28 +117,38 @@ impl ImmersedNodeDomain1D {
         spacing.extend_from_slice(&dc);
         spacing.push(half_east);
 
-        Self {
+        Ok(Self {
             cell_sizes: dz,
             spacing,
             interior: zc,
             west_boundary: zf[0],
             east_boundary: zf_last,
-        }
+        })
     }
+}
 
-    fn linear(depth: f64, n: usize, shift: Option<f64>) -> Self {
+// ---------------------------------------------------------------------------
+
+impl ImmersedNodeDomain1D {
+    pub fn linear(depth: f64, n: usize, shift: Option<f64>) -> Result<Self, String> {
         let shift = shift.unwrap_or(0.0);
         let zf = linear_space(shift, shift + depth, n + 1);
-        Self::create_from_coordinates(&zf)
+        Self::try_from(zf.as_slice())
     }
 
-    fn geometric(depth: f64, n: usize, d0: f64, d1: f64, shift: Option<f64>) -> Self {
+    pub fn geometric(
+        depth: f64,
+        n: usize,
+        d0: f64,
+        d1: f64,
+        shift: Option<f64>,
+    ) -> Result<Self, String> {
         let shift = shift.unwrap_or(0.0);
         let zf = geometric_space(shift, shift + depth, n + 1, d0, d1);
-        Self::create_from_coordinates(&zf)
+        Self::try_from(zf.as_slice())
     }
 
-    fn to_array(&self) -> Vec<f64> {
+    pub fn to_array(&self) -> Vec<f64> {
         let n_interior = self.interior.len();
         let n_total = n_interior + 2;
 
@@ -149,7 +160,7 @@ impl ImmersedNodeDomain1D {
         arr
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.interior.len() + 2
     }
 }
@@ -166,8 +177,8 @@ impl ImmersedNodeDomain1D {
         shift: Option<f64>,
         first_size: Option<f64>,
         last_size: Option<f64>,
-    ) -> Self {
-        match (first_size, last_size) {
+    ) -> PyResult<Self> {
+        let res = match (first_size, last_size) {
             (Some(d0), Some(d1)) => Self::geometric(depth, n, d0, d1, shift),
             (None, None) => Self::linear(depth, n, shift),
             _ => {
@@ -177,7 +188,9 @@ impl ImmersedNodeDomain1D {
                 );
                 Self::linear(depth, n, shift)
             }
-        }
+        };
+
+        res.map_err(pyo3::exceptions::PyValueError::new_err)
     }
 }
 
