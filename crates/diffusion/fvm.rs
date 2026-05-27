@@ -1,7 +1,4 @@
 use majordome_numerical::linear_algebra::TridiagonalSolverNonDestroying;
-use majordome_numerical::utilities::{geometric_space, linear_space};
-use majordome_utilities::text::exponential_fmt;
-use pyo3::prelude::*;
 
 pub struct DiffusionField1D {
     pub solver: TridiagonalSolverNonDestroying,

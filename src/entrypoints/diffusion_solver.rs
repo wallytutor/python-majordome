@@ -1,18 +1,16 @@
 use majordome_diffusion::interstitial::NonlinearDiffusionSolver;
-use majordome_diffusion::fvm::ImmersedNodeDomain1D;
+use majordome_fvm::ImmersedNodeDomain1D;
 use majordome_plotting::GnuplotInteractive;
 use mlua::prelude::*;
 use pyo3::prelude::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-
 thread_local! {
     static LUA_STATE: RefCell<Option<Lua>> = RefCell::new(None);
     static LUA_KEYS: RefCell<HashMap<String, mlua::RegistryKey>> = RefCell::new(HashMap::new());
     static LUA_DIFF_KEYS: RefCell<Vec<mlua::RegistryKey>> = RefCell::new(Vec::new());
 }
-
 
 fn evaluate_generic_diffusivity(species_idx: usize, c: &[f64], temp: f64) -> f64 {
     LUA_STATE.with(|state| {
@@ -35,7 +33,6 @@ fn evaluate_generic_diffusivity(species_idx: usize, c: &[f64], temp: f64) -> f64
         }
     })
 }
-
 
 #[pyfunction]
 #[pyo3(name = "diffusion_solver", signature = (args=None))]
@@ -126,7 +123,8 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
     };
 
     // Initial compositions (y0 list of vectors)
-    let y0_val = config_table.get::<mlua::Value>("y0")
+    let y0_val = config_table
+        .get::<mlua::Value>("y0")
         .map_err(|e| pyo3::exceptions::PyTypeError::new_err(e.to_string()))?;
 
     let mut y0 = Vec::new();
@@ -293,7 +291,8 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
     };
 
     // Diffusivity Models Setup (Dynamic table of callbacks)
-    let diffs_val = config_table.get::<mlua::Value>("diffusivities")
+    let diffs_val = config_table
+        .get::<mlua::Value>("diffusivities")
         .map_err(|e| pyo3::exceptions::PyTypeError::new_err(e.to_string()))?;
 
     match diffs_val {

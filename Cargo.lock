@@ -114,6 +114,7 @@ dependencies = [
  "majordome_calphad",
  "majordome_constants",
  "majordome_diffusion",
+ "majordome_fvm",
  "majordome_numerical",
  "majordome_plotting",
  "majordome_utilities",
