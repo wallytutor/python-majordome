@@ -21,7 +21,7 @@ pub mod handlers {
     // -----------------------------------------------------------------------
 
     #[pymodule_export]
-    use majordome_constants::majordome_constants;
+    use majordome_constants::constants;
 
     #[pymodule_export]
     use majordome_numerical::numerical;
