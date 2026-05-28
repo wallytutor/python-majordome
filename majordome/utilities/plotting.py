@@ -101,7 +101,7 @@ class MajordomePlot:
 
         return where
 
-    def add_curve(self, x: ArrayLike, y: ArrayLike, **kwargs) -> None:
+    def add_curve(self, x: ArrayLike, y: ArrayLike, *args, **kwargs) -> None:
         """ Add a curve to the plot.
 
         Parameters
@@ -110,11 +110,13 @@ class MajordomePlot:
             X-axis values.
         y : ArrayLike
             Y-axis values.
+        args
+            Positional arguments to pass to `Axes.plot()`.
         kwargs
             Additional keyword arguments to pass to `Axes.plot()`.
         """
         where = self._resolve_where(kwargs.pop("where", 0))
-        self._ax[where].plot(x, y, **kwargs)
+        self._ax[where].plot(x, y, *args, **kwargs)
 
     def xlabel(self, label: str | list[str], **kwargs) -> None:
         """ Add a label to the x-axis.
@@ -141,6 +143,47 @@ class MajordomePlot:
         """
         where = self._resolve_where(kwargs.pop("where", 0))
         self._ax[where].set_ylabel(label, **kwargs)
+
+    def legend(self, **kwargs) -> None:
+        """ Add a legend to the plot.
+
+        Parameters
+        ----------
+        kwargs
+            Additional keyword arguments to pass to `Axes.legend()`.
+        """
+        where = self._resolve_where(kwargs.pop("where", 0))
+        self._ax[where].legend(**kwargs)
+
+    def xlim(self, xmin: float, xmax: float, **kwargs) -> None:
+        """ Set the x-axis limits.
+
+        Parameters
+        ----------
+        xmin : float
+            Minimum value of the x-axis.
+        xmax : float
+            Maximum value of the x-axis.
+        kwargs
+            Additional keyword arguments to pass to `Axes.set_xlim()`.
+        """
+        where = self._resolve_where(kwargs.pop("where", 0))
+        self._ax[where].set_xlim(xmin, xmax, **kwargs)
+
+    def ylim(self, ymin: float, ymax: float, **kwargs) -> None:
+        """ Set the y-axis limits.
+
+        Parameters
+        ----------
+        ymin : float
+            Minimum value of the y-axis.
+        ymax : float
+            Maximum value of the y-axis.
+        kwargs
+            Additional keyword arguments to pass to `Axes.set_ylim()`.
+        """
+        where = self._resolve_where(kwargs.pop("where", 0))
+        self._ax[where].set_ylim(ymin, ymax, **kwargs)
 
     def resize(self, w: float, h: float) -> None:
         """ Resize a plot with width and height in inches.
