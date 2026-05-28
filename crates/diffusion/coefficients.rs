@@ -1,4 +1,4 @@
-use majordome_constants::GAS_CONSTANT;
+use majordome_constants::prelude::GAS_CONSTANT;
 use pyo3::prelude::*;
 use pyo3::types::{PyAny, PyList};
 

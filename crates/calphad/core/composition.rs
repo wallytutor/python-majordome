@@ -1,4 +1,4 @@
-use super::constant::get_atomic_weight;
+use super::get_atomic_weight;
 use super::substance::Substance;
 use pyo3::prelude::*;
 use std::collections::HashMap;

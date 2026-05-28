@@ -1,5 +1,5 @@
 use crate::coefficients::ArrheniusModifiedDiffusivity;
-use majordome_constants::GAS_CONSTANT;
+use ::majordome_constants::prelude::GAS_CONSTANT;
 use pyo3::prelude::*;
 
 fn composition_dependence(x: &[f64]) -> f64 {

@@ -1,5 +1,5 @@
 use crate::VERSION;
-use majordome_constants::*;
+use ::majordome_constants::prelude::*;
 use majordome_utilities::*;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyModule};
