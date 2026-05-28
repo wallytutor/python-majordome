@@ -1,8 +1,10 @@
 use pyo3::prelude::*;
 
-pub mod autodiff;
-pub mod linear_algebra;
-pub mod utilities;
+pub mod prelude;
+
+mod autodiff;
+mod linear_algebra;
+mod utilities;
 
 #[pymodule(name = "autodiff")]
 pub mod autodiff_py {

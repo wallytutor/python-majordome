@@ -1,4 +1,4 @@
-use majordome_numerical::autodiff::Numeric;
+use majordome_numerical::prelude::*;
 
 pub fn cp_shomate<T: Numeric>(a: T, b: T, c: T, d: T, e: T, t: T) -> T {
     let tt = t / T::from_f64(1000.0);

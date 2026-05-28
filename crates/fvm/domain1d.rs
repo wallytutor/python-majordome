@@ -4,8 +4,7 @@
 #![deny(unused_must_use)]
 #![deny(warnings)]
 
-use majordome_numerical::utilities::geometric_space;
-use majordome_numerical::utilities::linear_space;
+use majordome_numerical::prelude::*;
 use majordome_utilities::text::exponential_fmt;
 use pyo3::prelude::*;
 

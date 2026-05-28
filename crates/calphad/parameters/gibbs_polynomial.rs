@@ -1,4 +1,4 @@
-use majordome_numerical::autodiff::Numeric;
+use majordome_numerical::prelude::*;
 
 pub fn cp_gibbs_polynomial<T: Numeric>(c: T, d: T, e: T, f: T, g: T, t: T) -> T {
     // G = a + bT + cT ln T + dT^2 + eT^3 + fT^4 + g/T

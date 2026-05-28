@@ -1,6 +1,6 @@
 use super::constant::T_REF;
 use super::parameterization::{AggregationType, TemperatureRange};
-use majordome_numerical::autodiff::{Numeric, PyDual};
+use majordome_numerical::prelude::*;
 use majordome_utilities::text::exponential_fmt;
 use pyo3::prelude::*;
 use std::collections::HashMap;

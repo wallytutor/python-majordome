@@ -5,7 +5,7 @@ use crate::fvm::sherwood_number;
 use majordome_calphad::mixture::FractionConverter;
 use majordome_calphad::mixture::InterstitialConverter;
 use majordome_fvm::prelude::*;
-use majordome_numerical::linear_algebra::TridiagonalSolver;
+use majordome_numerical::prelude::*;
 use pyo3::prelude::*;
 
 struct SurfaceBoundaryState {

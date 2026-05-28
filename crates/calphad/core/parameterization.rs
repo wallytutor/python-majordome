@@ -1,7 +1,7 @@
 use super::constant::T_REF;
 use super::substance::Substance;
 use crate::parameters::*;
-use majordome_numerical::autodiff::Numeric;
+use majordome_numerical::prelude::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AggregationType {

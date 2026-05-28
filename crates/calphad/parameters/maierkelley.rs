@@ -1,4 +1,4 @@
-use majordome_numerical::autodiff::Numeric;
+use majordome_numerical::prelude::*;
 
 pub fn cp_maierkelley<T: Numeric>(a: T, b: T, c: T, t: T) -> T {
     a + b * t + c / (t * t)

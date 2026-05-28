@@ -1,4 +1,4 @@
-use majordome_numerical::linear_algebra::TridiagonalSolverNonDestroying;
+use majordome_numerical::prelude::*;
 
 pub struct DiffusionField1D {
     pub solver: TridiagonalSolverNonDestroying,

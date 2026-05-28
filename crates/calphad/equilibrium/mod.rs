@@ -3,10 +3,9 @@ use super::core::R_GAS;
 use super::core::Substance;
 use super::core::SystemComposition;
 use super::core::extract_elements;
-use majordome_numerical::linear_algebra;
+use majordome_numerical::prelude::*;
 use pyo3::prelude::*;
 use std::collections::HashMap;
-
 
 /// Represents the resolved thermodynamic state and chemical equilibrium of a system.
 ///
@@ -34,7 +33,6 @@ pub struct Equilibrium {
     pub pressure: f64,
     pub substances: Vec<Substance>,
 }
-
 
 #[pymethods]
 impl Equilibrium {
@@ -142,7 +140,6 @@ impl Equilibrium {
     }
 }
 
-
 /// Evaluates stoichiometric equilibrium via a Python interface.
 ///
 /// # Arguments
@@ -166,7 +163,6 @@ pub fn equilibrate_stoichiometric_py(
 
     equilibrate_stoichiometric(&refs, &b, t, p)
 }
-
 
 /// Find a particular solution to the mass balance equations A * phi = b.
 /// This uses a simple gradient descent on the squared error to find ANY solution
@@ -202,7 +198,6 @@ pub fn find_particular_solution(a: &[Vec<f64>], b: &[f64], n_s: usize, n_e: usiz
 
     phi
 }
-
 
 /// Find the global chemical equilibrium state of stoichiometric phases.
 /// Minimizes the total Gibbs free energy subject to elemental conservation.
@@ -295,7 +290,7 @@ pub fn equilibrate_stoichiometric(
             rhs[i] = sum_rhs;
         }
 
-        if let Some(x) = linear_algebra::dense_gaussian_solver(m, rhs) {
+        if let Some(x) = dense_gaussian_solver(m, rhs) {
             let mut phi = vec![0.0; n_s];
             let mut valid = true;
 

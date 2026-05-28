@@ -1,5 +1,5 @@
 use crate::core::R_GAS;
-use majordome_numerical::autodiff::Numeric;
+use majordome_numerical::prelude::*;
 
 pub fn cp_nasa7<T: Numeric>(a1: T, a2: T, a3: T, a4: T, a5: T, t: T) -> T {
     let poly = a1 + t * (a2 + t * (a3 + t * (a4 + t * a5)));
