@@ -19,7 +19,7 @@ description: Provides directives for generating and modifying Rust code.
 
 - Rust crates live under the `src/` or `crates/` directory and each crate has its own `Cargo.toml` file. Crates living under `crates/` have the `lib.rs` at the root of the crate directory (same as `Cargo.toml`) to avoid unnecessary nesting of directories in the tree.
 
-- Public code exported from submodule must be always explicitly listed in `mod.rs` files so that user code does not import from deep within the tree. For instance, using `use majordome_numerical::linear_algebra::tridiagonal::TridiagonalSolver;` is not allowed. Instead, use `use majordome_numerical::linear_algebra::TridiagonalSolver;`, where `TridiagonalSolver` is exposed by `linear_algebra::mod.rs`. In other words, the path inside the crate must be as short as possible. So, if a submodule is not meant to be used directly, it should not be exposed in `mod.rs`.
+- Public code exported from submodule and intended for use in Rust must be always explicitly listed in `prelude.rs` files so that user code does not import from deep within the tree. For instance, using `use majordome_numerical::linear_algebra::tridiagonal::TridiagonalSolver;` is not allowed. Instead, use `use majordome_numerical::prelude::TridiagonalSolver;` or `use majordome_numerical::prelude::*` if importing several functionalities, where `TridiagonalSolver` is exposed by `prelude.rs`. In other words, the path inside the crate must be as short as possible. So, if a submodule is not meant to be used directly, it should not be exposed in `prelude.rs`.
 
 - Not all crates are meant to be used directly. Some are internal implementation details.
 
@@ -30,6 +30,15 @@ description: Provides directives for generating and modifying Rust code.
 - Each module must be fully unit tested with tests under the `#[cfg(test)]` attribute for its own functionalities. Crates may use more complex integration tests as discussed above.
 
 - Ensure all tests pass with `cargo test` before proposing a change.
+
+- Ensure modules are picky with code style and use `cargo clippy` for linting. All new code MUST pass `cargo clippy` and include the following on top:
+```rust
+#![deny(clippy::unwrap_used)]
+#![deny(clippy::expect_used)]
+#![deny(clippy::panic)]
+#![deny(unused_must_use)]
+#![deny(warnings)]
+```
 
 ### Code style
 

@@ -90,7 +90,8 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
         .map_err(|e| pyo3::exceptions::PyTypeError::new_err(e.to_string()))?;
 
     // Create Grid
-    let grid = ImmersedNodeDomain1D::linear(depth, n_cells, None);
+    let grid: ImmersedNodeDomain1D = ImmersedNodeDomain1D::linear(depth, n_cells, None)
+        .map_err(pyo3::exceptions::PyValueError::new_err)?;
 
     // Extract species names list
     let species_names: Vec<String> = match config_table.get::<mlua::Table>("species") {

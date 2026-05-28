@@ -4,7 +4,7 @@ use crate::fvm::fourier_number_delta_sq;
 use crate::fvm::sherwood_number;
 use majordome_calphad::mixture::FractionConverter;
 use majordome_calphad::mixture::InterstitialConverter;
-use majordome_fvm::ImmersedNodeDomain1D;
+use majordome_fvm::prelude::*;
 use majordome_numerical::linear_algebra::TridiagonalSolver;
 use pyo3::prelude::*;
 
@@ -784,8 +784,9 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_carbonitriding_solver() {
-        let grid = ImmersedNodeDomain1D::linear(1e-3, 5, None);
+    fn test_carbonitriding_solver() -> Result<(), String> {
+        let grid = ImmersedNodeDomain1D::linear(1e-3, 5, None)?;
+
         let y0_c = vec![0.001; 5];
         let y0_n = vec![0.0005; 5];
         let time_points = vec![0.0, 10.0];
@@ -813,5 +814,7 @@ mod test {
 
         assert_eq!(solver.solver.results[0].profile.len(), 2);
         assert_eq!(solver.solver.results[1].profile.len(), 2);
+
+        Ok(())
     }
 }

@@ -2,6 +2,7 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 #![deny(unused_must_use)]
+#![deny(warnings)]
 
 use majordome_numerical::utilities::geometric_space;
 use majordome_numerical::utilities::linear_space;

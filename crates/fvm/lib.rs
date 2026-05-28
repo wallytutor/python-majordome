@@ -1,6 +1,9 @@
 use pyo3::prelude::*;
 
 mod domain1d;
+pub mod prelude;
+
+pub use domain1d::ImmersedNodeDomain1D;
 
 #[pymodule(name = "domain1d")]
 pub mod domain1d_py {
