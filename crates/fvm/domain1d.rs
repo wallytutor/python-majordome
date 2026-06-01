@@ -144,7 +144,7 @@ impl ImmersedNodeDomain1D {
         shift: Option<f64>,
     ) -> Result<Self, String> {
         let shift = shift.unwrap_or(0.0);
-        let zf = geometric_space(shift, shift + depth, n + 1, d0, d1);
+        let zf = geometric_space(shift, shift + depth, n + 1, d0, d1)?;
         Self::try_from(zf.as_slice())
     }
 

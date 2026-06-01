@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 majordome_constants = { git = "https://github.com/wallytutor/majordome-constants.git", package = "majordome-constants" }
-majordome_numerical = { path = "../numerical" }
+majordome_numerical = { git = "https://github.com/wallytutor/majordome-numerical.git", package = "majordome-numerical" }
 majordome_utilities = { path = "../utilities" }
 
 [dependencies.pyo3]
