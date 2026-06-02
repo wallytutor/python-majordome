@@ -1,3 +1,4 @@
+use majordome_utilities::prelude::*;
 use majordome_utilities::*;
 use pyo3::prelude::*;
 use std::env;
@@ -31,8 +32,8 @@ pub fn entrypoint(args: Option<Vec<String>>) {
     let has_sif = sif_file.exists();
 
     if config.cleanup {
-        remove_file_if_exists(&tar_file);
-        remove_file_if_exists(&sif_file);
+        remove_file_if_exists(tar_file);
+        remove_file_if_exists(sif_file);
     } else if has_tar || has_sif {
         print_warning!("existing files detected:");
         if config.generate_tar && has_tar {
@@ -131,7 +132,7 @@ impl ContainerConfig {
 
         print_error!("{}", message);
         if verbose {
-            ContainerConfig::usage(&name);
+            ContainerConfig::usage(name);
         }
         exit(1);
     }

@@ -15,7 +15,7 @@ pub mod handlers {
     /// Version of majordome.
     #[pyfunction]
     fn version() -> String {
-        format!("{}", super::VERSION)
+        super::VERSION.to_string()
     }
 
     // -----------------------------------------------------------------------

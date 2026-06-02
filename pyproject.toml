@@ -20,6 +20,7 @@ dependencies = [
     "gpxpy>=1.6.2",
     "hyperspy>=2.4.0",
     "ipython>=9.13.0",
+    "majordome-build",
     "markdown-it-py>=4.0.0",
     "matplotlib>=3.10.9",
     "numpy>=2.4.4",
@@ -93,6 +94,9 @@ cache-keys = [
     { file = "Cargo.toml" },
     { file = "Cargo.lock" },
 ]
+
+[tool.uv.sources]
+majordome-build = { git = "https://github.com/wallytutor/majordome-build.git" }
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "*_test.py"]

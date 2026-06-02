@@ -13,13 +13,12 @@ path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-majordome_calphad = { path = "crates/calphad" }
 majordome_constants = { git = "https://github.com/wallytutor/majordome-constants.git", package = "majordome-constants" }
+majordome_numerical = { git = "https://github.com/wallytutor/majordome-numerical.git", package = "majordome-numerical" }
+majordome_utilities = { git = "https://github.com/wallytutor/majordome-utilities.git", package = "majordome-utilities" }
+majordome_calphad = { path = "crates/calphad" }
 majordome_diffusion = { path = "crates/diffusion" }
 majordome_fvm = { path = "crates/fvm" }
-majordome_numerical = { path = "crates/numerical" }
-majordome_utilities = { path = "crates/utilities" }
-majordome_plotting = { path = "crates/plotting" }
 
 [dependencies.pyo3]
 version = "0.28.2"

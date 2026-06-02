@@ -57,7 +57,7 @@ fn comply_pep440(version: &str) -> String {
 
 fn get_git_output() -> Result<Output, std::io::Error> {
     Command::new("git")
-        .args(&["describe", "--tags", "--always", "--dirty"])
+        .args(["describe", "--tags", "--always", "--dirty"])
         .output()
 }
 

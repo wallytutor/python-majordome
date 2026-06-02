@@ -1,15 +1,17 @@
+#![allow(clippy::missing_const_for_thread_local)]
+
 use majordome_diffusion::interstitial::NonlinearDiffusionSolver;
 use majordome_fvm::ImmersedNodeDomain1D;
-use majordome_plotting::GnuplotInteractive;
+use majordome_utilities::prelude::*;
 use mlua::prelude::*;
 use pyo3::prelude::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
 thread_local! {
-    static LUA_STATE: RefCell<Option<Lua>> = RefCell::new(None);
+    static LUA_STATE: RefCell<Option<Lua>> = const { RefCell::new(None) };
     static LUA_KEYS: RefCell<HashMap<String, mlua::RegistryKey>> = RefCell::new(HashMap::new());
-    static LUA_DIFF_KEYS: RefCell<Vec<mlua::RegistryKey>> = RefCell::new(Vec::new());
+    static LUA_DIFF_KEYS: RefCell<Vec<mlua::RegistryKey>> = const { RefCell::new(Vec::new()) };
 }
 
 fn evaluate_generic_diffusivity(species_idx: usize, c: &[f64], temp: f64) -> f64 {
@@ -296,22 +298,19 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
         .get::<mlua::Value>("diffusivities")
         .map_err(|e| pyo3::exceptions::PyTypeError::new_err(e.to_string()))?;
 
-    match diffs_val {
-        mlua::Value::Table(t) => {
-            let mut keys = Vec::new();
-            for s in 0..num_species {
-                if let Ok(func) = t.get::<mlua::Function>(s + 1) {
-                    let key = lua
-                        .create_registry_value(func)
-                        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
-                    keys.push(key);
-                }
+    if let mlua::Value::Table(t) = diffs_val {
+        let mut keys = Vec::new();
+        for s in 0..num_species {
+            if let Ok(func) = t.get::<mlua::Function>(s + 1) {
+                let key = lua
+                    .create_registry_value(func)
+                    .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
+                keys.push(key);
             }
-            LUA_DIFF_KEYS.with(|diff_keys| {
-                *diff_keys.borrow_mut() = keys;
-            });
         }
-        _ => {}
+        LUA_DIFF_KEYS.with(|diff_keys| {
+            *diff_keys.borrow_mut() = keys;
+        });
     }
 
     let diffusivity_callback = Box::new(evaluate_generic_diffusivity);
@@ -347,8 +346,8 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
         for s in 0..num_species {
             species_profiles.push(solver.fields[s].concentration.clone());
         }
-        for s in 0..num_species {
-            arrays.push(&species_profiles[s]);
+        for profile in &species_profiles {
+            arrays.push(profile);
         }
 
         let mut gp = GnuplotInteractive::new();
@@ -362,14 +361,14 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
         gp.write("set yrange [0:*]");
 
         let mut plot_cmd = "plot".to_string();
-        for s in 0..num_species {
+        for (s, name) in species_names.iter().enumerate().take(num_species) {
             if s > 0 {
                 plot_cmd.push_str(", ");
             }
             plot_cmd.push_str(&format!(
                 "$data using 1:{} with lines title '{}'",
                 s + 2,
-                species_names[s]
+                name
             ));
         }
 

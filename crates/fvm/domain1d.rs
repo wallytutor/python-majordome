@@ -5,7 +5,7 @@
 #![deny(warnings)]
 
 use majordome_numerical::prelude::*;
-use majordome_utilities::text::exponential_fmt;
+use majordome_utilities::prelude::*;
 use pyo3::prelude::*;
 
 // ---------------------------------------------------------------------------

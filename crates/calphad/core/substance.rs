@@ -1,7 +1,7 @@
 use super::constant::T_REF;
 use super::parameterization::{AggregationType, TemperatureRange};
 use majordome_numerical::prelude::*;
-use majordome_utilities::text::exponential_fmt;
+use majordome_utilities::prelude::*;
 use pyo3::prelude::*;
 use std::collections::HashMap;
 
