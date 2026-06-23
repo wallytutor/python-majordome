@@ -16,7 +16,7 @@ crate-type = ["cdylib", "rlib"]
 majordome_constants = { git = "https://github.com/wallytutor/majordome-constants.git", package = "majordome-constants" }
 majordome_numerical = { git = "https://github.com/wallytutor/majordome-numerical.git", package = "majordome-numerical" }
 majordome_utilities = { git = "https://github.com/wallytutor/majordome-utilities.git", package = "majordome-utilities" }
-majordome_calphad = { path = "crates/calphad" }
+majordome_calphad = { git = "https://github.com/wallytutor/majordome-calphad.git", package = "majordome-calphad" }
 majordome_diffusion = { path = "crates/diffusion" }
 majordome_fvm = { path = "crates/fvm" }
 

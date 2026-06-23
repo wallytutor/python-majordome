@@ -111,15 +111,23 @@ dependencies = [
 name = "majordome"
 version = "1.2.0"
 dependencies = [
+ "majordome-calphad",
  "majordome-constants",
  "majordome-numerical",
  "majordome-utilities",
- "majordome_calphad",
  "majordome_diffusion",
  "majordome_fvm",
  "mlua",
  "pyo3",
  "serde_json",
+]
+
+[[package]]
+name = "majordome-calphad"
+version = "0.1.0"
+source = "git+https://github.com/wallytutor/majordome-calphad.git#4829af3cfc1e3d3a210aecf0568aafc3c5dcda2e"
+dependencies = [
+ "pyo3",
 ]
 
 [[package]]
@@ -147,24 +155,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "majordome_calphad"
-version = "0.1.0"
-dependencies = [
- "majordome-constants",
- "majordome-numerical",
- "majordome-utilities",
- "mlua",
- "pyo3",
-]
-
-[[package]]
 name = "majordome_diffusion"
 version = "0.1.0"
 dependencies = [
+ "majordome-calphad",
  "majordome-constants",
  "majordome-numerical",
  "majordome-utilities",
- "majordome_calphad",
  "majordome_fvm",
  "pyo3",
 ]
