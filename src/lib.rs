@@ -30,7 +30,7 @@ pub mod handlers {
     use majordome_calphad::calphad;
 
     #[pymodule_export]
-    use majordome_diffusion::diffusion;
+    use majordome_equations::diffusion_py;
 
     // -----------------------------------------------------------------------
 

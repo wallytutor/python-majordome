@@ -1,7 +1,6 @@
 #![allow(clippy::missing_const_for_thread_local)]
 
-use majordome_diffusion::interstitial::NonlinearDiffusionSolver;
-use majordome_fvm::ImmersedNodeDomain1D;
+use majordome_equations::prelude::*;
 use majordome_utilities::prelude::*;
 use mlua::prelude::*;
 use pyo3::prelude::*;
@@ -316,18 +315,20 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
     let diffusivity_callback = Box::new(evaluate_generic_diffusivity);
 
     // Run Simulation using generalized solver
-    let mut solver = NonlinearDiffusionSolver::new(
-        grid,
-        &y0,
-        time_points,
-        time_steps,
-        species_names.clone(),
-        molar_masses,
-        diffusivity_callback,
-        external_temperature,
-        external_coefficients,
-        external_potential,
-    );
+    let inputs = NonlinearDiffusionSolverInput {
+        grid: grid,
+        y0: y0,
+        time_points: time_points,
+        time_steps: time_steps,
+        species_names: species_names.clone(),
+        molar_masses: molar_masses,
+        diffusivity_callback: diffusivity_callback,
+        external_temperature: external_temperature,
+        external_coefficients: external_coefficients,
+        external_potential: external_potential,
+    };
+
+    let mut solver = NonlinearDiffusionSolver::new(inputs);
 
     // Run integration loop printing progress every 12 mins (72 steps if dt=10)
     let print_freq = std::cmp::max(1, (720.0 / dt) as usize);

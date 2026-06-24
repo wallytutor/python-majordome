@@ -10,9 +10,9 @@ checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
 
 [[package]]
 name = "bitflags"
-version = "2.11.1"
+version = "2.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4512299f36f043ab09a583e57bceb5a5aab7a73db1805848e8fef3c9e8c78b3"
+checksum = "b4388bee8683e3d04af747c73422af53102d2bd24d9eadb6cbc100baef4b43f8"
 
 [[package]]
 name = "bstr"
@@ -26,9 +26,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.62"
+version = "1.2.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1dce859f0832a7d088c4f1119888ab94ef4b5d6795d1ce05afb7fe159d79f98"
+checksum = "e228eec9be7c17ccb640b59b36a5cd805ea2a564a4c5e162c2f659fea30d3b96"
 dependencies = [
  "find-msvc-tools",
  "shlex",
@@ -113,10 +113,9 @@ version = "1.2.0"
 dependencies = [
  "majordome-calphad",
  "majordome-constants",
+ "majordome-equations",
  "majordome-numerical",
  "majordome-utilities",
- "majordome_diffusion",
- "majordome_fvm",
  "mlua",
  "pyo3",
  "serde_json",
@@ -125,16 +124,32 @@ dependencies = [
 [[package]]
 name = "majordome-calphad"
 version = "0.1.0"
-source = "git+https://github.com/wallytutor/majordome-calphad.git#4829af3cfc1e3d3a210aecf0568aafc3c5dcda2e"
+source = "git+https://github.com/wallytutor/majordome-calphad.git#91c1fa8175d6ce73b909db8342a08b2ff4fceea4"
 dependencies = [
+ "majordome-constants",
+ "majordome-numerical",
+ "majordome-utilities",
+ "mlua",
  "pyo3",
 ]
 
 [[package]]
 name = "majordome-constants"
 version = "0.1.0"
-source = "git+https://github.com/wallytutor/majordome-constants.git#7e4856050de014c18fc47a89a4fe34df9e4f1f87"
+source = "git+https://github.com/wallytutor/majordome-constants.git#5374f5fa9f2ff84589c9a4b5fea36d0e3452474a"
 dependencies = [
+ "pyo3",
+]
+
+[[package]]
+name = "majordome-equations"
+version = "0.1.0"
+source = "git+https://github.com/wallytutor/majordome-equations.git#f7104a18efc00c21376b1ed0e4c06ebd084ec08d"
+dependencies = [
+ "majordome-calphad",
+ "majordome-constants",
+ "majordome-numerical",
+ "majordome-utilities",
  "pyo3",
 ]
 
@@ -155,32 +170,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "majordome_diffusion"
-version = "0.1.0"
-dependencies = [
- "majordome-calphad",
- "majordome-constants",
- "majordome-numerical",
- "majordome-utilities",
- "majordome_fvm",
- "pyo3",
-]
-
-[[package]]
-name = "majordome_fvm"
-version = "0.1.0"
-dependencies = [
- "majordome-constants",
- "majordome-numerical",
- "majordome-utilities",
- "pyo3",
-]
-
-[[package]]
 name = "memchr"
-version = "2.8.1"
+version = "2.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b947ae49db0d222b1dbc6b113ce7248a3fc3a6ca21b696717bfc000ba4484d8"
+checksum = "88904434abc2901f197fe8cc55f0445e7ded921dba5911dad2e2b39b48e663c4"
 
 [[package]]
 name = "mlua"
@@ -332,9 +325,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.45"
+version = "1.0.46"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924"
+checksum = "dfbc457d0c7a0759a614551b11a6409e5951f6c7537be1f1b7682b9ae9230368"
 dependencies = [
  "proc-macro2",
 ]
@@ -410,21 +403,21 @@ dependencies = [
 
 [[package]]
 name = "shlex"
-version = "1.3.0"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "smallvec"
-version = "1.15.1"
+version = "1.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
+checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
 
 [[package]]
 name = "syn"
-version = "2.0.117"
+version = "2.0.118"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99"
+checksum = "1b9ae57f904213ebb649ce6895b8a66c66f0203b9319718f69a5612a065b1422"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -445,9 +438,9 @@ checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 
 [[package]]
 name = "which"
-version = "8.0.2"
+version = "8.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81995fafaaaf6ae47a7d0cc83c67caf92aeb7e5331650ae6ff856f7c0c60c459"
+checksum = "48d7cd18d4acb58fb3cdfe9ea54e6cd96a4e7d4cc45c56338b236e82dad47248"
 dependencies = [
  "libc",
 ]
