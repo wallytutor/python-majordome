@@ -42,10 +42,6 @@ book:
         - diffusion/sample-intro.qmd
         - diffusion/sample-thesis.qmd
 
-    - part: "Development"
-      chapters:
-      - devel/python.md
-
     - references.qmd
 
 bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
