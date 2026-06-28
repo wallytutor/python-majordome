@@ -171,10 +171,6 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
         pts
     };
 
-    let time_steps = vec![dt; time_points.len().saturating_sub(1)];
-
-    // Boundary potential, coefficients and temperature callables
-
     // 1. External Temperature
     let temp_val = config_table
         .get::<mlua::Value>("temperature")
@@ -319,7 +315,6 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
         grid: grid,
         y0: y0,
         time_points: time_points,
-        time_steps: time_steps,
         species_names: species_names.clone(),
         molar_masses: molar_masses,
         diffusivity_callback: diffusivity_callback,
@@ -330,7 +325,6 @@ pub fn entrypoint(args: Option<Vec<String>>) -> PyResult<()> {
 
     let mut solver = NonlinearDiffusionSolver::new(inputs);
 
-    // Run integration loop printing progress every 12 mins (72 steps if dt=10)
     let print_freq = std::cmp::max(1, (720.0 / dt) as usize);
     solver.integrate(print_freq);
 
