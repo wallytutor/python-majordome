@@ -19,6 +19,13 @@ majordome_utilities = { git = "https://github.com/wallytutor/majordome-utilities
 majordome_calphad = { git = "https://github.com/wallytutor/majordome-calphad.git", package = "majordome-calphad" }
 majordome_equations = { git = "https://github.com/wallytutor/majordome-equations.git", package = "majordome-equations" }
 
+# For local development (avoid cloning, do not commit this)
+# majordome_constants = { path = "../majordome-constants" }
+# majordome_numerical = { path = "../majordome-numerical" }
+# majordome_utilities = { path = "../majordome-utilities" }
+# majordome_calphad = { path = "../majordome-calphad" }
+# majordome_equations = { path = "../majordome-equations" }
+
 [dependencies.pyo3]
 version = "0.28.2"
 features = ["extension-module", "abi3-py312", "multiple-pymethods"]

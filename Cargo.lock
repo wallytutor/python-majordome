@@ -16,12 +16,12 @@ checksum = "b4388bee8683e3d04af747c73422af53102d2bd24d9eadb6cbc100baef4b43f8"
 
 [[package]]
 name = "bstr"
-version = "1.12.1"
+version = "1.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63044e1ae8e69f3b5a92c736ca6269b8d12fa7efe39bf34ddb06d102cf0e2cab"
+checksum = "5cee35f73844aa3014bb606320a6c1f010249dbdf43342fe54b5a4f6a8ed4b79"
 dependencies = [
  "memchr",
- "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -144,7 +144,7 @@ dependencies = [
 [[package]]
 name = "majordome-equations"
 version = "0.1.0"
-source = "git+https://github.com/wallytutor/majordome-equations.git#f7104a18efc00c21376b1ed0e4c06ebd084ec08d"
+source = "git+https://github.com/wallytutor/majordome-equations.git#d2cabe81669035cc54d0f26ea5011c5a87cccc05"
 dependencies = [
  "majordome-calphad",
  "majordome-constants",
