@@ -5,7 +5,7 @@ jupyter:
       extension: .qmd
       format_name: quarto
       format_version: '1.0'
-      jupytext_version: 1.19.1
+      jupytext_version: 1.19.4
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -318,8 +318,6 @@ StandardProblem.full_expression()
 ```{python}
 # Break
 ```
-
-
 
 Let's start by the Dirichlet, or fixed concentration, boundary condition (type 1), for which the concentration at the boundary face is prescribed, *i.e.* $c_{\text{B}} = c_{\text{prescribed}}$. Notice that before using this we need to make a choice regarding the computational grid (mesh); you could have half-volumes on boundaries, fictitious volumes (sometimes called ghost cells), or immersed nodes over the boundary.
 

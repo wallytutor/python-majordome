@@ -39,8 +39,7 @@ book:
       chapters:
         - diffusion/index.qmd
         - diffusion/slycke.qmd
-        - diffusion/sample-intro.qmd
-        - diffusion/sample-thesis.qmd
+        - diffusion/sample.qmd
 
     - references.qmd
 
