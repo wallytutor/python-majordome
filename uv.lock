@@ -2073,6 +2073,8 @@ docs = [
     { name = "ipykernel" },
     { name = "jupyter-cache" },
     { name = "jupyter-client" },
+    { name = "jupyterlab" },
+    { name = "jupytext" },
     { name = "pythonnet" },
 ]
 recommended = [
@@ -2108,7 +2110,9 @@ requires-dist = [
     { name = "ipython", specifier = ">=9.13.0" },
     { name = "jupyter-cache", marker = "extra == 'docs'", specifier = ">=1.0.1" },
     { name = "jupyter-client", marker = "extra == 'docs'", specifier = ">=8.8.0" },
+    { name = "jupyterlab", marker = "extra == 'docs'", specifier = ">=4.5.6" },
     { name = "jupyterlab", marker = "extra == 'recommended'", specifier = ">=4.5.6" },
+    { name = "jupytext", marker = "extra == 'docs'", specifier = ">=1.19.1" },
     { name = "jupytext", marker = "extra == 'recommended'", specifier = ">=1.19.1" },
     { name = "majordome-build", git = "https://github.com/wallytutor/majordome-build.git" },
     { name = "markdown-it-py", specifier = ">=4.0.0" },

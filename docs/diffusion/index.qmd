@@ -1,4 +1,22 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.19.1
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
 # Diffusion in solids
+
+```{python}
+# Break
+```
 
 Assume a simple concentration-dependent diffusion in the absence of external driving forces; in this introduction we chose to *model* the diffusive flux through Fick's constitutive (first) law stated below, where $D$ is the diffusion coefficient that may depend on position $x$ and/or concentration $c$, *i.e.* $D\equiv{}D(x, c)$. It states that diffusive flux of an species has the composition gradient as a driver force; the negative sign indicates that diffusion occurs from high to low concentration regions.
 
@@ -17,6 +35,10 @@ $$
 $$
 
 This is the form of the diffusion equation that is discussed in what follows.
+
+```{python}
+# Break
+```
 
 ## System discretization
 
@@ -233,7 +255,11 @@ eq.tabulate(variables=[c_0, c_E, c_P, c_W, c_G, c_B])
 ```
 
 ## Boundary conditions
-ce
+
+```{python}
+# Break
+```
+
 So far all we have derived are the internal balances of the system, we still lack proper boundary conditions. It should be evident by now that we have formulated a tridiagonal matrix for representing the 1-D system: there are 3 unknowns at step $\tau$ ($c_W$, $c_P$, and $c_E$) and a currently known *field* $c_0$.
 
 In what follows we will workout the three families of boundary conditions: Dirichlet (type 1), Neumann (type 2), and the more general Robin (type 3). Following this sequence will create the required intuition for deriving the progressively more complex conditions. In practice, for diffusion in solids often only the implementation of Robin conditions is required, as it will be discussed later. Our goal at presenting types 1 and 2 is simply to introduce the tooling required for working out type 3 boundary condition; they will not be treated in full detail, leaving the full discussion for later.
@@ -288,6 +314,12 @@ StandardProblem.full_expression()
 ```
 
 ### Type 1 BC - Dirichlet {#sec-type-1-bc-dirichlet}
+
+```{python}
+# Break
+```
+
+
 
 Let's start by the Dirichlet, or fixed concentration, boundary condition (type 1), for which the concentration at the boundary face is prescribed, *i.e.* $c_{\text{B}} = c_{\text{prescribed}}$. Notice that before using this we need to make a choice regarding the computational grid (mesh); you could have half-volumes on boundaries, fictitious volumes (sometimes called ghost cells), or immersed nodes over the boundary.
 
@@ -359,7 +391,15 @@ eq.tabulate()
 
 :::
 
+```{python}
+# Break
+```
+
 ### Type 2 BC - Neumann
+
+```{python}
+# Break
+```
 
 Next, let's handle Neumann boundary condition (type 2). For a fixed flux boundary condition, the flux at the boundary is prescribed at $q_{B}$. A special case arises when one imposes zero flux (impermeable boundary for mass transfer, adiabatic boundary for heat transfer) where $q_{B}=0$. It is worthless formulating the problem for this case as the equation is trivial, so we will assume a general $q_{B}$ in what follows.
 
@@ -383,7 +423,15 @@ $$
 
 We will not elaborate more as the most relevant condition represented by this class, the impermeable condition, can be represented with a type 3 boundary condition by setting the mass transfer coefficient $h$ to zero.
 
+```{python}
+# Break
+```
+
 ### Type 3 BC - Robin
+
+```{python}
+# Break
+```
 
 Finally, we generalize the above discussion for a Robin boundary condition (type 3). Also known as a convective or mixed boundary condition. In this case the flux is proportional to the concentration difference between the boundary and a reference external composition $c_{\infty}$. This often models mass transfer between a reacting fluid and a solid, but the discussion of boundary layer formation is out of the present scope and we summarize it simply by the mass transfer coefficient $h$.
 
@@ -469,6 +517,10 @@ eq.tabulate()
 
 ## Arbitrary grid spacing
 
+```{python}
+# Break
+```
+
 For establishing the equations for an arbitrary grid spacing in 1-D, we move forward to a more general derivation. Instead of expressing the problem over a single coordinate, we introduce the control volume $V$ that will be revisited again when solving for 3-D geometries. For convenience the minus sign is moved outside the integral in what follows.
 
 $$
@@ -485,6 +537,10 @@ $$
 \int_{S}\vec{J}\cdot\vec{n}\:dS=
 \sum_{f}J_{f}A_{f}
 $$
+
+```{python}
+# Break
+```
 
 Substituting this result back into the original equation and integrating the left-hand side over time gives:
 
@@ -508,6 +564,10 @@ $$
     -J_{e}(+\hat{i})A_{e}(+\hat{i})
 $$
 
+```{python}
+# Break
+```
+
 Notice that as we are dealing with the actual surfaces, the signs of the terms will be naturally handled by the flux definitions. The final step consists of substituting the expressions for the diffusive fluxes at each face, which can be approximated using finite differences. Below we account already for the face orientation (sign). For the west face:
 
 $$
@@ -527,6 +587,10 @@ $$
 D_{w}\dfrac{c_{W}-c_{P}}{\delta_{w}}A_{w}+
 D_{e}\dfrac{c_{E}-c_{P}}{\delta_{e}}A_{e}
 $$
+
+```{python}
+# Break
+```
 
 Rearranging terms leads to the final discrete equation for an arbitrary grid spacing in 1-D implicit formulation:
 
@@ -554,14 +618,18 @@ $$
 c_{P}^{0}
 $$
 
+```{python}
+# Break
+```
+
 The interpolation of the diffusivities is no longer a simply harmonic mean as in the case of uniform grid spacing, but it can be computed using the diffusivity values at the neighboring nodes and the distances to the faces. For interface $ij$ we have:
 
 $$
 D_{ij}=
-\dfrac{\Delta_{ij}}{D_{i}\delta_{i}^{-1}/2 + D_{j}\delta_{j}^{-1}/2}
-=
-\dfrac{(\delta_{i}+\delta_{j})/2}{D_{i}\delta_{i}^{-1}/2 + D_{j}\delta_{j}^{-1}/2}
-=
+\dfrac{\Delta_{ij}}{D_{i}\delta_{i}^{-1}/2 + D_{j}\delta_{j}^{-1}/2} =
+%
+\dfrac{(\delta_{i}+\delta_{j})/2}{D_{i}\delta_{i}^{-1}/2 + D_{j}\delta_{j}^{-1}/2} =
+%
 \dfrac{(\delta_{i}+\delta_{j})}{D_{i}/\delta_{i} + D_{j}/\delta_{j}}
 $$
 
@@ -574,6 +642,10 @@ $$
 D_{b}\dfrac{c_{B}-c_{P}}{\frac{1}{2}\delta_{P}}A_{b}=
 hA_{b}(c_{\infty}-c_{B})
 $$
+
+```{python}
+# Break
+```
 
 Applying this expression to the full problem, we have that the length squared to be used in the Fourier number for the boundary is $\delta_{P}^{2}/2$. Before simplifying this expression to find out $c_{B}$ it is worth introducing the [Sherwood number](Sherwood%20number%20-%20Wikipedia) $\mathcal{Sh}$ defined as follows, where $L$ represents a characteristic length of the problem and $D$ the diffusion coefficient; here $L=\delta_{P}/2$ as half-cell length was used in flux computations and
 
