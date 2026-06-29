@@ -144,7 +144,7 @@ dependencies = [
 [[package]]
 name = "majordome-equations"
 version = "0.1.0"
-source = "git+https://github.com/wallytutor/majordome-equations.git#d2cabe81669035cc54d0f26ea5011c5a87cccc05"
+source = "git+https://github.com/wallytutor/majordome-equations.git#93d1cdb3e9f613317cd05120b88f4cf0ab9569ba"
 dependencies = [
  "majordome-calphad",
  "majordome-constants",
