@@ -270,7 +270,12 @@ class GmshOCCModel:
 
         return objs
 
-    def rotate_all_nodes(self,axis: str | TrupleAny, angle: float) -> None:
+    def rotate_all_nodes(self,
+            axis: str | TrupleAny,
+            angle: float,
+            snap_axis: str | None = None,
+            axis_tolerance: float = 1.0e-06
+        ) -> None:
         """ Produces a rotation matrix over the given axis.
 
         Parameters
@@ -279,12 +284,32 @@ class GmshOCCModel:
             Rotation axis (a direction tuple or any of 'x', 'y', 'z').
         angle: float
             The overall rotation angle in degrees.
+        snap_axis: str | None = None
+            Enforce snap values to axis.
+        axis_tolerance: float = 1.0e-06
+            Tolerance for snapping to axis.
         """
         node_tags, coords, _ = self._model.mesh.getNodes()
         nodes = coords.reshape(-1, 3)
 
         R = rotation_matrix(axis, angle)
         rotated_nodes = nodes @ R.T
+
+        if snap_axis is not None:
+            # Snap nodes near the to exact zero.
+            # TODO generalize to any axis to match its line.
+            match snap_axis.strip().lower():
+                case "x":
+                    nodes[np.abs(nodes[:, 1]) < axis_tolerance, 1] = 0.0
+                    nodes[np.abs(nodes[:, 2]) < axis_tolerance, 2] = 0.0
+                case "y":
+                    nodes[np.abs(nodes[:, 0]) < axis_tolerance, 0] = 0.0
+                    nodes[np.abs(nodes[:, 2]) < axis_tolerance, 2] = 0.0
+                case "z":
+                    nodes[np.abs(nodes[:, 0]) < axis_tolerance, 0] = 0.0
+                    nodes[np.abs(nodes[:, 1]) < axis_tolerance, 1] = 0.0
+                case "_":
+                    raise ValueError(f"Unknonw axis {snap_axis}")
 
         for tag, coord in zip(node_tags, rotated_nodes):
             self._model.mesh.setNode(int(tag), coord.tolist(), [])
@@ -1107,6 +1132,8 @@ def rotation_matrix(axis: str | TrupleAny, angle: float):
                     [sin_t,  cos_t, 0],
                     [    0,      0, 1]
                 ])
+            case "_":
+                raise ValueError(f"Unknonw axis {axis}")
     else:
         axis = np.asarray(axis, dtype=float)
         axis = axis / np.linalg.norm(axis)  # Normalize axis vector
