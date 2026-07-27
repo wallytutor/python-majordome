@@ -229,6 +229,49 @@ class GmshOCCModel:
         usedims = self._occ.copy(dimtags) if copy else dimtags
         self._occ.symmetrize(usedims, *plane_equation)
 
+    def transform_openfoam_wedge(self,
+            tags: list[int],
+            origin: TrupleAny,
+            vector: TrupleAny,
+            angle: float = 5.0
+        ) -> list[tuple[int, int]]:
+        """ Extrude-rotate 2D entities to produce an OpenFOAM wedge.
+
+        Parameters
+        ----------
+        tags: list[int]
+            Tags of 2D entities to be used as base plane.
+        origin: TrupleAny
+            Origin of reference for revolution.
+        vector: TrupleAny
+            Direction vector for revolution.
+        angle: float = 5.0
+            Wedge angle (keep less than or equal to 5 after debug).
+        """
+        objs = self._occ.revolve(
+            [(2, t) for t in tags],
+            *origin,
+            *vector,
+            angle = np.deg2rad(angle),
+            numElements = [1],
+            heights     = [1.0],
+            recombine   = True
+        )
+        self.synchronize()
+
+        return objs
+
+    def recombine_surface(self, tag: int, **kws) -> None:
+        """ Apply recombine constraint to 2D entities.
+
+        Parameters
+        tag: int
+            The entity to be recombined.
+        kws: dict
+            Any keyword provided to `gmsh.model.mesh.setRecombine`.
+        """
+        self.set_recombine(2, tag, **kws)
+
     def get_length(self, line_tag: int) -> float:
         """ Get the length of a line given its tag. """
         return self.get_mass(1, line_tag)
