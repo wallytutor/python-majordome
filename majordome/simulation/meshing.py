@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+
 import itertools
+
 from typing import Any, Callable, Self
 
 import gmsh
 import numpy as np
+
 from numpy.typing import NDArray
 
 AnyNumber = int | float | np.number
@@ -20,11 +23,14 @@ class GmshOCCModel:
         Whether to launch the Gmsh GUI after building the model.
     name : str, optional
         Name of the Gmsh model.
-    ks : dict
+    config : dict
         Provide configuration for gmsh internals.
     """
-    def __init__(self, *, render: bool = False, name: str = "domain",
-                 **kws) -> None:
+    def __init__(self, *,
+            render: bool = False,
+            name: str = "domain",
+            config: dict[str, Any],
+        ) -> None:
         self._render = render
 
         if gmsh.is_initialized():
@@ -49,9 +55,9 @@ class GmshOCCModel:
             "Geometry.Surfaces": True,
         }
         options = default_options.copy()
-        options.update(kws)
+        options.update(config)
 
-        self.configure(**options)
+        self.configure(options)
 
     def _aliases(self):
         """ Aliases for the Gmsh API to simplify usage. """
