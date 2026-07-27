@@ -233,9 +233,15 @@ class GmshOCCModel:
             tags: list[int],
             origin: TrupleAny,
             vector: TrupleAny,
-            angle: float = 5.0
+            angle: float = 4.0
         ) -> list[tuple[int, int]]:
         """ Extrude-rotate 2D entities to produce an OpenFOAM wedge.
+
+        Please notice that this does not ensure a compliant wedge. After
+        meshing, you must call `model.rotate_all_nodes` with minus half
+        the angle you provided here if the original surface was over one
+        of the cartesian planes. Otherwise, you may try to fix the mesh
+        with `transformPoints` and appropriate options in OpenFOAM.
 
         Parameters
         ----------
@@ -245,21 +251,43 @@ class GmshOCCModel:
             Origin of reference for revolution.
         vector: TrupleAny
             Direction vector for revolution.
-        angle: float = 5.0
+        angle: float = 4.0
             Wedge angle (keep less than or equal to 5 after debug).
         """
+        angle = np.deg2rad(angle)
+
         objs = self._occ.revolve(
             [(2, t) for t in tags],
             *origin,
             *vector,
-            angle = np.deg2rad(angle),
+            angle = angle ,
             numElements = [1],
             heights     = [1.0],
             recombine   = True
         )
+
         self.synchronize()
 
         return objs
+
+    def rotate_all_nodes(self,axis: str | TrupleAny, angle: float) -> None:
+        """ Produces a rotation matrix over the given axis.
+
+        Parameters
+        ----------
+        axis: str | TrupleAny
+            Rotation axis (a direction tuple or any of 'x', 'y', 'z').
+        angle: float
+            The overall rotation angle in degrees.
+        """
+        node_tags, coords, _ = self._model.mesh.getNodes()
+        nodes = coords.reshape(-1, 3)
+
+        R = rotation_matrix(axis, angle)
+        rotated_nodes = nodes @ R.T
+
+        for tag, coord in zip(node_tags, rotated_nodes):
+            self._model.mesh.setNode(int(tag), coord.tolist(), [])
 
     def recombine_surface(self, tag: int, **kws) -> None:
         """ Apply recombine constraint to 2D entities.
@@ -1043,3 +1071,67 @@ def get_extrusion_tags(new_tags: list[tuple[int, int]], source_dim: int
             break
 
     return extruded_super, extruded_ndim
+
+
+def rotation_matrix(axis: str | TrupleAny, angle: float):
+    """ Produces a rotation matrix over the given axis.
+
+    Parameters
+    ----------
+    axis: str | TrupleAny
+        Rotation axis (a direction tuple or any of 'x', 'y', 'z').
+    angle: float
+        The overall rotation angle in degrees.
+    """
+    theta = np.deg2rad(angle)
+
+    if isinstance(axis, str):
+        cos_t, sin_t = np.cos(theta), np.sin(theta)
+
+        match axis.strip().lower():
+            case "x":
+                R = np.array([
+                    [1,     0,      0],
+                    [0, cos_t, -sin_t],
+                    [0, sin_t,  cos_t]
+                ])
+            case "y":
+                R = np.array([
+                    [ cos_t, 0, sin_t],
+                    [     0, 1,     0],
+                    [-sin_t, 0, cos_t]
+                ])
+            case "z":
+                R = np.array([
+                    [cos_t, -sin_t, 0],
+                    [sin_t,  cos_t, 0],
+                    [    0,      0, 1]
+                ])
+    else:
+        axis = np.asarray(axis, dtype=float)
+        axis = axis / np.linalg.norm(axis)  # Normalize axis vector
+
+        ux, uy, uz = axis
+        cos_t = np.cos(theta)
+        sin_t = np.sin(theta)
+        one_minus_cos = 1.0 - cos_t
+
+        R = np.array([
+            [
+                cos_t + ux**2 * one_minus_cos,
+                ux * uy * one_minus_cos - uz * sin_t,
+                ux * uz * one_minus_cos + uy * sin_t
+            ],
+            [
+                uy * ux * one_minus_cos + uz * sin_t,
+                cos_t + uy**2 * one_minus_cos,
+                uy * uz * one_minus_cos - ux * sin_t
+            ],
+            [
+                uz * ux * one_minus_cos - uy * sin_t,
+                uz * uy * one_minus_cos + ux * sin_t,
+                cos_t + uz**2 * one_minus_cos
+            ]
+        ])
+
+    return R
