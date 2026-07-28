@@ -88,6 +88,8 @@ class GmshOCCModel:
         self.remove            = occ.remove
         self.fragment          = occ.fragment
         self.extrude           = occ.extrude
+        self.revolve           = occ.revolve
+        self.rotate            = occ.rotate
         self.synchronize       = occ.synchronize
         self.translate         = occ.translate
 
@@ -356,10 +358,10 @@ class GmshOCCModel:
         return group
 
     def add_physical_groups(self, *,
-                            curves: list[dict[str, Any]] | None = None,
-                            surfaces: list[dict[str, Any]] | None = None,
-                            volumes: list[dict[str, Any]] | None = None,
-                                ) -> None:
+            curves: list[dict[str, Any]] | None = None,
+            surfaces: list[dict[str, Any]] | None = None,
+            volumes: list[dict[str, Any]] | None = None,
+        ) -> None:
         """ Add multiple physical groups from a list of dictionaries. """
         if curves is not None:
             for entry in curves:
