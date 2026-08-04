@@ -61,11 +61,13 @@ function Update-PackageVersion {
     # Update the version according to the input:
     if ($isBump) {
         uv version --bump $version
-        cargo set-version $version
     } else {
         uv version $version
-        cargo set-version $version
     }
+
+    # cargo set-version no longer support bump...
+    $pyprojectVersion = Get-TomlSectionVersion "pyproject.toml"  "project"
+    cargo set-version $pyprojectVersion
 
     return $currentTag
 }
