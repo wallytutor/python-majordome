@@ -61,7 +61,7 @@ function Update-PackageVersion {
     # Update the version according to the input:
     if ($isBump) {
         uv version --bump $version
-        cargo set-version --bump $version
+        cargo set-version $version
     } else {
         uv version $version
         cargo set-version $version
