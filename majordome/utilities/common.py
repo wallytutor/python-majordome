@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+
 import functools
 import os
 import re
 import sys
 import unicodedata
+
 from abc import ABC, abstractmethod
 from collections import deque
 from decimal import Decimal, getcontext
@@ -17,7 +19,9 @@ import numpy as np
 import pandas as pd
 import requests
 import shutil
+
 from IPython import embed
+from IPython.display import Markdown, display
 from tabulate import tabulate
 
 from ..data import DATA
@@ -36,8 +40,21 @@ class AbstractReportable(ABC):
     def report(self, *args, **kwargs) -> str:
         """ Provides a report of the object. """
         data = self.report_data(*args, **kwargs)
+
+        notebook = kwargs.pop("notebook", False)
         tablefmt = kwargs.pop("tablefmt", "github")
-        return tabulate(data, tablefmt=tablefmt, **kwargs)
+
+        table = tabulate(data, tablefmt=tablefmt, **kwargs)
+
+        if notebook:
+            display(Markdown(table))
+
+        return table
+
+    def display(self, *args, **kwargs) -> None:
+        """ Displays a report of the object. """
+        notebook = kwargs.pop("notebook", True)
+        self.report(*args, notebook=notebook, **kwargs)
 
 
 class ReadTextData:
