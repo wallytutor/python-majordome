@@ -89,6 +89,9 @@ In addition to what is described in the manual release section below, developers
 - Make sure the package builds in both Windows and Linux, and that the documentation builds (many tests are included in the documentation, so this is a good sanity check for the code as well). The following commands provide a good starting point for the verifications in Windows:
 
     ```bash
+    # If not yet available, install set-version:
+    cargo install cargo-set-version
+
     # Check the sanity of the package:
     cargo check
 
@@ -141,6 +144,9 @@ The release script is useful but it can be fragile; it is better to have a fall-
 - Update the version in both `Cargo.toml` and `pyproject.toml`:
 
     ```bash
+    # If not yet available, install set-version:
+    cargo install cargo-set-version
+
     # First, test with --dry-run to check the changes that will be made:
     uv version --bump $version --dry-run
     cargo set-version --bump $version --dry-run
