@@ -10,7 +10,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.cargo/bin:/root/.local/bin:${PATH}"
 
 # Copy only files needed for wheel build.
-COPY pyproject.toml Cargo.toml Cargo.lock build.rs README.md LICENSE /io/
+COPY pyproject.toml Cargo.toml Cargo.lock README.md LICENSE /io/
 COPY src /io/src
 COPY majordome /io/majordome
 
