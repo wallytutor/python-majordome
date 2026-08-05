@@ -117,9 +117,14 @@ function Start-ReleaseBuild {
     Write-Host -ForegroundColor Green "`n> Building Linux executable..."
     $wslPath = (wsl wslpath $PsScriptRoot.Replace("\", "/"))
     $command = "cd $wslPath && source ~/.bashrc && ./release.sh"
-    wsl -d $script:WslName -- bash -c $command
 
-    if ($LASTEXITCODE -ne 0) { throw "Linux build failed." }
+    try {
+        wsl -d $script:WslName -- bash -c $command
+        if ($LASTEXITCODE -ne 0) { throw "Linux build failed." }
+    } catch {
+        wsl -- bash -c $command
+        if ($LASTEXITCODE -ne 0) { throw "Linux build failed." }
+    }
 
     if ($CommitChanges) {
         Write-Host -ForegroundColor Green "`n> Committing $newVersion..."
