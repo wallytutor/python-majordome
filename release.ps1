@@ -1,6 +1,7 @@
 param (
     [Parameter(Mandatory=$true)]
     [string]$Version,
+    [switch]$Docs,
     [switch]$Force
 )
 
@@ -198,7 +199,11 @@ function Start-Workflow {
     }
 
     $newVersion = Start-ReleaseBuild $Version $commitChanges | Select-Object -Last 1
-    Start-DocumentationBuild
+
+    if ($Docs) {
+        Start-DocumentationBuild
+    }
+
     Start-GitHubRelease $newVersion
 }
 

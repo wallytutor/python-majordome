@@ -4,6 +4,8 @@
 
 - Fixed `Containerfile` and Linux build workflow based on the new project structure.
 
+- Because documentation is under revision, its automatic creation has been disabled in the release script and now requires the `-Docs` switch. This is a temporary measure and will be re-enabled once the documentation is updated.
+
 ## 1.3.0 - 2026-08-04
 
 - Add keywork `notebook` to `AbstractReportable` so that user code no longer needs to use a `display(Markdown(...))` boilerplate code.
