@@ -1,17 +1,91 @@
 # -*- coding: utf-8 -*-
+
 import re
+
+from abc import ABC, abstractmethod
+from io import StringIO
 from pathlib import Path
-from typing import Callable
 
 import pandas as pd
 import polars as pl
 
 
-class FoamTabularData:
+class AbstractFoamDataLoader(ABC):
+    """ Abstract interface for loading multiple postProcessing files.
+
+    Parameters
+    ----------
+    files : list[Path]
+        List of files to load.
+    kwargs
+        Additional keyword arguments to pass to the loader function.
+    """
+
+    __slots__ = ("_df",)
+
+    def __init__(self, files: list[Path], **kwargs) -> None:
+        data_frames = [self.loader(file, **kwargs) for file in files]
+        self._df = pd.concat(data_frames, ignore_index=True)
+        self._df.columns = self.get_header(files[0])
+
+    @property
+    def table(self) -> pd.DataFrame:
+        """ Provides access to a copy of loaded data. """
+        return self._df.copy()
+
+    @abstractmethod
+    def get_header(self, fname: str | Path) -> list[str]:
+        """ Loads header of data file.
+
+        Parameters
+        ----------
+        fname : str | Path
+            The path to the file.
+
+        Returns
+        -------
+        list[str]
+            The list of header column names.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def loader(self, fname: Path, **kwargs) -> pd.DataFrame:
+        """ Loads body of data file.
+
+        Parameters
+        ----------
+        fname : Path
+            The path to the file.
+        kwargs
+            Additional keyword arguments to pass to the loader function.
+
+        Returns
+        -------
+        pd.DataFrame
+            The parsed data as a pandas DataFrame.
+        """
+        raise NotImplementedError
+
+
+class FoamTabularData(AbstractFoamDataLoader):
     """ Class to represent tabular data from OpenFOAM reports. """
-    @staticmethod
-    def get_header(fname: str | Path) -> list[str]:
-        """ Get the header line for a specific report. """
+
+    __slots__ = ()
+
+    def get_header(self, fname: str | Path) -> list[str]:
+        """ Get the header line for a specific report.
+
+        Parameters
+        ----------
+        fname : str | Path
+            The path to the file.
+
+        Returns
+        -------
+        list[str]
+            The list of header column names.
+        """
         last_line = None
 
         # Read until a line is not a comment:
@@ -22,28 +96,132 @@ class FoamTabularData:
 
                 last_line = line
 
-        if last_line is not None:
-            last_line = last_line.lstrip("#").replace("\t", ",")
-            last_line = re.sub(r"\s+", " ", last_line).strip()
-            return [h.strip() for h in last_line.split(",")]
+        if last_line is None:
+            raise ValueError(f"No header found in report '{fname}'.")
 
-        raise ValueError(f"No header found in report '{fname}'.")
+        last_line = last_line.lstrip("#").replace("\t", ",")
+        last_line = re.sub(r"\s+", " ", last_line).strip()
+        return [h.strip() for h in last_line.split(",")]
 
-    @staticmethod
-    def loader(fname: Path, backend="polars",
-                                **kwargs) -> pd.DataFrame:
-        """ Load OpenFOAM xy files into a pandas DataFrame. """
-        comment = "#"
+    def loader(self, fname: Path, **kwargs) -> pd.DataFrame:
+        """ Load OpenFOAM xy files into a pandas DataFrame.
+        Parameters
+        ----------
+        fname : Path
+            The path to the file.
+        kwargs
+            Additional keyword arguments to pass to the loader function.
+            The `backend` can be `polars` (default) or `pandas`.
 
-        if backend == "pandas":
-            return pd.read_csv(fname, sep=r"\s+", comment=comment,
-                            header=None, **kwargs)
-        elif backend == "polars":
-            df = pl.read_csv(fname, separator="\t", comment_prefix=comment,
-                            has_header=False, **kwargs)
-            return df.to_pandas()
-        else:
-            raise ValueError(f"Unsupported backend '{backend}'.")
+        Returns
+        -------
+        pd.DataFrame
+            The parsed data as a pandas DataFrame.
+        """
+        backend = kwargs.pop("backend", "polars")
+        return _handle_loader_backend(fname, backend, **kwargs)
+
+
+class FoamLagrangianTable(AbstractFoamDataLoader):
+    """ Class to represent Lagrangian data from OpenFOAM reports. """
+
+    __slots__ = ()
+
+    def get_header(self, fname: str | Path) -> list[str]:
+        """ Get the header line for a specific report.
+
+        Parameters
+        ----------
+        fname : str | Path
+            The path to the file.
+
+        Returns
+        -------
+        list[str]
+            The list of header column names.
+        """
+        with open(fname, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        if not lines:
+            return []
+
+        header_line = lines[0].strip()
+
+        if header_line.startswith("#"):
+            header_line = header_line[1:].strip()
+
+        header_clean = header_line.replace("(", " ").replace(")", " ")
+        header_cols = header_clean.split()
+        num_cols = 0
+
+        for line in lines[1:]:
+            l_strip = line.strip()
+
+            if not l_strip or l_strip.startswith("#"):
+                continue
+
+            cleaned = l_strip.replace("(", " ").replace(")", " ")
+            num_cols = len(cleaned.split())
+            break
+
+        if num_cols == 0:
+            return header_cols
+
+        if "Y1..YN" in header_cols:
+            idx = header_cols.index("Y1..YN")
+            num_ys = num_cols - len(header_cols) + 1
+            new_ys = [f"Y{i+1}" for i in range(num_ys)]
+            header_cols = header_cols[:idx] + new_ys + header_cols[idx+1:]
+
+        elif len(header_cols) < num_cols:
+            for i in range(len(header_cols), num_cols):
+                header_cols.append(f"col_{i}")
+
+        elif len(header_cols) > num_cols:
+            header_cols = header_cols[:num_cols]
+
+        return header_cols
+
+    def loader(self, fname: Path, **kwargs) -> pd.DataFrame:
+        """ Load OpenFOAM Lagrangian files into a pandas DataFrame.
+
+        Parameters
+        ----------
+        fname : Path
+            The path to the file.
+        kwargs
+            Additional keyword arguments to pass to the loader function.
+
+        Returns
+        -------
+        pd.DataFrame
+            The parsed data as a pandas DataFrame.
+        """
+        backend = kwargs.pop("backend", "polars")
+
+        with open(fname, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        if not lines:
+            return pd.DataFrame()
+
+        data_rows = []
+
+        for line in lines[1:]:
+            l_strip = line.strip()
+
+            if not l_strip or l_strip.startswith("#"):
+                continue
+
+            cleaned = l_strip.replace("(", " ").replace(")", " ")
+            data_rows.append("\t".join(cleaned.split()))
+
+        if not data_rows:
+            return pd.DataFrame()
+
+        source = StringIO("\n".join(data_rows))
+        return _handle_loader_backend(source, backend, **kwargs)
 
 
 class FoamPostProcessingLoader:
@@ -102,7 +280,7 @@ class FoamPostProcessingLoader:
 
     def load_report(self,
             report: str,
-            loader: Callable[[Path], pd.DataFrame] = FoamTabularData.loader,
+            loader: AbstractFoamDataLoader = FoamTabularData,
             **kwargs
         ) -> pd.DataFrame:
         """ Load a specific report into a pandas DataFrame.
@@ -112,7 +290,7 @@ class FoamPostProcessingLoader:
         report : str
             The name of the report to load, must be one of the available
             reports as returned by `available_reports`.
-        loader : Callable[[Path], pd.DataFrame], optional
+        loader : FoamDataLoader = FoamTabularData.loader
             A custom loader function that takes a file path and returns
             a DataFrame. By default, it uses `openfoam_tabular_loader`
             which is designed to handle OpenFOAM's xy files. The loader
@@ -121,16 +299,10 @@ class FoamPostProcessingLoader:
         kwargs
             Additional keyword arguments to pass to the loader function.
         """
-        files = self._get_report_files(report)
-
-        if not files:
+        if not (files := self._get_report_files(report)):
             raise ValueError(f"No files found for report '{report}'.")
 
-        # Use the provided loader function to load each file
-        data_frames = [loader(file, **kwargs) for file in files]
-        df = pd.concat(data_frames, ignore_index=True)
-        df.columns = FoamTabularData.get_header(files[0])
-        return df
+        return loader(files).table
 
     @property
     def available_reports(self) -> list[str]:
@@ -141,3 +313,24 @@ class FoamPostProcessingLoader:
     def root_directory(self) -> Path:
         """ Access to the root postProcessing directory. """
         return self._root
+
+
+def _handle_loader_backend(
+        source: str | Path | StringIO,
+        backend: str = "polars",
+        sep: str = "\t",
+        comment: str = "#",
+        **kwargs
+    ) -> pd.DataFrame:
+    """ Common handler of tabular data loading. """
+    match backend.lower():
+        case "pandas":
+            df = pd.read_csv(source, sep=sep, comment=comment,
+                             header=None, **kwargs)
+        case "polars":
+            df = pl.read_csv(source, separator=sep, comment_prefix=comment,
+                             has_header= False, **kwargs).to_pandas()
+        case _:
+            raise ValueError(f"Unsupported backend '{backend}'.")
+
+    return df

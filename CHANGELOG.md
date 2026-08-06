@@ -8,6 +8,10 @@
 
 - Lazy import logic was extended for the core package, so that using `from majordome import ...` works directly for all exported items (currently the Rust wrappers are not exposed as their lazy mechanism is unfinished).
 
+- Added OpenFOAM sample data and examples for illustrating the loading of tabular data using the implementations of `AbstractFoamDataLoader`.
+
+- Documentation of `majordome.simulation` has been broken down into more manageable blocks. This structure is to be used in other modules in the future.
+
 ## 1.3.0 - 2026-08-04
 
 - Add keywork `notebook` to `AbstractReportable` so that user code no longer needs to use a `display(Markdown(...))` boilerplate code.

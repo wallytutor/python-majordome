@@ -8,11 +8,13 @@ from majordome.simulation.openfoam import *
 ### Loading `postProcessing` data
 
 ```{python}
+#| echo: true
 loader = FoamTabularData(["../data/foam/tabular.dat"])
 loader.table.head()
 ```
 
 ```{python}
+#| echo: true
 loader = FoamLagrangianTable(["../data/foam/lagrangian.dat"])
 loader.table.head()
 ```
