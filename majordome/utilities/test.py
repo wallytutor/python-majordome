@@ -125,3 +125,28 @@ class TestMarkdownLinkStripper:
             "[link](https://example.com/path?query=param)",
             "![image](https://example.com/image.png)",
         ]
+
+
+def test_lazy_loading_matplotlib():
+    import subprocess
+    import sys
+    code = """
+import sys
+import majordome
+assert "matplotlib" not in sys.modules
+assert "pyvista" not in sys.modules
+_ = majordome.MajordomePlot
+assert "matplotlib" in sys.modules
+"""
+
+    res = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            code
+        ],
+        capture_output = True,
+        text           = True
+    )
+
+    assert res.returncode == 0, f"Lazy loading check failed: {res.stderr}"
