@@ -6,6 +6,8 @@
 
 - Because documentation is under revision, its automatic creation has been disabled in the release script and now requires the `-Docs` switch. This is a temporary measure and will be re-enabled once the documentation is updated.
 
+- Lazy import logic was extended for the core package, so that using `from majordome import ...` works directly for all exported items (currently the Rust wrappers are not exposed as their lazy mechanism is unfinished).
+
 ## 1.3.0 - 2026-08-04
 
 - Add keywork `notebook` to `AbstractReportable` so that user code no longer needs to use a `display(Markdown(...))` boilerplate code.
