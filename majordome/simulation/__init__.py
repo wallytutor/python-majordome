@@ -23,6 +23,7 @@ _LAZY_EXPORTS = {
 
     # openfoam:
     "FoamTabularData": ".openfoam",
+    "FoamLagrangianTable": ".openfoam",
     "FoamPostProcessingLoader": ".openfoam",
 
     # meshing:

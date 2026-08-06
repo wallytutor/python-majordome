@@ -232,7 +232,10 @@ class FoamPostProcessingLoader:
     domain : str | None
         The name of the OpenFOAM domain to load reports from. If None,
         it will look for reports in the main `postProcessing` directory.
+    root: str | Path | None = None
+        Path to the root of the `postProcessing` directory to be used.
     """
+
     __slots__ = ( "_domain_dir", "_reports", "_root", )
 
     def __init__(self,
@@ -281,6 +284,7 @@ class FoamPostProcessingLoader:
     def load_report(self,
             report: str,
             loader: AbstractFoamDataLoader = FoamTabularData,
+            n_last: int | None = None,
             **kwargs
         ) -> pd.DataFrame:
         """ Load a specific report into a pandas DataFrame.
@@ -296,11 +300,16 @@ class FoamPostProcessingLoader:
             which is designed to handle OpenFOAM's xy files. The loader
             function should accept a file path and any additional keyword
             arguments, and return a DataFrame with the data from that file.
+        n_last : int | None, default = None
+            Number of last files to load. If None, load all files.
         kwargs
             Additional keyword arguments to pass to the loader function.
         """
         if not (files := self._get_report_files(report)):
             raise ValueError(f"No files found for report '{report}'.")
+
+        if n_last is not None and len(files) > n_last:
+            files = files[-n_last:]
 
         return loader(files).table
 

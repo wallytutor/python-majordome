@@ -12,6 +12,8 @@
 
 - Documentation of `majordome.simulation` has been broken down into more manageable blocks. This structure is to be used in other modules in the future.
 
+- Fixed missing re-export of `FoamLagrangianTable` in `majordome.simulation` and minor improvements in the OpenFOAM interfaces.
+
 ## 1.3.0 - 2026-08-04
 
 - Add keywork `notebook` to `AbstractReportable` so that user code no longer needs to use a `display(Markdown(...))` boilerplate code.
