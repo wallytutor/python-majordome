@@ -28,6 +28,7 @@ dependencies = [
     "pdf2image>=1.17.0",
     "pillow>=12.2.0",
     "polars>=1.40.1",
+    "pyarrow>=25.0.0",
     "pygments>=2.20.0",
     "pyparsing>=3.3.2",
     "pypdf>=6.10.2",
