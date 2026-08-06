@@ -1,0 +1,15 @@
+## Meshing
+
+```{python}
+from majordome_build.documents import *
+from majordome.simulation.meshing import *
+```
+
+### GmshOCCModel
+
+```{python}
+doc = DocumentedClass(GmshOCCModel)
+doc.constructor()
+```
+
+<!-- TODO document members -->

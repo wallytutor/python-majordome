@@ -1,0 +1,8 @@
+# Simulation
+
+*aka majordome.simulation*
+
+{{< include _simulation/elmer.qmd >}}
+{{< include _simulation/fluent.qmd >}}
+{{< include _simulation/openfoam.qmd >}}
+{{< include _simulation/meshing.qmd >}}

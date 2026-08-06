@@ -1,0 +1,18 @@
+## OpenFOAM
+
+```{python}
+from majordome_build.documents import *
+from majordome.simulation.openfoam import *
+```
+
+### Loading `postProcessing` data
+
+```{python}
+loader = FoamTabularData(["../data/foam/tabular.dat"])
+loader.table.head()
+```
+
+```{python}
+loader = FoamLagrangianTable(["../data/foam/lagrangian.dat"])
+loader.table.head()
+```

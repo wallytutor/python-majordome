@@ -24,7 +24,7 @@ book:
       chapters:
       - calphad.qmd
       - engineering.qmd
-      - simulation.qmd
+      - simulation/_index.qmd
       - utilities.qmd
       - documents.qmd
       - magic.qmd
