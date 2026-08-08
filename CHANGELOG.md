@@ -10,7 +10,7 @@
 
 - Added OpenFOAM sample data and examples for illustrating the loading of tabular data using the implementations of `AbstractFoamDataLoader`.
 
-- Documentation of `majordome.simulation` has been broken down into more manageable blocks. This structure is to be used in other modules in the future.
+- Documentation of `majordome.simulation` and `majordome.engineering` have been broken down into more manageable blocks. This structure is to be used in other modules in the future.
 
 - Fixed missing re-export of `FoamLagrangianTable` in `majordome.simulation` and minor improvements in the OpenFOAM interfaces.
 

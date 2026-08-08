@@ -1,0 +1,10 @@
+# Engineering
+
+*aka majordome.engineering*
+
+{{< include _engineering/energy.qmd >}}
+{{< include _engineering/numerical.qmd >}}
+{{< include _engineering/reactor.qmd >}}
+{{< include _engineering/symbolic.qmd >}}
+{{< include _engineering/transport.qmd >}}
+{{< include _engineering/vision.qmd >}}
