@@ -3,6 +3,7 @@
 ```{python}
 from majordome_build.documents import *
 from majordome.engineering.numerical import *
+from majordome import MajordomePlot
 ```
 
 ### Relaxation and convergence check utilities

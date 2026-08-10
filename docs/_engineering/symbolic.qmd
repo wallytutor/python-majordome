@@ -3,6 +3,10 @@
 ```{python}
 from majordome_build.documents import *
 from majordome.engineering.symbolic import *
+
+import numpy as np
+from casadi import SX, Function, jacobian
+from majordome import plot_xy
 ```
 
 This module contains utilities for working with symbolic functions, especially in the context of engineering problems treated by Majordome models. It is mostly a wrapper around [CasADi](https://web.casadi.org/), organizing symbolic operations and providing additional functionality for function manipulation in a physical context.
@@ -65,6 +69,8 @@ Suppose you need to create a symbolic representation of the NASA7 thermodynamic 
 
 ```{python}
 #| echo: true
+import cantera as ct
+
 gas = ct.Solution("gri30.yaml")
 species = gas.species()[47]
 thermo = species.thermo

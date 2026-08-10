@@ -3,6 +3,10 @@
 ```{python}
 from majordome_build.documents import *
 from majordome.engineering.transport import *
+
+import cantera as ct
+import numpy as np
+from majordome import bounds
 ```
 
 ### Thermal conductivity

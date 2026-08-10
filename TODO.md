@@ -95,7 +95,7 @@ Write-Host "CARGO_INCREMENTAL ............: $env:CARGO_INCREMENTAL"
 Write-Host ""
 ```
 
-- [ ]Create a helper script for reverting bad commits:
+- [ ] Create a helper script for reverting bad commits:
 
 ```bash
 $newTag = '1.0.2'
@@ -103,6 +103,8 @@ git tag -d "v$newTag"
 git push origin --delete "v$newTag"
 # + edit Cargo.toml and pyproject.toml
 ```
+
+- [ ] Allow direct use of [python-wsgglib](https://github.com/wallytutor/python-wsgglib) instead of simple hardcoded Bordbar model.
 
 ## Bugs
 
