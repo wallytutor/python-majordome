@@ -2,9 +2,9 @@
 
 *aka majordome.engineering*
 
-{{< include _engineering/energy.qmd >}}
-{{< include _engineering/numerical.qmd >}}
-{{< include _engineering/reactor.qmd >}}
-{{< include _engineering/symbolic.qmd >}}
-{{< include _engineering/transport.qmd >}}
-{{< include _engineering/vision.qmd >}}
+{{< include energy.qmd >}}
+{{< include numerical.qmd >}}
+{{< include reactor.qmd >}}
+{{< include symbolic.qmd >}}
+{{< include transport.qmd >}}
+{{< include vision.qmd >}}

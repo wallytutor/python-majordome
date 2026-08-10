@@ -1,0 +1,68 @@
+## Markdown
+
+```{python}
+from majordome_build.documents import *
+from majordome.utilities.markdown import *
+```
+
+### Normalize LaTeX delimiters
+
+```{python}
+doc = DocumentedClass(LatexDelimiterNormalizer)
+doc.classmethods()
+```
+
+The following illustrates the use of the functionality:
+
+```{python}
+#| echo: true
+sample = r"""
+Inline good: \( x^2 + y^2 \)
+
+Inline missing slash: \(a+b)
+
+Inline missing slash close: (c+d\)
+
+Inline parenthetized: (\(c+d\))
+
+Inline breaking case: \( V_{IJ}^{(n)} \)
+
+Block inline: \[ \int_0^1 f(x)\,dx ]
+
+Fragilized block:
+
+\[ \int_0^1 f(x)\,dx ]
+
+I noticed that sometimes links may be fragile, like in:
+
+![diagram showing something](assets/img/favicon-32x32.png)
+
+What about this doubly escaped inline math: \\( \\Delta J \\) ?
+
+\\[
+W_{\\text{point}}^{(n)} = \\left( W_{AA}^{(n)} + W_{BB}^{(n)} -
+      2W_{AB}^{(n)} \\right)
+\\]
+"""
+
+normalizer = LatexDelimiterNormalizer()
+output = normalizer.apply(sample)
+display(Markdown(output))
+```
+
+### Strip Markdown links
+
+```{python}
+stripper = MarkdownLinkStripper()
+markdown = r"""
+This is a sample markdown with some links and images.
+
+![An image[x]](https://example.com/image.png)
+
+Here is a [link to Google](https://www.google.com) and
+another [link to OpenAI](https://www.openai.com).
+"""
+
+cleaned, _ = stripper.apply(markdown, placeholder="<removed-link>")
+print(cleaned)
+```

@@ -3,7 +3,7 @@
 *aka majordome.calphad*
 
 ```{python}
-from majordome.documents import *
+from majordome_build.documents import *
 from majordome.calphad import *
 from majordome.autodiff import Dual
 import numpy as np
@@ -62,6 +62,7 @@ P_REF = 101325.0
 - Loading a whole database:
 
 ```{python}
+#| echo: true
 db_path = "sample/simple-calcination.lua"
 db = DatabaseLoader(db_path)
 db.phases
@@ -70,6 +71,7 @@ db.phases
 - Loading a selection of components:
 
 ```{python}
+#| echo: true
 phases = ["Calcite", "Lime", "CO2"]
 db = DatabaseLoader(db_path, phases=phases)
 
@@ -80,6 +82,7 @@ phases
 - Reporting properties at a given temperature:
 
 ```{python}
+#| echo: true
 for phase in phases.values():
     print(phase.report(300.0), "\n")
 ```
@@ -87,24 +90,28 @@ for phase in phases.values():
 - Tabulate with default bounds and step (100 K)
 
 ```{python}
+#| echo: true
 print(phases["Lime"].tabulate())
 ```
 
 - Tabulate with custom bounds and step:
 
 ```{python}
+#| echo: true
 print(phases["Calcite"].tabulate(t_min=237.0, t_max=1200.0, step=100.0))
 ```
 
 - Tabulate phase with multiple temperature ranges (even with a step that does not match perfectly, the 1000 K will be printed):
 
 ```{python}
+#| echo: true
 print(phases["CO2"].tabulate(step=300.0))
 ```
 
 ## Composition specification
 
 ```{python}
+#| echo: true
 db = DatabaseLoader(db_path, phases=["Calcite", "Diaspore"])
 phases = db.get_data()
 ```
@@ -112,6 +119,7 @@ phases = db.get_data()
 - Specification by compound moles (1.5 mol calcite + 2.0 mol diaspore):
 
 ```{python}
+#| echo: true
 X = {"Calcite": 1.5, "Diaspore": 2.0}
 comp = SystemComposition.from_compound_moles(phases, X)
 print(comp.report())
@@ -120,6 +128,7 @@ print(comp.report())
 - Specification by compound masses (100.0 g calcite + 120.0 g diaspore):
 
 ```{python}
+#| echo: true
 Y = {"Calcite": 100.0, "Diaspore": 200.0}
 comp = SystemComposition.from_compound_masses(phases, Y)
 print(comp.report())
@@ -128,6 +137,7 @@ print(comp.report())
 - Specification by elemental moles (1.0 mol Ca, 1.0 mol C, 3.0 mol O):
 
 ```{python}
+#| echo: true
 elements = {"Ca": 1.0, "C": 1.0, "O": 3.0}
 comp = SystemComposition.from_elemental_moles(elements)
 print(comp.report())
@@ -136,6 +146,7 @@ print(comp.report())
 -  Specification by elemental masses (40.078 g Ca, 12.011 g C, 47.997 g O):
 
 ```{python}
+#| echo: true
 elements = {"Ca": 40.078, "C": 12.011, "O": 47.997}
 comp = SystemComposition.from_elemental_masses(elements)
 print(comp.report())
@@ -144,6 +155,7 @@ print(comp.report())
 - Verifying Python API getters on `SystemComposition`:
 
 ```{python}
+#| echo: true
 print(
     f"input_method:       {comp.input_method}",
     f"input_proportions:  {comp.input_proportions}",
@@ -156,6 +168,7 @@ print(
 ## Automatic differentiation
 
 ```{python}
+#| echo: true
 db = DatabaseLoader(db_path, phases=["Calcite"])
 calcite = db.get_data()["Calcite"]
 
@@ -185,6 +198,7 @@ print(
 - Single equilibrium point (1.0 mol CaCO3 + 1.0 mol AlOOH):
 
 ```{python}
+#| echo: true
 t_eval = 1173.15
 p_eval = 101325.0
 X_eval = {"Calcite": 1.0, "Diaspore": 1.0}
@@ -199,6 +213,7 @@ phi
 - Temperature scanning (300 K – 1200 K, step 100 K):
 
 ```{python}
+#| echo: true
 phases = DatabaseLoader(db_path).get_data()
 species_names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"]
 comp = SystemComposition.from_compound_moles(phases, X_eval)
@@ -250,6 +265,7 @@ for t in t_arr:
 - Composition scanning (x(Al₂O₃) from 0 to 1 at 1400 K):
 
 ```{python}
+#| echo: true
 names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"]
 
 db = DatabaseLoader("hallstedt1990.lua", names)

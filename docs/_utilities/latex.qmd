@@ -1,0 +1,8 @@
+## LaTeX
+
+```{python}
+from majordome_build.documents import *
+from majordome.utilities.latex import *
+```
+
+*Upcoming...*

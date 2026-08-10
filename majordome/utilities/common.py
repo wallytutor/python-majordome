@@ -163,28 +163,58 @@ class ColorPrint:
         print(f"{color_code}{text}{ColorPrint.K}")
 
     @staticmethod
-    def red(text):
-        """ Print text in red color. """
+    def red(text: Any) -> None:
+        """ Print text in red color.
+
+        Parameters
+        ----------
+        text: Any
+            Text (or object with text conversion) to print.
+        """
         ColorPrint._print(text, ColorPrint.R)
 
     @staticmethod
-    def green(text):
-        """ Print text in green color. """
+    def green(text: Any) -> None:
+        """ Print text in green color.
+
+        Parameters
+        ----------
+        text: Any
+            Text (or object with text conversion) to print.
+        """
         ColorPrint._print(text, ColorPrint.G)
 
     @staticmethod
-    def blue(text):
-        """ Print text in blue color. """
+    def blue(text: Any) -> None:
+        """ Print text in blue color.
+
+        Parameters
+        ----------
+        text: Any
+            Text (or object with text conversion) to print.
+        """
         ColorPrint._print(text, ColorPrint.B)
 
     @staticmethod
-    def yellow(text):
-        """ Print text in yellow color. """
+    def yellow(text: Any) -> None:
+        """ Print text in yellow color.
+
+        Parameters
+        ----------
+        text: Any
+            Text (or object with text conversion) to print.
+        """
         ColorPrint._print(text, ColorPrint.Y)
 
     @staticmethod
-    def cyan(text):
-        """ Print text in cyan color. """
+    def cyan(text: Any) -> None:
+        """ Print text in cyan color.
+
+        Parameters
+        ----------
+        text: Any
+            Text (or object with text conversion) to print.
+        """
         ColorPrint._print(text, ColorPrint.C)
 
 

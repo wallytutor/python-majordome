@@ -23,10 +23,9 @@ book:
     - part: "Majordome API"
       chapters:
       - calphad.qmd
-      - engineering/_index.qmd
-      - simulation/_index.qmd
-      - utilities.qmd
-      - documents.qmd
+      - _engineering/_index.qmd
+      - _simulation/_index.qmd
+      - _utilities/_index.qmd
       - magic.qmd
 
     - part: "Reactor Engineering"
@@ -43,7 +42,7 @@ book:
 
     - references.qmd
 
-bibliography: https://raw.githubusercontent.com/wallytutor/kompanion/refs/heads/main/notes/references.bib
+bibliography: https://raw.githubusercontent.com/wallytutor/wallytutor.github.io/refs/heads/main/shorts/_assets/references.bib
 
 format:
   html:

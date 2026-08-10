@@ -10,6 +10,10 @@
 # Any sandbox:
 *sandbox*
 
+# Any logs:
+*.log
+log.*
+
 # Build artifacts:
 dist/
 target/

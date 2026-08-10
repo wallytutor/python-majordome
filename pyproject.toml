@@ -19,6 +19,7 @@ dependencies = [
     "gmsh>=4.15.2",
     "gpxpy>=1.6.2",
     "hyperspy>=2.4.0",
+    "ipykernel>=7.3.0",
     "ipython>=9.13.0",
     "majordome-build",
     "markdown-it-py>=4.0.0",

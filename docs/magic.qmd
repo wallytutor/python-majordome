@@ -3,7 +3,7 @@
 *aka majordome.magic*
 
 ```{python}
-from majordome.documents import *
+from majordome_build.documents import *
 from majordome.magic import *
 ```
 

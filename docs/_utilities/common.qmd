@@ -1,0 +1,25 @@
+## Common
+
+```{python}
+from majordome_build.documents import *
+from majordome.utilities.common import *
+```
+
+### ColorPrint
+
+```{python}
+doc = DocumentedClass(ColorPrint)
+doc.staticmethods()
+```
+
+```{python}
+#| echo: true
+ColorPrint.red("This is a red message.")
+ColorPrint.green("This is a green message.")
+ColorPrint.blue("This is a blue message.")
+ColorPrint.yellow("This is a yellow message.")
+ColorPrint.cyan("This is a cyan message.")
+```
+
+<!-- ## *ReadTextData* -->
+<!-- ## *InteractiveSession* -->
