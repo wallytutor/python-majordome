@@ -14,6 +14,8 @@
 
 - Fixed missing re-export of `FoamLagrangianTable` in `majordome.simulation` and minor improvements in the OpenFOAM interfaces.
 
+- Studying a new approach to import Rust modules, starting with `_core.diffusion` which was migrated under `majordome.engineering`.
+
 ## 1.3.0 - 2026-08-04
 
 - Add keywork `notebook` to `AbstractReportable` so that user code no longer needs to use a `display(Markdown(...))` boilerplate code.

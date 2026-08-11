@@ -8,3 +8,4 @@
 {{< include symbolic.qmd >}}
 {{< include transport.qmd >}}
 {{< include vision.qmd >}}
+{{< include diffusion.qmd >}}

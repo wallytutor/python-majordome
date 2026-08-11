@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import importlib
+
+from importlib import import_module
+
+_DIFFUSION = (".._core", "diffusion")
 
 _LAZY_EXPORTS = {
     # numerical:
@@ -57,6 +60,14 @@ _LAZY_EXPORTS = {
     "metadata_exifread": ".vision",
     "metadata_pil": ".vision",
     "hyperspy_rgb_to_numpy": ".vision",
+
+    # _core.diffusion':
+    "ImmersedNodeDomain1D": _DIFFUSION,
+    "CarbonitridingInput": _DIFFUSION,
+    "CarbonitridingSolver": _DIFFUSION,
+    "ElementResults": _DIFFUSION,
+    "slycke": _DIFFUSION,
+
 }
 
 __all__ = list(_LAZY_EXPORTS.keys())
@@ -65,12 +76,26 @@ __all__ = list(_LAZY_EXPORTS.keys())
 def __getattr__(name: str):
     if name in _LAZY_EXPORTS:
         submodule_path = _LAZY_EXPORTS[name]
-        submodule = importlib.import_module(submodule_path, __package__)
-        exported_item = getattr(submodule, name)
+
+        if isinstance(submodule_path, str):
+            exported_item = _import_submodule(submodule_path, name)
+        else:
+            exported_item = _import_pyo3(*submodule_path, name)
+
         globals()[name] = exported_item
         return exported_item
 
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
+
+def _import_submodule(path, name):
+    submodule = import_module(path, __package__)
+    return getattr(submodule, name)
+
+
+def _import_pyo3(path, module, name):
+    submodule = _import_submodule(path, module)
+    return getattr(submodule, name)
 
 
 def __dir__():
