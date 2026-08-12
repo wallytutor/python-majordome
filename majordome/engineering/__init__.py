@@ -2,7 +2,9 @@
 
 from importlib import import_module
 
+_AUTODIFF  = (".._core", "numerical", "autodiff")
 _DIFFUSION = (".._core", "diffusion")
+_CALPHAD   = (".._core", "caphad")
 
 _LAZY_EXPORTS = {
     # numerical:
@@ -61,12 +63,16 @@ _LAZY_EXPORTS = {
     "metadata_pil": ".vision",
     "hyperspy_rgb_to_numpy": ".vision",
 
-    # _core.diffusion':
+    # _core.autodiff:
+
+    # _core.diffusion:
     "ImmersedNodeDomain1D": _DIFFUSION,
     "CarbonitridingInput": _DIFFUSION,
     "CarbonitridingSolver": _DIFFUSION,
     "ElementResults": _DIFFUSION,
     "slycke": _DIFFUSION,
+
+    # _core.calphad:
 
 }
 
@@ -95,6 +101,7 @@ def _import_submodule(path, name):
 
 def _import_pyo3(path, module, name):
     submodule = _import_submodule(path, module)
+    # TODO handle the case of autodiff here
     return getattr(submodule, name)
 
 
