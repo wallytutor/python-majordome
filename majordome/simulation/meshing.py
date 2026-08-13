@@ -21,19 +21,19 @@ PlaneEquationAny = tuple[AnyNumber, AnyNumber, AnyNumber, AnyNumber]
 class GmshSessionWrapper(ABC):
     """ Helper mixin to provide a Gmsh session manager. """
     __slots__ = (
-        "_path", "_interactive",         # Controls
+        "_name", "_interactive",         # Controls
         "_opt", "_mod", "_occ", "_msh",  # Aliases
         "_face_groups",                  # Buffer
     )
 
-    def __init__(self, path: Path, interactive: bool = True):
+    def __init__(self, name: str, interactive: bool = True):
         super().__init__()
 
-        self._path = path
+        self._name = name
         self._interactive = interactive
 
         gmsh.initialize()
-        gmsh.model.add(self._path.stem)
+        gmsh.model.add(self._name)
 
         # Cache handles to GMSH API modules for convenience
         self._opt = gmsh.option
@@ -73,23 +73,35 @@ class GmshSessionWrapper(ABC):
         """ Add face groups to the GMSH model. """
         self._face_groups = groups
 
-    def save_as_stl(self, dirname: str = "stl", fresh: bool = True) -> None:
+    def save_as_stl(
+            self,
+            dirname: str | Path = "stl",
+            fresh: bool = True
+        ) -> None:
         """ Save face groups into individual stl files for meshing.
 
         Parameters
         ----------
-        dirname: str = "stl"
-            Directory name to save the STL files inside.
+        dirname: str | Path = "stl"
+            Directory name or path where the STL files are saved.
+            It will create the directory if it does not exist.
         fresh: bool = True
             If True, clears any existing directory with that name
             before writing.
         """
-        stl_path = self._path.resolve().parent / dirname
+        if isinstance(dirname, str):
+            stl_path = Path.cwd() / dirname
+        elif isinstance(dirname, Path):
+            stl_path = dirname
+        else:
+            raise TypeError("dirname must be a string or a Path object.")
+
+        stl_path = Path(stl_path).resolve()
 
         if fresh and stl_path.exists():
             shutil.rmtree(stl_path)
 
-        stl_path.mkdir(exist_ok=True)
+        stl_path.mkdir(parents=True, exist_ok=True)
 
         # Build the geometry - to be implemented by subclasses:
         self.build()
