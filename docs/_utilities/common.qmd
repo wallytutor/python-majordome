@@ -3,6 +3,8 @@
 ```{python}
 from majordome_build.documents import *
 from majordome.utilities.common import *
+
+import numpy as np
 ```
 
 ### ColorPrint
@@ -23,3 +25,34 @@ ColorPrint.cyan("This is a cyan message.")
 
 <!-- ## *ReadTextData* -->
 <!-- ## *InteractiveSession* -->
+
+### ArchitecturalFormatUSParser
+
+```{python}
+parser = ArchitecturalFormatUSParser()
+
+# A trivial one-quarter of inch:
+np.testing.assert_allclose(parser("1/4"),     0.00635)
+
+# One inch and one quarter of inch:
+np.testing.assert_allclose(parser("1 1/4"),   0.03175)
+
+# One foot an one quarter of inch:
+np.testing.assert_allclose(parser("1-1/4"),   0.31115)
+
+# One foot, two inches and one quarter of inch:
+np.testing.assert_allclose(parser("1-2 1/4"), 0.36195)
+
+# Unusual representation of one foot and two inches:
+np.testing.assert_allclose(parser("1-2"),     0.35560)
+
+# Edge case, specified zero foot:
+np.testing.assert_allclose(parser("0-1/4"),   0.00635)
+
+# Edge cases, missing on side of the foot/inches:
+np.testing.assert_allclose(parser("-2"),      0.05080)
+np.testing.assert_allclose(parser("2-"),      0.60960)
+
+# This gets parsed as two inches:
+np.testing.assert_allclose(parser("2"),       0.05080)
+```

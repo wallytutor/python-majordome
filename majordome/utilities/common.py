@@ -218,6 +218,67 @@ class ColorPrint:
         ColorPrint._print(text, ColorPrint.C)
 
 
+class ArchitecturalFormatUSParser:
+    """ Parse US architectural format to float. """
+
+    @staticmethod
+    def _split_foot_from_inches(text: str) -> tuple[float, str]:
+        text = text.strip()
+
+        if "-" not in text:
+            return 0.0, text
+
+        result = text.split("-")
+        # print(result)
+        if len(result) != 2:
+            raise ValueError(
+                "Only one `-` can be used in `F-I a/b` format"
+            )
+
+        foot = result[0] or "0"
+        inch = result[1] or "0"
+
+        return float(foot), inch
+
+    @staticmethod
+    def _parse_fraction(text: str) -> float:
+        """ Parse a fraction string 'a/b' to a float. """
+        parts = text.split("/")
+
+        if len(parts) != 2:
+            raise ValueError(f"Invalid fraction format: {text}")
+
+        return float(parts[0]) / float(parts[1])
+
+    @classmethod
+    def _split_inches_from_fraction(cls, text: str) -> tuple[float, float]:
+        text = text.strip()
+
+        # This is just a fraction with no integer part:
+        if " " not in text and "/" in text:
+            return 0.0, cls._parse_fraction(text)
+
+        # On the other hand this is just the integer part:
+        if "/" not in text:
+            return float(text), 0.0
+
+        result = text.split()
+
+        if len(result) != 2:
+            raise ValueError(
+                "Only one ` ` can be used in `I a/b` format"
+            )
+
+        return float(result[0]), cls._parse_fraction(result[1])
+
+    def __call__(self, text: str, to_meters: bool = True) -> float:
+        foot, inch = self._split_foot_from_inches(text)
+        inch_int, inch_frac = self._split_inches_from_fraction(inch)
+
+        inches = 12 * foot + inch_int + inch_frac
+        return inches * 0.0254 if to_meters else inches
+
+
 def has_program(name: str) -> bool:
     """ Test if a program is available in system path. """
     return True if shutil.which(name) else False

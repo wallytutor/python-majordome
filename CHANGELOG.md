@@ -16,6 +16,8 @@
 
 - Studying a new approach to import Rust modules, starting with `_core.diffusion` which was migrated under `majordome.engineering`.
 
+- Added helper for parsing US drawing number format to `majordome.utilities` as `ArchitecturalFormatUSParser`.
+
 ## 1.3.0 - 2026-08-04
 
 - Add keywork `notebook` to `AbstractReportable` so that user code no longer needs to use a `display(Markdown(...))` boilerplate code.

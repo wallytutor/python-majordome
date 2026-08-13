@@ -3,12 +3,14 @@ import importlib
 
 _LAZY_EXPORTS = {
     "majordome_warning": ".internals",
+
     "AbstractReportable": ".common",
     "ReadTextData": ".common",
     "InteractiveSessionTracer": ".common",
     "InteractiveSession": ".common",
     "Capturing": ".common",
     "ColorPrint": ".common",
+    "ArchitecturalFormatUSParser": ".common",
     "has_program": ".common",
     "program_path": ".common",
     "first_in_path": ".common",
@@ -21,8 +23,10 @@ _LAZY_EXPORTS = {
     "apply": ".common",
     "sci_to_latex_decimal": ".common",
     "sympy_symbols_factory": ".common",
+
     "ProgressBar": ".progress",
     "progress_bar": ".progress",
+
     "Params": ".plotting",
     "SigIn": ".plotting",
     "SigOut": ".plotting",
@@ -31,6 +35,7 @@ _LAZY_EXPORTS = {
     "centered_colormap": ".plotting",
     "plot_xy": ".plotting",
     "plot2d": ".plotting",
+
     "is_tex": ".latex",
     "list_tex_templates": ".latex",
     "load_tex_template": ".latex",
@@ -47,9 +52,12 @@ _LAZY_EXPORTS = {
     "beamer_two_columns": ".latex",
     "BeamerSlides": ".latex",
     "SlideContentWriter": ".latex",
+
     "FuncArguments": ".argument_parsing",
+
     "PdfExtracted": ".pdftools",
     "PdfToTextConverter": ".pdftools",
+
     "LatexDelimiterNormalizer": ".markdown",
     "MarkdownLinkStripper": ".markdown",
 }
