@@ -21,9 +21,9 @@ PlaneEquationAny = tuple[AnyNumber, AnyNumber, AnyNumber, AnyNumber]
 class GmshSessionWrapper(ABC):
     """ Helper mixin to provide a Gmsh session manager. """
     __slots__ = (
-        "path", "interactive",      # Controls
-        "opt", "mod", "occ", "msh", # Aliases
-        "groups",                   # Buffer
+        "_path", "_interactive",         # Controls
+        "_opt", "_mod", "_occ", "_msh",  # Aliases
+        "_groups",                       # Buffer
     )
 
     def __init__(self, path: Path, interactive: bool = True):
