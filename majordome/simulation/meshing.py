@@ -23,7 +23,7 @@ class GmshSessionWrapper(ABC):
     __slots__ = (
         "_path", "_interactive",         # Controls
         "_opt", "_mod", "_occ", "_msh",  # Aliases
-        "_groups",                       # Buffer
+        "_face_groups",                  # Buffer
     )
 
     def __init__(self, path: Path, interactive: bool = True):
@@ -41,8 +41,8 @@ class GmshSessionWrapper(ABC):
         self._occ = gmsh.model.occ
         self._msh = gmsh.model.mesh
 
-        # Dictionary to store named physical group tags
-        self._groups = {}
+        # Dictionary to store named face group tags
+        self._face_groups: dict[str, list[int]] = {}
 
     def __enter__(self):
         return self
@@ -69,7 +69,11 @@ class GmshSessionWrapper(ABC):
         self.sync()
         gmsh.fltk.run()
 
-    def save(self, dirname: str = "stl", fresh: bool = True) -> None:
+    def add_face_groups(self, groups: dict[str, list[int]]) -> None:
+        """ Add face groups to the GMSH model. """
+        self._face_groups = groups
+
+    def save_as_stl(self, dirname: str = "stl", fresh: bool = True) -> None:
         """ Save face groups into individual stl files for meshing.
 
         Parameters
@@ -93,7 +97,13 @@ class GmshSessionWrapper(ABC):
         # Remove any existing physical groups before proceeding:
         self._mod.remove_physical_groups()
 
-        for name, tags in self._groups.items():
+        if not self._face_groups:
+            raise RuntimeError(
+                "No face groups defined. Use `self.add_face_groups`"
+                " to define face groups before saving as stl files."
+            )
+
+        for name, tags in self._face_groups.items():
             self._mod.add_physical_group(
                 dim  =  2,
                 tags = tags,
