@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import functools
 import itertools
+import shutil
 
+from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Callable, Self
 
 import gmsh
@@ -12,6 +16,106 @@ from numpy.typing import NDArray
 AnyNumber = int | float | np.number
 TrupleAny = tuple[AnyNumber, AnyNumber, AnyNumber]
 PlaneEquationAny = tuple[AnyNumber, AnyNumber, AnyNumber, AnyNumber]
+
+
+class GmshSessionWrapper(ABC):
+    """ Helper mixin to provide a Gmsh session manager. """
+    __slots__ = (
+        "path", "interactive",      # Controls
+        "opt", "mod", "occ", "msh", # Aliases
+        "groups",                   # Buffer
+    )
+
+    def __init__(self, path: Path, interactive: bool = True):
+        super().__init__()
+
+        self._path = path
+        self._interactive = interactive
+
+        gmsh.initialize()
+        gmsh.model.add(self._path.stem)
+
+        # Cache handles to GMSH API modules for convenience
+        self._opt = gmsh.option
+        self._mod = gmsh.model
+        self._occ = gmsh.model.occ
+        self._msh = gmsh.model.mesh
+
+        # Dictionary to store named physical group tags
+        self._groups = {}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._interactive and not exc_type:
+            self.show()
+
+        self.finalize()
+
+    def sync(self):
+        """ Synchronize the OpenCASCADE CAD kernel with the GMSH model. """
+        self._occ.synchronize()
+
+    def finalize(self):
+        """ Clean up and close the GMSH session. """
+        try:
+            gmsh.finalize()
+        except Exception:
+            pass
+
+    def show(self):
+        """ Open the GMSH Graphical User Interface window. """
+        self.sync()
+        gmsh.fltk.run()
+
+    def save(self, dirname: str = "stl", fresh: bool = True) -> None:
+        """ Save face groups into individual stl files for meshing.
+
+        Parameters
+        ----------
+        dirname: str = "stl"
+            Directory name to save the STL files inside.
+        fresh: bool = True
+            If True, clears any existing directory with that name
+            before writing.
+        """
+        stl_path = self._path.resolve().parent / dirname
+
+        if fresh and stl_path.exists():
+            shutil.rmtree(stl_path)
+
+        stl_path.mkdir(exist_ok=True)
+
+        # Build the geometry - to be implemented by subclasses:
+        self.build()
+
+        # Remove any existing physical groups before proceeding:
+        self._mod.remove_physical_groups()
+
+        for name, tags in self._groups.items():
+            self._mod.add_physical_group(
+                dim  =  2,
+                tags = tags,
+                name = name
+            )
+            gmsh.write((stl_path / f"{name}.stl").as_posix())
+            self._mod.remove_physical_groups()
+
+    @staticmethod
+    def occ_sync(f):
+        """ Ensure synchronization of the OpenCASCADE backend. """
+        @functools.wraps(f)
+        def wrapper(self, *args, **kwargs):
+            vals = f(self, *args, **kwargs)
+            self.sync()
+            return vals
+        return wrapper
+
+    @abstractmethod
+    def build(self):
+        """ Builds the geometry. """
+        pass
 
 
 class GmshOCCModel:

@@ -27,6 +27,7 @@ _LAZY_EXPORTS = {
     "FoamPostProcessingLoader": ".openfoam",
 
     # meshing:
+    "GmshSessionWrapper": ".meshing",
     "GmshOCCModel": ".meshing",
     "GeometricProgression": ".meshing",
     "RingBuilder": ".meshing",
