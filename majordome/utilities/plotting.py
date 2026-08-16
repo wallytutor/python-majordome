@@ -358,16 +358,25 @@ def centered_colormap(name: str, vmin: float, vmax: float,
 
 
 @MajordomePlot.new(size=(6, 5))
-def plot_xy(x=None, y=None, *,
-           plot: MajordomePlot | None = None,
-           **kwargs) -> MajordomePlot:
+def plot_xy(
+        x = None,
+        y = None,
+        *,
+        plot: MajordomePlot | None = None,
+        **kwargs
+    ) -> MajordomePlot:
     """ Quick plot 2D data using a standardized plot."""
     if plot is None:
         raise ValueError("`plot` keyword argument is required.")
 
+    if (dpi := kwargs.pop("dpi", None)) is not None:
+        plot.figure.dpi = dpi
+
     _, ax = plot.subplots()
+
     if x is not None and y is not None:
         ax[0].plot(x, y, **kwargs)
+
     return plot
 
 

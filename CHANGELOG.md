@@ -18,6 +18,8 @@
 
 - Added helper for parsing US drawing number format to `majordome.utilities` as `ArchitecturalFormatUSParser`.
 
+- Support figure `dpi` parameter in `majordome.utilities.plotting.plot_xy` for better configuration of notebooks.
+
 ## 1.3.0 - 2026-08-04
 
 - Add keywork `notebook` to `AbstractReportable` so that user code no longer needs to use a `display(Markdown(...))` boilerplate code.
