@@ -27,12 +27,6 @@ book:
       - _utilities/_index.qmd
       - magic.qmd
 
-    - part: "Reactor Engineering"
-      chapters:
-        - reactors/acetylene-pyrolysis-reactor.qmd
-        - reactors/counter-current-pfr.qmd
-        - reactors/converting-nasa-poly.qmd
-
     - references.qmd
 
 bibliography: https://raw.githubusercontent.com/wallytutor/wallytutor.github.io/refs/heads/main/shorts/_assets/references.bib
