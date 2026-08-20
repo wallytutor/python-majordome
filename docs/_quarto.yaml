@@ -45,6 +45,7 @@ format:
       - pulse
 
   # WIP not yet compiling
+  # typst: default
   # typst:
   #   papersize: a4
   #   fontsize: 11pt
@@ -58,12 +59,12 @@ format:
   #   syntax-highlighting: github
   #   include-before-body: assets/custom.typ
 
-  pdf:
-    reference-location: document
-    highlight-style: github
-    documentclass: scrreprt
-    papersize: a4
-    mainfont: "Latin Modern Sans"
-    sansfont: "Latin Modern Sans"
-    geometry:
-      - margin=25mm
+  # pdf:
+  #   reference-location: document
+  #   highlight-style: github
+  #   documentclass: scrreprt
+  #   papersize: a4
+  #   mainfont: "Latin Modern Sans"
+  #   sansfont: "Latin Modern Sans"
+  #   geometry:
+  #     - margin=25mm
