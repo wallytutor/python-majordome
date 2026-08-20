@@ -16,7 +16,6 @@ def __load_submodule(name):
 
 
 # __load_submodule(".autodiff")
-# __load_submodule(".calphad")
 # __load_submodule(".diffusion")
 __load_submodule(".engineering")
 __load_submodule(".simulation")

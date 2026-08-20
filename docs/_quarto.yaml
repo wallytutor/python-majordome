@@ -22,7 +22,6 @@ book:
 
     - part: "Majordome API"
       chapters:
-      - calphad.qmd
       - _engineering/_index.qmd
       - _simulation/_index.qmd
       - _utilities/_index.qmd
