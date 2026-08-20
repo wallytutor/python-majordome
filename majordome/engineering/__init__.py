@@ -65,9 +65,15 @@ _LAZY_EXPORTS = {
     # XXX calphad has its own module instead of importing directly from
     # the _core as it extends base Rust elements.
     # calphad:
-    "CalphadDatabaseLoader": ".calphad",
+
+    "CalphadSubstance": ".calphad",
     "CalphadSystemComposition": ".calphad",
+    "CalphadDatabaseLoader": ".calphad",
+    "add_calphad_data_directory": ".calphad",
+    "list_calphad_data_directories": ".calphad",
+    "CalphadEquilibrium": ".calphad",
     "equilibrate_stoichiometric": ".calphad",
+    "CalphadStoichiometricSystem": ".calphad",
 
     # _core.autodiff:
 
