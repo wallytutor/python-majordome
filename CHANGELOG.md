@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+## 1.4.0 - 2026-08-20
+
 - Fixed `Containerfile` and Linux build workflow based on the new project structure.
 
 - Because documentation is under revision, its automatic creation has been disabled in the release script and now requires the `-Docs` switch. This is a temporary measure and will be re-enabled once the documentation is updated.
@@ -17,6 +19,12 @@
 - Studying a new approach to import Rust modules, starting with `_core.diffusion` which was migrated under `majordome.engineering`.
 
 - Added helper for parsing US drawing number format to `majordome.utilities` as `ArchitecturalFormatUSParser`.
+
+- Support figure `dpi` parameter in `majordome.utilities.plotting.plot_xy` for better configuration of notebooks.
+
+- Moved `majordome.calphad` into `majordome.engineering.calphad` and provided custom re-export of names.
+
+- Removed articles not related from the core project from the documentation and reviewed documents.
 
 ## 1.3.0 - 2026-08-04
 

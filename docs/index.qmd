@@ -22,7 +22,7 @@ majordome --install-kernel `
     --display-name "Majordome (dev)"
 ```
 
-If you don't fit in the first group, you can build the package from source. For that, please referer to the development section below.
+If you don't fit in the first group, you can build the package from source. For that, please refer to the development section below.
 
 ::: {.callout-tip}
 
@@ -44,11 +44,11 @@ For the sake of compatibility with `maturin` and for avoiding large binaries, a 
 
 The following project guidelines must be followed:
 
-- Each commit that may affect user interaction with the Python or Rust libraries must be accompanied by a short comment in the code explaining the change in `CHANGELOG.md` file.
+- Each commit that may affect user interaction with the Python or Rust libraries must be accompanied by a short comment in the code explaining the change in the `CHANGELOG.md` file.
 
 - Tests should be added for any new functionality, bug fixes, or performance improvements. If possible, the tests should be added in the same commit as the change.
 
-- Before commiting a modification in any of the crates, make sure that building them with `uv run majordome-build` works. This enforces a greedy mechanism for quality control of the code base. It is also recommended to run `cargo check` and `cargo test` manually during development at intermediate points.
+- Before committing a modification in any of the crates, make sure that building them with `uv run majordome-build` works. This enforces a greedy mechanism for quality control of the code base. It is also recommended to run `cargo check` and `cargo test` manually during development at intermediate points.
 
 ### Environment
 
@@ -84,7 +84,7 @@ sudo apt-get install -y ./$quarto_deb
 
 ### Automated release
 
-In addition to what is described in the manual release section below, developers can also need to publish the docs, update the [version](https://docs.astral.sh/uv/guides/package/#updating-your-version), and publish the new version to GitHub and PyPI. This is fully automated by `release.ps1` to ensure consistency in actions.
+In addition to what is described in the manual release section below, developers may also need to publish the docs, update the [version](https://docs.astral.sh/uv/guides/package/#updating-your-version), and publish the new version to GitHub and PyPI. This is fully automated by `release.ps1` to ensure consistency in actions.
 
 - Make sure the package builds in both Windows and Linux, and that the documentation builds (many tests are included in the documentation, so this is a good sanity check for the code as well). The following commands provide a good starting point for the verifications in Windows:
 
@@ -135,7 +135,7 @@ The release script is useful but it can be fragile; it is better to have a fall-
 
 - Select the new version to release:
 
-    ```bash
+    ```powershell
     $version = "major"
     $version = "minor"
     $version = "patch"
@@ -143,22 +143,23 @@ The release script is useful but it can be fragile; it is better to have a fall-
 
 - Update the version in both `Cargo.toml` and `pyproject.toml`:
 
-    ```bash
+    ```powershell
     # If not yet available, install set-version:
     cargo install cargo-set-version
 
     # First, test with --dry-run to check the changes that will be made:
     uv version --bump $version --dry-run
-    cargo set-version --bump $version --dry-run
 
     # After testing with the above, remove --dry-run:
     uv version --bump $version
-    cargo set-version --bump $version
+
+    # Update cargo version to match the new version in pyproject.toml:
+    cargo set-version (uv version --short)
     ```
 
 - You can manually check the changes in the version files; alternatively, the following snipet can be used to extract the version from `Cargo.toml` and use it for the commit message and GitHub release tag:
 
-    ```bash
+    ```powershell
     $inSection = $false
     $version = $null
 
@@ -177,7 +178,7 @@ The release script is useful but it can be fragile; it is better to have a fall-
 
 - Generate the command for WSL build and inspect it before running:
 
-    ```bash
+    ```powershell
     $winPath = (Get-Location).Path.Replace("\", "/")
     $wslPath = (wsl wslpath $winPath).Trim()
     $nixCmd  = "cd $wslPath && source ~/.bashrc && ./release.sh"
@@ -185,7 +186,7 @@ The release script is useful but it can be fragile; it is better to have a fall-
 
 - Build the wheels in both Windows and Linux (inside the compliant manylinux container):
 
-    ```bash
+    ```powershell
     Remove-Item -Force -Recurse "dist/" -ErrorAction Ignore
 
     uv build --wheel
@@ -200,7 +201,7 @@ The release script is useful but it can be fragile; it is better to have a fall-
 
 - If everything is fine, commit the changes, push to the repository:
 
-    ```bash
+    ```powershell
     git add "Cargo.toml" "pyproject.toml" "Cargo.lock" "uv.lock"
     git commit -m "Release version $version"
     git tag "v$version"

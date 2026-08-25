@@ -1,20 +1,23 @@
-# Calphad
-
-*aka majordome.calphad*
+## Calphad
 
 ```{python}
 from majordome_build.documents import *
-from majordome.calphad import *
+
 from majordome.autodiff import Dual
+from majordome.engineering.calphad import (
+    CalphadDatabaseLoader,
+    CalphadSystemComposition,
+    equilibrate_stoichiometric,
+)
 import numpy as np
 
 T_REF = 298.15
 P_REF = 101325.0
 ```
 
-## Capabilities
+### Features
 
-### Data layer
+Data specification and import layer:
 
 - Lua-based dynamic species registry with named-indexed loading.
 
@@ -26,7 +29,7 @@ P_REF = 101325.0
 
 - `DatabaseLoader` supports full-database or phase-subset loading.
 
-### Thermodynamic engine
+Thermodynamic engine:
 
 - Evaluation of Cp, H, S, G for all parameterization models.
 
@@ -36,7 +39,7 @@ P_REF = 101325.0
 
 - Tabulation of thermodynamic properties over a temperature scan.
 
-### System composition
+System composition specification:
 
 - `SystemComposition` constructors:
   - `from_compound_moles` / `from_compound_masses`
@@ -46,7 +49,7 @@ P_REF = 101325.0
 
 - Report formatter with elemental fractions.
 
-### Equilibrium solver
+Equilibrium calculation:
 
 - `equilibrate_stoichiometric`: support-based Gibbs minimization for
   stoichiometric phase assemblages.
@@ -57,14 +60,14 @@ P_REF = 101325.0
 
 - Returns `Equilibrium` with amounts, Gibbs energies and a report formatter.
 
-## Data loading and inspection
+### Data loading and inspection
 
 - Loading a whole database:
 
 ```{python}
 #| echo: true
 db_path = "sample/simple-calcination.lua"
-db = DatabaseLoader(db_path)
+db = CalphadDatabaseLoader(db_path)
 db.phases
 ```
 
@@ -73,7 +76,7 @@ db.phases
 ```{python}
 #| echo: true
 phases = ["Calcite", "Lime", "CO2"]
-db = DatabaseLoader(db_path, phases=phases)
+db = CalphadDatabaseLoader(db_path, phases=phases)
 
 phases = db.get_data()
 phases
@@ -108,11 +111,11 @@ print(phases["Calcite"].tabulate(t_min=237.0, t_max=1200.0, step=100.0))
 print(phases["CO2"].tabulate(step=300.0))
 ```
 
-## Composition specification
+### Composition specification
 
 ```{python}
 #| echo: true
-db = DatabaseLoader(db_path, phases=["Calcite", "Diaspore"])
+db = CalphadDatabaseLoader(db_path, phases=["Calcite", "Diaspore"])
 phases = db.get_data()
 ```
 
@@ -121,7 +124,7 @@ phases = db.get_data()
 ```{python}
 #| echo: true
 X = {"Calcite": 1.5, "Diaspore": 2.0}
-comp = SystemComposition.from_compound_moles(phases, X)
+comp = CalphadSystemComposition.from_compound_moles(phases, X)
 print(comp.report())
 ```
 
@@ -130,7 +133,7 @@ print(comp.report())
 ```{python}
 #| echo: true
 Y = {"Calcite": 100.0, "Diaspore": 200.0}
-comp = SystemComposition.from_compound_masses(phases, Y)
+comp = CalphadSystemComposition.from_compound_masses(phases, Y)
 print(comp.report())
 ```
 
@@ -139,7 +142,7 @@ print(comp.report())
 ```{python}
 #| echo: true
 elements = {"Ca": 1.0, "C": 1.0, "O": 3.0}
-comp = SystemComposition.from_elemental_moles(elements)
+comp = CalphadSystemComposition.from_elemental_moles(elements)
 print(comp.report())
 ```
 
@@ -148,7 +151,7 @@ print(comp.report())
 ```{python}
 #| echo: true
 elements = {"Ca": 40.078, "C": 12.011, "O": 47.997}
-comp = SystemComposition.from_elemental_masses(elements)
+comp = CalphadSystemComposition.from_elemental_masses(elements)
 print(comp.report())
 ```
 
@@ -165,11 +168,11 @@ print(
 )
 ```
 
-## Automatic differentiation
+### Automatic differentiation
 
 ```{python}
 #| echo: true
-db = DatabaseLoader(db_path, phases=["Calcite"])
+db = CalphadDatabaseLoader(db_path, phases=["Calcite"])
 calcite = db.get_data()["Calcite"]
 
 # Instantiate Dual for temperature at 300 K with deriv = 1.0 (dx/dx)
@@ -203,8 +206,8 @@ t_eval = 1173.15
 p_eval = 101325.0
 X_eval = {"Calcite": 1.0, "Diaspore": 1.0}
 
-phases = DatabaseLoader(db_path).get_data()
-comp = SystemComposition.from_compound_moles(phases, X_eval)
+phases = CalphadDatabaseLoader(db_path).get_data()
+comp = CalphadSystemComposition.from_compound_moles(phases, X_eval)
 phi = equilibrate_stoichiometric(phases, comp, t_eval, p_eval)
 
 phi
@@ -214,9 +217,9 @@ phi
 
 ```{python}
 #| echo: true
-phases = DatabaseLoader(db_path).get_data()
+phases = CalphadDatabaseLoader(db_path).get_data()
 species_names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"]
-comp = SystemComposition.from_compound_moles(phases, X_eval)
+comp = CalphadSystemComposition.from_compound_moles(phases, X_eval)
 
 eq_ref = equilibrate_stoichiometric(phases, comp, T_REF, p_eval)
 h_ref  = sum(
@@ -268,7 +271,7 @@ for t in t_arr:
 #| echo: true
 names = ["HALITE", "CORUNDUM", "C3A1", "C1A1", "C1A2", "C1A6"]
 
-db = DatabaseLoader("hallstedt1990.lua", names)
+db = CalphadDatabaseLoader("hallstedt1990.lua", names)
 phases = db.get_data()
 
 t = 1400.0
@@ -292,7 +295,7 @@ x_arr = sorted(x_arr + [2/3, 6/7])
 for x in x_arr:
     X_moles = {"HALITE": 1.0 - x, "CORUNDUM": x}
 
-    comp  = SystemComposition.from_compound_moles(phases, X_moles)
+    comp  = CalphadSystemComposition.from_compound_moles(phases, X_moles)
     eq    = equilibrate_stoichiometric(phases, comp, t, p)
 
     total = sum(eq.amounts.get(n, 0.0) for n in names)

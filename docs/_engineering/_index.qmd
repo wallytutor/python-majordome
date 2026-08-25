@@ -9,3 +9,4 @@
 {{< include transport.qmd >}}
 {{< include vision.qmd >}}
 {{< include diffusion.qmd >}}
+{{< include calphad.qmd >}}

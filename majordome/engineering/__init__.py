@@ -4,7 +4,6 @@ from importlib import import_module
 
 _AUTODIFF  = (".._core", "numerical", "autodiff")
 _DIFFUSION = (".._core", "diffusion")
-_CALPHAD   = (".._core", "caphad")
 
 _LAZY_EXPORTS = {
     # numerical:
@@ -63,6 +62,19 @@ _LAZY_EXPORTS = {
     "metadata_pil": ".vision",
     "hyperspy_rgb_to_numpy": ".vision",
 
+    # XXX calphad has its own module instead of importing directly from
+    # the _core as it extends base Rust elements.
+    # calphad:
+
+    "CalphadSubstance": ".calphad",
+    "CalphadSystemComposition": ".calphad",
+    "CalphadDatabaseLoader": ".calphad",
+    "add_calphad_data_directory": ".calphad",
+    "list_calphad_data_directories": ".calphad",
+    "CalphadEquilibrium": ".calphad",
+    "equilibrate_stoichiometric": ".calphad",
+    "CalphadStoichiometricSystem": ".calphad",
+
     # _core.autodiff:
 
     # _core.diffusion:
@@ -71,9 +83,6 @@ _LAZY_EXPORTS = {
     "CarbonitridingSolver": _DIFFUSION,
     "ElementResults": _DIFFUSION,
     "slycke": _DIFFUSION,
-
-    # _core.calphad:
-
 }
 
 __all__ = list(_LAZY_EXPORTS.keys())
@@ -101,7 +110,8 @@ def _import_submodule(path, name):
 
 def _import_pyo3(path, module, name):
     submodule = _import_submodule(path, module)
-    # TODO handle the case of autodiff here
+    # TODO handle the case of autodiff here; UPDATE: ignore the to-do,
+    # and make autodiff importable from numerical root.
     return getattr(submodule, name)
 
 
