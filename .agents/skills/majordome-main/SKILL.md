@@ -1,27 +1,53 @@
 ---
-name: majordome
-description: Guidance for working in the majordome scientific computing repository. Use when asked to modify Python package code, Rust PyO3 bindings, F# diffusion modules, Quarto docs, or release/dependency metadata. Covers build/test commands, file locations, and platform-specific pitfalls (Windows PyO3 runtime DLL staging).
+name: majordome-main
+description: Provides directives for building and maintaining the Majordome package.
 ---
 
-# Majordome Skill
+# Majordome Main
 
-Use this skill for repository-aware implementation and maintenance tasks in this project.
+## Goal
+
+Provide *repository-aware* implementation and maintenance instructions.
+
+---
+
+## When to use this skill
+
+- Modifications to the Majordome project (python-majordome).
+
+- Use of Majordome within other projects that depend on its structure.
+
+---
 
 ## Project Map
 
-- Python package: `majordome/`
-- Rust extension core: `src/core/`
-- F# diffusion modules: `src/Diffusion.*`, `src/Diffusion/`
-- Quarto docs: `docs/`, `devel/`, `reactors/`, `diffusion/`
 - Packaging metadata: `pyproject.toml`, `Cargo.toml`
+- Python package: `majordome/`
+- Rust extension core: `src/`
+- Quarto docs: `docs/`
+
+---
+
+## Repository Guardrails
+
+- Prefer minimal patches over broad rewrites.
+- Preserve existing style and layout.
+- Add comments only where logic is non-obvious
+- Prefer documenting over commenting code.
+- Never edit generated docs by default (`docs/_book/`).
+- Run smallest relevant verification command after edits.
+- If a tool/command is missing, report that and provide an equivalent path.
+
+---
 
 ## Task Routing
 
 - Python utility/library changes -> Python Package workflow
 - CPython extension or import/runtime failures -> Rust/PyO3 workflow
-- Diffusion numerics/thermo/model updates -> F# Diffusion workflow
 - Documentation/tutorial/site edits -> Quarto Documentation workflow
 - Versioning/changelog/release changes -> Release workflow
+
+---
 
 ## Python Package Workflow
 
@@ -36,8 +62,7 @@ Use this skill for repository-aware implementation and maintenance tasks in this
 - `pyproject.toml`
 - `majordome/__init__.py`
 - `majordome/entrypoints.py`
-- `majordome/utilities.py`
-- `majordome/*_test.py`
+- `majordome/**/test.py`
 
 ### Steps
 
@@ -52,10 +77,9 @@ Use this skill for repository-aware implementation and maintenance tasks in this
 pytest -q
 ```
 
-Entrypoints currently expected:
+Entrypoints currently expected, see `[project.scripts]` in `pyproject.toml`.
 
-- `containerize = majordome.entrypoints:containerize`
-- `majordome = majordome.entrypoints:majordome`
+---
 
 ## Rust/PyO3 Workflow
 
@@ -98,27 +122,7 @@ python -c "import majordome, majordome._core; print('ok')"
 
 If Rust tests fail with `STATUS_DLL_NOT_FOUND (0xc0000135)`, verify `build.rs` still copies `pythonXY.dll` into `target/<profile>/` and `target/<profile>/deps/` based on the active interpreter.
 
-## F# Diffusion Workflow
-
-### Use For
-
-- Edits in `src/Diffusion.Core/`, `src/Diffusion.Numerics/`, `src/Diffusion.Thermo/`, `src/Diffusion.Slycke/`
-- Matching test updates in `*.Tests`
-
-### Steps
-
-1. Localize changes to affected subproject(s).
-2. Update corresponding tests for changed behavior.
-3. Avoid large renames without confirming references.
-
-### Validate
-
-```bash
-dotnet build src/Diffusion/Diffusion.Core.fsproj
-dotnet test src/Diffusion/Diffusion.Core.Tests.fsproj
-```
-
-Repeat for whichever `Diffusion.*` project was edited.
+---
 
 ## Quarto Documentation Workflow
 
@@ -143,8 +147,10 @@ Repeat for whichever `Diffusion.*` project was edited.
 ### Validate
 
 ```bash
-quarto render docs
+uv run majordome-build-qmd
 ```
+
+---
 
 ## Release and Dependency Workflow
 
@@ -174,12 +180,3 @@ quarto render docs
 cargo check
 pytest -q
 ```
-
-## Repository Guardrails
-
-- Prefer minimal patches over broad rewrites.
-- Preserve existing style and layout.
-- Add comments only where logic is non-obvious.
-- Never edit generated docs by default (`docs/_book/`).
-- Run smallest relevant verification command after edits.
-- If a tool/command is missing, report that and provide an equivalent path.
