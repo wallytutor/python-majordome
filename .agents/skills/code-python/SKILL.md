@@ -19,11 +19,13 @@ Use this when writing, modifying, and reviewing Python code. Do not use this ski
 
 ## How to use this skill
 
-Consistently apply the same code style across all modifications. All code is expected to be enterprise-level, so no "hacky" solutions, no "quick fixes", no "workarounds", no "temporary scripts", and naming conventions must be consistent with the existing codebase.
+Consistently apply the same code style across all modifications. All code is expected to be enterprise-level, so no "hacky" solutions, no "quick fixes", no "workarounds", no "temporary scripts", and naming conventions must be consistent with the existing codebase. Once a task is finished, update the CHANGELOG accordingly.
 
 ---
 
 ## Code style
+
+- Modules must always start with a line containing `# -*- coding: utf-8 -*-` and be written with Unix-style `LF` line endings.
 
 - Use PEP8 for style guidelines, unless the user explicitly requests otherwise or manually modifies the code for readability. Code line should be wrapped in an 80–character limit. What follows in this skill overrides PEP8 when in conflict.
 
