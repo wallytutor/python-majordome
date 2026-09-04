@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from importlib import import_module
+from .._imports import ManagedExports
 
 _AUTODIFF  = (".._core", "numerical", "autodiff")
 _DIFFUSION = (".._core", "diffusion")
@@ -85,35 +85,12 @@ _LAZY_EXPORTS = {
     "slycke": _DIFFUSION,
 }
 
-__all__ = list(_LAZY_EXPORTS.keys())
+_mngr = ManagedExports(__package__, _LAZY_EXPORTS)
 
+__all__ = _mngr.names
 
 def __getattr__(name: str):
-    if name in _LAZY_EXPORTS:
-        submodule_path = _LAZY_EXPORTS[name]
-
-        if isinstance(submodule_path, str):
-            exported_item = _import_submodule(submodule_path, name)
-        else:
-            exported_item = _import_pyo3(*submodule_path, name)
-
-        globals()[name] = exported_item
-        return exported_item
-
-    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
-
-
-def _import_submodule(path, name):
-    submodule = import_module(path, __package__)
-    return getattr(submodule, name)
-
-
-def _import_pyo3(path, module, name):
-    submodule = _import_submodule(path, module)
-    # TODO handle the case of autodiff here; UPDATE: ignore the to-do,
-    # and make autodiff importable from numerical root.
-    return getattr(submodule, name)
-
+    return _mngr.getattr(name)
 
 def __dir__():
-    return list(globals().keys()) + __all__
+    return _mngr.dir()
