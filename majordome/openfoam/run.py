@@ -15,7 +15,6 @@ from typing import Any, Callable, Sequence
 
 from ..utilities.common import ColorPrint, validate_input
 
-
 if sys.platform != "linux":
     raise OSError("Only Linux is supported!")
 

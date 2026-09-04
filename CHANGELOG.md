@@ -6,6 +6,8 @@
 
 - Unified all logic of lazy-exports under the single private module `_imports.py`.
 
+- Support re-exports per OS in `majordome._imports.setup_lazy_exports` to avoid Linux-only code running on other operating systems.
+
 ## 1.4.0 - 2026-08-20
 
 - Fixed `Containerfile` and Linux build workflow based on the new project structure.

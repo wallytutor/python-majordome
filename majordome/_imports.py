@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import sys
+
 from importlib import import_module
 from typing import Any
 
@@ -56,9 +58,13 @@ class ManagedExports:
 def setup_lazy_exports(
         package: str,
         module_globals: dict[str, Any],
-        exports: dict[str, Any]
+        exports: dict[str, Any],
+        linux_exports: dict[str, Any] | None = None,
     ) -> tuple[Any, Any]:
     """ Sets up PEP 562 lazy imports for a module. """
+    if linux_exports and sys.platform == "linux":
+        exports.update(linux_exports)
+
     mngr = ManagedExports(package, module_globals, exports)
     return mngr.getattr, mngr.dir
 
