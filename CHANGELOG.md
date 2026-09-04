@@ -4,6 +4,8 @@
 
 - Moved all OpenFOAM related utilities to `majordome.openfoam` and added a new module for project management.
 
+- Unified all logic of lazy-exports under the single private module `_imports.py`.
+
 ## 1.4.0 - 2026-08-20
 
 - Fixed `Containerfile` and Linux build workflow based on the new project structure.

@@ -3,53 +3,61 @@
 from importlib import import_module
 from typing import Any
 
+
 class _NoNameError(AttributeError):
-    def __init__(self, name: str):
-        super().__init__(f"module '{__name__}' has no attribute '{name}'")
+    def __init__(self, name: str, package: str) -> None:
+        super().__init__(f"module '{package}' has no attribute '{name}'")
         self.name = name
 
 
 class ManagedExports:
+    __slots__ = ("_package", "_globals", "_exports", "_all_names")
+
     def __init__(
             self,
             package: str,
+            module_globals: dict[str, Any],
             exports: dict[str, Any]
         ) -> None:
-        self._globals = globals()
+        """ Standardizes lazy export management for a module. """
         self._package = package
-        self._all_names = list(exports.keys())
+        self._globals = module_globals
         self._exports = exports
 
-    def _import_submodule(self, path, name):
-        submodule = import_module(path, self._package)
-        return getattr(submodule, name)
+        self._all_names = sorted(list(exports.keys()))
+        self._globals["__all__"] = self._all_names
 
-    def _import_pyo3(self, path, module, name):
-        submodule = self._import_submodule(path, module)
-        # TODO handle the case of autodiff here; UPDATE: ignore the to-do,
-        # and make autodiff importable from numerical root.
-        return getattr(submodule, name)
+    def _resolve_export(self, spec, name):
+        if isinstance(spec, str):
+            submodule = import_module(spec, self._package)
+            return getattr(submodule, name)
 
-    def getattr(self, name: str):
+        mod = import_module(spec[0], self._package)
+
+        for attr in spec[1:]:
+            mod = getattr(mod, attr)
+
+        return getattr(mod, name)
+
+    def getattr(self, name: str) -> Any:
         """ Lazy imports items from a module. """
         if name in self._exports:
-            submodule_path = self._exports[name]
+            item = self._resolve_export(self._exports[name], name)
+            self._globals[name] = item
+            return item
 
-            if isinstance(submodule_path, str):
-                exported_item = self._import_submodule(submodule_path, name)
-            else:
-                exported_item = self._import_pyo3(*submodule_path, name)
+        raise _NoNameError(name, self._package)
 
-            self._globals[name] = exported_item
-            return exported_item
-
-        print(f"{self._package=}, {name=}")
-        raise _NoNameError(name)
-
-    def dir(self):
+    def dir(self) -> list[str]:
         """ Returns the list of all exported names. """
-        return list(globals().keys()) + self._all_names
+        return sorted(set(list(self._globals.keys()) + self._all_names))
 
-    def names(self) -> list[str]:
-        """ Returns the list of all exported names. """
-        return list(self._all_names)
+
+def setup_lazy_exports(
+        package: str,
+        module_globals: dict[str, Any],
+        exports: dict[str, Any]
+    ) -> tuple[Any, Any]:
+    """ Sets up PEP 562 lazy imports for a module. """
+    mngr = ManagedExports(package, module_globals, exports)
+    return mngr.getattr, mngr.dir

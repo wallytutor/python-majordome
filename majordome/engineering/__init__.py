@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from .._imports import ManagedExports
+from .._imports import setup_lazy_exports
 
 _AUTODIFF  = (".._core", "numerical", "autodiff")
 _DIFFUSION = (".._core", "diffusion")
 
-_LAZY_EXPORTS = {
+__getattr__, __dir__ = setup_lazy_exports(__name__, globals(), {
     # numerical:
     "RelaxUpdate": ".numerical",
     "StabilizeNvarsConvergenceCheck": ".numerical",
@@ -83,14 +83,4 @@ _LAZY_EXPORTS = {
     "CarbonitridingSolver": _DIFFUSION,
     "ElementResults": _DIFFUSION,
     "slycke": _DIFFUSION,
-}
-
-_mngr = ManagedExports(__package__, _LAZY_EXPORTS)
-
-__all__ = _mngr.names
-
-def __getattr__(name: str):
-    return _mngr.getattr(name)
-
-def __dir__():
-    return _mngr.dir()
+})
