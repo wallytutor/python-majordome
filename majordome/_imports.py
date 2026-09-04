@@ -61,3 +61,29 @@ def setup_lazy_exports(
     """ Sets up PEP 562 lazy imports for a module. """
     mngr = ManagedExports(package, module_globals, exports)
     return mngr.getattr, mngr.dir
+
+
+def setup_submodules_exports(
+        package: str,
+        module_globals: dict[str, Any],
+        submodules: list[str],
+        extra_exports: list[str] | None = None
+    ) -> tuple[Any, Any]:
+    """ Sets up PEP 562 lazy imports by aggregating submodules' exports. """
+    exports = {}
+
+    for submod_name in submodules:
+        submod = import_module(submod_name, package)
+
+        for export in getattr(submod, "__all__", []):
+            exports[export] = submod_name
+
+    getattr_func, dir_func = setup_lazy_exports(
+        package, module_globals, exports
+    )
+
+    if extra_exports:
+        all_names = sorted(set(extra_exports + list(exports.keys())))
+        module_globals["__all__"] = all_names
+
+    return getattr_func, dir_func
