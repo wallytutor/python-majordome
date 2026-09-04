@@ -1,0 +1,5 @@
+# OpenFOAM
+
+*aka majordome.openfoam*
+
+{{< include post.qmd >}}

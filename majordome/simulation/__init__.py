@@ -21,11 +21,6 @@ _LAZY_EXPORTS = {
     "convert_xy_to_dict": ".fluent",
     "load_dpm_table": ".fluent",
 
-    # openfoam:
-    "FoamTabularData": ".openfoam",
-    "FoamLagrangianTable": ".openfoam",
-    "FoamPostProcessingLoader": ".openfoam",
-
     # meshing:
     "GmshSessionWrapper": ".meshing",
     "GmshOCCModel": ".meshing",

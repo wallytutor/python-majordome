@@ -4,5 +4,4 @@
 
 {{< include elmer.qmd >}}
 {{< include fluent.qmd >}}
-{{< include openfoam.qmd >}}
 {{< include meshing.qmd >}}

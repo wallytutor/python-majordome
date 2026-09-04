@@ -2,7 +2,7 @@
 
 ```{python}
 from majordome_build.documents import *
-from majordome.simulation.openfoam import *
+from majordome.openfoam.post import *
 ```
 
 ### Loading `postProcessing` data

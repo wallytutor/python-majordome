@@ -24,6 +24,7 @@ book:
       chapters:
       - _engineering/_index.qmd
       - _simulation/_index.qmd
+      - _openfoam/_index.qmd
       - _utilities/_index.qmd
       - magic.qmd
 
