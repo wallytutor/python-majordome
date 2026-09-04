@@ -22,6 +22,14 @@ if sys.platform != "linux":
 TIME_DIR_REGEX = r"^[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$"
 
 
+def _skip(tool: str, reason: str) -> None:
+    ColorPrint.yellow(f"> Skipping {tool}: {reason}")
+
+
+def _warn(tool: str, reason: str) -> None:
+    ColorPrint.red(f"> Warning {tool}: {reason}")
+
+
 class FoamHelpers:
     """ Helper routines for OpenFOAM case environment and structure. """
 
@@ -48,7 +56,10 @@ class FoamHelpers:
         """
         # Do not source if already sourced, it's slow...
         wm_project_dir = os.environ.get("WM_PROJECT_DIR", None)
-        if wm_project_dir and Path(wm_project_dir).resolve() == Path(foam_root).resolve():
+        if (
+            wm_project_dir and
+            Path(wm_project_dir).resolve() == Path(foam_root).resolve()
+        ):
             return
 
         ColorPrint.green(f"> Sourcing OpenFOAM environment for {shell}")
@@ -176,6 +187,7 @@ class FoamHelpers:
     def is_restart(
             cls,
             cores: int,
+            check_time: bool = True,
             root_dir: Path | None = None
         ) -> bool:
         """ Verify if directory contains valid past data for simulation restart.
@@ -184,6 +196,10 @@ class FoamHelpers:
         ----------
         cores : int
             Number of processor subdomains configured for parallel run.
+        check_time : bool
+            Flag to also check for consistency of time directories
+            across domains. Set to False if not required, e.g during
+            a meshing workflow.
         root_dir : Path | None = None
             Case directory path to check. Defaults to current working dir.
 
@@ -200,9 +216,20 @@ class FoamHelpers:
         procs = cls.get_processor_dirs(here)
 
         if len(procs) != cores:
+            _warn(
+                "is_restart",
+                f"expected {cores} processors but found {len(procs)}"
+            )
             return False
 
+        if not check_time:
+            return True
+
         if (top_latest := cls.get_latest_time(here)) is None:
+            _warn(
+                "is_restart",
+                "no time directory found"
+            )
             return False
 
         proc_times = [cls.get_latest_time(p) for p in procs]
@@ -655,9 +682,11 @@ class FoamRunner:
             Invokes decomposePar tool after optional patching step.
         """
         if cores < 2:
+            _skip("decomposePar", "cores < 2")
             return
 
-        if FoamHelpers.is_restart(cores) and not force:
+        if FoamHelpers.is_restart(cores, check_time=False) and not force:
+            _skip("decomposePar", "this is a restart run.")
             return
 
         dict_file = Path("system/decomposeParDict")
@@ -746,7 +775,7 @@ class FoamRunner:
             cls.serial("surfaceFeatures", log_name=log_name, force=force)
             return
 
-        print("Skipping surfaceFeatures - eMesh files already exist.")
+        _skip("surfaceFeatures", "eMesh files already exist.")
 
     @classmethod
     def foam_run(
@@ -1003,7 +1032,7 @@ class FoamMeshing:
 
         if create_background_mesh:
             if Path("constant/polyMesh").exists():
-                print("Skipping blockMesh — polyMesh already exists.")
+                _skip("blockMesh", "polyMesh already exists.")
             else:
                 opts = kwargs.get("blockMesh_options", [])
                 FoamRunner.serial(["blockMesh"] + opts)
