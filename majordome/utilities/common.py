@@ -428,3 +428,27 @@ def sympy_symbols_factory(*args: str | tuple, scope: dict):
 
         except Exception as e:
             print(f"Error creating symbol {symbol}: {e}")
+
+
+def validate_input(msg: str) -> bool:
+    """ Case-insensitive greedy prompt user for a Yes/No answer.
+
+    Parameters
+    ----------
+    msg : str
+        Message text to display.
+
+    Returns
+    -------
+    bool
+        True if user answers 'y', False if 'n'.
+    """
+    while True:
+        match (ans := input(f"{msg} (y/N): ").lower().strip()):
+            case "y":
+                return True
+            case "n":
+                return False
+            case _:
+                print(f"Invalid input {ans}; please, answer (y/N)")
+                continue

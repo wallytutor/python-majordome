@@ -13,40 +13,14 @@ from subprocess import run, STDOUT, PIPE
 from time import perf_counter, time_ns
 from typing import Any, Callable, Sequence
 
+from ..utilities.common import ColorPrint, validate_input
+
 
 if sys.platform != "linux":
     raise OSError("Only Linux is supported!")
 
 
 TIME_DIR_REGEX = r"^[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$"
-
-
-def banner(message: str) -> None:
-    """ Print a formatted banner message to standard output.
-
-    Parameters
-    ----------
-    message : str
-        Message text to display inside standard workflow banner.
-
-    Returns
-    -------
-    None
-        Output is written directly to standard stdout stream.
-    """
-    print(f"{78 * '='}\n> {message}\n")
-
-
-def validate_input(msg: str) -> bool:
-    while True:
-        match (ans := input(f"{msg} (y/N): ").lower().strip()):
-            case "y":
-                return True
-            case "n":
-                return False
-            case _:
-                print(f"Invalid input {ans}; please, answer (y/N)")
-                continue
 
 
 class FoamHelpers:
@@ -78,7 +52,7 @@ class FoamHelpers:
         if wm_project_dir and Path(wm_project_dir).resolve() == Path(foam_root).resolve():
             return
 
-        banner(f"Sourcing OpenFOAM environment for {shell}")
+        ColorPrint.green(f"> Sourcing OpenFOAM environment for {shell}")
         rc = Path(foam_root) / f"etc/{shell}rc"
 
         if not rc.exists():
@@ -939,7 +913,7 @@ class FoamMeshing:
         None
             Runs gmshToFoam, renumberMesh, and checkMesh sequentially.
         """
-        banner("Workflow gmshToFoam for a single region")
+        ColorPrint.green("> Workflow gmshToFoam for a single region")
 
         geometry = Path(mesh_file)
 
@@ -1016,7 +990,7 @@ class FoamMeshing:
         None
             Executes complete snappyHexMesh workflow.
         """
-        banner("Workflow snappyHexMesh")
+        ColorPrint.green("> Workflow snappyHexMesh")
 
         if callable(geometry):
             geometry(cores)
