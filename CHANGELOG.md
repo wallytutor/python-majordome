@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Improved OpenFOAM workflow handling in `majordome.openfoam.run`: fixed file existence check in `dict_expand_field`, improved un-reconstructed parallel restart detection in `FoamHelpers.is_restart`, and added `all_regions` / `region` multi-region reconstruction support to `FoamRunner.reconstruct`.
+
 - Added `dict_expand_field` to `FoamRunner` to enable the expansion of initial conditions in a more convenient and automated way.
 
 - Added `mesh` method to `FoamCleaner` to recursively remove `polyMesh` directories and `cellToRegion` files under `constant/`, and updated `FoamCleaner.case` to accept a `remove_mesh: bool = True` keyword parameter.

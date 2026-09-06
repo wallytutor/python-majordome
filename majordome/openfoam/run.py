@@ -229,16 +229,21 @@ class FoamHelpers:
         if not check_time:
             return True
 
-        if (top_latest := cls.get_latest_time(here)) is None:
+        proc_times = [cls.get_latest_time(p) for p in procs]
+
+        if any(t is None for t in proc_times):
             _warn(
                 "is_restart",
-                "no time directory found"
+                "no time directory found in processor folders"
             )
             return False
 
-        proc_times = [cls.get_latest_time(p) for p in procs]
+        top_latest = cls.get_latest_time(here)
 
-        return all(t is not None and t == top_latest for t in proc_times)
+        if top_latest is not None:
+            return all(t == top_latest for t in proc_times)
+
+        return len(set(proc_times)) == 1
 
 
 class FoamArguments:
@@ -508,7 +513,7 @@ class FoamCleaner:
             Target case root directory. Defaults to current working dir.
         remove_zero : bool = True
             Whether to remove the 0 initial conditions directory.
-        remove_mesh : bool = False
+        remove_mesh : bool = True
             Whether to remove polyMesh directories and cellToRegion files.
         extra_dirs : Sequence[str | Path] | None = None
             Additional directory paths to remove.
@@ -704,7 +709,9 @@ class FoamRunner:
             log_name: str | None = None,
             cores: int = 1,
             force: bool = False,
-            patching: Callable[[int], None] | None = None
+            patching: Callable[[int], None] | None = None,
+            all_regions: bool = False,
+            options: list[str] | None = None,
         ) -> None:
         """ Run domain decomposition using decomposePar utility.
 
@@ -719,6 +726,10 @@ class FoamRunner:
         patching : Callable[[int], None] | None = None
             Optional setup function executed before domain decomposition.
             Takes the number of cores as an argument.
+        all_regions : bool = False
+            Whether to decompose all mesh regions (-allRegions).
+        options : list[str] | None = None
+            Additional decomposePar command line options.
 
         Returns
         -------
@@ -741,7 +752,13 @@ class FoamRunner:
         if not dict_file.exists():
             raise FileNotFoundError(dict_file)
 
-        cls.serial(["decomposePar"], log_name=log_name, force=force)
+        options = options or []
+
+        if all_regions:
+            options.append("-allRegions")
+
+        cmd = ["decomposePar"] + list(set(options))
+        cls.serial(cmd, log_name=log_name, force=force)
 
     @classmethod
     def reconstruct(
@@ -751,6 +768,8 @@ class FoamRunner:
             force: bool = False,
             latest: bool = False,
             constant: bool = False,
+            all_regions: bool = False,
+            region: str | None = None,
             options: list[str] | None = None,
         ) -> None:
         """ Reconstruct parallel simulation data using reconstructPar.
@@ -765,6 +784,10 @@ class FoamRunner:
             Whether to reconstruct only the latest time step.
         constant : bool = False
             Whether to reconstruct constant directory data.
+        all_regions : bool = False
+            Whether to reconstruct all mesh regions (-allRegions).
+        region : str | None = None
+            Specific mesh region to reconstruct (-region).
         options : list[str] | None = None
             Additional reconstructPar command line options.
 
@@ -778,7 +801,6 @@ class FoamRunner:
         if not procs:
             return
 
-
         options = options or []
 
         if latest:
@@ -786,6 +808,12 @@ class FoamRunner:
 
         if constant:
             options.append("-constant")
+
+        if all_regions:
+            options.append("-allRegions")
+
+        if region:
+            options.extend(["-region", region])
 
         cmd = ["reconstructPar"] + list(set(options))
         cls.serial(cmd, log_name=log_name, force=force)
@@ -832,7 +860,8 @@ class FoamRunner:
             reconstruct: bool = False,
             preprocess: Callable[[], None] | None = None,
             decomposing: Callable[[], None] | None = None,
-            latest: bool = False
+            multi_region: bool = False,
+            latest: bool = False,
         ) -> None:
         """ Manage end-to-end OpenFOAM solver workflow execution.
 
@@ -866,7 +895,11 @@ class FoamRunner:
         if not FoamHelpers.is_restart(cores) and callable(preprocess):
             preprocess()
 
-        cls.decompose(cores=cores, patching=decomposing)
+        cls.decompose(
+            cores       = cores,
+            patching    = decomposing,
+            all_regions = multi_region,
+        )
 
         cmd_args = args if args is not None else ["foamRun"]
 
@@ -878,7 +911,10 @@ class FoamRunner:
         )
 
         if reconstruct:
-            cls.reconstruct(latest=latest)
+            cls.reconstruct(
+                latest      = latest,
+                all_regions = multi_region
+            )
 
     @classmethod
     def dict_set_entry(
@@ -968,7 +1004,7 @@ class FoamRunner:
         log_name = Path(*parts)
         log_name.parent.mkdir(parents=True, exist_ok=True)
 
-        if not log_name and not force:
+        if log_name.exists() and not force:
             _warn(
                 "foamDictionary -expand",
                 f"{log_name} already exists"
@@ -1225,7 +1261,15 @@ class FoamProject:
         bool
             True if at least one workflow execution option is set.
         """
-        return args.mesh or args.run or args.clean or args.reconstruct
+        return (
+            args.mesh or
+            args.run or
+            args.clean or
+            args.clean_mesh or
+            args.clean_logs or
+            args.clean_processors or
+            args.reconstruct
+        )
 
     def __call__(self, *args: Any, **kwargs: Any) -> None:
         """ Execute CLI workflow based on parsed command line arguments.
@@ -1262,7 +1306,7 @@ class FoamProject:
         ###
 
         if args.clean_mesh:
-            FoamCleaner.mesh(self._root_dir)
+            FoamCleaner.mesh(self._root_dir / "constant")
 
         if args.clean_logs:
             FoamCleaner.logs(self._root_dir)

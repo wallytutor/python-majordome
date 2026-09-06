@@ -86,3 +86,22 @@ def test_foam_cleaner_case_remove_mesh(tmp_path):
     assert not cell_file1.exists()
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="OpenFOAM runner is Linux-only")
+def test_foam_helpers_is_restart_unreconstructed(tmp_path):
+    from majordome.openfoam.run import FoamHelpers
+
+    case_dir = tmp_path / "parallel_case"
+    system_dir = case_dir / "system"
+    system_dir.mkdir(parents=True, exist_ok=True)
+    (system_dir / "controlDict").write_text("dummy")
+
+    proc0 = case_dir / "processor0" / "100"
+    proc1 = case_dir / "processor1" / "100"
+    proc0.mkdir(parents=True, exist_ok=True)
+    proc1.mkdir(parents=True, exist_ok=True)
+
+    # Even without root level '100' directory, parallel processor dirs are consistent
+    assert FoamHelpers.is_restart(cores=2, root_dir=case_dir) is True
+
+
+
