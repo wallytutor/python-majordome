@@ -18,19 +18,34 @@ TrupleAny = tuple[AnyNumber, AnyNumber, AnyNumber]
 PlaneEquationAny = tuple[AnyNumber, AnyNumber, AnyNumber, AnyNumber]
 
 
-class GmshSessionWrapper(ABC):
-    """ Helper mixin to provide a Gmsh session manager. """
+class GmshSessionWrapper:
+    """ Helper mixin to provide a Gmsh session manager.
+
+    Parameters
+    ----------
+    name : str = "domain"
+        Name of the Gmsh model.
+    interactive : bool = True
+        Whether to launch the Gmsh GUI window on exit.
+    """
     __slots__ = (
-        "_name", "_interactive",         # Controls
-        "_opt", "_mod", "_occ", "_msh",  # Aliases
-        "_face_groups",                  # Buffer
+        "_name",
+        "_interactive",
+        "_opt",
+        "_mod",
+        "_occ",
+        "_msh",
+        "_model",
+        "_mesh",
+        "_face_groups",
     )
 
-    def __init__(self, name: str, interactive: bool = True):
-        super().__init__()
-
+    def __init__(self, name: str = "domain", interactive: bool = True) -> None:
         self._name = name
         self._interactive = interactive
+
+        if gmsh.is_initialized():
+            gmsh.finalize()
 
         gmsh.initialize()
         gmsh.model.add(self._name)
@@ -41,33 +56,67 @@ class GmshSessionWrapper(ABC):
         self._occ = gmsh.model.occ
         self._msh = gmsh.model.mesh
 
+        # Provide alternative attribute names for backward compatibility
+        self._model = self._mod
+        self._mesh = self._msh
+
         # Dictionary to store named face group tags
         self._face_groups: dict[str, list[int]] = {}
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.synchronize()
+
         if self._interactive and not exc_type:
-            self.show()
+            gmsh.fltk.run()
 
         self.finalize()
 
-    def sync(self):
+    def synchronize(self) -> None:
         """ Synchronize the OpenCASCADE CAD kernel with the GMSH model. """
         self._occ.synchronize()
 
-    def finalize(self):
+    def sync(self) -> None:
+        """ Synchronize the OpenCASCADE CAD kernel with the GMSH model. """
+        self.synchronize()
+
+    def finalize(self) -> None:
         """ Clean up and close the GMSH session. """
         try:
             gmsh.finalize()
         except Exception:
             pass
 
-    def show(self):
+    def show(self) -> None:
         """ Open the GMSH Graphical User Interface window. """
         self.sync()
         gmsh.fltk.run()
+
+    def set_option(self, name: str, value: Any) -> None:
+        """ Set a raw Gmsh option. """
+        if value is None:
+            return
+
+        if isinstance(value, bool):
+            gmsh.option.setNumber(name, 1 if value else 0)
+            return
+
+        if isinstance(value, (int, float)):
+            gmsh.option.setNumber(name, value)
+            return
+
+        if isinstance(value, str):
+            gmsh.option.setString(name, value)
+            return
+
+        raise ValueError(f"Unsupported option value type: {type(value)}")
+
+    def configure(self, config: dict[str, Any]) -> None:
+        """ Configure mesh parameters and display options. """
+        for key, value in config.items():
+            self.set_option(key, value)
 
     def add_face_groups(self, groups: dict[str, list[int]]) -> None:
         """ Add face groups to the GMSH model. """
@@ -134,13 +183,21 @@ class GmshSessionWrapper(ABC):
             return vals
         return wrapper
 
-    @abstractmethod
-    def build(self):
-        """ Builds the geometry. """
+    def build(self) -> None:
+        """ Builds the geometry. Subclasses can override. """
         pass
 
+    @property
+    def render(self) -> bool:
+        """ Return whether interactive rendering is enabled. """
+        return self._interactive
 
-class GmshOCCModel:
+    @property
+    def _render(self) -> bool:
+        return self._interactive
+
+
+class GmshOCCModel(GmshSessionWrapper):
     """ Wrapper to manage OCC models with an OOP approach.
 
     Parameters
@@ -149,21 +206,41 @@ class GmshOCCModel:
         Whether to launch the Gmsh GUI after building the model.
     name : str, optional
         Name of the Gmsh model.
-    config : dict
+    config : dict, optional
         Provide configuration for gmsh internals.
     """
+    __slots__ = (
+        "get_boundary",
+        "add_physical_group",
+        "set_physical_name",
+        "add_point",
+        "add_line",
+        "add_circle_arc",
+        "add_rectangle",
+        "add_curve_loop",
+        "add_plane_surface",
+        "fuse",
+        "remove",
+        "fragment",
+        "extrude",
+        "revolve",
+        "rotate",
+        "synchronize",
+        "translate",
+        "get_mass",
+        "set_transfinite_curve",
+        "set_transfinite_surface",
+        "set_recombine",
+        "set_size",
+        "generate_mesh",
+    )
+
     def __init__(self, *,
             render: bool = False,
             name: str = "domain",
-            config: dict[str, Any],
+            config: dict[str, Any] | None = None,
         ) -> None:
-        self._render = render
-
-        if gmsh.is_initialized():
-            gmsh.finalize()
-
-        gmsh.initialize()
-        gmsh.model.add(name)
+        super().__init__(name=name, interactive=render)
 
         self._aliases()
 
@@ -181,15 +258,17 @@ class GmshOCCModel:
             "Geometry.Surfaces": True,
         }
         options = default_options.copy()
-        options.update(config)
+
+        if config is not None:
+            options.update(config)
 
         self.configure(options)
 
     def _aliases(self):
         """ Aliases for the Gmsh API to simplify usage. """
-        self._model = model = gmsh.model
-        self._occ   = occ   = model.occ
-        self._mesh  = mesh  = model.mesh
+        model = self._mod
+        occ   = self._occ
+        mesh  = self._msh
 
         # Aliases for model operations:
         self.get_boundary       = model.getBoundary
@@ -228,41 +307,6 @@ class GmshOCCModel:
         self.set_recombine           = mesh.setRecombine
         self.set_size                = mesh.setSize
         self.generate_mesh           = mesh.generate
-
-    def __enter__(self) -> Self:
-        return self
-
-    def __exit__(self, _exc_type, _exc_value, _traceback) -> None:
-        self.synchronize()
-
-        if self._render:
-            gmsh.fltk.run()
-
-        gmsh.finalize()
-
-    def set_option(self, name: str, value: Any) -> None:
-        """ Set a raw Gmsh option. """
-        if value is None:
-            return
-
-        if isinstance(value, bool):
-            gmsh.option.setNumber(name, 1 if value else 0)
-            return
-
-        if isinstance(value, (int, float)):
-            gmsh.option.setNumber(name, value)
-            return
-
-        if isinstance(value, str):
-            gmsh.option.setString(name, value)
-            return
-
-        raise ValueError(f"Unsupported option value type: {type(value)}")
-
-    def configure(self, config: dict[str, Any]) -> None:
-        """ Configure mesh parameters and display options. """
-        for key, value in config.items():
-            self.set_option(key, value)
 
     def add_points(self,
                    x: NDArray[np.float64],

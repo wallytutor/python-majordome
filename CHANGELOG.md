@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Refactored `GmshOCCModel` to inherit from `GmshSessionWrapper` in `majordome.simulation.meshing`, eliminating code duplication in session lifecycle management, options configuration, and context manager handling.
+
 - Moved all OpenFOAM related utilities to `majordome.openfoam` and added a new module for project management.
 
 - Unified all logic of lazy-exports under the single private module `_imports.py`.
