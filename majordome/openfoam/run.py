@@ -215,6 +215,10 @@ class FoamHelpers:
 
         procs = cls.get_processor_dirs(here)
 
+        if not procs:
+            # No warning here, this is the first call.
+            return False
+
         if len(procs) != cores:
             _warn(
                 "is_restart",
