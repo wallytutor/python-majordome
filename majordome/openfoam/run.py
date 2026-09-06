@@ -275,6 +275,11 @@ class FoamArguments:
             help   = "Clean case files and logs"
         )
         parser.add_argument(
+            "--clean-mesh",
+            action = "store_true",
+            help   = "Clean mesh directories"
+        )
+        parser.add_argument(
             "--clean-logs",
             action = "store_true",
             help   = "Clean log files only"
@@ -450,12 +455,42 @@ class FoamCleaner:
             if p.is_dir():
                 shutil.rmtree(p, ignore_errors=True)
 
+    @staticmethod
+    def mesh(
+            constant_dir: str | Path | None = None,
+        ) -> None:
+        """ Remove polyMesh directories and cellToRegion files recursively.
+
+        Parameters
+        ----------
+        constant_dir : str | Path | None = None
+            Path to constant directory. Defaults to 'constant' in cwd.
+
+        Returns
+        -------
+        None
+            polyMesh directories and cellToRegion files are removed in-place.
+        """
+        cdir = Path(constant_dir) if constant_dir else Path.cwd() / "constant"
+
+        if not cdir.is_dir():
+            return
+
+        for p in list(cdir.rglob("polyMesh")):
+            if p.is_dir():
+                shutil.rmtree(p, ignore_errors=True)
+
+        for f in list(cdir.rglob("cellToRegion*")):
+            if f.is_file():
+                f.unlink(missing_ok=True)
+
     @classmethod
     def case(
             cls,
             root_dir: str | Path | None = None,
             *,
             remove_zero: bool = True,
+            remove_mesh: bool = True,
             extra_dirs: Sequence[str | Path] | None = None,
             extra_files: Sequence[str | Path] | None = None,
             extra_patterns: Sequence[str] | None = None,
@@ -469,6 +504,8 @@ class FoamCleaner:
             Target case root directory. Defaults to current working dir.
         remove_zero : bool = True
             Whether to remove the 0 initial conditions directory.
+        remove_mesh : bool = False
+            Whether to remove polyMesh directories and cellToRegion files.
         extra_dirs : Sequence[str | Path] | None = None
             Additional directory paths to remove.
         extra_files : Sequence[str | Path] | None = None
@@ -492,9 +529,12 @@ class FoamCleaner:
         cls.processors_dirs(cwd)
         cls.logs(cwd)
 
+        if remove_mesh:
+            cls.mesh(cwd / "constant")
+
         to_remove = [
             cwd / "constant" / "extendedFeatureEdgeMesh",
-            cwd / "constant" / "polyMesh",
+            cwd / "dynamicCode",
             cwd / "postProcessing",
         ]
 
@@ -780,7 +820,7 @@ class FoamRunner:
     @classmethod
     def foam_run(
             cls,
-            app_args: list[str] | None = None,
+            args: str | list[str] | None = None,
             *,
             log_name: str | None = None,
             cores: int = 1,
@@ -794,7 +834,7 @@ class FoamRunner:
 
         Parameters
         ----------
-        app_args : list[str] | None = None
+        args : str | list[str] | None = None
             Application command list. Defaults to ['foamRun'].
         log_name : str | None = None
             Log filename for solver execution.
@@ -816,12 +856,15 @@ class FoamRunner:
         None
             Executes preprocessing, decomposition, solver, and optional rec.
         """
+        if isinstance(args, str):
+            args = shlex.split(args)
+
         if not FoamHelpers.is_restart(cores) and callable(preprocess):
             preprocess()
 
         cls.decompose(cores=cores, patching=decomposing)
 
-        cmd_args = app_args if app_args is not None else ["foamRun"]
+        cmd_args = args if args is not None else ["foamRun"]
 
         cls.parallel(
             args     = cmd_args,
@@ -874,6 +917,64 @@ class FoamRunner:
             ],
             log_name = log_name,
             force    = force
+        )
+
+    @classmethod
+    def dict_expand_field(
+            cls,
+            original_file: str | Path,
+            *,
+            initial_name: str = "0",
+            force: bool = False
+        ) -> None:
+        """ Expand field OpenFOAM dictionary via foamDictionary tool.
+
+        Please notice that as the tool has no file specification flag,
+        this is handled through dedicated logging mechanism.
+
+        Parameters
+        ----------
+        original_file : str | Path
+            Field OpenFOAM dictionary to be expanded file path.
+        initial_name : str = "0"
+            Initial time-folder name where expanded fields are placed.
+        force : bool = False
+            Whether to force log file replacement.
+
+        Returns
+        -------
+        None
+            Executes foamDictionary -entry -set command in serial mode.
+        """
+        original_file = Path(original_file)
+
+        # This is a requirement because we cannot guess if the case is
+        # a multiregion or single region (and we don't want to go testing
+        # for all possible configurations here).
+        if original_file.is_absolute():
+            raise ValueError(
+                "original_file must be relative to project root"
+            )
+
+        # Replace the original time-folder name with the initial_name
+        # one so that expansion is logged to the right file.
+        parts = list(original_file.parts)
+        parts[0] = initial_name
+
+        log_name = Path(*parts)
+        log_name.parent.mkdir(parents=True, exist_ok=True)
+
+        if not log_name and not force:
+            _warn(
+                "foamDictionary -expand",
+                f"{log_name} already exists"
+            )
+            return
+
+        cls.serial(
+            args     = ["foamDictionary", str(original_file), "-expand"],
+            log_name = log_name,
+            force    = True
         )
 
 
@@ -1155,6 +1256,9 @@ class FoamProject:
         ###
         # Partial cleans to enable process steps
         ###
+
+        if args.clean_mesh:
+            FoamCleaner.mesh(self._root_dir)
 
         if args.clean_logs:
             FoamCleaner.logs(self._root_dir)

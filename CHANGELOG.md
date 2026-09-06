@@ -2,6 +2,10 @@
 
 ## Ongoing Development
 
+- Added `dict_expand_field` to `FoamRunner` to enable the expansion of initial conditions in a more convenient and automated way.
+
+- Added `mesh` method to `FoamCleaner` to recursively remove `polyMesh` directories and `cellToRegion` files under `constant/`, and updated `FoamCleaner.case` to accept a `remove_mesh: bool = True` keyword parameter.
+
 - Refactored `GmshOCCModel` to inherit from `GmshSessionWrapper` in `majordome.simulation.meshing`, eliminating code duplication in session lifecycle management, options configuration, and context manager handling.
 
 - Moved all OpenFOAM related utilities to `majordome.openfoam` and added a new module for project management.
