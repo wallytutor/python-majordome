@@ -2210,7 +2210,7 @@ wheels = [
 
 [[package]]
 name = "majordome"
-version = "1.5.3"
+version = "1.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "branca" },
