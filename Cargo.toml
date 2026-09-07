@@ -12,19 +12,36 @@ name = "_core"
 path = "src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
-[dependencies]
-majordome_constants = { git = "https://github.com/wallytutor/majordome-constants.git", package = "majordome-constants" }
-majordome_numerical = { git = "https://github.com/wallytutor/majordome-numerical.git", package = "majordome-numerical" }
-majordome_utilities = { git = "https://github.com/wallytutor/majordome-utilities.git", package = "majordome-utilities" }
-majordome_calphad = { git = "https://github.com/wallytutor/majordome-calphad.git", package = "majordome-calphad" }
-majordome_equations = { git = "https://github.com/wallytutor/majordome-equations.git", package = "majordome-equations" }
+# For local development (avoid cloning, uncomment the 'path' lines)!
+[dependencies.majordome_constants]
+# path = "../majordome-constants"
+git = "https://github.com/wallytutor/majordome-constants.git"
+package = "majordome-constants"
 
-# For local development (avoid cloning, do not commit this)
-# majordome_constants = { path = "../majordome-constants" }
-# majordome_numerical = { path = "../majordome-numerical" }
-# majordome_utilities = { path = "../majordome-utilities" }
-# majordome_calphad = { path = "../majordome-calphad" }
-# majordome_equations = { path = "../majordome-equations" }
+[dependencies.majordome_numerical]
+# path = "../majordome-numerical"
+git = "https://github.com/wallytutor/majordome-numerical.git"
+package = "majordome-numerical"
+
+[dependencies.majordome_utilities]
+# path = "../majordome-utilities"
+git = "https://github.com/wallytutor/majordome-utilities.git"
+package = "majordome-utilities"
+
+[dependencies.majordome_calphad]
+# path = "../majordome-calphad"
+git = "https://github.com/wallytutor/majordome-calphad.git"
+package = "majordome-calphad"
+
+[dependencies.majordome_equations]
+# path = "../majordome-equations"
+git = "https://github.com/wallytutor/majordome-equations.git"
+package = "majordome-equations"
+
+[dependencies.majordome_foam]
+# path = "../majordome-foam"
+git = "https://github.com/wallytutor/majordome-foam.git"
+package = "majordome-foam"
 
 [dependencies.pyo3]
 version = "0.28.2"

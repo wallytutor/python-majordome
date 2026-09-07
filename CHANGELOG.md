@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Included module `majordome.openfoam.files` for managing OpenFOAM dictionary and field files. This is a wrapper around `majordome-foam` crate.
+
 - Improved OpenFOAM workflow handling in `majordome.openfoam.run`: fixed file existence check in `dict_expand_field`, improved un-reconstructed parallel restart detection in `FoamHelpers.is_restart`, and added `all_regions` / `region` multi-region reconstruction support to `FoamRunner.reconstruct`.
 
 - Added `dict_expand_field` to `FoamRunner` to enable the expansion of initial conditions in a more convenient and automated way.

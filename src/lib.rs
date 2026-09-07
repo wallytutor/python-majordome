@@ -32,6 +32,9 @@ pub mod handlers {
     #[pymodule_export]
     use majordome_equations::diffusion_py;
 
+    #[pymodule_export]
+    use majordome_foam::foam;
+
     // -----------------------------------------------------------------------
 
     #[pymodule_export]

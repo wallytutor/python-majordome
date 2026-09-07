@@ -114,6 +114,7 @@ dependencies = [
  "majordome-calphad",
  "majordome-constants",
  "majordome-equations",
+ "majordome-foam",
  "majordome-numerical",
  "majordome-utilities",
  "mlua",
@@ -150,6 +151,14 @@ dependencies = [
  "majordome-constants",
  "majordome-numerical",
  "majordome-utilities",
+ "pyo3",
+]
+
+[[package]]
+name = "majordome-foam"
+version = "0.1.0"
+source = "git+https://github.com/wallytutor/majordome-foam.git#9cea754f5806d97d53402ce628ef35424152fb0d"
+dependencies = [
  "pyo3",
 ]
 

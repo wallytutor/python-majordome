@@ -3,3 +3,4 @@
 *aka majordome.openfoam*
 
 {{< include post.qmd >}}
+{{< include case_pitzDaily.qmd >}}
