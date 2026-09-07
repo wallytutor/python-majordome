@@ -1,0 +1,275 @@
+## OpenFOAM case manipulation
+
+The `majordome.openfoam` module provides a wrapper to a Rust-powered AST parser (crate `majordome-foam`) and dynamic Python interface for inspecting, modifying, and managing OpenFOAM cases cleanly. This example demonstrates how to use `FoamCaseHandle` to interact directly with OpenFOAM dictionary files without any hassle.
+
+The main features regarding syntax support include:
+
+- Support OpenFOAM syntax: nested blocks (`{ ... }`), dimension sets (`[0 2 -2 0 0 0 0]`), vectors (`(0 0 0)`), scalar/integer types, string parameters, and directives.
+
+- Provide strongly-typed Python wrapper classes (`ControlDict`, `FvSchemes`, `FvSolution`, `SnappyHexMeshDict`, `BlockMeshDict`, `DecomposeParDict`, `FieldFile`).
+
+- Provide an integrated case handle object (`FoamCaseHandle`) to interact with valid OpenFOAM cases directly.
+
+---
+
+We start by importing the required tools:
+
+```{python}
+#| echo: true
+from pathlib import Path
+from majordome.openfoam import FoamCaseHandle, NotACaseError
+```
+
+### Initializing `FoamCaseHandle`
+
+The first step is to initialize a `FoamCaseHandle` pointing to the case directory. `FoamCaseHandle` can be instantiated either by providing an explicit root directory or by omitting arguments to target the current working directory. A case is recognized as valid if it contains both a `constant/` directory and a `system/controlDict` file.
+
+```{python}
+#| echo: true
+# Point to the 01-pitzDaily case directory
+case = FoamCaseHandle("../data/foam/cases/01-pitzDaily", zero_name="0")
+
+print(f"Case root: {Path(*case.root_dir.parts[-4:])}")
+print(f"Is valid OpenFOAM case? {case.is_valid}")
+```
+
+If `FoamCaseHandle` is pointed to a directory that is not a valid OpenFOAM case, `is_valid` returns `False`, and attempting to access case dictionaries raises `NotACaseError`:
+
+```{python}
+#| echo: true
+invalid_handle = FoamCaseHandle(Path(".."))
+print(f"Invalid case check: {invalid_handle.is_valid}")
+
+try:
+    _ = invalid_handle.controlDict
+except NotACaseError as e:
+    print(f"Caught expected error: {e}")
+```
+
+### Inspecting and modifying system dictionaries
+
+Class `FoamDictFile` provides support to managing arbitrary dictionaries. For instance, accessing `case.controlDict` automatically parses and returns a strongly-typed `ControlDict` instance based on that base type. You can update simulation control attributes directly on the handle:
+
+```{python}
+#| echo: true
+# Access controlDict attributes dynamically
+print(f"Original values:")
+print(f"Application ....: {case.controlDict.application}")
+print(f"Start from .....: {case.controlDict.start_from}")
+print(f"Start time .....: {case.controlDict.start_time}")
+print(f"Stop at ........: {case.controlDict.stop_at}")
+print(f"End time .......: {case.controlDict.end_time}")
+print(f"Delta T ........: {case.controlDict.delta_t}")
+print(f"Write Interval .: {case.controlDict.write_interval}")
+
+# Update simulation control parameters
+case.controlDict.end_time = 1500
+case.controlDict.write_interval = 100
+
+print("\nModified parameters:")
+print(f"End Time .......: {case.controlDict.end_time}")
+print(f"Write Interval .: {case.controlDict.write_interval}")
+```
+
+You can also convert the dictionary to a string in OpenFOAM format using the `to_foam()` method.
+
+```{python}
+#| echo: true
+print(case.controlDict.to_foam())
+```
+
+One can also manage discretization schemes (`fvSchemes`) dynamically:
+
+```{python}
+#| echo: true
+schemes = case.fvSchemes
+
+print("ddtSchemes ..:", schemes.ddt_schemes.to_foam())
+print("gradSchemes .:", schemes.grad_schemes.to_foam())
+
+# Update a divergence scheme entry
+schemes.set_div_scheme("div(phi,U)", "bounded Gauss limitedLinearV 1")
+print(schemes.div_schemes.to_foam())
+```
+
+The same is also possible for solver controls (`fvSolution`) dictionaries.
+
+```{python}
+#| echo: true
+sol = case.fvSolution
+print("Solvers block keys:", sol.solvers.keys())
+
+# Update solver tolerance for pressure 'p'
+sol.set_solver_option("p", "tolerance", 1e-7)
+print("Updated p tolerance:", sol.get("solvers/p/tolerance"))
+```
+
+### Accessing initial/boundary field files
+
+For fields, the management is specialized through `FieldFile`. Field files in `0/` (or the user configured `zero_name` in `FoamCaseHandle`) are dynamically resolved by field variable name (e.g. `case.p`, `case.U`):
+
+```{python}
+#| echo: true
+p_field = case.p
+print("p Dimensions:", p_field.dimensions)
+print("p Internal Field:", p_field.internal_field)
+
+U_field = case.U
+print("U Dimensions:", U_field.dimensions)
+```
+
+
+### Persisting modifications
+
+Call `case.save()` to write all modified dictionaries back to disk:
+
+```{python}
+#| echo: true
+# case.save()
+```
+
+### For developers
+
+All Python wrapper classes are contained in `majordome.openfoam.files`. The Python wrapper architecture is illustrated below:
+
+```{mermaid}
+classDiagram
+    class FoamDictFile {
+        +_inner: FoamDict
+        +from_file(path)
+        +from_string(content)
+        +to_foam() String
+        +save(path)
+        +get(key_path)
+        +set(key_path, value)
+        +delete(key_path)
+    }
+
+    class ControlDict {
+        +application: str
+        +solver: str
+        +start_from: str
+        +start_time: float
+        +stop_at: str
+        +end_time: float
+        +delta_t: float
+        +write_control: str
+        +write_interval: float
+    }
+
+    class FvSchemes {
+        +ddt_schemes
+        +grad_schemes
+        +div_schemes
+        +laplacian_schemes
+        +set_div_scheme(field, scheme)
+    }
+
+    class FvSolution {
+        +solvers
+        +simple
+        +pimple
+        +piso
+        +set_solver(var, config)
+        +set_solver_option(var, option, value)
+    }
+
+    class BlockMeshDict {
+        +scale: float
+        +convert_to_meters: float
+        +vertices
+        +blocks
+    }
+
+    class SnappyHexMeshDict {
+        +castellated_mesh: bool
+        +snap: bool
+        +add_layers: bool
+    }
+
+    class DecomposeParDict {
+        +number_of_subdomains: int
+        +method: str
+    }
+
+    class FieldFile {
+        +dimensions: list[int]
+        +internal_field
+        +boundary_field
+    }
+
+    class FoamCaseHandle {
+        -_root_dir: Path
+        -_cache: dict
+        +is_valid: bool
+        +check_valid()
+        +get_dict(relative_path)
+        +save()
+        +__getattr__(name)
+    }
+
+    FoamDictFile <|-- ControlDict
+    FoamDictFile <|-- FvSchemes
+    FoamDictFile <|-- FvSolution
+    FoamDictFile <|-- BlockMeshDict
+    FoamDictFile <|-- SnappyHexMeshDict
+    FoamDictFile <|-- DecomposeParDict
+    FoamDictFile <|-- FieldFile
+    FieldFile <|-- VolScalarField
+    FieldFile <|-- VolVectorField
+    FoamCaseHandle --> FoamDictFile : manages
+```
+
+#### `FoamDictFile` base class
+
+Wraps PyO3 `FoamDict` and provides classmethods (`from_file`, `from_string`, `parse`), disk serialization (`save`, `to_foam`), and key path manipulation (`get`, `set`, `delete`, `contains`, `keys`, `__getitem__`, `__setitem__`).
+
+#### Specialized dictionary wrappers
+
+- **`ControlDict`**: Properties for simulation controls (`application`, `solver`, `start_time`, `end_time`, `delta_t`, `write_control`, `write_interval`, `purge_write`, `write_format`, `write_precision`, `run_time_modifiable`, `adjust_time_step`, `max_co`).
+
+- **`FvSchemes`**: Properties for discretization schemes (`ddt_schemes`, `grad_schemes`, `div_schemes`, `laplacian_schemes`, `interpolation_schemes`, `sn_grad_schemes`) and `set_div_scheme()`.
+
+- **`FvSolution`**: Accessors for linear solvers (`solvers`), algorithm controls (`simple`, `pimple`, `piso`), relaxation factors (`relaxation_factors`), and `set_solver_option()`.
+
+- **`BlockMeshDict`**: `scale`, `convert_to_meters`, `vertices`, `blocks`, `edges`, `boundary`.
+
+- **`SnappyHexMeshDict`**: Execution flags (`castellated_mesh`, `snap`, `add_layers`) and control blocks (`geometry`, `castellated_mesh_controls`, `snap_controls`, `add_layers_controls`, `mesh_quality_controls`).
+
+- **`DecomposeParDict`**: `number_of_subdomains`, `method`, `set_simple_coeffs()`.
+
+- **`FieldFile` (`VolScalarField`, `VolVectorField`)**: Properties for `dimensions`, `internal_field`, `boundary_field`.
+
+#### `FoamCaseHandle` and `NotACaseError`
+
+- **Case Validation**: `.is_valid` verifies that `constant/` is a directory and `system/controlDict` is a file.
+
+- **Dynamic Lookup (`__getattr__`)**: Automatically resolves dictionary names (e.g. `case.controlDict`, `case.fvSchemes`, `case.blockMeshDict`) or field variables (e.g. `case.p`, `case.U`) by searching candidate directories (`system/`, `constant/`, `0/`, root).
+
+- **Caching and Persistence**: Stores loaded dictionary instances in `_cache`. Calling `case.save()` writes all modified dictionaries back to disk.
+
+---
+
+#### Adding a New OpenFOAM Dictionary Wrapper
+
+1. Open `majordome/openfoam/files.py`.
+
+2. Subclass `FoamDictFile`:
+
+   ```python
+   class ThermoPhysicalProperties(FoamDictFile):
+       """ Interface for thermophysicalProperties dictionary. """
+       __slots__ = ()
+
+       @property
+       def thermo_type(self) -> Any:
+           return self.get("thermoType")
+   ```
+
+3. Register the class in `KNOWN_DICTS` inside `FoamCaseHandle`:
+
+   ```python
+   "thermophysicalProperties": (ThermoPhysicalProperties, "constant/thermophysicalProperties"),
+   ```
+
+4. Re-export the class from `majordome.openfoam` module.

@@ -2,5 +2,7 @@
 
 *aka majordome.openfoam*
 
+The primary goal of `majordome.openfoam` is to replace fragile regex parsers and other packages for manipulation of OpenFOAM files with a lossless AST parser and an intuitive Python object model. It provides a thin wrapper over `majordome-foam` for parsing and writing OpenFOAM files; utilities for case post-processing efficiently; and a (Linux-only) case run management engine.
+
+{{< include files.qmd >}}
 {{< include post.qmd >}}
-{{< include case_pitzDaily.qmd >}}

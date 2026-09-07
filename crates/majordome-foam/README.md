@@ -20,19 +20,9 @@ source .venv/bin/activate
 uv run majordome-build
 ```
 
-
-
-
-
 ---
 
-## Overview and Core Goals
-
-The primary goal of `majordome-foam` is to replace fragile regex parsers with a lossless AST parser and an intuitive Python object model.
-
-This document outlines the architectural design and maintenance guidelines for `majordome-foam`. The project provides a Rust core parser with Python bindings (via PyO3) for parsing, manipulating, and formatting OpenFOAM dictionary files and case structures.
-
-### Key Features
+## Key Features
 
 - **Lossless AST**: Preserves OpenFOAM comments (`//`, `/* */`), header banners, directives (`#include`, `#includeEtc`), macro expansion references (`$p`), and nested dictionaries.
 
@@ -46,19 +36,7 @@ This document outlines the architectural design and maintenance guidelines for `
 
 ---
 
-## Design Evolution and Decisions
-
-### Initial Requirements
-
-- Build a Python package powered by Rust following `majordome-build` conventions.
-
-- Support OpenFOAM syntax: nested blocks (`{ ... }`), dimension sets (`[0 2 -2 0 0 0 0]`), vectors (`(0 0 0)`), scalar/integer types, string parameters, and directives.
-
-- Provide strongly-typed Python wrapper classes (`ControlDict`, `FvSchemes`, `FvSolution`, `SnappyHexMeshDict`, `BlockMeshDict`, `DecomposeParDict`, `FieldFile`).
-
-- Provide an integrated case handle object (`FoamCaseHandle`) to interact with valid OpenFOAM cases directly.
-
-### Technical Decisions
+## Technical Decisions
 
 - **Parser Selection**: A hand-crafted lexer (`std::iter::Peekable<Chars>`) was chosen over parser-combinator crates (`nom`/`pest`) to give fine-grained control over comment retention and header banner recognition.
 
@@ -227,157 +205,11 @@ Exposes `PyFoamDict` to Python as `majordome_foam.foam.FoamDict`:
 
 ---
 
-## Python Wrapper Architecture (`src/majordome_foam/dictionaries.py`)
-
-All Python wrapper classes are contained in `src/majordome_foam/dictionaries.py`.
-
-```mermaid
-classDiagram
-    class FoamDictFile {
-        +_inner: FoamDict
-        +from_file(path)
-        +from_string(content)
-        +to_foam() String
-        +save(path)
-        +get(key_path)
-        +set(key_path, value)
-        +delete(key_path)
-    }
-
-    class ControlDict {
-        +application: str
-        +solver: str
-        +start_from: str
-        +start_time: float
-        +stop_at: str
-        +end_time: float
-        +delta_t: float
-        +write_control: str
-        +write_interval: float
-    }
-
-    class FvSchemes {
-        +ddt_schemes
-        +grad_schemes
-        +div_schemes
-        +laplacian_schemes
-        +set_div_scheme(field, scheme)
-    }
-
-    class FvSolution {
-        +solvers
-        +simple
-        +pimple
-        +piso
-        +set_solver(var, config)
-        +set_solver_option(var, option, value)
-    }
-
-    class BlockMeshDict {
-        +scale: float
-        +convert_to_meters: float
-        +vertices
-        +blocks
-    }
-
-    class SnappyHexMeshDict {
-        +castellated_mesh: bool
-        +snap: bool
-        +add_layers: bool
-    }
-
-    class DecomposeParDict {
-        +number_of_subdomains: int
-        +method: str
-    }
-
-    class FieldFile {
-        +dimensions: list[int]
-        +internal_field
-        +boundary_field
-    }
-
-    class FoamCaseHandle {
-        -_root_dir: Path
-        -_cache: dict
-        +is_valid: bool
-        +check_valid()
-        +get_dict(relative_path)
-        +save()
-        +__getattr__(name)
-    }
-
-    FoamDictFile <|-- ControlDict
-    FoamDictFile <|-- FvSchemes
-    FoamDictFile <|-- FvSolution
-    FoamDictFile <|-- BlockMeshDict
-    FoamDictFile <|-- SnappyHexMeshDict
-    FoamDictFile <|-- DecomposeParDict
-    FoamDictFile <|-- FieldFile
-    FieldFile <|-- VolScalarField
-    FieldFile <|-- VolVectorField
-    FoamCaseHandle --> FoamDictFile : manages
-```
-
-### `FoamDictFile` Base Class
-
-Wraps PyO3 `_ext.FoamDict` and provides classmethods (`from_file`, `from_string`, `parse`), disk serialization (`save`, `to_foam`), and key path manipulation (`get`, `set`, `delete`, `contains`, `keys`, `__getitem__`, `__setitem__`).
-
-### Specialized Dictionary Wrappers
-
-- **`ControlDict`**: Properties for simulation controls (`application`, `solver`, `start_time`, `end_time`, `delta_t`, `write_control`, `write_interval`, `purge_write`, `write_format`, `write_precision`, `run_time_modifiable`, `adjust_time_step`, `max_co`).
-
-- **`FvSchemes`**: Properties for discretization schemes (`ddt_schemes`, `grad_schemes`, `div_schemes`, `laplacian_schemes`, `interpolation_schemes`, `sn_grad_schemes`) and `set_div_scheme()`.
-
-- **`FvSolution`**: Accessors for linear solvers (`solvers`), algorithm controls (`simple`, `pimple`, `piso`), relaxation factors (`relaxation_factors`), and `set_solver_option()`.
-
-- **`BlockMeshDict`**: `scale`, `convert_to_meters`, `vertices`, `blocks`, `edges`, `boundary`.
-
-- **`SnappyHexMeshDict`**: Execution flags (`castellated_mesh`, `snap`, `add_layers`) and control blocks (`geometry`, `castellated_mesh_controls`, `snap_controls`, `add_layers_controls`, `mesh_quality_controls`).
-
-- **`DecomposeParDict`**: `number_of_subdomains`, `method`, `set_simple_coeffs()`.
-
-- **`FieldFile` (`VolScalarField`, `VolVectorField`)**: Properties for `dimensions`, `internal_field`, `boundary_field`.
-
-### `FoamCaseHandle` and `NotACaseError`
-
-- **Case Validation**: `.is_valid` verifies that `constant/` is a directory and `system/controlDict` is a file.
-
-- **Dynamic Lookup (`__getattr__`)**: Automatically resolves dictionary names (e.g. `case.controlDict`, `case.fvSchemes`, `case.blockMeshDict`) or field variables (e.g. `case.p`, `case.U`) by searching candidate directories (`system/`, `constant/`, `0/`, root).
-
-- **Caching and Persistence**: Stores loaded dictionary instances in `_cache`. Calling `case.save()` writes all modified dictionaries back to disk.
-
----
-
 ## Maintenance and Extension Guidelines
-
-### Adding a New OpenFOAM Dictionary Wrapper
-
-1. Open `src/majordome_foam/dictionaries.py`.
-
-2. Subclass `FoamDictFile`:
-
-   ```python
-   class ThermoPhysicalProperties(FoamDictFile):
-       """ Interface for thermophysicalProperties dictionary. """
-       __slots__ = ()
-
-       @property
-       def thermo_type(self) -> Any:
-           return self.get("thermoType")
-   ```
-
-3. Register the class in `KNOWN_DICTS` inside `FoamCaseHandle`:
-
-   ```python
-   "thermophysicalProperties": (ThermoPhysicalProperties, "constant/thermophysicalProperties"),
-   ```
-
-4. Re-export the class in `__all__` in `src/majordome_foam/__init__.py`.
 
 ### Extending the Rust Parser
 
-1. If a new syntax variant is required (e.g. specialized directive), edit `parse_value_str` or `parse_foam_dict` in `src/parser.rs`.
+1. If a new syntax variant is required (e.g. specialized directive), edit `parse_value_str` or `parse_foam_dict` in `src/parser.rs` of `majordome-foam` crate.
 
 2. Maintain strict clippy compliance (`cargo clippy --no-deps`). Ensure no `unwrap()`, `expect()`, or `panic!()` calls exist in production paths.
 
