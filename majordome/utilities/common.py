@@ -121,14 +121,17 @@ class InteractiveSession:
 
 
 class Capturing(list):
-    """ Helper to capture excessive solver output.
+    """ Helper to capture output from sys.stdout and sys.stderr.
 
-    In some cases, specially when running from a notebook, it might
-    be desirable to capture solver (here Ipopt specifically) output
-    to later check, thus avoiding a overly long notebook.  For this
-    end this context manager is to be used and redirect to a list.
+    In some cases, specially when running from a notebook or
+    interactive session, it might be desirable to capture excessive
+    output to later inspect. This context manager redirects Python
+    standard streams to a list.
     """
     def __enter__(self):
+        sys.stdout.flush()
+        sys.stderr.flush()
+
         self._stdout = sys.stdout
         self._stderr = sys.stderr
 
@@ -138,14 +141,25 @@ class Capturing(list):
         return self
 
     def __exit__(self, *args):
-        self.extend(self._tmpout.getvalue().splitlines())
-        self.extend(self._tmperr.getvalue().splitlines())
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+        py_stdout = self._tmpout.getvalue()
+        py_stderr = self._tmperr.getvalue()
 
         del self._tmpout
         del self._tmperr
 
         sys.stdout = self._stdout
         sys.stderr = self._stderr
+
+        if py_stdout:
+            self.extend(py_stdout.splitlines())
+        if py_stderr:
+            self.extend(py_stderr.splitlines())
+
+    def __str__(self) -> str:
+        return "\n".join(self)
 
 
 class ColorPrint:

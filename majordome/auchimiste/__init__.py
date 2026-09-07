@@ -2,8 +2,7 @@
 
 import functools
 import importlib.resources as resources
-
-import juliacall
+import os
 
 from ..utilities import Capturing
 
@@ -19,16 +18,19 @@ def _init_auchimiste_environment():
     # Activate the shared environment once:
     try:
         with Capturing() as output:
+            os.environ.setdefault("PYTHON_JULIACALL_STARTUP_FILE", "no")
+            import juliacall
+
             jl = juliacall.newmodule("AuChimisteEnv")
             jl.seval("using Pkg")
-            jl.seval(f'Pkg.activate("{here.as_posix()}")')
-    except Exception as e:
-        print(f"Error: {e}\n{'\n'.join(output)}...")
-        raise e
+            jl.seval(f'Pkg.activate("{here.as_posix()}", io=devnull)')
 
-    # Include scripts to path:
-    for script in here.glob(r"*.jl"):
-        jl.include(script.as_posix())
+            # Include scripts to path:
+            for script in here.glob(r"*.jl"):
+                jl.include(script.as_posix())
+    except Exception as e:
+        print(f"Error: {e}\n{output}...")
+        raise e
 
 
 _init_auchimiste_environment()
