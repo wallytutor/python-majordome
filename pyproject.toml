@@ -85,6 +85,10 @@ recommended = [
     "python-pptx>=1.0.2",
     "tinydb>=4.8.2",
 ]
+auchimiste = [
+    "juliapkg>=0.1.26",
+    "juliacall>=0.9.35",
+]
 
 [tool.maturin]
 module-name = "majordome._core"

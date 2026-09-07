@@ -12,5 +12,8 @@ __getattr__, __dir__ = setup_submodules_exports(
         ".simulation",
         ".utilities",
     ],
-    extra_exports=["__version__", "constants"],
+    extra_exports=[
+        "__version__",
+        "constants"
+    ],
 )
