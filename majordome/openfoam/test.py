@@ -2,7 +2,7 @@
 
 import unittest
 from pathlib import Path
-from .files import FoamDict
+from .._core import foam
 from .files import (
     BlockMeshDict,
     ControlDict,
@@ -42,7 +42,7 @@ class TestMajordomeFoam(unittest.TestCase):
             #include "foamFunction"
         }
         """
-        dict_obj = FoamDict.parse(content)
+        dict_obj = foam.FoamDict.parse(content)
         self.assertEqual(dict_obj.get("application"), "simpleFoam")
         self.assertEqual(dict_obj.get("endTime"), 1000)
         self.assertTrue(dict_obj.get("runTimeModifiable"))
@@ -63,7 +63,7 @@ class TestMajordomeFoam(unittest.TestCase):
         deltaT 1;
         runTimeModifiable true;
         """
-        dict_obj = FoamDict.parse(content)
+        dict_obj = foam.FoamDict.parse(content)
         foam_str = dict_obj.to_foam()
 
         lines = [line for line in foam_str.splitlines() if line.strip()]

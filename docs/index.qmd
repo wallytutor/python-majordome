@@ -100,11 +100,11 @@ In addition to what is described in the manual release section below, developers
 
     # Run Python tests:
     uv sync --all-extras
-    pytest -v
+    uv run pytest -v
 
     # Manually generate a wheel and check it:
     uv build --wheel
-    python -m zipfile -l dist/*.whl
+    uv run python -m zipfile -l dist/*.whl
     ```
 
 - From WSL or a Linux machine, repeat the above but also try generating the Linux wheel inside the compliant manylinux container:

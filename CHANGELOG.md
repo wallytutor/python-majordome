@@ -2,6 +2,10 @@
 
 ## Ongoing Development
 
+...
+
+## 1.5.0 - 2026-09-07
+
 - Back to monolithic structure with crates integrated as subtrees of the main project.
 
 - Included module `majordome.openfoam.files` for managing OpenFOAM dictionary and field files. This is a wrapper around `majordome-foam` crate.
