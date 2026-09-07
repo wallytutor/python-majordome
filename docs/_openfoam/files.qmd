@@ -1,4 +1,4 @@
-## OpenFOAM case manipulation
+\## OpenFOAM case manipulation
 
 The `majordome.openfoam` module provides a wrapper to a Rust-powered AST parser (crate `majordome-foam`) and dynamic Python interface for inspecting, modifying, and managing OpenFOAM cases cleanly. This example demonstrates how to use `FoamCaseHandle` to interact directly with OpenFOAM dictionary files without any hassle.
 
@@ -89,7 +89,7 @@ print("gradSchemes .:", schemes.grad_schemes.to_foam())
 
 # Update a divergence scheme entry
 schemes.set_div_scheme("div(phi,U)", "bounded Gauss limitedLinearV 1")
-print(schemes.div_schemes.to_foam())
+print("divSchemes ..:", schemes.div_schemes.to_foam(), sep="\n\n")
 ```
 
 The same is also possible for solver controls (`fvSolution`) dictionaries.
