@@ -28,7 +28,22 @@ Assuming the dependencies are found in the path, it is simply a matter of creati
 
 ```{python}
 #| echo: true
-converter = PdfToTextConverter()
+try:
+    converter = PdfToTextConverter()
+except:
+    class _PdfToTextConverter:
+        @property
+        def meta(self):
+            return {"failed": True}
+
+        @property
+        def content(self):
+            return "Missing Tesseract or Poppler"
+
+        def __call__(self, fname, **kwargs):
+            return self
+
+    converter = _PdfToTextConverter()
 ```
 
 For generated PDF (not scanned documents), it is much faster to avoir using OCR; below we show the metadata from a paper:
