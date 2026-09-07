@@ -127,6 +127,60 @@ class FoamDictFile:
         """
         self._inner.set(key_path, value)
 
+    def set_constant(
+            self,
+            key_path: str,
+            value: Any,
+            fmt: Any = None
+        ) -> None:
+        """ Set entry value to a constant value in OpenFOAM format.
+
+        Parameters
+        ----------
+        key_path : str
+            Slash-separated key location.
+        value : Any
+            Value to assign.
+        fmt : Any = None
+            Format string for the value.
+
+        Returns
+        -------
+        None
+            Updates internal AST structure.
+        """
+        if not fmt:
+            self.set(key_path, f"constant {value}")
+        else:
+            self.set(key_path, f"constant {fmt.format(value)}")
+
+    def set_uniform(
+            self,
+            key_path: str,
+            value: Any,
+            fmt: Any = None
+        ) -> None:
+        """ Set entry value to a uniform value in OpenFOAM format.
+
+        Parameters
+        ----------
+        key_path : str
+            Slash-separated key location.
+        value : Any
+            Value to assign.
+        fmt : Any = None
+            Format string for the value.
+
+        Returns
+        -------
+        None
+            Updates internal AST structure.
+        """
+        if not fmt:
+            self.set(key_path, f"uniform {value}")
+        else:
+            self.set(key_path, f"uniform {fmt.format(value)}")
+
     def delete(self, key_path: str) -> bool:
         """ Remove entry or block by slash-separated key path.
 
