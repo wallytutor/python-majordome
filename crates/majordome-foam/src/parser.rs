@@ -21,6 +21,42 @@ impl fmt::Display for FoamParseError {
 
 impl std::error::Error for FoamParseError {}
 
+fn parse_key_name(
+    chars: &mut std::iter::Peekable<std::str::Chars<'_>>,
+    line_num: &mut usize,
+) -> String {
+    let mut name = String::new();
+
+    if let Some(&'"') = chars.peek() {
+        name.push('"');
+        chars.next();
+
+        while let Some(&ch) = chars.peek() {
+            name.push(ch);
+            chars.next();
+
+            if ch == '\n' {
+                *line_num += 1;
+            }
+
+            if ch == '"' {
+                break;
+            }
+        }
+    } else {
+        while let Some(&ch) = chars.peek() {
+            if ch.is_whitespace() || ch == '{' || ch == ';' || ch == '}' {
+                break;
+            }
+
+            name.push(ch);
+            chars.next();
+        }
+    }
+
+    name
+}
+
 /// Parse an OpenFOAM dictionary string into a `FoamDict` AST.
 pub fn parse_foam_dict(input: &str) -> Result<FoamDict, FoamParseError> {
     let mut dict = FoamDict::new();
@@ -153,15 +189,7 @@ pub fn parse_foam_dict(input: &str) -> Result<FoamDict, FoamParseError> {
             continue;
         }
 
-        let mut name = String::new();
-        while let Some(&ch) = chars.peek() {
-            if ch.is_whitespace() || ch == '{' || ch == ';' || ch == '(' {
-                break;
-            }
-
-            name.push(ch);
-            chars.next();
-        }
+        let name = parse_key_name(&mut chars, &mut line_num);
 
         if name.is_empty() {
             chars.next();
@@ -281,15 +309,7 @@ fn parse_subdict(
             }
         }
 
-        let mut name = String::new();
-        while let Some(&ch) = chars.peek() {
-            if ch.is_whitespace() || ch == '{' || ch == ';' || ch == '}' {
-                break;
-            }
-
-            name.push(ch);
-            chars.next();
-        }
+        let name = parse_key_name(chars, line_num);
 
         if name.is_empty() {
             continue;
@@ -408,12 +428,6 @@ fn parse_value_str(s: &str) -> FoamValue {
         {
             return FoamValue::DimensionSet(dims);
         }
-    }
-
-    if let Some(inner) =
-        s_clean.strip_prefix('"').and_then(|s| s.strip_suffix('"'))
-    {
-        return FoamValue::String(inner.to_string());
     }
 
     if let Some(rest) = s_clean.strip_prefix('$') {

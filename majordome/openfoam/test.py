@@ -108,6 +108,50 @@ class TestMajordomeFoam(unittest.TestCase):
         self.assertEqual(schemes.ddt_schemes.get("default"), "steadyState")
         self.assertEqual(schemes.grad_schemes.get("default"), "Gauss linear")
 
+        foam_str = schemes.to_foam()
+        self.assertIn("div(phi,U)  bounded Gauss linearUpwind grad(U);", foam_str)
+        self.assertNotIn('"bounded Gauss linearUpwind grad(U)"', foam_str)
+        self.assertNotIn('"Gauss linear"', foam_str)
+
+    def test_quoted_keys_and_unquoted_values(self):
+        content = """
+        "(wallInternal|wallExternal)"
+        {
+            type            zeroGradient;
+        }
+
+        "(U|k|omega).*"
+        {
+            solver          smoothSolver;
+        }
+
+        "walls.*"
+        {
+            type            noSlip;
+        }
+
+        default             Gauss linear;
+        div(phi,U)          bounded Gauss limitedLinearV 1;
+        internalField       uniform (0 0 0);
+        """
+        dict_obj = foam.FoamDict.parse(content)
+        keys = dict_obj.keys()
+        self.assertIn('"(wallInternal|wallExternal)"', keys)
+        self.assertIn('"(U|k|omega).*"', keys)
+        self.assertIn('"walls.*"', keys)
+        self.assertIn('div(phi,U)', keys)
+
+        foam_str = dict_obj.to_foam()
+        self.assertIn('"(wallInternal|wallExternal)"', foam_str)
+        self.assertIn('"(U|k|omega).*"', foam_str)
+        self.assertIn('"walls.*"', foam_str)
+        self.assertIn('default        Gauss linear;', foam_str)
+        self.assertIn('div(phi,U)     bounded Gauss limitedLinearV 1;', foam_str)
+        self.assertIn('internalField  uniform (0 0 0);', foam_str)
+        self.assertNotIn('"Gauss linear"', foam_str)
+        self.assertNotIn('"bounded Gauss limitedLinearV 1"', foam_str)
+        self.assertNotIn('"uniform (0 0 0)"', foam_str)
+
     def test_fv_solution_wrapper(self):
         sol_content = """
         solvers

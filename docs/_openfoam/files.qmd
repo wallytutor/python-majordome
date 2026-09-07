@@ -118,7 +118,6 @@ U_field = case.U
 print("U Dimensions:", U_field.dimensions)
 ```
 
-
 ### Persisting modifications
 
 Call `case.save()` to write all modified dictionaries back to disk:

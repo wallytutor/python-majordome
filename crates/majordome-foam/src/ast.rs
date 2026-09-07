@@ -26,13 +26,7 @@ impl fmt::Display for FoamValue {
         match self {
             Self::Scalar(v) => write!(f, "{}", v),
             Self::Int(v) => write!(f, "{}", v),
-            Self::String(v) => {
-                if v.contains(' ') || v.contains('|') || v.contains('(') {
-                    write!(f, "\"{}\"", v)
-                } else {
-                    write!(f, "{}", v)
-                }
-            }
+            Self::String(v) => write!(f, "{}", v),
             Self::Bool(v) => write!(f, "{}", if *v { "true" } else { "false" }),
             Self::Vector(vec) => {
                 let s = vec
