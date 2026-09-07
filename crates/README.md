@@ -28,7 +28,7 @@ git add $prefix
 git commit -m "Updated package"
 
 # Push only the commits from $prefix towards main repository:
-git subtree push --prefix=$prefix $remote main --squash
+git subtree push --prefix=$prefix $remote main
 ```
 
 - Pull from remote (atypical usage, generally work in this repository and push to remotes instead).
