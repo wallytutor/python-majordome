@@ -28,33 +28,31 @@ impl fmt::Display for FoamValue {
             Self::Int(v) => write!(f, "{}", v),
             Self::String(v) => write!(f, "{}", v),
             Self::Bool(v) => write!(f, "{}", if *v { "true" } else { "false" }),
-            Self::Vector(vec) => {
-                let s = vec
+            Self::Vector(vec) => write!(
+                f,
+                "({})",
+                vec.iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            ),
+            Self::DimensionSet(dims) => write!(
+                f,
+                "[{}]",
+                dims.iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            ),
+            Self::List(items) => write!(
+                f,
+                "({})",
+                items
                     .iter()
                     .map(|x| x.to_string())
                     .collect::<Vec<_>>()
-                    .join(" ");
-
-                write!(f, "({})", s)
-            }
-            Self::DimensionSet(dims) => {
-                let s = dims
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<_>>()
-                    .join(" ");
-
-                write!(f, "[{}]", s)
-            }
-            Self::List(items) => {
-                let s = items
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<_>>()
-                    .join(" ");
-
-                write!(f, "({})", s)
-            }
+                    .join(" ")
+            ),
             Self::Dict(d) => write!(f, "{}", d.to_foam_indent(0)),
             Self::MacroRef(name) => write!(f, "${}", name),
             Self::Raw(raw) => write!(f, "{}", raw),

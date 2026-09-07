@@ -15,7 +15,8 @@ pub struct FoamParseError {
 
 impl fmt::Display for FoamParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Parse error at line {}: {}", self.line, self.message)
+        // 'return' used just to avoid Rust-analyzer type inference issues;
+        return write!(f, "Parse error at line {}: {}", self.line, self.message);
     }
 }
 
@@ -362,10 +363,7 @@ fn parse_subdict(
     Ok(dict)
 }
 
-fn skip_whitespace(
-    chars: &mut std::iter::Peekable<std::str::Chars<'_>>,
-    line_num: &mut usize,
-) {
+fn skip_whitespace(chars: &mut std::iter::Peekable<std::str::Chars<'_>>, line_num: &mut usize) {
     while let Some(&ch) = chars.peek() {
         if ch.is_whitespace() {
             if ch == '\n' {
