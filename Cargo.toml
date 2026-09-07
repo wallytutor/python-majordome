@@ -5,11 +5,11 @@ repository = "https://github.com/wallytutor/python-majordome.git"
 license-file = "LICENSE"
 version = "1.4.0"
 edition = "2024"
-build = "src/build.rs"
+build = "crates/_core/build.rs"
 
 [lib]
 name = "_core"
-path = "src/lib.rs"
+path = "crates/_core/lib.rs"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies.majordome_constants]

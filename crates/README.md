@@ -5,7 +5,7 @@
 From the repository root, run the following:
 
 ```bash
-$name = "constants"
+$name = "foam"
 
 $remote = "majordome-$name"
 $repo   = "https://github.com/wallytutor/$remote.git"

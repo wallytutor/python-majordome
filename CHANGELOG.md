@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Back to monolithic structure with crates integrated as subtrees of the main project.
+
 - Included module `majordome.openfoam.files` for managing OpenFOAM dictionary and field files. This is a wrapper around `majordome-foam` crate.
 
 - Improved OpenFOAM workflow handling in `majordome.openfoam.run`: fixed file existence check in `dict_expand_field`, improved un-reconstructed parallel restart detection in `FoamHelpers.is_restart`, and added `all_regions` / `region` multi-region reconstruction support to `FoamRunner.reconstruct`.
