@@ -118,6 +118,13 @@ U_field = case.U
 print("U Dimensions:", U_field.dimensions)
 ```
 
+Changing dictionary values can be done as follows:
+
+```{python}
+U_field.set("boundaryField/inlet/value", (15, 0, 0))
+print(U_field.to_foam())
+```
+
 ### Persisting modifications
 
 Call `case.save()` to write all modified dictionaries back to disk:
