@@ -5,6 +5,7 @@ The `majordome.openfoam` module provides a wrapper to a Rust-powered AST parser 
 We start by importing the required tools:
 
 ```{python}
+#| echo: true
 from pathlib import Path
 from majordome.openfoam import FoamCaseHandle, NotACaseError
 ```
@@ -14,6 +15,7 @@ from majordome.openfoam import FoamCaseHandle, NotACaseError
 The first step is to initialize a `FoamCaseHandle` pointing to the case directory. `FoamCaseHandle` can be instantiated either by providing an explicit root directory or by omitting arguments to target the current working directory. A case is recognized as valid if it contains both a `constant/` directory and a `system/controlDict` file.
 
 ```{python}
+#| echo: true
 # Point to the 01-pitzDaily case directory
 case = FoamCaseHandle("../data/foam/cases/01-pitzDaily", zero_name="0")
 
@@ -24,6 +26,7 @@ print(f"Is valid OpenFOAM case? {case.is_valid}")
 If `FoamCaseHandle` is pointed to a directory that is not a valid OpenFOAM case, `is_valid` returns `False`, and attempting to access case dictionaries raises `NotACaseError`:
 
 ```{python}
+#| echo: true
 invalid_handle = FoamCaseHandle(Path(".."))
 print(f"Invalid case check: {invalid_handle.is_valid}")
 
@@ -38,6 +41,7 @@ except NotACaseError as e:
 Class `FoamDictFile` provides support to managing arbitrary dictionaries. For instance, accessing `case.controlDict` automatically parses and returns a strongly-typed `ControlDict` instance based on that base type. You can update simulation control attributes directly on the handle:
 
 ```{python}
+#| echo: true
 # Access controlDict attributes dynamically
 print(f"Original values:")
 print(f"Application ....: {case.controlDict.application}")
@@ -60,12 +64,14 @@ print(f"Write Interval .: {case.controlDict.write_interval}")
 You can also convert the dictionary to a string in OpenFOAM format using the `to_foam()` method.
 
 ```{python}
+#| echo: true
 print(case.controlDict.to_foam())
 ```
 
 One can also manage discretization schemes (`fvSchemes`) dynamically:
 
 ```{python}
+#| echo: true
 schemes = case.fvSchemes
 
 print("ddtSchemes ..:", schemes.ddt_schemes.to_foam())
@@ -79,6 +85,7 @@ print(schemes.div_schemes.to_foam())
 The same is also possible for solver controls (`fvSolution`) dictionaries.
 
 ```{python}
+#| echo: true
 sol = case.fvSolution
 print("Solvers block keys:", sol.solvers.keys())
 
@@ -92,6 +99,7 @@ print("Updated p tolerance:", sol.get("solvers/p/tolerance"))
 For fields, the management is specialized through `FieldFile`. Field files in `0/` (or the user configured `zero_name` in `FoamCaseHandle`) are dynamically resolved by field variable name (e.g. `case.p`, `case.U`):
 
 ```{python}
+#| echo: true
 p_field = case.p
 print("p Dimensions:", p_field.dimensions)
 print("p Internal Field:", p_field.internal_field)
@@ -106,7 +114,6 @@ print("U Dimensions:", U_field.dimensions)
 Call `case.save()` to write all modified dictionaries back to disk:
 
 ```{python}
-# Persist all updated dictionaries back to the case files
+#| echo: true
 # case.save()
-# print("All modified dictionaries saved successfully.")
 ```
