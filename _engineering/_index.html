@@ -225,14 +225,20 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../_openfoam/_index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">OpenFOAM</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../_utilities/_index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Utilities</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Utilities</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../magic.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
       </ul>
@@ -339,7 +345,7 @@ window.Quarto = {
 <section id="combustionatmospherechon" class="level3" data-number="1.1.1">
 <h3 data-number="1.1.1" class="anchored" data-anchor-id="combustionatmospherechon"><span class="header-section-number">1.1.1</span> CombustionAtmosphereCHON</h3>
 <p>A common need in industry is to evaluate the real heating value from a gas composition reported by the supplier. This is the main goal of <code>CombustionAtmosphereCHON</code>, which has a very simple API provided below:</p>
-<div id="326d2061" class="cell" data-execution_count="3">
+<div id="23f843a2" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>gas <span class="op">=</span> CombustionAtmosphereCHON(<span class="st">"gri30.yaml"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>lhv <span class="op">=</span> gas.solution_heating_value(<span class="st">"CH4: 1"</span>, <span class="st">"O2: 1"</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Solution heating value: </span><span class="sc">{</span>lhv<span class="sc">:.2f}</span><span class="ss"> MJ/kg"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -351,7 +357,7 @@ window.Quarto = {
 <section id="combustionpowersupply" class="level3" data-number="1.1.2">
 <h3 data-number="1.1.2" class="anchored" data-anchor-id="combustionpowersupply"><span class="header-section-number">1.1.2</span> CombustionPowerSupply</h3>
 <p>Built upon <code>CombustionAtmosphereCHON</code>, <code>CombustionPowerSupply</code> performs the basic calculations for retrieving required flow rates from a given power specification; this proves very handy for the CFD engineer.</p>
-<div id="89e57dfc" class="cell" data-execution_count="4">
+<div id="2cfdc569" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>supply <span class="op">=</span> CombustionPowerSupply(<span class="fl">500.0</span>, <span class="fl">1.0</span>, <span class="st">"CH4: 1"</span>, <span class="st">"O2: 1"</span>, <span class="st">"gri30.yaml"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(supply.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -376,7 +382,7 @@ window.Quarto = {
 <h3 data-number="1.1.3" class="anchored" data-anchor-id="energy-sources"><span class="header-section-number">1.1.3</span> Energy sources</h3>
 <section id="heatedgasenergysource" class="level4" data-number="1.1.3.1">
 <h4 data-number="1.1.3.1" class="anchored" data-anchor-id="heatedgasenergysource"><span class="header-section-number">1.1.3.1</span> HeatedGasEnergySource</h4>
-<div id="c1bacef6" class="cell" data-execution_count="5">
+<div id="846cb34e" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> HeatedGasEnergySource(<span class="st">"airish.yaml"</span>, <span class="fl">500.0</span>, mass_flow_rate<span class="op">=</span><span class="fl">1.0</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -402,7 +408,7 @@ window.Quarto = {
 | mass: O2               | -        | 0.23194960303762516   |</code></pre>
 </div>
 </div>
-<div id="f14f6350" class="cell" data-execution_count="6">
+<div id="6282f6a5" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> HeatedGasEnergySource(<span class="st">"airish.yaml"</span>, <span class="fl">500.0</span>, mass_flow_rate<span class="op">=</span><span class="fl">1.0</span>,</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                               cross_area<span class="op">=</span><span class="fl">0.1</span>, Y<span class="op">=</span><span class="st">"N2: 0.79, O2: 0.21"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -431,11 +437,11 @@ window.Quarto = {
 </section>
 <section id="combustionenergysource" class="level4" data-number="1.1.3.2">
 <h4 data-number="1.1.3.2" class="anchored" data-anchor-id="combustionenergysource"><span class="header-section-number">1.1.3.2</span> CombustionEnergySource</h4>
-<div id="f4758d25" class="cell" data-execution_count="7">
+<div id="7a7b1ece" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fuel_state <span class="op">=</span> StateType(<span class="st">"CH4: 1"</span>,             <span class="dv">300</span>, <span class="dv">101325</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>oxid_state <span class="op">=</span> StateType(<span class="st">"N2: 0.79, O2: 0.21"</span>, <span class="dv">300</span>, <span class="dv">101325</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="4b1774b3" class="cell" data-execution_count="8">
+<div id="21c3214e" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ops <span class="op">=</span> CombustionPowerOp(<span class="fl">500.0</span>, <span class="fl">1.0</span>, fuel_state, oxid_state)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> CombustionEnergySource(<span class="st">"ch4/bfer.yaml"</span>, operation<span class="op">=</span>ops, cross_area<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -491,7 +497,7 @@ window.Quarto = {
 | mass: O2               | -        | 0.2329092179584231     |</code></pre>
 </div>
 </div>
-<div id="e164eb30" class="cell" data-execution_count="9">
+<div id="1c21ee97" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ops <span class="op">=</span> CombustionFlowOp(<span class="st">"mass"</span>, mdot_fuel, mdot_oxid, fuel_state, oxid_state)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> CombustionEnergySource(<span class="st">"ch4/bfer.yaml"</span>, operation<span class="op">=</span>ops, cross_area<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -535,7 +541,7 @@ window.Quarto = {
 | mass: O2               | -        | 0.2329092179584231     |</code></pre>
 </div>
 </div>
-<div id="b6d8ec13" class="cell" data-execution_count="10">
+<div id="e7a5087d" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ops <span class="op">=</span> CombustionFlowOp(<span class="st">"volume"</span>, qdot_fuel, qdot_oxid, fuel_state, oxid_state)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>source <span class="op">=</span> CombustionEnergySource(<span class="st">"ch4/bfer.yaml"</span>, operation<span class="op">=</span>ops, cross_area<span class="op">=</span><span class="fl">0.1</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(source.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -594,7 +600,7 @@ A_{old} &amp;= A_{new}
 \end{aligned}
 \]</span></p>
 <p>Notice that in this formulation, <span class="math inline">\(\alpha\)</span> (or <code>alpha</code> in the API) represents the fraction of old solution to be used in the <em>smearing</em> process. Below we illustrate the effect of a step function <span class="math inline">\(H\)</span> valued at <code>10</code> from the begining over consecutive updates (here we do not test for convergence, as that is problem specific and for this simple case the required number of steps could be evaluated by hand, take some time to try!).</p>
-<div id="d1ebc44e" class="cell" data-execution_count="13">
+<div id="ecf197e1" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.76</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>niter <span class="op">=</span> <span class="dv">50</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -628,7 +634,7 @@ A_{old} &amp;= A_{new}
 </div>
 <section id="relaxupdate" class="level4" data-number="1.2.1.1">
 <h4 data-number="1.2.1.1" class="anchored" data-anchor-id="relaxupdate"><span class="header-section-number">1.2.1.1</span> RelaxUpdate</h4>
-<div id="ec7a3add" class="cell" data-execution_count="14">
+<div id="fac25848" class="cell" data-execution_count="14">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 RelaxUpdate
@@ -692,7 +698,7 @@ update
 </section>
 <section id="stabilizenvarsconvergencecheck" class="level4" data-number="1.2.1.2">
 <h4 data-number="1.2.1.2" class="anchored" data-anchor-id="stabilizenvarsconvergencecheck"><span class="header-section-number">1.2.1.2</span> StabilizeNvarsConvergenceCheck</h4>
-<div id="4042e2d9" class="cell" data-execution_count="15">
+<div id="421ac4a8" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 StabilizeNvarsConvergenceCheck
@@ -769,7 +775,7 @@ n_iterations
 </section>
 <section id="composedstabilizedconvergence" class="level4" data-number="1.2.1.3">
 <h4 data-number="1.2.1.3" class="anchored" data-anchor-id="composedstabilizedconvergence"><span class="header-section-number">1.2.1.3</span> ComposedStabilizedConvergence</h4>
-<div id="b31e9ee6" class="cell" data-execution_count="16">
+<div id="3cc05a95" class="cell" data-execution_count="16">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 ComposedStabilizedConvergence
@@ -833,7 +839,7 @@ n_iterations
 <section id="warnings" class="level3" data-number="1.3.1">
 <h3 data-number="1.3.1" class="anchored" data-anchor-id="warnings"><span class="header-section-number">1.3.1</span> Warnings</h3>
 <p>Module warnings can be controlled throught the following attributes:</p>
-<div id="0db2497e" class="cell" data-execution_count="18">
+<div id="6e7e43c4" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 toggle_reactor_warnings
@@ -862,12 +868,12 @@ They can also be provided to the global `toggle_warnings`, which handles the equ
 <section id="utilities" class="level3" data-number="1.3.2">
 <h3 data-number="1.3.2" class="anchored" data-anchor-id="utilities"><span class="header-section-number">1.3.2</span> Utilities</h3>
 <p>Let’s start by creating a standard Cantera solution:</p>
-<div id="119b4cce" class="cell" data-execution_count="19">
+<div id="b1c62ba5" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>solution <span class="op">=</span> ct.Solution(<span class="st">"airish.yaml"</span>)</span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>solution.TPY <span class="op">=</span> <span class="fl">273.15</span>, ct.one_atm, <span class="st">"N2: 0.78 O2: 0.21, AR: 0.01"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Conversion of composition strings with name filtering is available:</p>
-<div id="a2421e9f" class="cell" data-execution_count="20">
+<div id="cc2dc55a" class="cell" data-execution_count="20">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 composition_to_dict
@@ -890,28 +896,28 @@ composition_to_dict
 <hr>
 </div>
 </div>
-<div id="6c236a62" class="cell" data-execution_count="21">
+<div id="5f38ae79" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>composition_to_dict(<span class="st">"O2: 1, teste: 1"</span>, solution.species_names)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="20">
 <pre><code>{'O2': 1.0}</code></pre>
 </div>
 </div>
 <p>It is also possible to set unit composition with species names; if you do not provide a validation list, all are are kept:</p>
-<div id="db17a9f5" class="cell" data-execution_count="22">
+<div id="32d07d2c" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>composition_to_dict(<span class="st">"O2, N2, hello"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>{'O2': 1.0, 'N2': 1.0, 'hello': 1.0}</code></pre>
 </div>
 </div>
 <p>When working with arrays, take care not to end up in the following situation:</p>
-<div id="7d31a2d0" class="cell" data-execution_count="23">
+<div id="4106c479" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>composition_to_array(<span class="st">", teste: 1"</span>, solution.species_names)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
 <pre><code>array([0., 0., 0.])</code></pre>
 </div>
 </div>
 <p>There is also a helper for generating inputs for use with <code>tabulate.tabulate</code>:</p>
-<div id="6be81625" class="cell" data-execution_count="24">
+<div id="e854099e" class="cell" data-execution_count="24">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 solution_report
@@ -943,7 +949,7 @@ solution_report
 <hr>
 </div>
 </div>
-<div id="96883d14" class="cell" data-execution_count="25">
+<div id="6627a57f" class="cell" data-execution_count="25">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> solution_report(solution, specific_props<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>                       composition_spec<span class="op">=</span><span class="st">"mass"</span>, selected_species<span class="op">=</span>[])</span>
 <span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(data))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -961,7 +967,7 @@ mass: O2                -              0.21
 </div>
 </div>
 <p>Because sometimes Cantera lacks hard-copy utilities for certain classes, we provide simple wrappers that create new instances and set the state to the same of the source object. Nothing checked, nothing tested. A first of this kind is <code>copy_solution</code>, illustrated below:</p>
-<div id="fbe89010" class="cell" data-execution_count="26">
+<div id="7faf7c8e" class="cell" data-execution_count="26">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 copy_solution
@@ -979,7 +985,7 @@ copy_solution
 <hr>
 </div>
 </div>
-<div id="a381c334" class="cell" data-execution_count="27">
+<div id="26f88d92" class="cell" data-execution_count="27">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>newairs <span class="op">=</span> copy_solution(solution)</span>
 <span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>newairs.TPX <span class="op">=</span> <span class="fl">373.15</span>, <span class="va">None</span>, newairs.X</span>
 <span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(solution_report(newairs)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -996,7 +1002,7 @@ mass: O2                -              0.21
 ----------------------  --------  -------------</code></pre>
 </div>
 </div>
-<div id="b942ee5c" class="cell" data-execution_count="28">
+<div id="2ec897f1" class="cell" data-execution_count="28">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tabulate(solution_report(solution)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>----------------------  --------  ------------
@@ -1012,7 +1018,7 @@ mass: O2                -              0.21
 </div>
 </div>
 <p>In addition to this, there is <code>copy_quantity</code>, which proves quite useful in establishing an <em>algebra</em> of mixtures.</p>
-<div id="42475451" class="cell" data-execution_count="29">
+<div id="d36c827e" class="cell" data-execution_count="29">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 copy_quantity
@@ -1030,7 +1036,7 @@ copy_quantity
 <hr>
 </div>
 </div>
-<div id="b24e40b4" class="cell" data-execution_count="30">
+<div id="919e6426" class="cell" data-execution_count="30">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>air <span class="op">=</span> copy_solution(solution)</span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>air1 <span class="op">=</span> ct.Quantity(air, mass<span class="op">=</span><span class="fl">1.0</span>)</span>
@@ -1049,7 +1055,7 @@ copy_quantity
 <section id="normalflowrate" class="level3" data-number="1.3.3">
 <h3 data-number="1.3.3" class="anchored" data-anchor-id="normalflowrate"><span class="header-section-number">1.3.3</span> NormalFlowRate</h3>
 <p>Common daily work activity for the process engineer is to perform mass balances, but wait, …, gas flow rates are generally provided under normal conditions, and compositions may vary, so you need to compute normal densities first… whatever. This class provides a calculator wrapping a Cantera solution object so that your life gets easier.</p>
-<div id="48be4f62" class="cell" data-execution_count="31">
+<div id="7b97cb21" class="cell" data-execution_count="31">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 NormalFlowRate
@@ -1087,7 +1093,7 @@ NormalFlowRate
 </div>
 </div>
 <p>Its simples use case is as follows:</p>
-<div id="51733d12" class="cell" data-execution_count="32">
+<div id="d82c1933" class="cell" data-execution_count="32">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>nfr <span class="op">=</span> NormalFlowRate(<span class="st">"airish.yaml"</span>)</span>
 <span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Convert 1000 Nm³/h to </span><span class="sc">{</span>nfr(<span class="fl">1000.0</span>)<span class="sc">:.5f}</span><span class="ss"> kg/s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1095,7 +1101,7 @@ NormalFlowRate
 </div>
 </div>
 <p>If the database file default composition does not suit you, no problems:</p>
-<div id="b2c8ec94" class="cell" data-execution_count="33">
+<div id="f15e867c" class="cell" data-execution_count="33">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>nfr <span class="op">=</span> NormalFlowRate(<span class="st">"airish.yaml"</span>, X<span class="op">=</span><span class="st">"N2: 1"</span>)</span>
 <span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Convert 1000 Nm³/h to </span><span class="sc">{</span>nfr(<span class="fl">1000.0</span>)<span class="sc">:.5f}</span><span class="ss"> kg/s"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1103,7 +1109,7 @@ NormalFlowRate
 </div>
 </div>
 <p>You can also print a nice report to inspect the details of internal state. For more, please check its API documentation.</p>
-<div id="c69748e4" class="cell" data-execution_count="34">
+<div id="2c0535cb" class="cell" data-execution_count="34">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(nfr.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>|------------------------|----------|--------------|
@@ -1120,7 +1126,7 @@ NormalFlowRate
 <h3 data-number="1.3.4" class="anchored" data-anchor-id="plug-flow-reactors"><span class="header-section-number">1.3.4</span> Plug-flow reactors</h3>
 <section id="plugflowaxialsources" class="level4" data-number="1.3.4.1">
 <h4 data-number="1.3.4.1" class="anchored" data-anchor-id="plugflowaxialsources"><span class="header-section-number">1.3.4.1</span> PlugFlowAxialSources</h4>
-<div id="80ac2f6f" class="cell" data-execution_count="35">
+<div id="9e12a1a9" class="cell" data-execution_count="35">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 PlugFlowAxialSources
@@ -1155,7 +1161,7 @@ PlugFlowAxialSources
 </section>
 <section id="plugflowchaincantera" class="level4" data-number="1.3.4.2">
 <h4 data-number="1.3.4.2" class="anchored" data-anchor-id="plugflowchaincantera"><span class="header-section-number">1.3.4.2</span> PlugFlowChainCantera</h4>
-<div id="34eb379d" class="cell" data-execution_count="36">
+<div id="814723db" class="cell" data-execution_count="36">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 PlugFlowChainCantera
@@ -1197,7 +1203,7 @@ PlugFlowChainCantera
 </div>
 </div>
 <!-- TODO document methods -->
-<div id="6bca06f3" class="cell" data-execution_count="37">
+<div id="58f12743" class="cell" data-execution_count="37">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 get_reactor_data
@@ -1226,7 +1232,7 @@ get_reactor_data
 <p>A major issue when working with symbolic expressions and real-world data is that they do not support flow-control constructs like <code>if</code> statements. This is a problem when we want to represent functions that are defined piecewise, especially when algorithmic differentiation is involved.</p>
 <p>As an example, take the parameterization of <a href="https://cantera.org/stable/reference/thermo/species-thermo.html">thermodynamic properties</a> of chemical species. For quantitative purposes, to ensure high accuracy, researchers have found that it is best to use different polynomial fits for different temperature ranges. This means that the thermodynamic properties of a species are defined as piecewise functions of temperature, which is a problem when we want to use them in a symbolic context.</p>
 <p>To tackle this issue in <em>certain</em> contexts, <code>PiecewiseSymbolicFunction</code> provides an interpolation between different ranges of the domain of a function. Internally it makes use of Heaviside functions to ensure that the function is continuous. This is not a perfect solution, as it does not guarantee differentiability at the breakpoints, but it is a good compromise between accuracy and simplicity. It is also worth noting that this class is not meant to be used in a general context, but rather in specific contexts where the function is known to be well-behaved.</p>
-<div id="1c9c2c70" class="cell" data-execution_count="39">
+<div id="15c8c093" class="cell" data-execution_count="39">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 PiecewiseSymbolicFunction
@@ -1250,7 +1256,7 @@ PiecewiseSymbolicFunction
 </div>
 </div>
 <p>Let’s illustrate its use with a simple example. We define two functions <code>f</code> and <code>g</code>, and we want to create a piecewise function that is equal to <code>f</code> for <code>x &lt; 0.5</code> and equal to <code>g</code> for <code>x &gt;= 0.5</code>. Functions have being created such that they evaluate to the same value at the breakpoint, as the practical case that led to the class development, <em>i.e.</em> NASA-parameterization of thermochemical properties. Below we show how to create the piecewise function, evaluate it numerically and symbolically, and compute its derivative symbolically.</p>
-<div id="4a8c3b73" class="cell" data-execution_count="40">
+<div id="b31ec81f" class="cell" data-execution_count="40">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define two simple functions:</span></span>
 <span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span></span>
 <span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> <span class="kw">lambda</span> x: f(<span class="fl">0.5</span>) <span class="op">+</span> (x <span class="op">-</span> <span class="fl">0.5</span>)</span>
@@ -1270,7 +1276,7 @@ PiecewiseSymbolicFunction
 <span id="cb108-17"><a href="#cb108-17" aria-hidden="true" tabindex="-1"></a>ydot <span class="op">=</span> Function(<span class="st">"fdot"</span>, [T], [jacobian(Y, T)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we plot the piecewise function and its derivative. The function is continuous, but the derivative is not, as expected, although the transition is handled smoothly by the Heaviside functions. The red dashed line indicates the breakpoint at <code>x = 0.5</code>, where the function transitions from <code>f</code> to <code>g</code>.</p>
-<div id="baf4a9a9" class="cell" data-execution_count="41">
+<div id="556927ed" class="cell" data-execution_count="41">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1282,7 +1288,7 @@ PiecewiseSymbolicFunction
 </section>
 <section id="species-thermodynamics" class="level3" data-number="1.4.2">
 <h3 data-number="1.4.2" class="anchored" data-anchor-id="species-thermodynamics"><span class="header-section-number">1.4.2</span> Species thermodynamics</h3>
-<div id="ddd1c46e" class="cell" data-execution_count="42">
+<div id="72664d63" class="cell" data-execution_count="42">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 symbolic_thermo_factory
@@ -1306,7 +1312,7 @@ symbolic_thermo_factory
 </div>
 </div>
 <p>Suppose you need to create a symbolic representation of the NASA7 thermodynamic parameterization of molecular nitrogen, species of index 47 in the GRI-Mech 3.0 mechanism shipped with Cantera. Let’s start by loading and retrieving the thermodynamic data for this species.</p>
-<div id="766e8f66" class="cell" data-execution_count="43">
+<div id="a6372470" class="cell" data-execution_count="43">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cantera <span class="im">as</span> ct</span>
 <span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a>gas <span class="op">=</span> ct.Solution(<span class="st">"gri30.yaml"</span>)</span>
@@ -1314,7 +1320,7 @@ symbolic_thermo_factory
 <span id="cb112-5"><a href="#cb112-5" aria-hidden="true" tabindex="-1"></a>thermo <span class="op">=</span> species.thermo</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we instantiate <code>SymbolicThermo</code> with the input data of the species. It is important to emphasize here that when building more complex systems, generally one should share the symbolic variables, <em>e.g.</em> temperature, across the different components of the system. For this reason, the constructor of symbolic thermodynamic classes expect the temperature symbol to be provided, instead of trying to create it internally; this is a design choice that will improve code robustness when handling mixtures and avoid many of the pitfalls of symbolic programming.</p>
-<div id="fb2123ec" class="cell" data-execution_count="44">
+<div id="5913d3db" class="cell" data-execution_count="44">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> SX.sym(<span class="st">"T"</span>)</span>
 <span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>nasa7 <span class="op">=</span> symbolic_thermo_factory(species, T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -1336,11 +1342,11 @@ symbolic_thermo_factory
 </div>
 </div>
 <p>Here we illustrate the use of algorithmic differentiation to compute the derivative of the specific enthalpy with respect to temperature.</p>
-<div id="764b1b67" class="cell" data-execution_count="45">
+<div id="d59fa3f3" class="cell" data-execution_count="45">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>hdot <span class="op">=</span> Function(<span class="st">"hdot"</span>, [T], [jacobian(nasa7.h(T), T)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The above derivative is then confronted to the specific heat below:</p>
-<div id="8b5b092e" class="cell" data-execution_count="46">
+<div id="ddc4ab1a" class="cell" data-execution_count="46">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -1350,7 +1356,7 @@ symbolic_thermo_factory
 </div>
 </div>
 <p>Finally, we compare the deviations between symbolic and numerical (Cantera) evaluation of the thermodynamic functions. This is not for error analysis, but a proof of correctness of the symbolic implementation.</p>
-<div id="93aed025" class="cell" data-execution_count="47">
+<div id="68380d43" class="cell" data-execution_count="47">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="co"># XXX: Cantera evaluates quantities per kmol! Divide by 1000 to get</span></span>
 <span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a><span class="co"># per mol, as the symbolic implementation does.</span></span>
 <span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>c_ct <span class="op">=</span> np.array([<span class="fl">0.001</span> <span class="op">*</span> species.thermo.cp(T) <span class="cf">for</span> T <span class="kw">in</span> T_num])</span>
@@ -1370,7 +1376,7 @@ symbolic_thermo_factory
 </div>
 <section id="nasa7thermo" class="level4" data-number="1.4.2.1">
 <h4 data-number="1.4.2.1" class="anchored" data-anchor-id="nasa7thermo"><span class="header-section-number">1.4.2.1</span> Nasa7Thermo</h4>
-<div id="a4cb4527" class="cell" data-execution_count="48">
+<div id="a5188774" class="cell" data-execution_count="48">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 Nasa7Thermo
@@ -1395,7 +1401,7 @@ Nasa7Thermo
 <hr>
 </div>
 </div>
-<div id="cefa07cf" class="cell" data-execution_count="49">
+<div id="43e341a9" class="cell" data-execution_count="49">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 specific_heat
@@ -1469,7 +1475,7 @@ entropy
 <hr>
 </div>
 </div>
-<div id="6d9cc62d" class="cell" data-execution_count="50">
+<div id="22a2dfe0" class="cell" data-execution_count="50">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 compose
@@ -1525,7 +1531,7 @@ from_species
 </section>
 <section id="species-transport" class="level3" data-number="1.4.3">
 <h3 data-number="1.4.3" class="anchored" data-anchor-id="species-transport"><span class="header-section-number">1.4.3</span> Species transport</h3>
-<div id="4553d88f" class="cell" data-execution_count="51">
+<div id="07485364" class="cell" data-execution_count="51">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #0838a1;   background-color: white;   color: #0838a1;   padding: 0.6em 0.8em;   font-weight: normal;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 symbolic_transport_factory
@@ -1566,11 +1572,11 @@ symbolic_transport_factory
 <li><p>For porous media (packed bed in the context) with enhanced radiative effects the model by <span class="citation" data-cites="Singh1994">(<a href="../references.html#ref-Singh1994" role="doc-biblioref">Singh and Kaviany 1994</a>)</span> as discussed by <span class="citation" data-cites="Kee2017">(<a href="../references.html#ref-Kee2017" role="doc-biblioref">Kee et al. 2017</a>)</span> is implemented (<code>EffectiveThermalConductivity.singh1994</code>).</p></li>
 </ul>
 <p>Its name is quite long, let’s start by getting an alias before evaluating the desired models:</p>
-<div id="09dc39fd" class="cell" data-execution_count="55">
+<div id="5a64e6ed" class="cell" data-execution_count="55">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a>etc <span class="op">=</span> EffectiveThermalConductivity()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Using <a href="https://en.wikipedia.org/wiki/Effective_medium_approximations">Maxwell</a> approximation, we could estimate the the effective thermal conductivity of a packed bed of particles in a <em>matrix</em> of air; assume particles loosly embeded in air and the following properties; the computed effective thermal conductivity is shown to approach the air limit:</p>
-<div id="2ef9f4a3" class="cell" data-execution_count="56">
+<div id="efcc8ade" class="cell" data-execution_count="56">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a>phi <span class="op">=</span> <span class="fl">0.30</span>   <span class="co"># Loosely packed solids [30%v]</span></span>
 <span id="cb145-2"><a href="#cb145-2" aria-hidden="true" tabindex="-1"></a>k_g <span class="op">=</span> <span class="fl">0.025</span>  <span class="co"># Air thermal conductivity [W/(m.K)]</span></span>
 <span id="cb145-3"><a href="#cb145-3" aria-hidden="true" tabindex="-1"></a>k_s <span class="op">=</span> <span class="fl">1.000</span>  <span class="co"># Solids thermal conductivity [W/(m.K)]</span></span>
@@ -1582,7 +1588,7 @@ symbolic_transport_factory
 </div>
 <p>For the limit of high temperatures, it is usually important to account for particle-particle radiation heat transfer; this introduces a <span class="math inline">\(T^3\)</span> dependence on temperature, as one should expect by linearizing Stefan-Boltzmann law.</p>
 <p>Please notice that these models compute different things; while Maxwell approximation computes the medium properties (to approximate matrix-inclusion as a single domain), Singh’s model accounts only for solids properties. One might wish to combine them (warning: unverified validity!) to evaluate overall medium thermal conductivity. See the references in the class documentation for further discussion, specially the extension proposed by Kiradjiev (2019), which leads to a result similar to the assymptotic behavior displayed below.</p>
-<div id="6f7982dc" class="cell" data-execution_count="58">
+<div id="c9e3d6e0" class="cell" data-execution_count="58">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb147-1"><a href="#cb147-1" aria-hidden="true" tabindex="-1"></a>d_p <span class="op">=</span> <span class="fl">0.005</span></span>
 <span id="cb147-2"><a href="#cb147-2" aria-hidden="true" tabindex="-1"></a>eps <span class="op">=</span> <span class="fl">0.9</span></span>
 <span id="cb147-3"><a href="#cb147-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1600,7 +1606,7 @@ symbolic_transport_factory
 </div>
 </div>
 <p>Due to kinetic theory implications, gas thermal conductivity tend to have a positive slope in temperature; the following illustrates how this can be accounted for and the roughly linear behaviour introduced when computing medium properties within air.</p>
-<div id="5ef3a4da" class="cell" data-execution_count="60">
+<div id="579088ce" class="cell" data-execution_count="60">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>gas <span class="op">=</span> ct.Solution(<span class="st">"airish.yaml"</span>)</span>
 <span id="cb148-2"><a href="#cb148-2" aria-hidden="true" tabindex="-1"></a>sol <span class="op">=</span> ct.SolutionArray(gas, (T.shape[<span class="dv">0</span>],))</span>
 <span id="cb148-3"><a href="#cb148-3" aria-hidden="true" tabindex="-1"></a>sol.TP <span class="op">=</span> T, <span class="va">None</span></span>
@@ -1628,7 +1634,7 @@ symbolic_transport_factory
 <li>(optional) displaying a report</li>
 </ol>
 <p>The meaning of the tuple of arguments provided to <code>set_state</code> is specified by <code>tuple_name="TPX"</code>, which defaults to temperature, pressure, and molar proportions. Any triplet allowed by <a href="https://cantera.org/stable/python/thermo.html#id3">Cantera</a> can be specified here.</p>
-<div id="0426cf62" class="cell" data-execution_count="61">
+<div id="8ccff378" class="cell" data-execution_count="61">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a>Tw <span class="op">=</span> <span class="fl">1000.0</span>  <span class="co"># Wall temperature [K]</span></span>
 <span id="cb149-2"><a href="#cb149-2" aria-hidden="true" tabindex="-1"></a>U <span class="op">=</span> <span class="fl">10.0</span>     <span class="co"># Characteristic velocity [m/s]</span></span>
 <span id="cb149-3"><a href="#cb149-3" aria-hidden="true" tabindex="-1"></a>D <span class="op">=</span> <span class="fl">0.05</span>     <span class="co"># Pipe diameter [m]</span></span>
@@ -1650,7 +1656,7 @@ Schmidt       0.761752  mix_diff_coeffs
 </div>
 </div>
 <p>If you prefer to have direct access to the internal solution, you can set properties as usual in Cantera, but you need to keep in mind to call <code>update()</code> to refresh the internal state of the calculator. Every time the properties are updated, the internal buffer of computed dimensionless numbers is refreshed, as you migth notice in the following table.</p>
-<div id="e9b44303" class="cell" data-execution_count="62">
+<div id="6195eeea" class="cell" data-execution_count="62">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a>calculator.solution.TPX <span class="op">=</span> <span class="fl">300.0</span>, <span class="fl">101325.0</span>, <span class="st">"N2: 1"</span></span>
 <span id="cb151-2"><a href="#cb151-2" aria-hidden="true" tabindex="-1"></a>calculator.update()</span>
 <span id="cb151-3"><a href="#cb151-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1673,7 +1679,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 <h3 data-number="1.5.3" class="anchored" data-anchor-id="boundary-layer-wall-grading"><span class="header-section-number">1.5.3</span> Boundary layer wall grading</h3>
 <p>When performing CFD simulations of turbulent flows, it is important to ensure that the first layer of cells adjacent to the wall are properly graded to capture the boundary layer effects. The <code>WallGradingCalculator</code> class provides a simple interface for calculating the first layer thickness based on the desired dimensionless wall distance <span class="math inline">\(y^+\)</span> and the flow properties.</p>
 <p>The following example illustrates how to use the <code>WallGradingCalculator</code> to compute the first layer thickness for a turbulent flow of air at 700°C and atmospheric pressure, with a characteristic velocity of 10 m/s and a pipe diameter of 0.025 m. The skin friction factor is computed using the <code>SkinFrictionFactor.smooth_wall</code> method, which is appropriate for turbulent flows over smooth walls.</p>
-<div id="9a66430d" class="cell" data-execution_count="63">
+<div id="008c5aab" class="cell" data-execution_count="63">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First create a solution object with the desired state:</span></span>
 <span id="cb153-2"><a href="#cb153-2" aria-hidden="true" tabindex="-1"></a>sol <span class="op">=</span> SolutionDimless(<span class="st">"airish.yaml"</span>)</span>
 <span id="cb153-3"><a href="#cb153-3" aria-hidden="true" tabindex="-1"></a>sol.set_state(<span class="fl">973.15</span>, <span class="dv">101325</span>, <span class="st">"N2: 0.79, O2: 0.21"</span>)</span>
@@ -1696,7 +1702,7 @@ Rayleigh            8.03259e+06  Tw=1000.0, H=0.05, g=9.80665
 <pre><code>First layer thickness: 153 µm</code></pre>
 </div>
 </div>
-<div id="5db751b4" class="cell" data-execution_count="64">
+<div id="67dedc89" class="cell" data-execution_count="64">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 WallGradingCalculator
@@ -1843,7 +1849,7 @@ friction_velocity
 <hr>
 </div>
 </div>
-<div id="73812892" class="cell" data-execution_count="65">
+<div id="c2efe199" class="cell" data-execution_count="65">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 SkinFrictionFactor
@@ -1900,7 +1906,7 @@ smooth_wall
 <section id="sutherland-fitting" class="level3" data-number="1.5.4">
 <h3 data-number="1.5.4" class="anchored" data-anchor-id="sutherland-fitting"><span class="header-section-number">1.5.4</span> Sutherland fitting</h3>
 <p>To the author’s knowledge, there is no standard tool to convert Cantera transport data to Sutherland parameters for use with OpenFOAM, what led to the motivation to develop <code>SutherlandFitting</code>. This simple class wraps a Cantera solution object, which it makes use for fitting Sutherland parameters to export as a table (to be used elswhere), and also allows for retrieving a converted database in OpenFOAM compatible format. The following example should be self-explanatory:</p>
-<div id="ad1daac0" class="cell" data-execution_count="66">
+<div id="21fbcf11" class="cell" data-execution_count="66">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb184"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb184-1"><a href="#cb184-1" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> np.linspace(<span class="dv">500</span>, <span class="dv">2500</span>, <span class="dv">100</span>)</span>
 <span id="cb184-2"><a href="#cb184-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb184-3"><a href="#cb184-3" aria-hidden="true" tabindex="-1"></a>sutherland <span class="op">=</span> SutherlandFitting(<span class="st">"airish.yaml"</span>)</span>
@@ -1944,7 +1950,7 @@ smooth_wall
 </div>
 </div>
 <p>If needed, it is also possible to have direct access to the viscosity data used in parameter fitting:</p>
-<div id="e627e77d" class="cell" data-execution_count="67">
+<div id="793bdd11" class="cell" data-execution_count="67">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb185"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb185-1"><a href="#cb185-1" aria-hidden="true" tabindex="-1"></a>sutherland.viscosity.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="66">
 <div>
@@ -1997,7 +2003,7 @@ smooth_wall
 </div>
 </div>
 <p>Because RMSE compresses all the error in a single value, you can check graphically where the deviations happen in the interval:</p>
-<div id="f26b1272" class="cell" data-execution_count="68">
+<div id="38c309ca" class="cell" data-execution_count="68">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb186"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb186-1"><a href="#cb186-1" aria-hidden="true" tabindex="-1"></a>plot <span class="op">=</span> sutherland.plot_species(<span class="st">"N2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -2008,7 +2014,7 @@ smooth_wall
 </div>
 </div>
 <p>Finally, it <em>also</em> responds to its initial goal of exporting values in OpenFOAM format:</p>
-<div id="1647650a" class="cell" data-execution_count="69">
+<div id="4b34a78e" class="cell" data-execution_count="69">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb187"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb187-1"><a href="#cb187-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sutherland.to_openfoam())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -2036,7 +2042,7 @@ smooth_wall
 <section id="radiation-properties" class="level3" data-number="1.5.5">
 <h3 data-number="1.5.5" class="anchored" data-anchor-id="radiation-properties"><span class="header-section-number">1.5.5</span> Radiation properties</h3>
 <p>Radiative properties of gases are often required when participating media characteristics imply so. Here we implement the WSGG model of <span class="citation" data-cites="Sadeghi2021">Sadeghi et al. (<a href="../references.html#ref-Sadeghi2021" role="doc-biblioref">2021</a>)</span> in class <code>WSGGRadlibBordbar2020</code>. The basic usage of the model to estimate total emissivity is done as follows:</p>
-<div id="84a1690c" class="cell" data-execution_count="70">
+<div id="26fba3ab" class="cell" data-execution_count="70">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> WSGGRadlibBordbar2020()</span>
 <span id="cb189-2"><a href="#cb189-2" aria-hidden="true" tabindex="-1"></a>model(L<span class="op">=</span><span class="dv">1</span>, T<span class="op">=</span><span class="dv">1000</span>, P<span class="op">=</span><span class="dv">101325</span>, x_h2o<span class="op">=</span><span class="fl">0.18</span>, x_co2<span class="op">=</span><span class="fl">0.08</span>, fvsoot<span class="op">=</span><span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="69">
@@ -2046,7 +2052,7 @@ smooth_wall
 <section id="validation-of-bordbar-wsgg-implementation" class="level4" data-number="1.5.5.1">
 <h4 data-number="1.5.5.1" class="anchored" data-anchor-id="validation-of-bordbar-wsgg-implementation"><span class="header-section-number">1.5.5.1</span> Validation of Bordbar WSGG implementation</h4>
 <p>Evaluation of the model against original source of Bordbar (2014) is satisfactory, as follows:</p>
-<div id="6ed32978" class="cell" data-execution_count="72">
+<div id="68a2e7e0" class="cell" data-execution_count="72">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -2056,14 +2062,14 @@ smooth_wall
 </div>
 </div>
 <p>Absorption coefficients for pure substances only reproduce approximately values reported by Bordbar (2020).</p>
-<div id="dcac53ae" class="cell" data-execution_count="73">
+<div id="1edab757" class="cell" data-execution_count="73">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb191-1"><a href="#cb191-1" aria-hidden="true" tabindex="-1"></a>model(L<span class="op">=</span><span class="dv">1</span>, T<span class="op">=</span><span class="dv">300</span>, P<span class="op">=</span><span class="dv">101325</span>, x_h2o<span class="op">=</span><span class="dv">0</span>, x_co2<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb191-2"><a href="#cb191-2" aria-hidden="true" tabindex="-1"></a>model.absorption_coefs[<span class="dv">1</span>:]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="72">
 <pre><code>array([3.388079e-02, 4.544269e-01, 4.680226e+00, 1.038439e+02])</code></pre>
 </div>
 </div>
-<div id="0e8878e7" class="cell" data-execution_count="74">
+<div id="5876874f" class="cell" data-execution_count="74">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a>model(L<span class="op">=</span><span class="dv">1</span>, T<span class="op">=</span><span class="dv">300</span>, P<span class="op">=</span><span class="dv">101325</span>, x_h2o<span class="op">=</span><span class="dv">1</span>, x_co2<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb193-2"><a href="#cb193-2" aria-hidden="true" tabindex="-1"></a>model.absorption_coefs[<span class="dv">1</span>:]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="73">
@@ -2074,7 +2080,7 @@ smooth_wall
 <section id="application-to-radiative-combustion" class="level4" data-number="1.5.5.2">
 <h4 data-number="1.5.5.2" class="anchored" data-anchor-id="application-to-radiative-combustion"><span class="header-section-number">1.5.5.2</span> Application to radiative combustion</h4>
 <p>Below we illustrate the application of <code>WSGGRadlibBordbar2020</code> to predict the emissivity of <span class="math inline">\(x\mathrm{H_2O}-(1-x)\mathrm{CO_2}\)</span> mixtures over a broad temperature range applicable to the analysis of combustion processes. One observes an important participation of flue gases, especially at lower temperatures.</p>
-<div id="f0c2a138" class="cell" data-execution_count="76">
+<div id="b649e2e7" class="cell" data-execution_count="76">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href="#cb195-1" aria-hidden="true" tabindex="-1"></a>wsgg <span class="op">=</span> WSGGRadlibBordbar2020()</span>
 <span id="cb195-2"><a href="#cb195-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb195-3"><a href="#cb195-3" aria-hidden="true" tabindex="-1"></a><span class="at">@np.vectorize</span></span>
@@ -2118,7 +2124,7 @@ J=-D\dfrac{\partial{}c}{\partial{}x}
 <p>This is the form of the diffusion equation that is discussed in what follows.</p>
 <section id="system-discretization" class="level3" data-number="1.7.1">
 <h3 data-number="1.7.1" class="anchored" data-anchor-id="system-discretization"><span class="header-section-number">1.7.1</span> System discretization</h3>
-<div id="49b8239e" class="cell" data-execution_count="79">
+<div id="4f30103d" class="cell" data-execution_count="79">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb196"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb196-1"><a href="#cb196-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb196-2"><a href="#cb196-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy <span class="im">as</span> sp</span>
 <span id="cb196-3"><a href="#cb196-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> abc <span class="im">import</span> ABC</span>
@@ -2129,7 +2135,7 @@ J=-D\dfrac{\partial{}c}{\partial{}x}
 <span id="cb196-8"><a href="#cb196-8" aria-hidden="true" tabindex="-1"></a>sp.init_printing(use_latex<span class="op">=</span><span class="st">"mathjax"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Create all of the SymPy symbols used in the FVM derivations.</p>
-<div id="ccfbf18f" class="cell" data-execution_count="80">
+<div id="a7e50668" class="cell" data-execution_count="80">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href="#cb197-1" aria-hidden="true" tabindex="-1"></a>sympy_symbols_factory(</span>
 <span id="cb197-2"><a href="#cb197-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># General FVM parameters and variables.</span></span>
 <span id="cb197-3"><a href="#cb197-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"delta"</span>, <span class="st">"tau"</span>,</span>
@@ -2154,7 +2160,7 @@ J=-D\dfrac{\partial{}c}{\partial{}x}
 <span id="cb197-22"><a href="#cb197-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Create a helper class for representing the standard format of finite volume equations. This class extends <code>sympy.Eq</code> with some utilities for working with the equations in a more convenient way for our purposes. The main idea is to have a consistent way to represent the equations in the form <span class="math inline">\(F(x)=0\)</span>, where <span class="math inline">\(F\)</span> is a function of the unknowns <span class="math inline">\(x\)</span>. This allows us to easily extract coefficients and tabulate them in a consistent way across the notes.</p>
-<div id="81dddeb1" class="cell" data-execution_count="81">
+<div id="c5a1023a" class="cell" data-execution_count="81">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb198"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb198-1"><a href="#cb198-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Eq(sp.Eq):</span>
 <span id="cb198-2"><a href="#cb198-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Standard LHS format of finite volume equation. """</span></span>
 <span id="cb198-3"><a href="#cb198-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__new__</span>(cls, lhs, rhs<span class="op">=</span><span class="dv">0</span>, <span class="op">**</span>kwargs):</span>
@@ -2222,7 +2228,7 @@ J=-D\dfrac{\partial{}c}{\partial{}x}
 \]</span></p>
 <p>where <span class="math inline">\(\delta\)</span> is the width of the control volume. This equation represents a discrete time-step of the diffusion equation for a single control volume, where one still needs to specify a discretization of the gradients, <em>i.e.</em> how the fluxes are evaluated at a cell face. A simple introductory approach is to use forward differences, where the composition gradients are approximated as first differences between neighbors.</p>
 <p>To approximate the aforementioned gradients, the next cell introduces the expressions for the fluxes at east and west faces. These helper functions ensure the order of arguments is consistent with the finite difference definition given above.</p>
-<div id="e40c8560" class="cell" data-execution_count="82">
+<div id="aba33a39" class="cell" data-execution_count="82">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb199"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb199-1"><a href="#cb199-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> diffusion_flux(D, c_left, c_right, delta):</span>
 <span id="cb199-2"><a href="#cb199-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Compute the forward difference diffusion flux between two points. """</span></span>
 <span id="cb199-3"><a href="#cb199-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span>D <span class="op">*</span> (c_right <span class="op">-</span> c_left) <span class="op">/</span> delta</span>
@@ -2238,7 +2244,7 @@ J=-D\dfrac{\partial{}c}{\partial{}x}
 <span id="cb199-13"><a href="#cb199-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> diffusion_flux(D, c_left, c_P, delta<span class="op">=</span>delta)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For standardizing equations as organized as <span class="math inline">\(F(x)=0\)</span> we override <code>sympy.Eq</code> with <code>Eq</code> class used in what follows. This allows us to easily extract coefficients and tabulate them in a consistent way across the notes. Below we compose the diffusion equation with help of <a href="https://sympy.org/latest/index.html">SymPy</a> and the above extensions. Notice that when compositing the right-hand side <code>rhs</code> we multiply by -1 because we are integrating the negative of the fluxes.</p>
-<div id="3f9b146b" class="cell" data-execution_count="83">
+<div id="6b067d1f" class="cell" data-execution_count="83">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb200"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href="#cb200-1" aria-hidden="true" tabindex="-1"></a>J_w <span class="op">=</span> diffusion_flux_west()</span>
 <span id="cb200-2"><a href="#cb200-2" aria-hidden="true" tabindex="-1"></a>J_e <span class="op">=</span> diffusion_flux_east()</span>
 <span id="cb200-3"><a href="#cb200-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2256,7 +2262,7 @@ J=-D\dfrac{\partial{}c}{\partial{}x}
 D_{k}=2\frac{D_{i}D_{j}}{D_{i}+D_{j}}
 \]</span></p>
 <p>A final step to get a linear form of the problem is multiplying both sides by <span class="math inline">\(\tau/\delta\)</span> and rearranging terms. This form clearly shows the contribution of each neighboring concentration to the rate of change at point P. The coefficient of <span class="math inline">\(c_P\)</span> is negative, representing the outflow from the central node, while the coefficients of <span class="math inline">\(c_E\)</span> and <span class="math inline">\(c_W\)</span> are positive, representing inflow from the neighboring nodes.</p>
-<div id="ba0fce9e" class="cell" data-execution_count="84">
+<div id="2bb478b3" class="cell" data-execution_count="84">
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="83">
 <p><span class="math inline">\(\displaystyle - \frac{D_{e} c_{E} \tau}{\delta^{2}} + \frac{D_{e} c_{P} \tau}{\delta^{2}} + \frac{D_{w} c_{P} \tau}{\delta^{2}} - \frac{D_{w} c_{W} \tau}{\delta^{2}} - c_{0} + c_{P} = 0\)</span></p>
 </div>
@@ -2266,7 +2272,7 @@ D_{k}=2\frac{D_{i}D_{j}}{D_{i}+D_{j}}
 Fo_{k}=\dfrac{\tau{}D_{k}}{\delta^2}
 \]</span></p>
 <p>This definition is provided below for helping with the replacements that follow.</p>
-<div id="3994ac66" class="cell" data-execution_count="85">
+<div id="f09cb295" class="cell" data-execution_count="85">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb201"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb201-1"><a href="#cb201-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fourier_number(D, tau, delta):</span>
 <span id="cb201-2"><a href="#cb201-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Compute the Fourier number for the given parameters. """</span></span>
 <span id="cb201-3"><a href="#cb201-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> D <span class="op">*</span> tau <span class="op">/</span> delta<span class="op">**</span><span class="dv">2</span></span>
@@ -2280,7 +2286,7 @@ Fo_{k}=\dfrac{\tau{}D_{k}}{\delta^2}
 <span id="cb201-11"><a href="#cb201-11" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Performing the replacements with help of SymPy:</p>
-<div id="b90f16cc" class="cell" data-execution_count="86">
+<div id="504500ac" class="cell" data-execution_count="86">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb202-1"><a href="#cb202-1" aria-hidden="true" tabindex="-1"></a>eq <span class="op">=</span> eq.subs(SUBS_FOURIER)</span>
 <span id="cb202-2"><a href="#cb202-2" aria-hidden="true" tabindex="-1"></a>eq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="85">
@@ -2289,7 +2295,7 @@ Fo_{k}=\dfrac{\tau{}D_{k}}{\delta^2}
 </div>
 <p>Notice that so far nothing has been said with respect to the instant at which the right-hand side is evaluated. The obvious solution would be to take <span class="math inline">\(c_{0}\equiv{}c_{P}^{0}\)</span> as it is currently known, but for numerical stability reasons we will continue here with an implicit scheme so that all values other than <span class="math inline">\(c_{0}\)</span> are defined to be evaluated at time <span class="math inline">\(\tau\)</span>, <em>i.e.</em> <span class="math inline">\(c_{K}\equiv{}c_{K}^{\tau}\)</span>, in phase with the notation convention introduced above.</p>
 <p>Because it is more convenient for symbolic manipulations with SymPy, the problem is currently written as <span class="math inline">\(F(c)=0\)</span>, <em>i.e.</em> all elements are on the left-hand side. Care must be taken to properly interpret the signs of the coefficients below.</p>
-<div id="fdd5ee42" class="cell" data-execution_count="87">
+<div id="114d47a9" class="cell" data-execution_count="87">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb203-1"><a href="#cb203-1" aria-hidden="true" tabindex="-1"></a>coefs <span class="op">=</span> eq.coefficients(variables<span class="op">=</span>[c_0, c_E, c_P, c_W, c_G, c_B])</span>
 <span id="cb203-2"><a href="#cb203-2" aria-hidden="true" tabindex="-1"></a>coefs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="86">
@@ -2297,7 +2303,7 @@ Fo_{k}=\dfrac{\tau{}D_{k}}{\delta^2}
 </div>
 </div>
 <p>Because it is more readable, a helper utility is provided to tabulate them:</p>
-<div id="f9460060" class="cell" data-execution_count="88">
+<div id="7e98e32f" class="cell" data-execution_count="88">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb204"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb204-1"><a href="#cb204-1" aria-hidden="true" tabindex="-1"></a>eq.tabulate(variables<span class="op">=</span>[c_0, c_E, c_P, c_W, c_G, c_B])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="87">
 <div>
@@ -2357,7 +2363,7 @@ D_{e}\dfrac{c_{E}-c_{P}}{\delta}-
 D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 \]</span></p>
 <p>Please, notice that from now on we make use of class <code>StandardProblem</code> for the end of representing a canonical discrete equation. It encodes the results obtained in the previous section and is also repeated below:</p>
-<div id="e338b373" class="cell" data-execution_count="89">
+<div id="0f2d94e7" class="cell" data-execution_count="89">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb205-1"><a href="#cb205-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> StandardProblem:</span>
 <span id="cb205-2"><a href="#cb205-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Standard format of finite volume diffusion problem in 1-D. """</span></span>
 <span id="cb205-3"><a href="#cb205-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@staticmethod</span></span>
@@ -2380,7 +2386,7 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 <span id="cb205-20"><a href="#cb205-20" aria-hidden="true" tabindex="-1"></a>        eq <span class="op">=</span> Eq(lhs <span class="op">-</span> rhs) <span class="op">*</span> tau <span class="op">/</span> delta</span>
 <span id="cb205-21"><a href="#cb205-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> eq.subs(SUBS_FOURIER) <span class="cf">if</span> subs_fourier <span class="cf">else</span> eq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="7b0a2e34" class="cell" data-execution_count="90">
+<div id="ac9980c1" class="cell" data-execution_count="90">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href="#cb206-1" aria-hidden="true" tabindex="-1"></a>StandardProblem.full_expression()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="89">
 <p><span class="math inline">\(\displaystyle - \frac{D_{e} c_{E} \tau}{\delta^{2}} + \frac{D_{e} c_{P} \tau}{\delta^{2}} + \frac{D_{w} c_{P} \tau}{\delta^{2}} - \frac{D_{w} c_{W} \tau}{\delta^{2}} - c_{0} + c_{P} = 0\)</span></p>
@@ -2391,7 +2397,7 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 <p>Let’s start by the Dirichlet, or fixed concentration, boundary condition (type 1), for which the concentration at the boundary face is prescribed, <em>i.e.</em> <span class="math inline">\(c_{\text{B}} = c_{\text{prescribed}}\)</span>. Notice that before using this we need to make a choice regarding the computational grid (mesh); you could have half-volumes on boundaries, fictitious volumes (sometimes called ghost cells), or immersed nodes over the boundary.</p>
 <p>Partial control volumes on boundaries are not desirable as they introduce implementation complexities in code and lack conservation (especially in higher dimensions), see a discussion by <span class="citation" data-cites="Maliska2004">Maliska (<a href="../references.html#ref-Maliska2004" role="doc-biblioref">2004</a>)</span> (section 3.7) for details. In what follows we discuss immersed nodes and extended domains with <em>ghost</em> cells. This last solution implies considerably more unknowns in 3-D problems, for which different variants of FVM will be discussed at a more advanced point.</p>
 <p><strong>Immersed boundary:</strong> Assume the last cell on <em>west</em> boundary is indexed as <span class="math inline">\(P\)</span>; over its <em>west</em> boundary we find a node where prescribed composition <span class="math inline">\(c_{B}\)</span> is enforced - and the corresponding diffusion coefficient <span class="math inline">\(D_{b}\)</span>. Notice that this node does not belong to the cell, nor represents a half-cell, but lies over its boundary. To keep it simple, let’s assume <span class="math inline">\(c_{B}\)</span> is constant (time-dependency would slightly complicate the development and it is worth postponing it to the algorithm development discussion), so keeping our fully implicit scheme leads to We start by computing the mass flux from the boundary node to the first cell center; this flux is computed using half-cell length <span class="math inline">\(\delta/2\)</span> for the derivative approximation.</p>
-<div id="90d22043" class="cell" data-execution_count="91">
+<div id="4e40a15c" class="cell" data-execution_count="91">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a>J_w <span class="op">=</span> diffusion_flux_west(D_b, c_B, delta<span class="op">/</span><span class="dv">2</span>)</span>
 <span id="cb207-2"><a href="#cb207-2" aria-hidden="true" tabindex="-1"></a>J_w</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="90">
@@ -2399,7 +2405,7 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 </div>
 </div>
 <p>This expression of flux is used as replacement for the <em>west</em> boundary in the full equation:</p>
-<div id="87d2c8d1" class="cell" data-execution_count="92">
+<div id="285938af" class="cell" data-execution_count="92">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb208"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb208-1"><a href="#cb208-1" aria-hidden="true" tabindex="-1"></a>eq <span class="op">=</span> StandardProblem.full_expression(J_w<span class="op">=</span>J_w, subs_fourier<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb208-2"><a href="#cb208-2" aria-hidden="true" tabindex="-1"></a>eq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="91">
@@ -2407,7 +2413,7 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 </div>
 </div>
 <p>The coefficients for the first row of the matrix problem are summarized below:</p>
-<div id="70202c3d" class="cell" data-execution_count="93">
+<div id="2a30c78c" class="cell" data-execution_count="93">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb209-1"><a href="#cb209-1" aria-hidden="true" tabindex="-1"></a>eq.tabulate()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="92">
 <div>
@@ -2424,23 +2430,23 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
+<td>c_E</td>
+<td>-Fo_e</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>c_0</td>
+<td>-1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
 <td>c_P</td>
 <td>2*Fo_b + Fo_e + 1</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
+<th data-quarto-table-cell-role="th">3</th>
 <td>c_B</td>
 <td>-2*Fo_b</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>c_0</td>
-<td>-1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>c_E</td>
-<td>-Fo_e</td>
 </tr>
 </tbody>
 </table>
@@ -2452,7 +2458,7 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 <p>The immersed boundary approach presented above is simple. Nonetheless, it requires a different calculation of boundary nodes with respect to the volume, but that comes with the advantage that no additional equation has been added to the system. Let’s now explore the extended domain alternative.</p>
 <p><strong>Ghost cell:</strong> As above, assume the last cell on <em>west</em> boundary is indexed as <span class="math inline">\(P\)</span>. Consider another <em>ghost</em> cell to its left being denoted <span class="math inline">\(G\)</span> (fictitious cell in place of <span class="math inline">\(W\)</span>). The node <span class="math inline">\(c_{B}\)</span> where composition is enforced and the same details presented above still apply here. Here we repeat the immersed node flux computation and do the same with respect to <em>ghost</em> cell <span class="math inline">\(G\)</span>.</p>
 <p>Our goal is to identify an equation for <span class="math inline">\(c_{G}\)</span> so that it is solved along with the interior points and ensures the same flux as the immersed node. To identify the compatible <em>ghost</em> composition we equate the fluxes by both definitions and solve for <span class="math inline">\(c_{G}\)</span>. The following steps repeat what we have seem so far and should be self-explanatory.</p>
-<div id="4d067db8" class="cell" data-execution_count="94">
+<div id="9efb15b9" class="cell" data-execution_count="94">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb210-1"><a href="#cb210-1" aria-hidden="true" tabindex="-1"></a>J_w1 <span class="op">=</span> diffusion_flux_west(D_b, c_B, delta<span class="op">/</span><span class="dv">2</span>)</span>
 <span id="cb210-2"><a href="#cb210-2" aria-hidden="true" tabindex="-1"></a>J_w2 <span class="op">=</span> diffusion_flux_west(D_g, c_G, delta)</span>
 <span id="cb210-3"><a href="#cb210-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2472,13 +2478,13 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>c_P</td>
-<td>-2*D_b/delta + D_g/delta</td>
+<td>c_G</td>
+<td>-D_g/delta</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>c_G</td>
-<td>-D_g/delta</td>
+<td>c_P</td>
+<td>-2*D_b/delta + D_g/delta</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
@@ -2493,7 +2499,7 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 </div>
 <p>Care must be taken for interpreting the above result; here <span class="math inline">\(c_{G}\)</span> takes the diagonal position and <span class="math inline">\(c_{P}\)</span> is the first <em>east</em> cell in the first row of the problem’s matrix. There is no previous state (no coefficient on <span class="math inline">\(c_{0}\)</span>), but a source term based on <span class="math inline">\(c_{B}\)</span> that must be placed on the right-hand side for solution. This is the equation we are looking for to extend the system.</p>
 <p>Since this equation has <span class="math inline">\(D_{g}\)</span> as a coefficient, an initial guess for <span class="math inline">\(c_{G}\)</span> is required. The boundary <span class="math inline">\(B\)</span> being the same interface for evaluation of <span class="math inline">\(D_{g}\)</span>, for both fluxes to equate one needs to make sure the same diffusivity is evaluated there. Thus we make <span class="math inline">\(D_{b}\equiv{}D_{g}\)</span>, what seems physically reasonable but so far not supported by any mathematical argument:</p>
-<div id="7025983f" class="cell" data-execution_count="95">
+<div id="3feb51a5" class="cell" data-execution_count="95">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb211-1"><a href="#cb211-1" aria-hidden="true" tabindex="-1"></a>c_G_sol <span class="op">=</span> Eq(J_w1 <span class="op">-</span> J_w2).solve_for(c_G)[<span class="dv">0</span>]</span>
 <span id="cb211-2"><a href="#cb211-2" aria-hidden="true" tabindex="-1"></a>c_G_sol <span class="op">=</span> c_G_sol.subs(D_b, D_g)</span>
 <span id="cb211-3"><a href="#cb211-3" aria-hidden="true" tabindex="-1"></a>c_G_sol</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2513,7 +2519,7 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 </div>
 <div class="callout-body-container callout-body">
 <p>One could think about solving for <span class="math inline">\(c_G\)</span> and using the result in the standard balance equation, but doing so falls back to the immersed boundary approach. Replacing the solution in <code>J_w2</code> simply gets back to the initial point and does not produce one extra equation!</p>
-<div id="527854ca" class="cell" data-execution_count="96">
+<div id="b74dc8a4" class="cell" data-execution_count="96">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb212-1"><a href="#cb212-1" aria-hidden="true" tabindex="-1"></a>J_w <span class="op">=</span> J_w2.subs(c_G, c_G_sol)</span>
 <span id="cb212-2"><a href="#cb212-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb212-3"><a href="#cb212-3" aria-hidden="true" tabindex="-1"></a>eq <span class="op">=</span> StandardProblem.full_expression(J_w<span class="op">=</span>J_w, subs_fourier<span class="op">=</span><span class="va">True</span>)</span>
@@ -2533,23 +2539,23 @@ D_{w}\dfrac{c_{P}-c_{W}}{\delta}
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
+<td>c_E</td>
+<td>-Fo_e</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>c_0</td>
+<td>-1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
 <td>c_P</td>
 <td>Fo_e + 2*Fo_g + 1</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
+<th data-quarto-table-cell-role="th">3</th>
 <td>c_B</td>
 <td>-2*Fo_g</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>c_0</td>
-<td>-1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>c_E</td>
-<td>-Fo_e</td>
 </tr>
 </tbody>
 </table>
@@ -2614,7 +2620,7 @@ g = c_{\infty}
 </div>
 </div>
 <p>The (scalar) convention we used so far implies a convective flux that is positive <em>outwards</em> the domain, <span class="math inline">\(J=h(c_{b}-c_{\infty})&gt;0\)</span> if <span class="math inline">\(c_{b}&gt;c_{\infty}\)</span>, <em>i.e.</em>, the chemical potential in the solid is higher than the environment. The <em>west</em> boundary being oriented towards the <span class="math inline">\(-y\)</span> axis, we need to account for its sign; in later chapters we will see that the boundary condition reasoning is actually simpler to follow in higher dimensions as we implicitly treat the face normal vectors through the inner product.</p>
-<div id="70ce80c0" class="cell" data-execution_count="97">
+<div id="c3c31d91" class="cell" data-execution_count="97">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href="#cb213-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> convection_flux(cb, h, c_inf):</span>
 <span id="cb213-2"><a href="#cb213-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Compute the convection flux between environment and surface. """</span></span>
 <span id="cb213-3"><a href="#cb213-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> h <span class="op">*</span> (c_inf <span class="op">-</span> cb)</span>
@@ -2624,7 +2630,7 @@ g = c_{\infty}
 <span id="cb213-7"><a href="#cb213-7" aria-hidden="true" tabindex="-1"></a>q_be <span class="op">=</span> <span class="op">+</span>convection_flux(c_B, h, c_inf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>In what follows we derive the immersed boundary equation for type 3 condition. The extension to <em>ghost</em> cells is trivial and can be worked out with the ideas presented in section <a href="#sec-type-1-bc-dirichlet" class="quarto-xref"><span>Section 1.7.2.1</span></a>. We solve for <span class="math inline">\(c_{B}\)</span> at both sides of the domain by equating the convective flux to the one established internally with the immersed boundary node:</p>
-<div id="bae434b0" class="cell" data-execution_count="98">
+<div id="4b225163" class="cell" data-execution_count="98">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb214-1"><a href="#cb214-1" aria-hidden="true" tabindex="-1"></a>J_w <span class="op">=</span> diffusion_flux_west(D_b, c_B, delta<span class="op">/</span><span class="dv">2</span>)</span>
 <span id="cb214-2"><a href="#cb214-2" aria-hidden="true" tabindex="-1"></a>J_e <span class="op">=</span> diffusion_flux_east(D_b, c_B, delta<span class="op">/</span><span class="dv">2</span>)</span>
 <span id="cb214-3"><a href="#cb214-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2632,28 +2638,28 @@ g = c_{\infty}
 <span id="cb214-5"><a href="#cb214-5" aria-hidden="true" tabindex="-1"></a>c_Be <span class="op">=</span> Eq(J_e <span class="op">-</span> q_be).solve_for(c_B)[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>This leads to</p>
-<div id="abc8fb23" class="cell" data-execution_count="99">
+<div id="2317440e" class="cell" data-execution_count="99">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb215"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href="#cb215-1" aria-hidden="true" tabindex="-1"></a>c_Bw</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="98">
 <p><span class="math inline">\(\displaystyle \frac{2 D_{b} c_{P} - c_{\infty} \delta h}{2 D_{b} - \delta h}\)</span></p>
 </div>
 </div>
 <p>and</p>
-<div id="a5c45e60" class="cell" data-execution_count="100">
+<div id="77f1dc36" class="cell" data-execution_count="100">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb216"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb216-1"><a href="#cb216-1" aria-hidden="true" tabindex="-1"></a>c_Be</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="99">
 <p><span class="math inline">\(\displaystyle \frac{2 D_{b} c_{P} - c_{\infty} \delta h}{2 D_{b} - \delta h}\)</span></p>
 </div>
 </div>
 <p>If we take, <em>e.g.</em>, the <em>west</em> boundary equation with the previous definition of flux evaluated from the immersed boundary node, we retrieve the corresponding equation for the system. Notice that <span class="math inline">\(c_{B}\)</span> is a known value at the current iteration, so in solution it can be moved to the right-hand side and act as a flux term. This gives a grasp of the solution algorithm that makes the subject for the next section.</p>
-<div id="fc4d1182" class="cell" data-execution_count="101">
+<div id="4778c3e2" class="cell" data-execution_count="101">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb217"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href="#cb217-1" aria-hidden="true" tabindex="-1"></a>eq <span class="op">=</span> StandardProblem.full_expression(J_w<span class="op">=</span>J_w, subs_fourier<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb217-2"><a href="#cb217-2" aria-hidden="true" tabindex="-1"></a>eq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="100">
 <p><span class="math inline">\(\displaystyle - 2 Fo_{b} c_{B} + 2 Fo_{b} c_{P} - Fo_{e} c_{E} + Fo_{e} c_{P} - c_{0} + c_{P} = 0\)</span></p>
 </div>
 </div>
-<div id="3e12b1fa" class="cell" data-execution_count="102">
+<div id="7db3dda7" class="cell" data-execution_count="102">
 <div class="cell-output cell-output-display" data-execution_count="101">
 <div>
 
@@ -2669,23 +2675,23 @@ g = c_{\infty}
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
+<td>c_E</td>
+<td>-Fo_e</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>c_0</td>
+<td>-1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
 <td>c_P</td>
 <td>2*Fo_b + Fo_e + 1</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
+<th data-quarto-table-cell-role="th">3</th>
 <td>c_B</td>
 <td>-2*Fo_b</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>c_0</td>
-<td>-1</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>c_E</td>
-<td>-Fo_e</td>
 </tr>
 </tbody>
 </table>
@@ -2852,55 +2858,55 @@ B_{(N-1)} \vphantom{\dfrac{1}{1}}\\
 <h4 data-number="1.7.4.1" class="anchored" data-anchor-id="preliminary-calculations"><span class="header-section-number">1.7.4.1</span> Preliminary calculations</h4>
 <p>The problem as formulated by <span class="citation" data-cites="Slycke1981a">Slycke and Ericsson (<a href="../references.html#ref-Slycke1981a" role="doc-biblioref">1981</a>)</span> is expressed in terms of concentrations, while the diffusion coefficients (which are based on geometric exclusion principles) require molar fractions. There may be some overhead in simulations if handling of unit conversion is not done carefully, so in this section we will derive the necessary relationships to convert between the two.</p>
 <p>The problem may seen nonlinear, as density might be considered as a function of composition (in general for carbonitriding it is reasonable to assume that the density of the steel is constant, but we will not make this assumption here). From the definition o molar fraction, one can derive the mean number of atoms of a kind per unit cell in terms of the total number of atoms per unit cell and the molar fractions. For instance, for carbon and nitrogen we have:</p>
-<div id="c4acfc23" class="cell" data-execution_count="107">
+<div id="5a031edc" class="cell" data-execution_count="107">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(x_{c} = \frac{N_{c}}{N_{c} + N_{f} + N_{n}}, \quad x_{n} = \frac{N_{n}}{N_{c} + N_{f} + N_{n}}\)</span></p>
 </div>
 </div>
 <p>With a little manipulation, we can express the number of atoms per unit cell of carbon and nitrogen as a function of the molar fractions and the total number of atoms of iron <span class="math inline">\(N_f\)</span> (which dependends only on the crystal structure, here for FCC <span class="math inline">\(N_f = 4\)</span>) per unit cell:</p>
-<div id="29d69d54" class="cell" data-execution_count="109">
+<div id="84ee6f69" class="cell" data-execution_count="109">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(N_c = - \frac{N_{f} x_{c}}{x_{c} + x_{n} - 1}, \quad N_n = - \frac{N_{f} x_{n}}{x_{c} + x_{n} - 1}\)</span></p>
 </div>
 </div>
 <p>In the absence of interstitial atoms, the density of plain iron expressed in terms of the unit cell parameters (see any introductory text on Materials Science, <em>e.g.</em> <span class="citation" data-cites="Callister2007">Callister (<a href="../references.html#ref-Callister2007" role="doc-biblioref">2007</a>)</span>) can be expressed as:</p>
-<div id="cd735bc8" class="cell" data-execution_count="111">
+<div id="2671612c" class="cell" data-execution_count="111">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(\rho_0 = \frac{M_{f} N_{f}}{A_{v} V_{c}}\)</span></p>
 </div>
 </div>
 <p>Including the additional interstitial atoms - and neglecting their effect on lattice parameter, which is not a bad hypothesis at high temperature - the density of the system can be expressed as:</p>
-<div id="f2d0c7d3" class="cell" data-execution_count="113">
+<div id="3952460b" class="cell" data-execution_count="113">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(\rho = \frac{N_{f} \left(- M_{c} x_{c} + M_{f} \left(x_{c} + x_{n} - 1\right) - M_{n} x_{n}\right)}{A_{v} V_{c} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
 </div>
 </div>
 <p>Notice the common factors between the two expressions, which allows us to express the density of the system as a function of the density of pure iron and the molar fractions:</p>
-<div id="ba6115c1" class="cell" data-execution_count="115">
+<div id="d1118248" class="cell" data-execution_count="115">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(\rho = \frac{\rho_{0} \left(- M_{c} x_{c} + M_{f} \left(x_{c} + x_{n} - 1\right) - M_{n} x_{n}\right)}{M_{f} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
 </div>
 </div>
 <p>The concentration is the ratio between the solution density and its mean molar mass. Writing the molar mass of the system as a function of the molar fractions and molar masses of the individual components is straightforward:</p>
-<div id="7df4ef8b" class="cell" data-execution_count="117">
+<div id="e0ada4b4" class="cell" data-execution_count="117">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(\bar{M} = M_{c} x_{c} + M_{f} \left(- x_{c} - x_{n} + 1\right) + M_{n} x_{n}\)</span></p>
 </div>
 </div>
 <p>With this expression we find the trivial result:</p>
-<div id="de08decb" class="cell" data-execution_count="119">
+<div id="169d67f3" class="cell" data-execution_count="119">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(C = - \frac{\rho_{0}}{M_{f} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
 </div>
 </div>
 <p>and for the individual components:</p>
-<div id="8e726b86" class="cell" data-execution_count="121">
+<div id="3082d766" class="cell" data-execution_count="121">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(C_c = - \frac{\rho_{0} x_{c}}{M_{f} \left(x_{c} + x_{n} - 1\right)}, \quad C_n = - \frac{\rho_{0} x_{n}}{M_{f} \left(x_{c} + x_{n} - 1\right)}\)</span></p>
 </div>
 </div>
 <p>With these expressions, we can express the molar fractions as a function of the concentrations:</p>
-<div id="7fe0db69" class="cell" data-execution_count="123">
+<div id="43ff8e55" class="cell" data-execution_count="123">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><span class="math inline">\(x_c = \frac{C_{c} M_{f}}{C_{c} M_{f} + C_{n} M_{f} + \rho_{0}}, \quad x_n = \frac{C_{n} M_{f}}{C_{c} M_{f} + C_{n} M_{f} + \rho_{0}}\)</span></p>
 </div>
@@ -2928,7 +2934,7 @@ B_{(N-1)} \vphantom{\dfrac{1}{1}}\\
 <section id="examples" class="level3" data-number="1.7.5">
 <h3 data-number="1.7.5" class="anchored" data-anchor-id="examples"><span class="header-section-number">1.7.5</span> Examples</h3>
 <p>First, let’s import the necessary modules from <code>majordome.engineering</code>:</p>
-<div id="32cf4a24" class="cell" data-execution_count="125">
+<div id="08ecc3d6" class="cell" data-execution_count="125">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb218"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb218-1"><a href="#cb218-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb218-2"><a href="#cb218-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> majordome.utilities <span class="im">import</span> plot_xy</span>
 <span id="cb218-3"><a href="#cb218-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> majordome.engineering <span class="im">import</span> ImmersedNodeDomain1D</span>
@@ -2940,7 +2946,7 @@ B_{(N-1)} \vphantom{\dfrac{1}{1}}\\
 <h4 data-number="1.7.5.1" class="anchored" data-anchor-id="about-grid-types"><span class="header-section-number">1.7.5.1</span> About grid types</h4>
 <p>For solving diffusion problems, we first need to define a discretized spaces. Our toolbox makes use of immersed boundary nodes and we need a grid generated by <code>ImmersedNodeDomain1D</code> to start. We can define the spatial grid using linear or geometric spaces, which can be controlled by the arguments provided to the constructor.</p>
 <p>By simply providing a total <code>depth</code> and the number <code>n</code> of cells one crates a linear grid:</p>
-<div id="23bbfb2f" class="cell" data-execution_count="126">
+<div id="1c388791" class="cell" data-execution_count="126">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb219"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href="#cb219-1" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> ImmersedNodeDomain1D(depth<span class="op">=</span><span class="fl">1.0</span>, n<span class="op">=</span><span class="dv">6</span>)</span>
 <span id="cb219-2"><a href="#cb219-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -2963,7 +2969,7 @@ Spacing 0004 is  2.00000000e-01, Centers = [ 8.00000000e-01;  1.00000000e+00]</c
 </div>
 </div>
 <p>The geometric cell spacing is achieved by providing keyword arguments <code>first_size</code> and <code>last_size</code>, which should be self-explanatory. Please notice that <code>depth</code> and <code>n</code> can be provided as positional arguments.</p>
-<div id="fb52f8ed" class="cell" data-execution_count="127">
+<div id="642d23cb" class="cell" data-execution_count="127">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb221"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb221-1"><a href="#cb221-1" aria-hidden="true" tabindex="-1"></a>grid <span class="op">=</span> ImmersedNodeDomain1D(<span class="fl">1.0</span>, <span class="dv">10</span>, first_size<span class="op">=</span><span class="fl">0.1</span>, last_size<span class="op">=</span><span class="fl">0.2</span>)</span>
 <span id="cb221-2"><a href="#cb221-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -2994,7 +3000,7 @@ Spacing 0008 is  1.53271037e-01, Centers = [ 8.46728963e-01;  1.00000000e+00]</c
 </div>
 </div>
 <p>Some additional examples are illustrated below:</p>
-<div id="a8e41eb1" class="cell" data-execution_count="128">
+<div id="d2fb2703" class="cell" data-execution_count="128">
 <div class="cell-output cell-output-stdout">
 <pre><code>* Shifting initial coordinate:
 
@@ -3053,7 +3059,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <section id="minimal-working-example" class="level4" data-number="1.7.5.2">
 <h4 data-number="1.7.5.2" class="anchored" data-anchor-id="minimal-working-example"><span class="header-section-number">1.7.5.2</span> Minimal working example</h4>
 <p>We simulate carbonitriding of a 1.0 mm thick steel domain for 2 hours (7200 seconds) at <span class="math inline">\(870\text{ °C}\)</span> (<span class="math inline">\(1143.15\text{ K}\)</span>) with initial concentrations of <span class="math inline">\(0.05\text{ wt}\%\)</span> Carbon and <span class="math inline">\(0.0\text{ wt}\%\)</span> Nitrogen:</p>
-<div id="8dbc1072" class="cell" data-execution_count="129">
+<div id="83187a2a" class="cell" data-execution_count="129">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb224"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb224-1"><a href="#cb224-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Domain and grid spacing</span></span>
 <span id="cb224-2"><a href="#cb224-2" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> <span class="fl">0.001</span></span>
 <span id="cb224-3"><a href="#cb224-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">100</span></span>
@@ -3114,7 +3120,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <span id="cb224-58"><a href="#cb224-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve final composition</span></span>
 <span id="cb224-59"><a href="#cb224-59" aria-hidden="true" tabindex="-1"></a>yc, yn <span class="op">=</span> solver.get_reinitialization()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="3a0acfd5" class="cell" data-execution_count="130">
+<div id="1172ff93" class="cell" data-execution_count="130">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb225"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href="#cb225-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_carbonitriding_profile(inputs, solver):</span>
 <span id="cb225-2"><a href="#cb225-2" aria-hidden="true" tabindex="-1"></a>    yc, yn <span class="op">=</span> solver.get_reinitialization()</span>
 <span id="cb225-3"><a href="#cb225-3" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="dv">1000</span> <span class="op">*</span> np.asarray(inputs.grid.to_array())</span>
@@ -3128,7 +3134,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <span id="cb225-11"><a href="#cb225-11" aria-hidden="true" tabindex="-1"></a>    p.ylabel(<span class="st">"Concentration [wt%]"</span>)</span>
 <span id="cb225-12"><a href="#cb225-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> p</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="229acb1c" class="cell" data-execution_count="131">
+<div id="e893ce9f" class="cell" data-execution_count="131">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb226"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb226-1"><a href="#cb226-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_carbonitriding_mass_intake(inputs, solver):</span>
 <span id="cb226-2"><a href="#cb226-2" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> np.asarray(inputs.time_points) <span class="op">/</span> <span class="dv">3600</span></span>
 <span id="cb226-3"><a href="#cb226-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> solver.total_mass_intake</span>
@@ -3138,7 +3144,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <span id="cb226-7"><a href="#cb226-7" aria-hidden="true" tabindex="-1"></a>    p.ylabel(<span class="st">"Total Mass Intake [g/m²]"</span>)</span>
 <span id="cb226-8"><a href="#cb226-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> p</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="3c921c21" class="cell" data-execution_count="132">
+<div id="10177294" class="cell" data-execution_count="132">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb227"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb227-1"><a href="#cb227-1" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> plot_carbonitriding_profile(inputs, solver)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -3148,7 +3154,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 </div>
 </div>
 </div>
-<div id="257f543b" class="cell" data-execution_count="133">
+<div id="99e5613a" class="cell" data-execution_count="133">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb228"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb228-1"><a href="#cb228-1" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> plot_carbonitriding_mass_intake(inputs, solver)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -3162,7 +3168,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <section id="time-dependent-boundary-conditions" class="level4" data-number="1.7.5.3">
 <h4 data-number="1.7.5.3" class="anchored" data-anchor-id="time-dependent-boundary-conditions"><span class="header-section-number">1.7.5.3</span> Time-dependent boundary conditions</h4>
 <p>We simulate different multi-phase industrial heat treatment processes. Let’s configure the domain using geometric grid spacing (from <span class="math inline">\(10\text{ μm}\)</span> to <span class="math inline">\(50\text{ μm}\)</span>):</p>
-<div id="b12e22d6" class="cell" data-execution_count="134">
+<div id="fb48464e" class="cell" data-execution_count="134">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb229"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb229-1"><a href="#cb229-1" aria-hidden="true" tabindex="-1"></a>domain_ref <span class="op">=</span> ImmersedNodeDomain1D(</span>
 <span id="cb229-2"><a href="#cb229-2" aria-hidden="true" tabindex="-1"></a>    depth      <span class="op">=</span> <span class="fl">0.002</span>,</span>
 <span id="cb229-3"><a href="#cb229-3" aria-hidden="true" tabindex="-1"></a>    n          <span class="op">=</span> <span class="dv">100</span>,</span>
@@ -3176,7 +3182,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <ul>
 <li>Carburizing (23MnCrMo5)</li>
 </ul>
-<div id="21afd521" class="cell" data-execution_count="135">
+<div id="ae4a2943" class="cell" data-execution_count="135">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb230"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb230-1"><a href="#cb230-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_carburizing_auto():</span>
 <span id="cb230-2"><a href="#cb230-2" aria-hidden="true" tabindex="-1"></a>    yc_ini <span class="op">=</span> <span class="fl">0.0023</span></span>
 <span id="cb230-3"><a href="#cb230-3" aria-hidden="true" tabindex="-1"></a>    step1 <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="fl">3600.0</span></span>
@@ -3204,7 +3210,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <ul>
 <li>Carburizing (16NiCrMo13)</li>
 </ul>
-<div id="0b38339a" class="cell" data-execution_count="136">
+<div id="04fabf0d" class="cell" data-execution_count="136">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb231"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb231-1"><a href="#cb231-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_carburizing_aero():</span>
 <span id="cb231-2"><a href="#cb231-2" aria-hidden="true" tabindex="-1"></a>    yc_ini <span class="op">=</span> <span class="fl">0.0016</span></span>
 <span id="cb231-3"><a href="#cb231-3" aria-hidden="true" tabindex="-1"></a>    step1 <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="fl">3600.0</span></span>
@@ -3237,7 +3243,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <ul>
 <li>Carbonitriding (23MnCrMo5)</li>
 </ul>
-<div id="01a4d5c2" class="cell" data-execution_count="137">
+<div id="ec910972" class="cell" data-execution_count="137">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb232"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb232-1"><a href="#cb232-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_carbonitriding_auto():</span>
 <span id="cb232-2"><a href="#cb232-2" aria-hidden="true" tabindex="-1"></a>    yc_ini <span class="op">=</span> <span class="fl">0.0023</span></span>
 <span id="cb232-3"><a href="#cb232-3" aria-hidden="true" tabindex="-1"></a>    step1 <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="fl">3600.0</span></span>
@@ -3265,7 +3271,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <ul>
 <li>Carbonitriding (16NiCrMo13)</li>
 </ul>
-<div id="ad660901" class="cell" data-execution_count="138">
+<div id="bcf9624d" class="cell" data-execution_count="138">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb233"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb233-1"><a href="#cb233-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_carbonitriding_aero():</span>
 <span id="cb233-2"><a href="#cb233-2" aria-hidden="true" tabindex="-1"></a>    yc_ini <span class="op">=</span> <span class="fl">0.0016</span></span>
 <span id="cb233-3"><a href="#cb233-3" aria-hidden="true" tabindex="-1"></a>    step1 <span class="op">=</span> <span class="fl">2.0</span> <span class="op">*</span> <span class="fl">3600.0</span></span>
@@ -3299,7 +3305,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <section id="process-simulation" class="level5" data-number="1.7.5.3.2">
 <h5 data-number="1.7.5.3.2" class="anchored" data-anchor-id="process-simulation"><span class="header-section-number">1.7.5.3.2</span> Process simulation</h5>
 <p>We can run any of the configured reference processes. Let’s select and run one of the processes:</p>
-<div id="755b4292" class="cell" data-execution_count="140">
+<div id="8b8d7d80" class="cell" data-execution_count="140">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb234"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb234-1"><a href="#cb234-1" aria-hidden="true" tabindex="-1"></a>inputs_ref, solver_ref <span class="op">=</span> workflow(get_carburizing_auto)  <span class="co"># 15-20 g</span></span>
 <span id="cb234-2"><a href="#cb234-2" aria-hidden="true" tabindex="-1"></a><span class="co"># inputs_ref, solver_ref = workflow(get_carburizing_aero)</span></span>
 <span id="cb234-3"><a href="#cb234-3" aria-hidden="true" tabindex="-1"></a><span class="co"># inputs_ref, solver_ref = workflow(get_carbonitriding_auto)  # 25 g</span></span>
@@ -3318,7 +3324,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 </div>
 </div>
 </div>
-<div id="b4fd1dc3" class="cell" data-execution_count="141">
+<div id="7aa058b5" class="cell" data-execution_count="141">
 <div class="cell-output cell-output-display cell-output-markdown" data-execution_count="140">
 <p><span class="math inline">\(\displaystyle \left( 0.0, \  1.2\right)\)</span></p>
 </div>
@@ -3335,7 +3341,7 @@ Spacing 0003 is  2.50000000e-01, Centers = [ 7.50000000e-01;  1.00000000e+00]
 <section id="stepwise-simulation-solution" class="level4" data-number="1.7.5.4">
 <h4 data-number="1.7.5.4" class="anchored" data-anchor-id="stepwise-simulation-solution"><span class="header-section-number">1.7.5.4</span> Stepwise Simulation Solution</h4>
 <p>For highly flexible industrial profiles, we can simulate step-by-step sequentially, using the output of the previous step as the input of the next step:</p>
-<div id="3448a378" class="cell" data-execution_count="142">
+<div id="741d7fe4" class="cell" data-execution_count="142">
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Stepwise simulation complete.
@@ -3343,7 +3349,7 @@ Final surface C composition: 0.582 wt%
 Final surface N composition: 0.393 wt%</code></pre>
 </div>
 </div>
-<div id="72b7eab9" class="cell" data-execution_count="143">
+<div id="ba49d102" class="cell" data-execution_count="143">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -3352,7 +3358,7 @@ Final surface N composition: 0.393 wt%</code></pre>
 </div>
 </div>
 </div>
-<div id="52945ad1" class="cell" data-execution_count="144">
+<div id="50c41fa7" class="cell" data-execution_count="144">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -3405,7 +3411,7 @@ Final surface N composition: 0.393 wt%</code></pre>
 <ul>
 <li>Loading a whole database:</li>
 </ul>
-<div id="0fcdf454" class="cell" data-execution_count="146">
+<div id="59f620a1" class="cell" data-execution_count="146">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb236"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb236-1"><a href="#cb236-1" aria-hidden="true" tabindex="-1"></a>db_path <span class="op">=</span> <span class="st">"sample/simple-calcination.lua"</span></span>
 <span id="cb236-2"><a href="#cb236-2" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> CalphadDatabaseLoader(db_path)</span>
 <span id="cb236-3"><a href="#cb236-3" aria-hidden="true" tabindex="-1"></a>db.phases</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -3416,22 +3422,22 @@ Final surface N composition: 0.393 wt%</code></pre>
 <ul>
 <li>Loading a selection of components:</li>
 </ul>
-<div id="cd1d0482" class="cell" data-execution_count="147">
+<div id="d8e7c11a" class="cell" data-execution_count="147">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb238"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb238-1"><a href="#cb238-1" aria-hidden="true" tabindex="-1"></a>phases <span class="op">=</span> [<span class="st">"Calcite"</span>, <span class="st">"Lime"</span>, <span class="st">"CO2"</span>]</span>
 <span id="cb238-2"><a href="#cb238-2" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> CalphadDatabaseLoader(db_path, phases<span class="op">=</span>phases)</span>
 <span id="cb238-3"><a href="#cb238-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb238-4"><a href="#cb238-4" aria-hidden="true" tabindex="-1"></a>phases <span class="op">=</span> db.get_data()</span>
 <span id="cb238-5"><a href="#cb238-5" aria-hidden="true" tabindex="-1"></a>phases</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="146">
-<pre><code>{'Calcite': &lt;Substance at 0x25921a445b0&gt;,
- 'Lime': &lt;Substance at 0x25921a44450&gt;,
- 'CO2': &lt;Substance at 0x25921a440e0&gt;}</code></pre>
+<pre><code>{'Calcite': &lt;Substance at 0x14092a2b680&gt;,
+ 'Lime': &lt;Substance at 0x14093aa0030&gt;,
+ 'CO2': &lt;Substance at 0x14093aa00e0&gt;}</code></pre>
 </div>
 </div>
 <ul>
 <li>Reporting properties at a given temperature:</li>
 </ul>
-<div id="075557c1" class="cell" data-execution_count="148">
+<div id="39a6c549" class="cell" data-execution_count="148">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb240"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb240-1"><a href="#cb240-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> phase <span class="kw">in</span> phases.values():</span>
 <span id="cb240-2"><a href="#cb240-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(phase.report(<span class="fl">300.0</span>), <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -3498,7 +3504,7 @@ Reference: NASA
 <ul>
 <li>Tabulate with default bounds and step (100 K)</li>
 </ul>
-<div id="45b538b5" class="cell" data-execution_count="149">
+<div id="1d7c064c" class="cell" data-execution_count="149">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb242"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb242-1"><a href="#cb242-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(phases[<span class="st">"Lime"</span>].tabulate())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>--- Lime (Solid) ---
@@ -3521,7 +3527,7 @@ T (K)    | Cp           | S            | -(G-H298)/T    | H-H298
 <ul>
 <li>Tabulate with custom bounds and step:</li>
 </ul>
-<div id="061c924e" class="cell" data-execution_count="150">
+<div id="e233fa2a" class="cell" data-execution_count="150">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb244"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb244-1"><a href="#cb244-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(phases[<span class="st">"Calcite"</span>].tabulate(t_min<span class="op">=</span><span class="fl">237.0</span>, t_max<span class="op">=</span><span class="fl">1200.0</span>, step<span class="op">=</span><span class="fl">100.0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>--- Calcite (Solid) ---
@@ -3545,7 +3551,7 @@ T (K)    | Cp           | S            | -(G-H298)/T    | H-H298
 <ul>
 <li>Tabulate phase with multiple temperature ranges (even with a step that does not match perfectly, the 1000 K will be printed):</li>
 </ul>
-<div id="482e6a5d" class="cell" data-execution_count="151">
+<div id="6e8790d5" class="cell" data-execution_count="151">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb246"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb246-1"><a href="#cb246-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(phases[<span class="st">"CO2"</span>].tabulate(step<span class="op">=</span><span class="fl">300.0</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>--- CO2 (Gas) ---
@@ -3572,14 +3578,14 @@ T (K)    | Cp           | S            | -(G-H298)/T    | H-H298
 </section>
 <section id="composition-specification" class="level3" data-number="1.8.3">
 <h3 data-number="1.8.3" class="anchored" data-anchor-id="composition-specification"><span class="header-section-number">1.8.3</span> Composition specification</h3>
-<div id="6bcfa251" class="cell" data-execution_count="152">
+<div id="d38e8d9b" class="cell" data-execution_count="152">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb248"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb248-1"><a href="#cb248-1" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> CalphadDatabaseLoader(db_path, phases<span class="op">=</span>[<span class="st">"Calcite"</span>, <span class="st">"Diaspore"</span>])</span>
 <span id="cb248-2"><a href="#cb248-2" aria-hidden="true" tabindex="-1"></a>phases <span class="op">=</span> db.get_data()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <ul>
 <li>Specification by compound moles (1.5 mol calcite + 2.0 mol diaspore):</li>
 </ul>
-<div id="5f0762b7" class="cell" data-execution_count="153">
+<div id="fc2992c7" class="cell" data-execution_count="153">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb249"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb249-1"><a href="#cb249-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> {<span class="st">"Calcite"</span>: <span class="fl">1.5</span>, <span class="st">"Diaspore"</span>: <span class="fl">2.0</span>}</span>
 <span id="cb249-2"><a href="#cb249-2" aria-hidden="true" tabindex="-1"></a>comp <span class="op">=</span> CalphadSystemComposition.from_compound_moles(phases, X)</span>
 <span id="cb249-3"><a href="#cb249-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(comp.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -3602,7 +3608,7 @@ Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
 <ul>
 <li>Specification by compound masses (100.0 g calcite + 120.0 g diaspore):</li>
 </ul>
-<div id="3f329106" class="cell" data-execution_count="154">
+<div id="4ddc5ec4" class="cell" data-execution_count="154">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb251"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb251-1"><a href="#cb251-1" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> {<span class="st">"Calcite"</span>: <span class="fl">100.0</span>, <span class="st">"Diaspore"</span>: <span class="fl">200.0</span>}</span>
 <span id="cb251-2"><a href="#cb251-2" aria-hidden="true" tabindex="-1"></a>comp <span class="op">=</span> CalphadSystemComposition.from_compound_masses(phases, Y)</span>
 <span id="cb251-3"><a href="#cb251-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(comp.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -3625,7 +3631,7 @@ Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
 <ul>
 <li>Specification by elemental moles (1.0 mol Ca, 1.0 mol C, 3.0 mol O):</li>
 </ul>
-<div id="404be4b5" class="cell" data-execution_count="155">
+<div id="c7dff15d" class="cell" data-execution_count="155">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb253"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb253-1"><a href="#cb253-1" aria-hidden="true" tabindex="-1"></a>elements <span class="op">=</span> {<span class="st">"Ca"</span>: <span class="fl">1.0</span>, <span class="st">"C"</span>: <span class="fl">1.0</span>, <span class="st">"O"</span>: <span class="fl">3.0</span>}</span>
 <span id="cb253-2"><a href="#cb253-2" aria-hidden="true" tabindex="-1"></a>comp <span class="op">=</span> CalphadSystemComposition.from_elemental_moles(elements)</span>
 <span id="cb253-3"><a href="#cb253-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(comp.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -3647,7 +3653,7 @@ Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
 <ul>
 <li>Specification by elemental masses (40.078 g Ca, 12.011 g C, 47.997 g O):</li>
 </ul>
-<div id="c260b655" class="cell" data-execution_count="156">
+<div id="54ae6491" class="cell" data-execution_count="156">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb255"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb255-1"><a href="#cb255-1" aria-hidden="true" tabindex="-1"></a>elements <span class="op">=</span> {<span class="st">"Ca"</span>: <span class="fl">40.078</span>, <span class="st">"C"</span>: <span class="fl">12.011</span>, <span class="st">"O"</span>: <span class="fl">47.997</span>}</span>
 <span id="cb255-2"><a href="#cb255-2" aria-hidden="true" tabindex="-1"></a>comp <span class="op">=</span> CalphadSystemComposition.from_elemental_masses(elements)</span>
 <span id="cb255-3"><a href="#cb255-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(comp.report())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -3669,7 +3675,7 @@ Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
 <ul>
 <li>Verifying Python API getters on <code>SystemComposition</code>:</li>
 </ul>
-<div id="6cea59f1" class="cell" data-execution_count="157">
+<div id="bb6fc6b4" class="cell" data-execution_count="157">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb257"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb257-1"><a href="#cb257-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
 <span id="cb257-2"><a href="#cb257-2" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"input_method:       </span><span class="sc">{</span>comp<span class="sc">.</span>input_method<span class="sc">}</span><span class="ss">"</span>,</span>
 <span id="cb257-3"><a href="#cb257-3" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"input_proportions:  </span><span class="sc">{</span>comp<span class="sc">.</span>input_proportions<span class="sc">}</span><span class="ss">"</span>,</span>
@@ -3679,7 +3685,7 @@ Computed Elemental Mole Fractions (normalized to 1 mole of atoms):
 <span id="cb257-7"><a href="#cb257-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>input_method:       Elemental Masses
-input_proportions:  {'O': 47.997, 'Ca': 40.078, 'C': 12.011}
+input_proportions:  {'Ca': 40.078, 'C': 12.011, 'O': 47.997}
 elements:           ['C', 'Ca', 'O']
 balace:             1.0</code></pre>
 </div>
@@ -3687,7 +3693,7 @@ balace:             1.0</code></pre>
 </section>
 <section id="automatic-differentiation" class="level3" data-number="1.8.4">
 <h3 data-number="1.8.4" class="anchored" data-anchor-id="automatic-differentiation"><span class="header-section-number">1.8.4</span> Automatic differentiation</h3>
-<div id="f9684b42" class="cell" data-execution_count="158">
+<div id="15c9ef8f" class="cell" data-execution_count="158">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb259"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb259-1"><a href="#cb259-1" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> CalphadDatabaseLoader(db_path, phases<span class="op">=</span>[<span class="st">"Calcite"</span>])</span>
 <span id="cb259-2"><a href="#cb259-2" aria-hidden="true" tabindex="-1"></a>calcite <span class="op">=</span> db.get_data()[<span class="st">"Calcite"</span>]</span>
 <span id="cb259-3"><a href="#cb259-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -3725,7 +3731,7 @@ balace:             1.0</code></pre>
 <ul>
 <li>Single equilibrium point (1.0 mol CaCO3 + 1.0 mol AlOOH):</li>
 </ul>
-<div id="5ad9d121" class="cell" data-execution_count="159">
+<div id="922f958b" class="cell" data-execution_count="159">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb261"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb261-1"><a href="#cb261-1" aria-hidden="true" tabindex="-1"></a>t_eval <span class="op">=</span> <span class="fl">1173.15</span></span>
 <span id="cb261-2"><a href="#cb261-2" aria-hidden="true" tabindex="-1"></a>p_eval <span class="op">=</span> <span class="fl">101325.0</span></span>
 <span id="cb261-3"><a href="#cb261-3" aria-hidden="true" tabindex="-1"></a>X_eval <span class="op">=</span> {<span class="st">"Calcite"</span>: <span class="fl">1.0</span>, <span class="st">"Diaspore"</span>: <span class="fl">1.0</span>}</span>
@@ -3767,7 +3773,7 @@ balace:             1.0</code></pre>
 <ul>
 <li>Temperature scanning (300 K – 1200 K, step 100 K):</li>
 </ul>
-<div id="fa06ae76" class="cell" data-execution_count="160">
+<div id="d479cf20" class="cell" data-execution_count="160">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb263"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb263-1"><a href="#cb263-1" aria-hidden="true" tabindex="-1"></a>phases <span class="op">=</span> CalphadDatabaseLoader(db_path).get_data()</span>
 <span id="cb263-2"><a href="#cb263-2" aria-hidden="true" tabindex="-1"></a>species_names <span class="op">=</span> [<span class="st">"Calcite"</span>, <span class="st">"Lime"</span>, <span class="st">"CO2"</span>, <span class="st">"Diaspore"</span>, <span class="st">"H2O"</span>, <span class="st">"Al2O3"</span>]</span>
 <span id="cb263-3"><a href="#cb263-3" aria-hidden="true" tabindex="-1"></a>comp <span class="op">=</span> CalphadSystemComposition.from_compound_moles(phases, X_eval)</span>
@@ -3837,7 +3843,7 @@ balace:             1.0</code></pre>
 <ul>
 <li>Composition scanning (x(Al₂O₃) from 0 to 1 at 1400 K):</li>
 </ul>
-<div id="890ea698" class="cell" data-execution_count="161">
+<div id="d5affbc7" class="cell" data-execution_count="161">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb265"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb265-1"><a href="#cb265-1" aria-hidden="true" tabindex="-1"></a>names <span class="op">=</span> [<span class="st">"HALITE"</span>, <span class="st">"CORUNDUM"</span>, <span class="st">"C3A1"</span>, <span class="st">"C1A1"</span>, <span class="st">"C1A2"</span>, <span class="st">"C1A6"</span>]</span>
 <span id="cb265-2"><a href="#cb265-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb265-3"><a href="#cb265-3" aria-hidden="true" tabindex="-1"></a>db <span class="op">=</span> CalphadDatabaseLoader(<span class="st">"hallstedt1990.lua"</span>, names)</span>

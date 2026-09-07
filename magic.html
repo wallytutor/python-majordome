@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>4&nbsp; Extensions – Majordome</title>
+<title>5&nbsp; Extensions – Majordome</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -149,7 +149,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./_engineering/_index.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./magic.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Extensions</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./_engineering/_index.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./magic.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Extensions</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -203,14 +203,20 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./_openfoam/_index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">OpenFOAM</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./_utilities/_index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Utilities</span></span></a>
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Utilities</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./magic.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Extensions</span></span></a>
   </div>
 </li>
       </ul>
@@ -231,17 +237,17 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#skipping-execution" id="toc-skipping-execution" class="nav-link active" data-scroll-target="#skipping-execution"><span class="header-section-number">4.1</span> Skipping execution</a></li>
-  <li><a href="#markdown-and-latex-interpolation" id="toc-markdown-and-latex-interpolation" class="nav-link" data-scroll-target="#markdown-and-latex-interpolation"><span class="header-section-number">4.2</span> Markdown and LaTeX interpolation</a></li>
+  <li><a href="#skipping-execution" id="toc-skipping-execution" class="nav-link active" data-scroll-target="#skipping-execution"><span class="header-section-number">5.1</span> Skipping execution</a></li>
+  <li><a href="#markdown-and-latex-interpolation" id="toc-markdown-and-latex-interpolation" class="nav-link" data-scroll-target="#markdown-and-latex-interpolation"><span class="header-section-number">5.2</span> Markdown and LaTeX interpolation</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./_engineering/_index.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./magic.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Extensions</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./_engineering/_index.html">Majordome API</a></li><li class="breadcrumb-item"><a href="./magic.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Extensions</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Extensions</span></h1>
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Extensions</span></h1>
 </div>
 
 
@@ -260,7 +266,7 @@ window.Quarto = {
 
 <p><em>aka majordome.magic</em></p>
 <p>On top of your notebook, simply load the extension:</p>
-<div id="9e228922" class="cell" data-execution_count="3">
+<div id="8a788c0f" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext majordome.magic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For JupyterLab 4, a dedicated frontend extension is now available in this repository at <code>jupyterlab/majordome-mdmagic</code>.</p>
@@ -269,9 +275,9 @@ window.Quarto = {
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">npm</span> run build</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">jupyter</span> labextension link .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>After this, start JupyterLab as usual and the extension will switch <code>%%md</code> code cells to Markdown highlighting (or LaTeX for pure <code>$$...$$</code> display-math bodies).</p>
-<section id="skipping-execution" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="skipping-execution"><span class="header-section-number">4.1</span> Skipping execution</h2>
-<div id="e8a3a570" class="cell" data-execution_count="4">
+<section id="skipping-execution" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="skipping-execution"><span class="header-section-number">5.1</span> Skipping execution</h2>
+<div id="5e354aba" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 SkipperMagic
@@ -287,31 +293,31 @@ SkipperMagic
 </div>
 </div>
 <p>The module provides a simple extension for skipping the execution of code cells in a notebook. It does that and only that. The goal is to control notebook execution from the environment, which is useful when running notebooks with long-running cells, as numerical simulations.</p>
-<div id="1beaadf9" class="cell" data-execution_count="5">
+<div id="31e7d743" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Setting skipper verbosity to 1</code></pre>
 </div>
 </div>
 <p>Here we will use <code>sleep</code> to emulate a long-running cell, and we will control its execution with an environment variable. Generally speaking, the goal is to export environment variables in the terminal before running the notebook, but for demonstration purposes, we will set it in the notebook itself.</p>
-<div id="7ab129cb" class="cell" data-execution_count="6">
+<div id="0ed7aa12" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> time <span class="im">import</span> sleep</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The following (case insensitive) options are accepted by the <code>%%skipper</code> magic command. Please, notice that the <em>truthy</em> values mean <em>skip this cell</em> (as the extension name implies, but even myself can be confused by the double negative here).</p>
-<div id="c6a10bab" class="cell" data-execution_count="7">
+<div id="772b2c0b" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-stdout">
 <pre><code>{'true': True, '1': True, 'yes': True, 'false': False, '0': False, 'no': False}</code></pre>
 </div>
 </div>
 <p>Below we set the environment variable <code>SOLVE_LONNNNG</code> to <code>true</code>, which means that the cell will be skipped. You can change it to <code>false</code> to execute the cell, or even set it to any other value, as long as it is in the lookup table.</p>
-<div id="bec86c16" class="cell" data-execution_count="8">
+<div id="50c661ed" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>os.environ[<span class="st">"SOLVE_LONNNNG"</span>] <span class="op">=</span> <span class="st">"true"</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>If everything is file, the following cell will be skipped:</p>
-<div id="d8794336" class="cell" data-execution_count="9">
+<div id="ddcf2f62" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -320,25 +326,25 @@ SkipperMagic
 </div>
 </div>
 <p>And here we check if it was actually skipped:</p>
-<div id="e088a04a" class="cell" data-execution_count="10">
+<div id="45dca169" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Did you skip it?"</span>, did_you_skip_it)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Did you skip it? True</code></pre>
 </div>
 </div>
 <p>You can also avoid the <em>Skipping cell</em> message by setting the verbosity to <code>0</code>:</p>
-<div id="56033e6e" class="cell" data-execution_count="11">
+<div id="286523f4" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>skipper_verbosity <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="d4c77d4d" class="cell" data-execution_count="12">
+<div id="10a306bc" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>skipper SOLVE_LONNNNG</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>sleep(<span class="dv">100</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>did_you_skip_it <span class="op">=</span> <span class="va">False</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="markdown-and-latex-interpolation" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="markdown-and-latex-interpolation"><span class="header-section-number">4.2</span> Markdown and LaTeX interpolation</h2>
-<div id="81104251" class="cell" data-execution_count="13">
+<section id="markdown-and-latex-interpolation" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="markdown-and-latex-interpolation"><span class="header-section-number">5.2</span> Markdown and LaTeX interpolation</h2>
+<div id="d74bec01" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-display cell-output-markdown">
 <div style="  border: 1.5px solid #012169;   background-color: white;   color: #012169;   padding: 0.6em 0.8em;   font-weight: bold;   display: flex;   align-items: center;   width: 100%;   box-sizing: border-box;   border-radius: 4px;   ">
 MdMagic
@@ -361,12 +367,12 @@ MdMagic
 </div>
 </div>
 <p>Declare some values in the user namespace:</p>
-<div id="e3a3837a" class="cell" data-execution_count="14">
+<div id="c769c6f6" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>variable <span class="op">=</span> <span class="st">"hello"</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>some_value <span class="op">=</span> <span class="fl">12.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Below we have a Markdown cell with some variables and LaTeX expressions. The variables will be replaced by their values, and the LaTeX will be rendered correctly.</p>
-<div id="178563b9" class="cell" data-execution_count="15">
+<div id="de4cb43f" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>I have this string <span class="cf">with</span> a variable: {variable}.</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -409,7 +415,7 @@ MdMagic
 </div>
 </div>
 <p>The following is also possible in math blocks:</p>
-<div id="7b994780" class="cell" data-execution_count="16">
+<div id="bd0412c7" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>md</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>$$</span>
@@ -436,7 +442,7 @@ F(x) = {some_value} \cdot x^2
 </div>
 </div>
 <p>SymPy expressions are also supported, and they will be rendered as LaTeX. In general rendering is done by displaying some expression as provided below:</p>
-<div id="ff935b85" class="cell" data-execution_count="17">
+<div id="7db6abd9" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sympy <span class="im">as</span> sp</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> sp.symbols(<span class="st">"x"</span>)</span>
@@ -447,7 +453,7 @@ F(x) = {some_value} \cdot x^2
 </div>
 </div>
 <p>With help of the extension we can also render it in markdown:</p>
-<div id="d49b8251" class="cell" data-execution_count="18">
+<div id="b85aeadb" class="cell" data-execution_count="18">
 <div class="cell-output cell-output-display cell-output-markdown">
 <p>Now we can also talk about the function we just defined: <span class="math inline">\(12.2 x^{2}\)</span>! If you need to inject the expression inside a math block, you can do so by calling <code>sp.latex</code> and using the string formatter: <span class="math inline">\(f=12.2 x^{2}\)</span>. It should also work with block math:</p>
 </div>
@@ -865,7 +871,7 @@ f = 12.2 x^{2}
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="./_utilities/_index.html" class="pagination-link" aria-label="Utilities">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Utilities</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Utilities</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
