@@ -168,6 +168,9 @@ function Start-GitHubRelease {
     $wheels = Get-ChildItem "dist/*.whl" | ForEach-Object { $_.FullName }
     if (-not $wheels) { throw "No wheels found in dist/." }
 
+    # After using crates, we need to defined the default repo.
+    & gh repo set-default "wallytutor/python-majordome"
+
     $releaseArgs = @("release", "create", "v$Version") +
         $wheels +
         @("--generate-notes")
