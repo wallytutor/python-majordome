@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import ctypes
+import ctypes.wintypes
 import functools
 import os
 import re
@@ -9,9 +11,10 @@ import unicodedata
 from abc import ABC, abstractmethod
 from collections import deque
 from decimal import Decimal, getcontext
-from io import StringIO
+from io import StringIO, UnsupportedOperation
 from numbers import Number
 from pathlib import Path
+from tempfile import TemporaryFile
 from textwrap import dedent
 from typing import Any, Callable, Iterator
 
@@ -121,14 +124,68 @@ class InteractiveSession:
 
 
 class Capturing(list):
-    """ Helper to capture output from sys.stdout and sys.stderr.
+    """ Capture Python streams and OS file descriptor output.
 
-    In some cases, specially when running from a notebook or
-    interactive session, it might be desirable to capture excessive
-    output to later inspect. This context manager redirects Python
-    standard streams to a list.
+    This context manager captures stdout and stderr outputs into a list.
+    It supports two redirection mechanisms controlled by the `mode`
+    parameter:
+
+    - Standard mode (`_standard`): Redirects Python-level streams
+      (`sys.stdout` and `sys.stderr`) to Python `StringIO` buffers.
+
+    - Low-level mode (`_low_level`): Redirects low-level OS file
+      descriptors 1 (`stdout`) and 2 (`stderr`) via a temporary file,
+      allowing capture of output produced directly by native C/C++/
+      Fortran libraries and embedded runtimes (such as Ipopt or
+      Julia via `juliacall`).
+
+    If `mode` is `None`, low-level redirection is attempted first,
+    falling back to standard mode if an exception occurs.
+
+    Parameters
+    ----------
+    mode : str | None = None
+        Capture mode (`'standard'`, `'low_level'`, or `None` for
+        automatic low-level with fallback to standard).
     """
-    def __enter__(self):
+
+    __slots__ = (
+        "_mode",
+        "_active_mode",
+        "_stdout",
+        "_stderr",
+        "_tmpout",
+        "_tmperr",
+        "_stdout_fd",
+        "_stderr_fd",
+        "_dup_stdout_fd",
+        "_dup_stderr_fd",
+        "_win32_hstdout",
+        "_win32_hstderr",
+        "_win32_dup_hstdout",
+        "_win32_dup_hstderr",
+        "_temp_file",
+    )
+
+    def __init__(self, mode: str | None = None) -> None:
+        super().__init__()
+        self._mode = mode
+        self._active_mode = None
+        self._stdout = None
+        self._stderr = None
+        self._tmpout = None
+        self._tmperr = None
+        self._stdout_fd = None
+        self._stderr_fd = None
+        self._dup_stdout_fd = None
+        self._dup_stderr_fd = None
+        self._win32_hstdout = None
+        self._win32_hstderr = None
+        self._win32_dup_hstdout = None
+        self._win32_dup_hstderr = None
+        self._temp_file = None
+
+    def _standard(self):
         sys.stdout.flush()
         sys.stderr.flush()
 
@@ -138,9 +195,9 @@ class Capturing(list):
         sys.stdout = self._tmpout = StringIO()
         sys.stderr = self._tmperr = StringIO()
 
-        return self
+        self._active_mode = "standard"
 
-    def __exit__(self, *args):
+    def _standard_exit(self):
         sys.stdout.flush()
         sys.stderr.flush()
 
@@ -157,6 +214,190 @@ class Capturing(list):
             self.extend(py_stdout.splitlines())
         if py_stderr:
             self.extend(py_stderr.splitlines())
+
+    def _low_level(self):
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+
+        sys.stdout = self._tmpout = StringIO()
+        sys.stderr = self._tmperr = StringIO()
+
+        self._temp_file = TemporaryFile(mode="w+b")
+        temp_fd = self._temp_file.fileno()
+
+        try:
+            self._stdout_fd = self._stdout.fileno()
+        except (AttributeError, UnsupportedOperation):
+            self._stdout_fd = 1
+
+        try:
+            self._stderr_fd = self._stderr.fileno()
+        except (AttributeError, UnsupportedOperation):
+            self._stderr_fd = 2
+
+        self._dup_stdout_fd = None
+        self._dup_stderr_fd = None
+        self._win32_dup_hstdout = None
+        self._win32_dup_hstderr = None
+        self._win32_hstdout = None
+        self._win32_hstderr = None
+
+        if sys.platform == "win32":
+            try:
+                kernel32 = ctypes.windll.kernel32
+                kernel32.GetStdHandle.restype = ctypes.wintypes.HANDLE
+                kernel32.GetCurrentProcess.restype = (
+                    ctypes.wintypes.HANDLE
+                )
+                kernel32.DuplicateHandle.argtypes = [
+                    ctypes.wintypes.HANDLE,
+                    ctypes.wintypes.HANDLE,
+                    ctypes.wintypes.HANDLE,
+                    ctypes.POINTER(ctypes.wintypes.HANDLE),
+                    ctypes.wintypes.DWORD,
+                    ctypes.wintypes.BOOL,
+                    ctypes.wintypes.DWORD,
+                ]
+                kernel32.DuplicateHandle.restype = ctypes.wintypes.BOOL
+
+                proc = kernel32.GetCurrentProcess()
+                self._win32_hstdout = kernel32.GetStdHandle(-11)
+                self._win32_hstderr = kernel32.GetStdHandle(-12)
+
+                if self._win32_hstdout:
+                    dup = ctypes.wintypes.HANDLE()
+                    if kernel32.DuplicateHandle(
+                        proc,
+                        self._win32_hstdout,
+                        proc,
+                        ctypes.byref(dup),
+                        0,
+                        False,
+                        2,
+                    ):
+                        self._win32_dup_hstdout = dup
+
+                if self._win32_hstderr:
+                    dup = ctypes.wintypes.HANDLE()
+                    if kernel32.DuplicateHandle(
+                        proc,
+                        self._win32_hstderr,
+                        proc,
+                        ctypes.byref(dup),
+                        0,
+                        False,
+                        2,
+                    ):
+                        self._win32_dup_hstderr = dup
+            except Exception:
+                pass
+
+        try:
+            self._dup_stdout_fd = os.dup(self._stdout_fd)
+            os.dup2(temp_fd, self._stdout_fd)
+            if sys.platform == "win32" and self._win32_hstdout:
+                ctypes.windll.kernel32.SetStdHandle(
+                    -11, self._win32_hstdout
+                )
+        except Exception:
+            pass
+
+        try:
+            self._dup_stderr_fd = os.dup(self._stderr_fd)
+            os.dup2(temp_fd, self._stderr_fd)
+            if sys.platform == "win32" and self._win32_hstderr:
+                ctypes.windll.kernel32.SetStdHandle(
+                    -12, self._win32_hstderr
+                )
+        except Exception:
+            pass
+
+        self._active_mode = "low_level"
+
+    def _low_level_exit(self):
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+        if self._dup_stdout_fd is not None:
+            try:
+                os.dup2(self._dup_stdout_fd, self._stdout_fd)
+                os.close(self._dup_stdout_fd)
+                if sys.platform == "win32" and self._win32_hstdout:
+                    ctypes.windll.kernel32.SetStdHandle(
+                        -11, self._win32_hstdout
+                    )
+            except Exception:
+                pass
+
+        if self._dup_stderr_fd is not None:
+            try:
+                os.dup2(self._dup_stderr_fd, self._stderr_fd)
+                os.close(self._dup_stderr_fd)
+                if sys.platform == "win32" and self._win32_hstderr:
+                    ctypes.windll.kernel32.SetStdHandle(
+                        -12, self._win32_hstderr
+                    )
+            except Exception:
+                pass
+
+        if sys.platform == "win32":
+            try:
+                kernel32 = ctypes.windll.kernel32
+                if self._win32_dup_hstdout:
+                    kernel32.CloseHandle(self._win32_dup_hstdout)
+                if self._win32_dup_hstderr:
+                    kernel32.CloseHandle(self._win32_dup_hstderr)
+            except Exception:
+                pass
+
+        py_stdout = self._tmpout.getvalue()
+        py_stderr = self._tmperr.getvalue()
+
+        del self._tmpout
+        del self._tmperr
+
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
+
+        os_output = ""
+        if self._temp_file is not None:
+            try:
+                self._temp_file.seek(0)
+                os_output = self._temp_file.read().decode(
+                    "utf-8", errors="replace"
+                )
+                self._temp_file.close()
+            except Exception:
+                pass
+
+        if py_stdout:
+            self.extend(py_stdout.splitlines())
+        if py_stderr:
+            self.extend(py_stderr.splitlines())
+        if os_output:
+            self.extend(os_output.splitlines())
+
+    def __enter__(self):
+        if self._mode in ("standard", "python"):
+            self._standard()
+        elif self._mode in ("low_level", "lowlevel", "os"):
+            self._low_level()
+        else:
+            try:
+                self._low_level()
+            except Exception:
+                self._standard()
+
+        return self
+
+    def __exit__(self, *args):
+        if self._active_mode == "low_level":
+            self._low_level_exit()
+        elif self._active_mode == "standard":
+            self._standard_exit()
 
     def __str__(self) -> str:
         return "\n".join(self)

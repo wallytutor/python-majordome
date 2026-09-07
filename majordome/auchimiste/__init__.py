@@ -9,31 +9,34 @@ from ..utilities import Capturing
 jl = None
 
 
-def _init_auchimiste_environment():
-    global jl
-
-    # Locate the shared directory (this directory):
+def _init_outer():
+    """ Locate the shared directory and initialize the environment. """
     here = resources.files("majordome.auchimiste")
 
-    # Activate the shared environment once:
     try:
-        with Capturing() as output:
-            os.environ.setdefault("PYTHON_JULIACALL_STARTUP_FILE", "no")
-            import juliacall
-
-            jl = juliacall.newmodule("AuChimisteEnv")
-            jl.seval("using Pkg")
-            jl.seval(f'Pkg.activate("{here.as_posix()}", io=devnull)')
-
-            # Include scripts to path:
-            for script in here.glob(r"*.jl"):
-                jl.include(script.as_posix())
+        with Capturing(mode="standard") as output:
+            _init_inner(here)
     except Exception as e:
         print(f"Error: {e}\n{output}...")
         raise e
 
 
-_init_auchimiste_environment()
+def _init_inner(here):
+    """ Activate the shared environment and include scripts. """
+    global jl
+
+    os.environ.setdefault("PYTHON_JULIACALL_STARTUP_FILE", "no")
+    import juliacall
+
+    jl = juliacall.newmodule("AuChimisteEnv")
+    jl.seval("using Pkg")
+    jl.seval(f'Pkg.activate("{here.as_posix()}", io=devnull)')
+
+    for script in here.glob(r"*.jl"):
+        jl.include(script.as_posix())
+
+
+_init_outer()
 
 
 def requires(module):
