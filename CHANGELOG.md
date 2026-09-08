@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Fixed a bug related to the usage of `_require_groups` and introduced dumping to STEP in `majordome.simulation.meshing`.
+
 - Allow saving all faces into a single STL files in `GmshSessionWrapper` so that alternative workflows can be used for meshing. Also allow skipping session start and improve error handling of required face/volume groups with a decorator method `_require_groups`.
 
 - Suppressed Julia initialization and Pkg activation startup messages in `majordome.auchimiste` environment setup while maintaining `Capturing` stream redirection.

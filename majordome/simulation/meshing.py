@@ -87,6 +87,41 @@ class GmshSessionWrapper:
 
         self.finalize()
 
+    def _require_surfaces(self):
+        if not self._face_groups:
+            raise RuntimeError(
+                "No face groups defined. Use `self.add_face_groups`"
+                " to define face groups before using this method."
+            )
+
+    def _require_volumes(self):
+        if not self._volume_groups:
+            raise RuntimeError(
+                "No volume groups defined. Use `self.add_volume_groups`"
+                " to define volume groups before using this method."
+            )
+
+    @staticmethod
+    def _require_groups(surface: bool = True, volume: bool = True):
+        def decorator(f):
+            @functools.wraps(f)
+            def wrapper(self, *args, **kwargs):
+                # Use kwargs to toggle whether for enforcing or not:
+                ignore_surfaces = not kwargs.pop("surfaces", True)
+                ignore_volumes  = not kwargs.pop("volumes", True)
+
+                if surface and not ignore_surfaces:
+                    self._require_surfaces()
+
+                if volume and not ignore_volumes:
+                    self._require_volumes()
+
+                vals = f(self, *args, **kwargs)
+                self.sync()
+                return vals
+            return wrapper
+        return decorator
+
     def synchronize(self) -> None:
         """ Synchronize the OpenCASCADE CAD kernel with the GMSH model. """
         self._occ.synchronize()
@@ -140,93 +175,24 @@ class GmshSessionWrapper:
         self._volume_groups = groups
 
     @staticmethod
-    def _require_groups(surface: bool = True, volume: bool = True):
-        def decorator(f):
-            @functools.wraps(f)
-            def wrapper(self, *args, **kwargs):
-                # Use kwargs to toggle whether for enforcing or not:
-                ignore_surfaces = not kwargs.pop("surfaces", True)
-                ignore_volumes  = not kwargs.pop("volumes", True)
-
-                if surface and not ignore_surfaces and not self._face_groups:
-                    raise RuntimeError(
-                        "No face groups defined. Use `self.add_face_groups`"
-                        " to define face groups before using this method."
-                    )
-
-                if volume and not ignore_volumes and not self._volume_groups:
-                    raise RuntimeError(
-                        "No volume groups defined. Use `self.add_volume_groups`"
-                        " to define volume groups before using this method."
-                    )
-
-                vals = f(self, *args, **kwargs)
-                self.sync()
-                return vals
-            return wrapper
-        return decorator
-
-    @_require_groups(surface=True, volume=False)
-    def save_as_stl(
-            self,
-            dirname: str | Path = "stl",
+    def _handle_dirname(
+            dirname: str | Path,
             fresh: bool = True,
-            save_full: bool = True,
-        ) -> None:
-        """ Save face groups into individual stl files for meshing.
-
-        Parameters
-        ----------
-        dirname: str | Path = "stl"
-            Directory name or path where the STL files are saved.
-            It will create the directory if it does not exist.
-        fresh: bool = True
-            If True, clears any existing directory with that name
-            before writing.
-        save_full: bool = True
-            If True, also dump all surfaces as a single STL file
-            with the same name as the directory.
-        """
+        ) -> Path:
         if isinstance(dirname, str):
-            stl_path = Path.cwd() / dirname
+            path = Path.cwd() / dirname
         elif isinstance(dirname, Path):
-            stl_path = dirname
+            path = dirname
         else:
             raise TypeError("dirname must be a string or a Path object.")
 
-        stl_path = Path(stl_path).resolve()
+        path = Path(path).resolve()
 
-        if fresh and stl_path.exists():
-            shutil.rmtree(stl_path)
+        if fresh and path.exists():
+            shutil.rmtree(path)
 
-        stl_path.mkdir(parents=True, exist_ok=True)
-
-        # Build the geometry - to be implemented by subclasses:
-        self.build()
-
-        # Remove any existing physical groups before proceeding:
-        self._mod.remove_physical_groups()
-
-        for name, tags in self._face_groups.items():
-            self._mod.add_physical_group(
-                dim  =  2,
-                tags = tags,
-                name = name
-            )
-            gmsh.write((stl_path / f"{name}.stl").as_posix())
-            self._mod.remove_physical_groups()
-
-        if not save_full:
-            return
-
-        for name, tags in self._face_groups.items():
-            self._mod.add_physical_group(
-                dim  =  2,
-                tags = tags,
-                name = name
-            )
-
-        gmsh.write((stl_path / f"{stl_path.name}.stl").as_posix())
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
     @_require_groups(surface=True, volume=True)
     def add_all_groups(
@@ -259,6 +225,80 @@ class GmshSessionWrapper:
                     name = name
                 )
 
+    def save_as_stl(
+            self,
+            dirname: str | Path = "stl",
+            fresh: bool = True,
+            save_full: bool = True,
+        ) -> None:
+        """ Save face groups into individual stl files for meshing.
+
+        Parameters
+        ----------
+        dirname: str | Path = "stl"
+            Directory name or path where the STL files are saved.
+            It will create the directory if it does not exist.
+        fresh: bool = True
+            If True, clears any existing directory with that name
+            before writing.
+        save_full: bool = True
+            If True, also dump all surfaces as a single STL file
+            with the same name as the directory.
+        """
+        path = self._handle_dirname(dirname, fresh)
+
+        # Build the geometry - to be implemented by subclasses:
+        self.build()
+        self._require_surfaces()
+
+        # Remove any existing physical groups before proceeding:
+        self._mod.remove_physical_groups()
+
+        for name, tags in self._face_groups.items():
+            self._mod.add_physical_group(
+                dim  =  2,
+                tags = tags,
+                name = name
+            )
+            gmsh.write((path / f"{name}.stl").as_posix())
+            self._mod.remove_physical_groups()
+
+        if not save_full:
+            return
+
+        self.add_all_groups(surfaces=True, volumes=False)
+        gmsh.write((path / f"{path.name}.stl").as_posix())
+
+    def save_as_step(
+            self,
+            dirname: str | Path = "step",
+            fresh: bool = True,
+        ) -> None:
+        """ Save the generated fluid volume domain into a STEP CAD file.
+
+        Parameters
+        ----------
+        dirname: str | Path = "step"
+            Filepath where the STEP file should be written.
+
+        Returns
+        -------
+        Path
+            Absolute resolved path of the exported STEP file.
+        """
+        path = self._handle_dirname(dirname, fresh)
+
+        # Build the geometry - to be implemented by subclasses:
+        self.build()
+        self._require_volumes()
+
+        # Remove any existing physical groups before proceeding:
+        self._mod.remove_physical_groups()
+
+        # Set physical 3D volume group so OpenCASCADE STEP writer
+        self.add_all_groups(surfaces=False, volumes=True)
+        gmsh.write((path / f"{path.name}.step").as_posix())
+
     @staticmethod
     def occ_sync(f):
         """ Ensure synchronization of the OpenCASCADE backend. """
@@ -271,7 +311,10 @@ class GmshSessionWrapper:
 
     def build(self) -> None:
         """ Builds the geometry. Subclasses can override. """
-        pass
+        raise NotImplementedError(
+            "Subclasses must override this method if geometry dumping "
+            "methods are expected to be used as provided here."
+        )
 
     @property
     def render(self) -> bool:
