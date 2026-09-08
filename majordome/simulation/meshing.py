@@ -103,27 +103,6 @@ class GmshSessionWrapper:
                 " to define volume groups before using this method."
             )
 
-    @staticmethod
-    def _require_groups(surface: bool = True, volume: bool = True):
-        def decorator(f):
-            @functools.wraps(f)
-            def wrapper(self, *args, **kwargs):
-                # Use kwargs to toggle whether for enforcing or not:
-                ignore_surfaces = not kwargs.pop("surfaces", True)
-                ignore_volumes  = not kwargs.pop("volumes", True)
-
-                if surface and not ignore_surfaces:
-                    self._require_surfaces()
-
-                if volume and not ignore_volumes:
-                    self._require_volumes()
-
-                vals = f(self, *args, **kwargs)
-                self.sync()
-                return vals
-            return wrapper
-        return decorator
-
     def synchronize(self) -> None:
         """ Synchronize the OpenCASCADE CAD kernel with the GMSH model. """
         self._occ.synchronize()
@@ -196,7 +175,6 @@ class GmshSessionWrapper:
         path.mkdir(parents=True, exist_ok=True)
         return path
 
-    @_require_groups(surface=True, volume=True)
     def add_all_groups(
             self,
             surfaces: bool = True,
@@ -214,7 +192,7 @@ class GmshSessionWrapper:
         if surfaces:
             for name, tags in self._face_groups.items():
                 self._mod.add_physical_group(
-                    dim  =  2,
+                    dim  = 2,
                     tags = tags,
                     name = name
                 )
@@ -222,7 +200,7 @@ class GmshSessionWrapper:
         if volumes:
             for name, tags in self._volume_groups.items():
                 self._mod.add_physical_group(
-                    dim  =  3,
+                    dim  = 3,
                     tags = tags,
                     name = name
                 )
@@ -264,7 +242,7 @@ class GmshSessionWrapper:
 
         for name, tags in self._face_groups.items():
             self._mod.add_physical_group(
-                dim  =  2,
+                dim  = 2,
                 tags = tags,
                 name = name
             )
