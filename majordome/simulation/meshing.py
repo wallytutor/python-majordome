@@ -144,13 +144,17 @@ class GmshSessionWrapper:
         def decorator(f):
             @functools.wraps(f)
             def wrapper(self, *args, **kwargs):
-                if surface and not self._face_groups:
+                # Use kwargs to toggle whether for enforcing or not:
+                ignore_surfaces = not kwargs.pop("surfaces", True)
+                ignore_volumes  = not kwargs.pop("volumes", True)
+
+                if surface and not ignore_surfaces and not self._face_groups:
                     raise RuntimeError(
                         "No face groups defined. Use `self.add_face_groups`"
                         " to define face groups before using this method."
                     )
 
-                if volume and not self._volume_groups:
+                if volume and not ignore_volumes and not self._volume_groups:
                     raise RuntimeError(
                         "No volume groups defined. Use `self.add_volume_groups`"
                         " to define volume groups before using this method."
