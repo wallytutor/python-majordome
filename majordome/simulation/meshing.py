@@ -27,6 +27,10 @@ class GmshSessionWrapper:
         Name of the Gmsh model.
     interactive : bool = True
         Whether to launch the Gmsh GUI window on exit.
+    nosession : bool = False
+        Whether to skip the Gmsh session initialization. This is required
+        for when you need to instantiate several GmshSessionWrapper
+        derived objects in the same session (e.g. for merging them).
     """
     __slots__ = (
         "_name",
@@ -41,15 +45,22 @@ class GmshSessionWrapper:
         "_volume_groups",
     )
 
-    def __init__(self, name: str = "domain", interactive: bool = True) -> None:
+    def __init__(
+            self,
+            name: str = "domain",
+            interactive: bool = True,
+            nosession: bool = False,
+        ) -> None:
         self._name = name
         self._interactive = interactive
 
-        if gmsh.is_initialized():
-            gmsh.finalize()
+        if not nosession:
+            if gmsh.is_initialized():
+                gmsh.finalize()
 
-        gmsh.initialize()
-        gmsh.model.add(self._name)
+            gmsh.initialize()
+
+            gmsh.model.add(self._name)
 
         # Cache handles to GMSH API modules for convenience
         self._opt = gmsh.option
@@ -61,8 +72,9 @@ class GmshSessionWrapper:
         self._model = self._mod
         self._mesh = self._msh
 
-        # Dictionary to store named face group tags
+        # Dictionary to store named face/volume group tags
         self._face_groups: dict[str, list[int]] = {}
+        self._volume_groups: dict[str, list[int]] = {}
 
     def __enter__(self) -> Self:
         return self
@@ -127,6 +139,30 @@ class GmshSessionWrapper:
         """ Add volume groups to the GMSH model. """
         self._volume_groups = groups
 
+    @staticmethod
+    def _require_groups(surface: bool = True, volume: bool = True):
+        def decorator(f):
+            @functools.wraps(f)
+            def wrapper(self, *args, **kwargs):
+                if surface and not self._face_groups:
+                    raise RuntimeError(
+                        "No face groups defined. Use `self.add_face_groups`"
+                        " to define face groups before using this method."
+                    )
+
+                if volume and not self._volume_groups:
+                    raise RuntimeError(
+                        "No volume groups defined. Use `self.add_volume_groups`"
+                        " to define volume groups before using this method."
+                    )
+
+                vals = f(self, *args, **kwargs)
+                self.sync()
+                return vals
+            return wrapper
+        return decorator
+
+    @_require_groups(surface=True, volume=False)
     def save_as_stl(
             self,
             dirname: str | Path = "stl",
@@ -167,12 +203,6 @@ class GmshSessionWrapper:
         # Remove any existing physical groups before proceeding:
         self._mod.remove_physical_groups()
 
-        if not self._face_groups:
-            raise RuntimeError(
-                "No face groups defined. Use `self.add_face_groups`"
-                " to define face groups before saving as stl files."
-            )
-
         for name, tags in self._face_groups.items():
             self._mod.add_physical_group(
                 dim  =  2,
@@ -193,6 +223,37 @@ class GmshSessionWrapper:
             )
 
         gmsh.write((stl_path / f"{stl_path.name}.stl").as_posix())
+
+    @_require_groups(surface=True, volume=True)
+    def add_all_groups(
+            self,
+            surfaces: bool = True,
+            volumes: bool = True
+        ) -> None:
+        """ Add all face and volume groups to the Gmsh model.
+
+        Parameters
+        ----------
+        surfaces : bool = True
+            Whether to add face groups.
+        volumes : bool = True
+            Whether to add volume groups.
+        """
+        if surfaces:
+            for name, tags in self._face_groups.items():
+                self._mod.add_physical_group(
+                    dim  =  2,
+                    tags = tags,
+                    name = name
+                )
+
+        if volumes:
+            for name, tags in self._volume_groups.items():
+                self._mod.add_physical_group(
+                    dim  =  3,
+                    tags = tags,
+                    name = name
+                )
 
     @staticmethod
     def occ_sync(f):
