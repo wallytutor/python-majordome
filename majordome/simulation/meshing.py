@@ -35,6 +35,7 @@ class GmshSessionWrapper:
     __slots__ = (
         "_name",
         "_interactive",
+        "_built",
         "_opt",
         "_mod",
         "_occ",
@@ -53,6 +54,7 @@ class GmshSessionWrapper:
         ) -> None:
         self._name = name
         self._interactive = interactive
+        self._built = False
 
         if not nosession:
             if gmsh.is_initialized():
@@ -225,6 +227,12 @@ class GmshSessionWrapper:
                     name = name
                 )
 
+    def _ensure_built(self) -> None:
+        """ Ensure geometry is built only once per instance. """
+        if not self._built:
+            self.build()
+            self._built = True
+
     def save_as_stl(
             self,
             dirname: str | Path = "stl",
@@ -248,7 +256,7 @@ class GmshSessionWrapper:
         path = self._handle_dirname(dirname, fresh)
 
         # Build the geometry - to be implemented by subclasses:
-        self.build()
+        self._ensure_built()
         self._require_surfaces()
 
         # Remove any existing physical groups before proceeding:
@@ -289,7 +297,7 @@ class GmshSessionWrapper:
         path = self._handle_dirname(dirname, fresh)
 
         # Build the geometry - to be implemented by subclasses:
-        self.build()
+        self._ensure_built()
         self._require_volumes()
 
         # Remove any existing physical groups before proceeding:
