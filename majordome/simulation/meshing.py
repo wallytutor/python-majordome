@@ -38,6 +38,7 @@ class GmshSessionWrapper:
         "_model",
         "_mesh",
         "_face_groups",
+        "_volume_groups",
     )
 
     def __init__(self, name: str = "domain", interactive: bool = True) -> None:
@@ -122,10 +123,15 @@ class GmshSessionWrapper:
         """ Add face groups to the GMSH model. """
         self._face_groups = groups
 
+    def add_volume_groups(self, groups: dict[str, list[int]]) -> None:
+        """ Add volume groups to the GMSH model. """
+        self._volume_groups = groups
+
     def save_as_stl(
             self,
             dirname: str | Path = "stl",
-            fresh: bool = True
+            fresh: bool = True,
+            save_full: bool = True,
         ) -> None:
         """ Save face groups into individual stl files for meshing.
 
@@ -137,6 +143,9 @@ class GmshSessionWrapper:
         fresh: bool = True
             If True, clears any existing directory with that name
             before writing.
+        save_full: bool = True
+            If True, also dump all surfaces as a single STL file
+            with the same name as the directory.
         """
         if isinstance(dirname, str):
             stl_path = Path.cwd() / dirname
@@ -172,6 +181,18 @@ class GmshSessionWrapper:
             )
             gmsh.write((stl_path / f"{name}.stl").as_posix())
             self._mod.remove_physical_groups()
+
+        if not save_full:
+            return
+
+        for name, tags in self._face_groups.items():
+            self._mod.add_physical_group(
+                dim  =  2,
+                tags = tags,
+                name = name
+            )
+
+        gmsh.write((stl_path / f"{stl_path.name}.stl").as_posix())
 
     @staticmethod
     def occ_sync(f):

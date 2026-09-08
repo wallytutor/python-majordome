@@ -2,9 +2,11 @@
 
 ## Ongoing Development
 
-- Creating a prototype to support Julia module wrappers in `majordome.auchimiste` (revival of previous AuChimiste.jl package).
+- Allow saving all faces into a single STL files in `GmshSessionWrapper` so that alternative workflows can be used for meshing.
 
 - Suppressed Julia initialization and Pkg activation startup messages in `majordome.auchimiste` environment setup while maintaining `Capturing` stream redirection.
+
+- Creating a prototype to support Julia module wrappers in `majordome.auchimiste` (revival of previous AuChimiste.jl package).
 
 ## 1.5.0 - 2026-09-07
 
