@@ -6,6 +6,24 @@ from typing import Any, Self
 from .._core import foam as _ext
 
 
+FIELD_NAMES = {
+    # Common:
+    "U",
+    "p",
+    "T",
+
+    # Turbulence:
+    "k",
+    "omega",
+    "epsilon",
+    "alphat",
+    "nut",
+
+    # Radiation:
+    "G",
+}
+
+
 class FoamDictFile:
     """ Base container class for manipulating OpenFOAM dictionary files.
 
@@ -812,6 +830,21 @@ class FoamCaseHandle:
                 "(missing 'constant/' directory or 'system/controlDict' file)."
             )
 
+    def _select_cls(self, file_path: Path) -> type[FoamDictFile]:
+        """ Select the appropriate FoamDictFile class for a given file path. """
+        filename = file_path.name
+
+        if filename in self.KNOWN_DICTS:
+            cls = self.KNOWN_DICTS[filename][0]
+        elif file_path.parent.name in ("0", "0.orig"):
+            cls = FieldFile
+        elif filename in FIELD_NAMES:
+            cls = FieldFile
+        else:
+            cls = FoamDictFile
+
+        return cls
+
     def get_dict(self, relative_path: str | Path) -> FoamDictFile:
         """ Load and cache a dictionary file by relative path from case root.
 
@@ -832,27 +865,13 @@ class FoamCaseHandle:
             return self._cache[rel_str][1]
 
         file_path = self._root_dir / relative_path
-        if not file_path.is_file():
-            raise FileNotFoundError(
-                f"Dictionary file '{relative_path}' not found in case '{self._root_dir}'"
-            )
+        cls = self._select_cls(file_path)
 
-        cls: type[FoamDictFile] = FoamDictFile
-        filename = file_path.name
-        if filename in self.KNOWN_DICTS:
-            cls = self.KNOWN_DICTS[filename][0]
-        elif file_path.parent.name in ("0", "0.orig") or filename in (
-            "U",
-            "p",
-            "T",
-            "k",
-            "omega",
-            "epsilon",
-            "nut",
-        ):
-            cls = FieldFile
+        if file_path.is_file():
+            obj = cls.from_file(file_path)
+        else:
+            obj = cls.from_string("")
 
-        obj = cls.from_file(file_path)
         self._cache[rel_str] = (file_path, obj)
         return obj
 
