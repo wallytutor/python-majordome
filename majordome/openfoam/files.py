@@ -875,9 +875,23 @@ class FoamCaseHandle:
         self._cache[rel_str] = (file_path, obj)
         return obj
 
-    def save(self) -> None:
-        """ Save all cached dictionary modifications back to disk. """
+    def save(self, *, allow_parent_creation: bool = True) -> None:
+        """ Save all cached dictionary modifications back to disk.
+
+        Parameters
+        ----------
+        allow_parent_creation : bool, default True
+            If True, create parent directories if they do not exist.
+        """
         for path, obj in self._cache.values():
+            if not (parent := Path(path).parent).is_dir():
+                if allow_parent_creation:
+                    parent.mkdir(parents=True, exist_ok=True)
+                else:
+                    raise NotADirectoryError(
+                        f"Directory '{parent}' does not exist."
+                    )
+
             obj.save(path)
 
     def __getattr__(self, name: str) -> FoamDictFile:
