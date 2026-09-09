@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Fixed issue related to missing names in `GmshSessionWrapper.save_as_stl` when using `save_full`; see `add_all_groups` for details.
+
 - Added `FoamHelpers.copy_dict_orig` and `FoamHelpers.decompose_simple_coefs` to standardize workflow with a template dictionaries.
 
 - Fixed a bug related to the usage of required groups and introduced dumping to STEP in `majordome.simulation.meshing`. Guarded `self.build()` with `_ensure_built()` in `GmshSessionWrapper` to prevent duplicate geometry builds and preserve face group tags across multiple exports.

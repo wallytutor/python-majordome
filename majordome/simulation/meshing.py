@@ -189,21 +189,30 @@ class GmshSessionWrapper:
         volumes : bool = True
             Whether to add volume groups.
         """
+        # IMPORTANT: although it is allowed by gmsh to have a surface
+        # and a volume with the same numeric tag, it is not supported
+        # when using gmshToFoam; thus use an incremental tag for all.
+        current_idx = 1
+
         if surfaces:
             for name, tags in self._face_groups.items():
                 self._mod.add_physical_group(
                     dim  = 2,
                     tags = tags,
+                    tag  = current_idx,
                     name = name
                 )
+                current_idx += 1
 
         if volumes:
             for name, tags in self._volume_groups.items():
                 self._mod.add_physical_group(
                     dim  = 3,
                     tags = tags,
+                    tag  = current_idx,
                     name = name
                 )
+                current_idx += 1
 
     def _ensure_built(self) -> None:
         """ Ensure geometry is built only once per instance. """
@@ -237,23 +246,24 @@ class GmshSessionWrapper:
         self._ensure_built()
         self._require_surfaces()
 
-        # Remove any existing physical groups before proceeding:
+        # Remove any existing physical groups before proceeding, then
+        # add each surface in the CAD model as a physical group, dump,
+        # and reset, so that each file contains a single surface:
         self._mod.remove_physical_groups()
 
-        for name, tags in self._face_groups.items():
+        for idx, (name, tags) in enumerate(self._face_groups.items()):
             self._mod.add_physical_group(
                 dim  = 2,
                 tags = tags,
+                tag  = idx + 1,
                 name = name
             )
             gmsh.write((path / f"{name}.stl").as_posix())
             self._mod.remove_physical_groups()
 
-        if not save_full:
-            return
-
-        self.add_all_groups(surfaces=True, volumes=False)
-        gmsh.write((path / f"{path.name}.stl").as_posix())
+        if save_full:
+            self.add_all_groups(surfaces=True, volumes=False)
+            gmsh.write((path / f"{path.name}.stl").as_posix())
 
     def save_as_step(
             self,
