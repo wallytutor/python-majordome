@@ -125,7 +125,12 @@ impl FoamDict {
         for (idx, elem) in self.elements.iter().enumerate() {
             if idx > 0 {
                 out.push('\n');
-                out.push('\n');
+                if !matches!(
+                    self.elements[idx - 1],
+                    FoamElement::Comment(_) | FoamElement::HeaderBanner(_)
+                ) {
+                    out.push('\n');
+                }
             }
 
             match elem {
@@ -359,5 +364,28 @@ impl FoamDict {
         }
 
         keys
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_to_foam_indent_comment_spacing() {
+        let mut dict = FoamDict::new();
+        dict.elements.push(FoamElement::Comment("// Boundary field section".to_string()));
+        dict.elements.push(FoamElement::Entry {
+            key: "internalField".to_string(),
+            value: FoamValue::String("uniform (0 0 0)".to_string()),
+        });
+        dict.elements.push(FoamElement::Entry {
+            key: "dimensions".to_string(),
+            value: FoamValue::String("[0 1 -1 0 0 0 0]".to_string()),
+        });
+
+        let output = dict.to_foam();
+        let expected = "// Boundary field section\ninternalField  uniform (0 0 0);\n\ndimensions     [0 1 -1 0 0 0 0];";
+        assert_eq!(output, expected);
     }
 }

@@ -1,0 +1,598 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+  \\    /   O peration     | Website:  https://openfoam.org
+   \\  /    A nd           | Version:  13
+    \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#includeEtc "caseDicts/mesh/generation/snappyHexMeshDict.cfg"
+
+castellatedMesh true;
+snap            true;
+addLayers       true;
+
+geometry
+{
+    fluid
+    {
+        type triSurfaceMesh;
+        file "fluid.stl";
+
+        regions
+        {
+            // ----------------------------------------------------------------
+            // Burner inlets
+            // ----------------------------------------------------------------
+
+            fuelInlet       { name fuelInlet; }
+            primaryInlet    { name primaryInlet; }
+            secondaryInlet  { name secondaryInlet; }
+            carrierInlet    { name carrierInlet; }
+
+            // ----------------------------------------------------------------
+            // Burner walls (injections)
+            // ----------------------------------------------------------------
+
+            fuelWall        { name fuelWall; }
+            primaryWall     { name primaryWall; }
+            secondaryWall   { name secondaryWall; }
+            carrierWall     { name carrierWall; }
+
+            // ----------------------------------------------------------------
+            // Burner walls (faces)
+            // ----------------------------------------------------------------
+
+            mainWalls       { name mainWalls; }
+            fuelFace        { name fuelFace; }
+            carrierFace     { name carrierFace; }
+
+            // ----------------------------------------------------------------
+            // Coolant inlets
+            // ----------------------------------------------------------------
+
+            inletsLevel1    { name inletsLevel1; }
+            inletsLevel2    { name inletsLevel2; }
+            inletsLevel3    { name inletsLevel3; }
+            inletsLevel4    { name inletsLevel4; }
+
+            // ----------------------------------------------------------------
+            // Pipe walls
+            // ----------------------------------------------------------------
+
+            wallsLevel1     { name wallsLevel1; }
+            wallsLevel2     { name wallsLevel2; }
+            wallsLevel3     { name wallsLevel3; }
+            wallsLevel4     { name wallsLevel4; }
+
+            // ----------------------------------------------------------------
+            // Reactor walls
+            // ----------------------------------------------------------------
+
+            wallsReactor    { name wallsReactor; }
+
+            // ----------------------------------------------------------------
+            // Outlet
+            // ----------------------------------------------------------------
+
+            outletReactor   { name outletReactor; }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Refinement regions
+    // ------------------------------------------------------------------------
+
+    refinementBurner
+    {
+        type sphere;
+        centre (0.000  0.000  0.000);
+        radius 0.1500;
+    }
+
+    refinementCylinderTip
+    {
+        type cylinder;
+        point1 (0.000  0.000  0.000);
+        point2 (0.000  0.000 -0.625);
+        radius 0.075;
+    }
+
+    refinementCylinderMain
+    {
+        type cylinder;
+        point1 (0.000  0.000 -0.625);
+        point2 (0.000  0.000 -1.375);
+        radius 0.150;
+    }
+}
+
+castellatedMeshControls
+{
+    insidePoint ( 0.0  0.0  0.0 );
+
+    // =================================================================
+
+    // This defines the maximum number of cells allowed per processor
+    // during the refinement phase.
+    maxLocalCells              100000;
+
+    // This sets the overall, total cell limit across all processors
+    // during the refinement process (before the cell removal stage starts).
+    maxGlobalCells             100000000;
+
+    // This acts as a stopping criterion; if the number of cells left to
+    // be refined falls below this specified value, the surface refinement
+    // stage will stop.
+    minRefinementCells         10;
+
+    // This parameter defines the maximum allowable load imbalance
+    // (fractional deviation from perfect balance) between processors during
+    // parallel cell refinement. A value of 0.10 allows up to 10%
+    // deviation, avoiding costly parallel balancing steps at every iteration,
+    // while 0 forces perfect balancing every time.
+    maxLoadUnbalance           0.10;
+
+    // This specifies the number of buffer layers of cells that must exist
+    // between successive levels of mesh refinement (typically set to 3 to
+    // ensure a smooth transition).
+    nCellsBetweenLevels        3;
+
+    // This determines the angle threshold (in degrees) used to refine
+    // sharp features. It applies the maximum specified level of refinement
+    // to cells that "see" geometric intersections whose angle exceeds this
+    // value (typically set to 30).
+    resolveFeatureAngle        30;
+
+    // This boolean setting controls whether zone faces (like internal
+    // baffles, sliding interfaces, or porous zones) are allowed to exist
+    // as free-standing sheets within a single cell zone. When set to true,
+    // snappyHexMesh can generate internal partitions without requiring
+    // them to strictly separate two distinct cell zones.
+    allowFreeStandingZoneFaces false;
+
+    // This setting is used when snappyHexMesh aligns surface refinement
+    // levels  with volume refinement regions (shells). When set to true,
+    // it uses an extended search/projection range to ensure surface
+    // elements (triangles)  near shell transitions are fully refined to
+    // match the shell's level, helping prevent abrupt cell size jumps and
+    // boundary layer collapsing.
+    extendedRefinementSpan     true;
+
+    // =================================================================
+
+    features
+    (
+        { file "mainWalls.eMesh";      level 2; }
+        { file "wallsReactor.eMesh";   level 2; }
+        // 2026-09-04: Added secondaryWall and secondaryInlet eMesh files
+        // to explicit feature snapping to snap mesh edges onto 60° rims.
+        { file "secondaryWall.eMesh";  level 8; }
+        { file "secondaryInlet.eMesh"; level 8; }
+    );
+
+    refinementSurfaces
+    {
+        fluid
+        {
+            level (2 2);
+
+            regions
+            {
+                // -------------------------------------------------------------
+                // Burner inlets
+                // -------------------------------------------------------------
+
+                fuelInlet
+                {
+                    level (6 6);
+                    patchInfo { type patch; }
+                }
+                primaryInlet
+                {
+                    level (6 6);
+                    patchInfo { type patch; }
+                }
+
+                // 2026-09-04: Increased refinement on secondaryInlet to level (8 8)
+                // to resolve 60° tilted 3.175 mm holes without staircase distortion.
+                secondaryInlet
+                {
+                    level (8 8);
+                    patchInfo { type patch; }
+                }
+                carrierInlet
+                {
+                    level (6 6);
+                    patchInfo { type patch; }
+                }
+
+                // -------------------------------------------------------------
+                // Burner walls (injections)
+                // -------------------------------------------------------------
+
+                fuelWall
+                {
+                    level (6 6);
+                    patchInfo { type wall; }
+                }
+                primaryWall
+                {
+                    level (6 6);
+                    patchInfo { type wall; }
+                }
+                // 2026-09-04: Increased refinement on secondaryWall to level (8 8)
+                // to resolve 60° tilted 3.175 mm holes without staircase distortion.
+                secondaryWall
+                {
+                    level (8 8);
+                    patchInfo { type wall; }
+                }
+                carrierWall
+                {
+                    level (6 6);
+                    patchInfo { type wall; }
+                }
+
+                // -------------------------------------------------------------
+                // Burner walls (faces)
+                // -------------------------------------------------------------
+
+                mainWalls
+                {
+                    level (5 5);
+                    patchInfo { type wall; }
+                }
+                fuelFace
+                {
+                    level (5 5);
+                    patchInfo { type wall; }
+                }
+                carrierFace
+                {
+                    level (5 5);
+                    patchInfo { type wall; }
+                }
+
+                // -------------------------------------------------------------
+                // Coolant inlets
+                // -------------------------------------------------------------
+
+                inletsLevel1
+                {
+                    level (3 3);
+                    patchInfo { type patch; }
+                }
+                inletsLevel2
+                {
+                    level (3 3);
+                    patchInfo { type patch; }
+                }
+                inletsLevel3
+                {
+                    level (3 3);
+                    patchInfo { type patch; }
+                }
+                inletsLevel4
+                {
+                    level (3 3);
+                    patchInfo { type patch; }
+                }
+
+                // -------------------------------------------------------------
+                // Pipe walls
+                // -------------------------------------------------------------
+
+                wallsLevel1
+                {
+                    level (3 3);
+                    patchInfo { type wall; }
+                }
+                wallsLevel2
+                {
+                    level (3 3);
+                    patchInfo { type wall; }
+                }
+                wallsLevel3
+                {
+                    level (3 3);
+                    patchInfo { type wall; }
+                }
+                wallsLevel4
+                {
+                    level (3 3);
+                    patchInfo { type wall; }
+                }
+
+                // -------------------------------------------------------------
+                // Reactor walls
+                // -------------------------------------------------------------
+
+                wallsReactor
+                {
+                    level (1 1);
+                    patchInfo { type wall; }
+                }
+
+                // -------------------------------------------------------------
+                // Outlet
+                // -------------------------------------------------------------
+
+                outletReactor
+                {
+                    level (1 1);
+                    patchInfo { type patch; }
+                }
+            }
+        }
+    }
+
+    // Provides refinement during the castellated meshing process. This
+    // allows for using a coarse background mesh and refining only where
+    // needed. The entries of are declared in the geometry section. The
+    // allowed modes include inside, outside, distance, insideSpan, and
+    // outsideSpan.
+    refinementRegions
+    {
+        // 2026-09-04: Increased refinementBurner inside level to 4
+        // to provide a smooth mesh transition gradient for level 8 holes.
+        refinementBurner
+        {
+            mode  inside;
+            level 4;
+        }
+
+        refinementCylinderTip
+        {
+            mode distance;
+            levels (
+                (0.075 2)  // Inside the cylinder it is level 2
+                (0.150 1)  // Beyond 2*radius it coarsens to level 1
+            );
+        }
+
+        refinementCylinderMain
+        {
+            mode distance;
+            levels (
+                (0.150 2)  // Inside the cylinder it is level 2
+                (0.300 1)  // Beyond 2*radius it coarsens to level 1
+            );
+        }
+    }
+}
+
+snapControls
+{
+    // Specifies the number of patch smoothing iterations performed
+    // before finding the correspondence to the surface (typically
+    // set to 3).
+    nSmoothPatch           3;
+
+    // The ratio of the distance for points to be attracted by a
+    // surface feature point or edge, to the local maximum edge length
+    // (typically set to 2.0). Increasing produces a sharper snapping.
+    tolerance              2.0;
+
+    // The number of mesh displacement relaxation iterations (typically
+    // in the range of 30 to 100).
+    nSolveIter             100;
+
+    // The maximum number of snapping relaxation iterations (typically
+    // set to 5).
+    nRelaxIter             5;
+
+    // Specifies the number of feature edge snapping iterations. It
+    // dictates how many passes the snapping driver executes to align
+    // nodes directly with sharp feature lines. Leaving it out or
+    //setting it to 0 completely disables sharp feature edge snapping.
+    nFeatureSnapIter       10;
+
+    // When set to true (the default), the snapping driver uses
+    // explicitly defined feature lines (File-Based Snapping) loaded
+    // in the castellatedMeshControls.features dictionary (typically
+    // .eMesh files generated by the surfaceFeatures utility).
+    explicitFeatureSnap    true;
+
+    // When set to true, the mesh generator implicitly detects
+    // geometric features by dynamically sampling the surface.
+    implicitFeatureSnap    false;
+
+    // When set to true, explicit feature snapping will also detect and
+    // align nodes with intersection lines or contact interfaces between
+    // multiple distinct surfaces or regions. It make sense if your
+    // object is defined using several separte STLs.
+    multiRegionFeatureSnap true;
+}
+
+addLayersControls
+{
+    // Strategy: tuned `featureAngle 100;` to allow layers to wrap around 90°
+    // burner corners without collapsing. Set `nBufferCellsNoExtrude 0;` to
+    // prevent layer collapse on narrow burner wall patches. Adjusted smoothing
+    // iterations (nSmoothSurfaceNormals 1;, nSmoothNormals 3;, nSmoothThickness 10;)
+    // and enabled medial axis ratio limits to increase meshing robustness.
+
+    layers
+    {
+        // 2026-09-04: Omit inlet patches (fuelInlet, primaryInlet,
+        // secondaryInlet, carrierInlet) from the layers sub-dictionary.
+        // Explicitly defining them as nSurfaceLayers 0 marks them as
+        // frozenPatches, preventing wall boundary layers from slipping and
+        // extending up to the inlet faces and burner faces. Omitting them
+        // allows wall layers to slide smoothly all the way to the edges.
+
+        fuelWall       { nSurfaceLayers 4; }
+        primaryWall    { nSurfaceLayers 4; }
+        // 2026-09-04: Configured 3 layers with finalLayerThickness 0.25 for
+        // secondaryWall at level 8 refinement to fit inside 3.175 mm 60°
+        // tilted holes without medial-axis layer collision.
+        // 2026-09-07: Increased number of layers and final thickness to
+        // overcome the octree limitation (oriented as background). Did not
+        // solve the problem!
+        secondaryWall  {
+            nSurfaceLayers 5;
+            finalLayerThickness 0.5;
+        }
+        carrierWall    { nSurfaceLayers 5; }
+
+        mainWalls      { nSurfaceLayers 4; }
+        fuelFace       { nSurfaceLayers 4; }
+        carrierFace    { nSurfaceLayers 4; }
+
+        wallsLevel1    { nSurfaceLayers 4; }
+        wallsLevel2    { nSurfaceLayers 4; }
+        wallsLevel3    { nSurfaceLayers 4; }
+        wallsLevel4    { nSurfaceLayers 4; }
+
+        wallsReactor   { nSurfaceLayers 4; }
+    }
+
+    // =================================================================
+    // Main settings
+    // =================================================================
+
+    // Are the thickness parameters relative to the undistorted size
+    // of the refined cell outside layer (true) or absolute sizes (false).
+    relativeSizes             true;
+
+    // Expansion factor for layer mesh.
+    expansionRatio            1.2;
+
+    // Wanted thickness of final added cell layer. If multiple layers is
+    // the thickness of the layer furthest away from the wall. Relative to
+    // undistorted size of cell outside layer. See relativeSizes parameter.
+    // 2026-09-04: Reduced finalLayerThickness from 0.3 to 0.25 to lower
+    // total layer stack height relative to local background cell size
+    // (~86% -> ~70%). This prevents excessive background hex cell
+    // compression and avoids mesh-quality check rejections.
+    finalLayerThickness       0.25;
+
+    // Wanted thickness of the layer nearest to the wall. If relativeSize
+    // this number is relative to undistorted size of the cell outside layer.
+    // firstLayerThickness       0.05;
+
+    // Wanted overall thickness of all layers. If relativeSize this number
+    // is relative to undistorted size of the cell outside layer.
+    // thickness                 0.5;
+
+    // Minimum overall thickness of cell layer. If for any reason layer
+    // cannot be above minThickness do not add layer. If relativeSizes is
+    // true, this number is relative to undistorted size of the cell
+    // outside layer. See relativeSizes parameter.
+    minThickness              0.05;
+
+    // If points get not extruded do nGrow layers of connected faces that
+    // are not grown. Is used to not do layers at all close to features.
+    nGrow                     0;
+
+    // =================================================================
+    // Advanced settings (documented in layerParameters)
+    // =================================================================
+
+    // Number of overall layer addition iterations.
+    // 2026-09-04: Enabled nLayerIter 50 (was commented out) to allow up
+    // to 50 iterations for layer growth and displacement smoothing to
+    // fully converge.
+    nLayerIter                50;
+
+    // Number of iterations after which relaxed motion rules are to be used.
+    // 2026-09-04: Enabled nRelaxedIter 20 (was commented out) to
+    // automatically switch snappyHexMesh from strict quality checks to
+    // relaxed quality rules (meshQualityControls::relaxed, e.g. maxNonOrtho
+    // 75, minTetQuality 1e-30) after 20 iterations, preventing strict
+    // initial checks from aborting layer growth mid-way.
+    nRelaxedIter              20;
+
+    // Stop layer growth on highly warped cells.
+    // 2026-09-04: Enabled maxFaceThicknessRatio 0.5 (was commented out)
+    // to limit layer growth on highly warped or stretched faces where
+    // thickness-to-width ratio exceeds 0.5.
+    maxFaceThicknessRatio     0.5;
+
+    // Create buffer region for new layer terminations.
+    // 2026-09-04: Set nBufferCellsNoExtrude to 0 (was 2). When set to 2,
+    // layer addition tapers off 2 cells away from every non-extruded
+    // boundary or sharp corner. On narrow burner lips and thin walls, 2
+    // buffer cells from both sides stripped layers across the entire patch
+    // width, causing total layer collapse. Setting 0 allows layers to
+    // extend fully to patch edges.
+    nBufferCellsNoExtrude     0;
+
+    // =================================================================
+    // Advanced settings (undocumented or elsewhere TBD)
+    // =================================================================
+
+    // When not to extrude surface. 0 is flat surface, 90 is when two
+    // faces are perpendicular.
+    // 2026-09-04: Increased featureAngle from 80 to 100. At 80°, 90°
+    // junctions (e.g. concentric cylinder walls meeting planar burner
+    // faces) were treated as sharp feature breaks where layer extrusion
+    // was terminated. Increasing to 100 allows boundary layers to
+    // continuously fold and wrap around 90° burner corners without
+    // collapsing.
+    featureAngle              100;
+
+    // At non-patched sides allow mesh to slip if extrusion direction makes
+    // angle larger than slipFeatureAngle. Default is 0.5*featureAngle.
+    // 2026-09-04: Enabled slipFeatureAngle 30 (was commented out) to
+    // allow the mesh to slip smoothly along non-patched boundary sides
+    // during extrusion.
+    slipFeatureAngle          30;
+
+    // Maximum number of snapping relaxation iterations. Should stop
+    // before upon reaching a correct mesh.
+    // nRelaxIter                5;
+
+    // Number of smoothing iterations of surface normals.
+    // 2026-09-04: Reduced nSmoothSurfaceNormals from 3 to 1 (OpenFOAM 13
+    // default) to prevent over-smoothing surface normals which distorts
+    // extrusion vectors at corners.
+    nSmoothSurfaceNormals     1;
+
+    // Number of smoothing iterations of interior mesh movement direction
+    // 2026-09-04: Reduced nSmoothNormals from 5 to 3 (OpenFOAM 13
+    // default) for stable interior mesh displacement smoothing.
+    nSmoothNormals            3;
+
+    // Smooth layer thickness over surface patches
+    // 2026-09-04: Reduced nSmoothThickness from 20 to 10 (OpenFOAM 13
+    // default) to prevent over-smoothing layer thickness across sharp
+    // features into adjacent volume cells.
+    nSmoothThickness          10;
+
+    // -
+    // additionalReporting       false;
+
+    // 2026-09-04: Enabled maxThicknessToMedialRatio 0.6 (was commented
+    // out). In thin annular burner channels (fuel, primary, secondary,
+    // carrier passages), layers inflating from opposite walls approach
+    // the centerline (medial axis). Setting this to 0.6 prevents
+    // OpenFOAM's default strict medial check from prematurely canceling
+    // layer growth in narrow gaps.
+    maxThicknessToMedialRatio 0.6;
+    // 2026-09-04: Enabled minMedialAxisAngle 90 (was commented out) for
+    // accurate medial axis detection.
+    minMedialAxisAngle        90;
+    // 2026-09-04: Enabled nMedialAxisIter 10 (was commented out) for
+    // medial axis calculation depth.
+    nMedialAxisIter           10;
+}
+
+// delete "-disabled" to output mesh data, e.g. for layers
+writeFlags-disabled
+(
+    scalarLevels
+    layerSets
+    layerFields
+);
+
+mergeTolerance 1.0e-06;
