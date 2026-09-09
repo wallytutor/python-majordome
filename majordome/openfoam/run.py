@@ -245,6 +245,51 @@ class FoamHelpers:
 
         return len(set(proc_times)) == 1
 
+    @staticmethod
+    def copy_dict_orig(
+            source: Path | str,
+            target: Path | str
+        ) -> str:
+        """ Copy a configuration template to another file. """
+        source = Path(source) if isinstance(source, str) else source
+        target = Path(target) if isinstance(target, str) else target
+
+        if not source.exists():
+            raise FileNotFoundError(f"Template file not found: {source}")
+
+        if target.exists():
+            target.unlink()
+
+        shutil.copy(source, target)
+        return str(target.as_posix())
+
+    @classmethod
+    def decompose_simple_coefs(
+            cls,
+            cores: int,
+            func: Callable[[int], str],
+            dict_orig: str | Path | None = None
+        ) -> None:
+        """ Manage decomposition with simple coefficients.
+
+        Parameters
+        ----------
+        cores : int
+            Number of processor subdomains.
+        func : Callable[[int], str]
+            Function that returns the simple coefficients string for a given core count.
+        dict_orig : str | Path | None = None
+            Original decomposeParDict file path.
+        """
+        if dict_orig is None:
+            dict_orig = Path("system/decomposeParDict.orig")
+
+        dict_file = Path("system/decomposeParDict")
+        file = cls.copy_dict_orig(dict_orig, dict_file)
+
+        FoamRunner.dict_set_entry(file, "numberOfSubdomains", f"{cores}")
+        FoamRunner.dict_set_entry(file, "simpleCoeffs/n", func(cores))
+
 
 class FoamArguments:
     """ Reusable ArgumentParser preset builders for OpenFOAM workflows. """
