@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Fixed entry value parsing for nested semicolons (such as multiline `features` lists) and improved formatting for multiline values and comment spacing in `majordome-foam` (documented in `crates/majordome-foam/CHANGELOG.md`).
+
 - Fixed issue related to missing names in `GmshSessionWrapper.save_as_stl` when using `save_full`; see `add_all_groups` for details.
 
 - Added `FoamHelpers.copy_dict_orig` and `FoamHelpers.decompose_simple_coefs` to standardize workflow with a template dictionaries.

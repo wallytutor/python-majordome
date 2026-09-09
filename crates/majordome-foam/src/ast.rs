@@ -104,8 +104,9 @@ impl FoamDict {
 
         for elem in &self.elements {
             match elem {
-                FoamElement::Entry { key, .. } => {
-                    if key.len() > max_key_len {
+                FoamElement::Entry { key, value } => {
+                    let val_str = value.to_string();
+                    if !val_str.contains('\n') && key.len() > max_key_len {
                         max_key_len = key.len();
                     }
                 }
@@ -157,14 +158,24 @@ impl FoamDict {
                 }
 
                 FoamElement::Entry { key, value } => {
-                    if align_width > key.len() {
+                    let val_str = value.to_string();
+                    if val_str.contains('\n') {
+                        if val_str.starts_with('(') || val_str.starts_with('{') {
+                            out.push_str(&format!("{}{}\n{}{};", pad, key, pad, val_str));
+                        } else {
+                            out.push_str(&format!("{}{}\n{}", pad, key, val_str));
+                            if !val_str.ends_with(';') {
+                                out.push(';');
+                            }
+                        }
+                    } else if align_width > key.len() {
                         let spacing = " ".repeat(align_width - key.len());
                         out.push_str(&format!(
                             "{}{}{}{};",
-                            pad, key, spacing, value
+                            pad, key, spacing, val_str
                         ));
                     } else {
-                        out.push_str(&format!("{}{} {};", pad, key, value));
+                        out.push_str(&format!("{}{} {};", pad, key, val_str));
                     }
                 }
 

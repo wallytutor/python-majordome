@@ -220,21 +220,7 @@ pub fn parse_foam_dict(input: &str) -> Result<FoamDict, FoamParseError> {
             continue;
         }
 
-        let mut raw_val = String::new();
-        while let Some(&ch) = chars.peek() {
-            if ch == ';' {
-                chars.next();
-                break;
-            }
-
-            if ch == '\n' {
-                line_num += 1;
-            }
-
-            raw_val.push(ch);
-            chars.next();
-        }
-
+        let raw_val = parse_entry_value_raw(&mut chars, &mut line_num);
         let val_str = raw_val.trim();
         let value = parse_value_str(val_str);
 
@@ -339,21 +325,7 @@ fn parse_subdict(
             continue;
         }
 
-        let mut raw_val = String::new();
-        while let Some(&ch) = chars.peek() {
-            if ch == ';' {
-                chars.next();
-                break;
-            }
-
-            if ch == '\n' {
-                *line_num += 1;
-            }
-
-            raw_val.push(ch);
-            chars.next();
-        }
-
+        let raw_val = parse_entry_value_raw(chars, line_num);
         let val_str = raw_val.trim();
         let value = parse_value_str(val_str);
 
@@ -361,6 +333,182 @@ fn parse_subdict(
     }
 
     Ok(dict)
+}
+
+fn parse_entry_value_raw(
+    chars: &mut std::iter::Peekable<std::str::Chars<'_>>,
+    line_num: &mut usize,
+) -> String {
+    let mut raw_val = String::new();
+    let mut paren_depth: usize = 0;
+    let mut brace_depth: usize = 0;
+    let mut in_string = false;
+    let mut in_single_quote = false;
+    let mut escaped = false;
+    let mut in_line_comment = false;
+    let mut in_block_comment = false;
+
+    while let Some(&ch) = chars.peek() {
+        if in_line_comment {
+            if ch == '\n' {
+                *line_num += 1;
+                in_line_comment = false;
+            }
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if in_block_comment {
+            if ch == '\n' {
+                *line_num += 1;
+            }
+            if raw_val.ends_with('*') && ch == '/' {
+                in_block_comment = false;
+            }
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if in_string {
+            if ch == '\n' {
+                *line_num += 1;
+            }
+            if escaped {
+                escaped = false;
+            } else if ch == '\\' {
+                escaped = true;
+            } else if ch == '"' {
+                in_string = false;
+            }
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if in_single_quote {
+            if ch == '\n' {
+                *line_num += 1;
+            }
+            if escaped {
+                escaped = false;
+            } else if ch == '\\' {
+                escaped = true;
+            } else if ch == '\'' {
+                in_single_quote = false;
+            }
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if ch == '/' {
+            raw_val.push(ch);
+            chars.next();
+            if let Some(&next_ch) = chars.peek() {
+                if next_ch == '/' {
+                    in_line_comment = true;
+                    raw_val.push(next_ch);
+                    chars.next();
+                } else if next_ch == '*' {
+                    in_block_comment = true;
+                    raw_val.push(next_ch);
+                    chars.next();
+                }
+            }
+            continue;
+        }
+
+        if ch == '"' {
+            in_string = true;
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if ch == '\'' {
+            in_single_quote = true;
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if ch == '(' {
+            paren_depth += 1;
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if ch == ')' {
+            if paren_depth > 0 {
+                paren_depth -= 1;
+            }
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if ch == '{' {
+            brace_depth += 1;
+            raw_val.push(ch);
+            chars.next();
+            continue;
+        }
+
+        if ch == '}' {
+            if brace_depth > 0 {
+                brace_depth -= 1;
+                raw_val.push(ch);
+                chars.next();
+                continue;
+            } else if paren_depth == 0 {
+                break;
+            }
+        }
+
+        if ch == ';' && paren_depth == 0 && brace_depth == 0 {
+            chars.next();
+            break;
+        }
+
+        if ch == '\n' {
+            *line_num += 1;
+        }
+
+        raw_val.push(ch);
+        chars.next();
+    }
+
+    raw_val
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_entry_with_nested_semicolons() {
+        let input = r#"
+castellatedMeshControls
+{
+    features
+    (
+        { file "mainWalls.eMesh"; level 2; }
+        { file "wallsReactor.eMesh"; level 2; }
+    );
+    minRefinementCells 10;
+}
+"#;
+        let dict = parse_foam_dict(input).expect("Should parse successfully");
+        assert_eq!(dict.keys(), vec!["castellatedMeshControls"]);
+        let serialized = dict.to_foam();
+        assert!(serialized.contains("castellatedMeshControls"));
+        assert!(serialized.contains("features"));
+        assert!(serialized.contains("minRefinementCells"));
+        assert!(serialized.trim().ends_with('}'));
+    }
 }
 
 fn skip_whitespace(chars: &mut std::iter::Peekable<std::str::Chars<'_>>, line_num: &mut usize) {
