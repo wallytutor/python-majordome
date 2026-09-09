@@ -2,7 +2,9 @@
 
 ## Ongoing Development
 
-- Support creation of OpenFOAM dictionaries on the fly through `FoamDictFile`. Handling of parent directory creation is possible. The parent directory is created by default.
+- Added helper classes for management of OpenFOAM cases, searchable surfaces, and refinement regions in `majordome.openfoam.files`: `FoamSearchableSurfaces`, and `FoamRefinementRegions`.
+
+- Support creation of OpenFOAM dictionaries on the fly through `FoamCaseHandle`. Handling of parent directory creation is possible. The parent directory is created by default.
 
 - Fixed entry value parsing for nested semicolons (such as multiline `features` lists) and improved formatting for multiline values and comment spacing in `majordome-foam` (documented in `crates/majordome-foam/CHANGELOG.md`).
 

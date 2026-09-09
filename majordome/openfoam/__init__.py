@@ -14,6 +14,8 @@ __getattr__, __dir__ = setup_lazy_exports(__name__, globals(), {
     "FieldFile": ".files",
     "FoamCaseHandle": ".files",
     "FoamDictFile": ".files",
+    "FoamSearchableSurfaces": ".files",
+    "FoamRefinementRegions": ".files",
     "FvSchemes": ".files",
     "FvSolution": ".files",
     "NotACaseError": ".files",

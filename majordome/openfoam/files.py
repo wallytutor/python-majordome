@@ -940,3 +940,36 @@ class FoamCaseHandle:
 
     def __repr__(self) -> str:
         return f"<FoamCaseHandle root='{self._root_dir}' valid={self.is_valid}>"
+
+# TODO add types and create Enums as applicable for the helper classes.
+
+class FoamSearchableSurfaces:
+    """ Helper class for the creation of searchable surfaces. """
+    @staticmethod
+    def sphere(parent, name, center, radius):
+        parent.set(f"{name}/type", "sphere")
+        parent.set(f"{name}/centre", center)
+        parent.set(f"{name}/radius", radius)
+
+    @staticmethod
+    def cylinder(parent, name, point1, point2, radius):
+        parent.set(f"{name}/type", "cylinder")
+        parent.set(f"{name}/point1", point1)
+        parent.set(f"{name}/point2", point2)
+        parent.set(f"{name}/radius", radius)
+
+
+class FoamRefinementRegions:
+    """ Helper class for the creation of refinement regions. """
+    @staticmethod
+    def add(parent, name, mode, level):
+        parent.set(f"{name}/mode", mode)
+
+        if isinstance(level, int):
+            parent.set(f"{name}/level", level)
+
+        elif isinstance(level, (list, tuple)):
+            parent.set(f"{name}/levels", level)
+
+        else:
+            raise ValueError(f"Cannot set level with {level}")
