@@ -4,10 +4,13 @@
 from majordome_build.documents import *
 
 from majordome.autodiff import Dual
+from majordome.utilities import plot_xy
 from majordome.engineering.calphad import (
     CalphadDatabaseLoader,
     CalphadSystemComposition,
     equilibrate_stoichiometric,
+    # Python Library
+    CalphadStoichiometricSystem,
 )
 import numpy as np
 
@@ -213,54 +216,52 @@ phi = equilibrate_stoichiometric(phases, comp, t_eval, p_eval)
 phi
 ```
 
-- Temperature scanning (300 K – 1200 K, step 100 K):
+- Temperature scanning (300 K – 1200 K, step 100 K): can be performed with Python wrapper `CalphadStoichiometricSystem`.
 
 ```{python}
 #| echo: true
-phases = CalphadDatabaseLoader(db_path).get_data()
-species_names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"]
-comp = CalphadSystemComposition.from_compound_moles(phases, X_eval)
+names = ["Calcite", "Lime", "CO2", "Diaspore", "H2O", "Al2O3"]
+db = CalphadStoichiometricSystem(db_path, phases=names)
 
-eq_ref = equilibrate_stoichiometric(phases, comp, T_REF, p_eval)
-h_ref  = sum(
-    eq_ref.amounts.get(n, 0.0) * phases[n].enthalpy(T_REF)
-    for n in species_names
+df = db.scan_temperature(
+    T_arr        = np.arange(200.0, 1500.1, 100.0).tolist(),
+    X_mol        = {"Calcite": 1.0, "Diaspore": 1.0},
+    T_ref        = 298.15,
+    p_eval       = 101325.0,
+    shift        = True,
+    amounts_unit = "mole_fractions",
+    base         = "mass",
 )
-m_sys = sum(
-    eq_ref.amounts.get(n, 0.0) * phases[n].molar_mass
-    for n in species_names
+
+# J/kg * 1 kg/1000 g = J/g
+df["H"] /= 1000
+
+df
+```
+
+- Below we repeat the above calculation over a finer grid for plotting the enthalpy steps:
+
+```{python}
+#| echo: true
+df = db.scan_temperature(
+    T_arr        = np.arange(200.0, 1500.1, 1.0).tolist(),
+    X_mol        = {"Calcite": 1.0, "Diaspore": 1.0},
+    T_ref        = 298.15,
+    p_eval       = 101325.0,
+    shift        = True,
+    amounts_unit = "mole_fractions",
+    base         = "mass",
 )
 
-header = (
-    f"{'T (K)':<10} | {'CaCO3':>8} | {'CaO':>8} | {'CO2':>8}"
-    f" | {'Diaspore':>10} | {'H2O':>8} | {'Al2O3':>8} | {'dH (J/g)':>10}"
-)
-print(header)
-print("-" * len(header))
+T = df["T"].to_numpy() - 273.15
+H = df["H"].to_numpy() / 1000_000
 
-def print_eq(t, eq, dh):
-    print(
-        f"{t:<10.2f} | "
-        f"{eq.amounts.get('Calcite',  0.0):>8.4f} | "
-        f"{eq.amounts.get('Lime',     0.0):>8.4f} | "
-        f"{eq.amounts.get('CO2',      0.0):>8.4f} | "
-        f"{eq.amounts.get('Diaspore', 0.0):>10.4f} | "
-        f"{eq.amounts.get('H2O',      0.0):>8.4f} | "
-        f"{eq.amounts.get('Al2O3',    0.0):>8.4f} | "
-        f"{dh:>10.2f}"
-    )
-
-t_arr = np.arange(300.0, 1500.1, 100.0).tolist()
-t_arr = sorted(t_arr + [T_REF])
-
-for t in t_arr:
-    eq  = equilibrate_stoichiometric(phases, comp, t, p_eval)
-    h_t = sum(
-        eq.amounts.get(n, 0.0) * phases[n].enthalpy(t)
-        for n in species_names
-    )
-    dh = (h_t - h_ref) / m_sys if m_sys > 0 else 0.0
-    print_eq(t, eq, dh)
+p = plot_xy()
+p.add_curve(T, H, color="k")
+p.xlabel("Temperature [°C]")
+p.ylabel("Enthalpy [MJ/kg]")
+p.xlim(0, 1200)
+p.ylim(0, 3.0)
 ```
 
 ### Al-Ca-O system by Hallstedt (1990)
@@ -315,4 +316,27 @@ for x in x_arr:
         f"{norm('C1A6'):>8.2f} | "
         f"{norm('CORUNDUM'):>10.4f}"
     )
+```
+
+### Pure silica by Huang (1995)
+
+```{python}
+#| echo: true
+T = np.arange(300.0, 3000.1, 10.0).tolist()
+X = {"QUARTZ": 1.0}
+
+names = ["QUARTZ", "TRIDYMITE", "CRISTOBALITE", "LIQUID"]
+db = CalphadStoichiometricSystem("huang1995_sio2.lua", phases=names)
+
+df = db.scan_temperature(T, X, base="mass")
+
+T = df["T"].to_numpy() - 273.15
+H = df["H"].to_numpy() / 1000_000
+
+p = plot_xy()
+p.add_curve(T, H, color="k")
+p.xlabel("Temperature [°C]")
+p.ylabel("Enthalpy [MJ/kg]")
+p.xlim(0, 2500)
+p.ylim(0, 3.5)
 ```
