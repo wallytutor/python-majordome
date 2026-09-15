@@ -15,7 +15,9 @@ from .files import (
     SnappyHexMeshDict,
 )
 
-TUTORIALS_DIR = Path(__file__).parent.parent / "docs/data/foam/cases"
+TUTORIALS_DIR = (
+    Path(__file__).resolve().parents[2] / "docs/data/foam/cases"
+)
 
 
 class TestMajordomeFoam(unittest.TestCase):
@@ -79,10 +81,11 @@ class TestMajordomeFoam(unittest.TestCase):
 
     def test_control_dict_wrapper(self):
         pitz_control = TUTORIALS_DIR / "01-pitzDaily/system/controlDict"
+
         if pitz_control.exists():
             cd = ControlDict.from_file(pitz_control)
-            self.assertEqual(cd.application, "simpleFoam")
-            self.assertEqual(cd.start_from, "startTime")
+            self.assertEqual(cd.application, "foamRun")
+            self.assertEqual(cd.start_from, "latestTime")
             self.assertEqual(cd.stop_at, "endTime")
 
             cd.end_time = 500.0
@@ -93,6 +96,7 @@ class TestMajordomeFoam(unittest.TestCase):
         ddtSchemes
         {
             default         steadyState;
+            ;
         }
         gradSchemes
         {
@@ -101,15 +105,20 @@ class TestMajordomeFoam(unittest.TestCase):
         divSchemes
         {
             default         none;
-            div(phi,U)      bounded Gauss linearUpwind grad(U);
+            div(phi,U)      bounded Gauss linearUpwind grad(U);;
+            div(phi, U)     Gauss linear;
         }
         """
         schemes = FvSchemes.parse(schemes_content)
         self.assertEqual(schemes.ddt_schemes.get("default"), "steadyState")
         self.assertEqual(schemes.grad_schemes.get("default"), "Gauss linear")
+        self.assertEqual(
+            schemes.div_schemes.get("div(phi, U)"), "Gauss linear"
+        )
 
         foam_str = schemes.to_foam()
-        self.assertIn("div(phi,U)  bounded Gauss linearUpwind grad(U);", foam_str)
+        self.assertIn("div(phi,U)   bounded Gauss linearUpwind grad(U);", foam_str)
+        self.assertIn("div(phi, U)  Gauss linear;", foam_str)
         self.assertNotIn('"bounded Gauss linearUpwind grad(U)"', foam_str)
         self.assertNotIn('"Gauss linear"', foam_str)
 
@@ -239,19 +248,27 @@ class TestMajordomeFoam(unittest.TestCase):
 
     def test_foam_case_handle(self):
         pitz_dir = TUTORIALS_DIR / "01-pitzDaily"
+
         if pitz_dir.exists():
             case = FoamCaseHandle(root_dir=pitz_dir)
             self.assertTrue(case.is_valid)
 
             cd = case.controlDict
-            self.assertEqual(cd.application, "simpleFoam")
-            self.assertEqual(cd.start_from, "startTime")
+            self.assertEqual(cd.application, "foamRun")
+            self.assertEqual(cd.start_from, "latestTime")
 
-            bm = case.blockMeshDict
-            self.assertIsNotNone(bm)
+            snappy = case.snappyHexMeshDict
+            self.assertIsNotNone(snappy)
 
             schemes = case.fvSchemes
             self.assertIsNotNone(schemes)
+            self.assertEqual(schemes.ddt_schemes.get("default"), "Euler")
+
+            schemes_alias = case.fv_schemes
+            self.assertIsNotNone(schemes_alias)
+
+            schemes_dict = case.get_dict("system/fvSchemes")
+            self.assertIsNotNone(schemes_dict)
 
             sol = case.fvSolution
             self.assertIsNotNone(sol)

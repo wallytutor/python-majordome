@@ -31,6 +31,7 @@ fn parse_key_name(
     if let Some(&'"') = chars.peek() {
         name.push('"');
         chars.next();
+        let mut escaped = false;
 
         while let Some(&ch) = chars.peek() {
             name.push(ch);
@@ -40,14 +41,32 @@ fn parse_key_name(
                 *line_num += 1;
             }
 
-            if ch == '"' {
+            if escaped {
+                escaped = false;
+            } else if ch == '\\' {
+                escaped = true;
+            } else if ch == '"' {
                 break;
             }
         }
     } else {
+        let mut paren_depth: usize = 0;
+
         while let Some(&ch) = chars.peek() {
-            if ch.is_whitespace() || ch == '{' || ch == ';' || ch == '}' {
+            if ch == '(' {
+                paren_depth += 1;
+            } else if ch == ')' {
+                if paren_depth > 0 {
+                    paren_depth -= 1;
+                }
+            } else if ch == ';' || ch == '{' || ch == '}' {
                 break;
+            } else if ch.is_whitespace() && paren_depth == 0 {
+                break;
+            }
+
+            if ch == '\n' {
+                *line_num += 1;
             }
 
             name.push(ch);
@@ -70,6 +89,11 @@ pub fn parse_foam_dict(input: &str) -> Result<FoamDict, FoamParseError> {
                 line_num += 1;
             }
 
+            chars.next();
+            continue;
+        }
+
+        if c == ';' {
             chars.next();
             continue;
         }
@@ -251,6 +275,11 @@ fn parse_subdict(
             continue;
         }
 
+        if c == ';' {
+            chars.next();
+            continue;
+        }
+
         if c == '/' {
             chars.next();
 
@@ -292,13 +321,77 @@ fn parse_subdict(
                     continue;
                 }
 
-                _ => {}
+                _ => {
+                    return Err(FoamParseError {
+                        message: "Unexpected '/' character".to_string(),
+                        line: *line_num,
+                    });
+                }
             }
+        }
+
+        if c == '#' {
+            let mut directive = String::new();
+
+            while let Some(&ch) = chars.peek() {
+                if ch.is_whitespace() {
+                    break;
+                }
+
+                directive.push(ch);
+                chars.next();
+            }
+
+            skip_whitespace(chars, line_num);
+
+            let mut val_str = String::new();
+
+            while let Some(&ch) = chars.peek() {
+                if ch == ';' || ch == '\n' {
+                    if ch == ';' {
+                        chars.next();
+                    }
+
+                    break;
+                }
+
+                val_str.push(ch);
+                chars.next();
+            }
+
+            dict.elements.push(FoamElement::Directive {
+                name: directive,
+                value: val_str.trim().to_string(),
+            });
+
+            continue;
+        }
+
+        if c == '$' {
+            let mut macro_name = String::new();
+            chars.next();
+
+            while let Some(&ch) = chars.peek() {
+                if ch == ';' || ch.is_whitespace() {
+                    if ch == ';' {
+                        chars.next();
+                    }
+
+                    break;
+                }
+
+                macro_name.push(ch);
+                chars.next();
+            }
+
+            dict.elements.push(FoamElement::MacroRef(macro_name));
+            continue;
         }
 
         let name = parse_key_name(chars, line_num);
 
         if name.is_empty() {
+            chars.next();
             continue;
         }
 
@@ -484,33 +577,6 @@ fn parse_entry_value_raw(
     raw_val
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_entry_with_nested_semicolons() {
-        let input = r#"
-castellatedMeshControls
-{
-    features
-    (
-        { file "mainWalls.eMesh"; level 2; }
-        { file "wallsReactor.eMesh"; level 2; }
-    );
-    minRefinementCells 10;
-}
-"#;
-        let dict = parse_foam_dict(input).expect("Should parse successfully");
-        assert_eq!(dict.keys(), vec!["castellatedMeshControls"]);
-        let serialized = dict.to_foam();
-        assert!(serialized.contains("castellatedMeshControls"));
-        assert!(serialized.contains("features"));
-        assert!(serialized.contains("minRefinementCells"));
-        assert!(serialized.trim().ends_with('}'));
-    }
-}
-
 fn skip_whitespace(chars: &mut std::iter::Peekable<std::str::Chars<'_>>, line_num: &mut usize) {
     while let Some(&ch) = chars.peek() {
         if ch.is_whitespace() {
@@ -581,4 +647,75 @@ fn parse_value_str(s: &str) -> FoamValue {
     }
 
     FoamValue::String(s_clean.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_parse_entry_with_nested_semicolons() -> Result<(), FoamParseError> {
+        let input = r#"
+castellatedMeshControls
+{
+    features
+    (
+        { file "mainWalls.eMesh"; level 2; }
+        { file "wallsReactor.eMesh"; level 2; }
+    );
+    minRefinementCells 10;
+}
+"#;
+        let dict = parse_foam_dict(input)?;
+        assert_eq!(dict.keys(), vec!["castellatedMeshControls"]);
+        let serialized = dict.to_foam();
+        assert!(serialized.contains("castellatedMeshControls"));
+        assert!(serialized.contains("features"));
+        assert!(serialized.contains("minRefinementCells"));
+        assert!(serialized.trim().ends_with('}'));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_subdict_with_stray_semicolons_and_comments() -> Result<(), FoamParseError> {
+        let input = r#"
+divSchemes
+{
+    default         none;
+    ;
+    // Comment with semicolon;
+    div(phi,U)      Gauss linearUpwind grad(U);;
+    div(phi, U)     Gauss linear;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+    $defaultMacro;
+    #include "subDictInclude"
+}
+"#;
+        let d = parse_foam_dict(input)?;
+        assert_eq!(d.keys(), vec!["divSchemes"]);
+        assert!(d.get_path("divSchemes/default").is_some());
+        assert!(d.get_path("divSchemes/div(phi,U)").is_some());
+        assert!(d.get_path("divSchemes/div(phi, U)").is_some());
+        assert!(d.get_path("divSchemes/div((nuEff*dev2(T(grad(U)))))").is_some());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_pitz_daily_fv_schemes() -> Result<(), Box<dyn std::error::Error>> {
+        let path = Path::new("../../docs/data/foam/cases/01-pitzDaily/system/fvSchemes");
+
+        if path.exists() {
+            let content = std::fs::read_to_string(path)?;
+            let dict = parse_foam_dict(&content)?;
+            assert!(dict.keys().contains(&"divSchemes".to_string()));
+            assert!(dict.get_path("divSchemes/default").is_some());
+            assert!(dict.get_path("divSchemes/div(phi,U)").is_some());
+            assert!(dict.get_path("divSchemes/div((nuEff*dev2(T(grad(U)))))").is_some());
+        }
+
+        Ok(())
+    }
 }

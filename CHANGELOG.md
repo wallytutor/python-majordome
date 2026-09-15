@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Fixed infinite loop and Python session freeze when accessing OpenFOAM dictionaries containing subdictionaries with stray or double semicolons (such as in `fvSchemes`), and added support for parenthesis-nested key expressions with spaces and in-subdict directives and macros.
+
 - Added helper classes for management of OpenFOAM cases, searchable surfaces, and refinement regions in `majordome.openfoam.files`: `FoamSearchableSurfaces`, and `FoamRefinementRegions`.
 
 - Support creation of OpenFOAM dictionaries on the fly through `FoamCaseHandle`. Handling of parent directory creation is possible. The parent directory is created by default.

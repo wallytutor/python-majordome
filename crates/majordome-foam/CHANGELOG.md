@@ -2,6 +2,12 @@
 
 ## Ongoing Development
 
+### 2026-09-15 - Fixed
+
+- **Subdict Parsing Infinite Loop:** Fixed infinite loop in `parse_subdict` caused by not advancing the character iterator when encountering empty key names (e.g. stray semicolons `;`, double semicolons `;;`). Added explicit stray semicolon skipping, `#` directive and `$` macro reference parsing inside subdictionaries, and error handling for unexpected slash characters.
+
+- **Expression Key Parsing:** Updated `parse_key_name` to track parenthesis nesting depth, allowing OpenFOAM mathematical expressions with spaces inside parentheses (e.g. `div(phi, U)`) to be parsed correctly without key truncation.
+
 ### 2026-09-09 - Fixed
 
 - **Entry Value Parsing:** Resolved premature entry termination when encountering nested semicolons inside multiline lists or subdicts (e.g. `features ({ file "mainWalls.eMesh"; level 2; });`). The parser now tracks parentheses `()`, braces `{}`, string quotes (`"`, `'`), and comments (`//`, `/* */`) to ensure values are read until the outer terminating semicolon or closing subdict brace.
