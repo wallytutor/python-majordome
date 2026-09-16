@@ -1,4 +1,4 @@
-\## OpenFOAM case manipulation
+## OpenFOAM case manipulation
 
 The `majordome.openfoam` module provides a wrapper to a Rust-powered AST parser (crate `majordome-foam`) and dynamic Python interface for inspecting, modifying, and managing OpenFOAM cases cleanly. This example demonstrates how to use `FoamCaseHandle` to interact directly with OpenFOAM dictionary files without any hassle.
 
@@ -27,10 +27,10 @@ The first step is to initialize a `FoamCaseHandle` pointing to the case director
 ```{python}
 #| echo: true
 # Point to the 01-pitzDaily case directory
-case = FoamCaseHandle("../data/foam/cases/01-pitzDaily", zero_name="0")
+handle = FoamCaseHandle("../data/foam/cases/01-pitzDaily", zero_name="0")
 
-print(f"Case root: {Path(*case.root_dir.parts[-4:])}")
-print(f"Is valid OpenFOAM case? {case.is_valid}")
+print(f"Case root: {Path(*handle.root_dir.parts[-4:])}")
+print(f"Is valid OpenFOAM case? {handle.is_valid}")
 ```
 
 If `FoamCaseHandle` is pointed to a directory that is not a valid OpenFOAM case, `is_valid` returns `False`, and attempting to access case dictionaries raises `NotACaseError`:
@@ -48,41 +48,41 @@ except NotACaseError as e:
 
 ### Inspecting and modifying system dictionaries
 
-Class `FoamDictFile` provides support to managing arbitrary dictionaries. For instance, accessing `case.controlDict` automatically parses and returns a strongly-typed `ControlDict` instance based on that base type. You can update simulation control attributes directly on the handle:
+Class `FoamDictFile` provides support to managing arbitrary dictionaries. For instance, accessing `handle.controlDict` automatically parses and returns a strongly-typed `ControlDict` instance based on that base type. You can update simulation control attributes directly on the handle:
 
 ```{python}
 #| echo: true
 # Access controlDict attributes dynamically
 print(f"Original values:")
-print(f"Application ....: {case.controlDict.application}")
-print(f"Start from .....: {case.controlDict.start_from}")
-print(f"Start time .....: {case.controlDict.start_time}")
-print(f"Stop at ........: {case.controlDict.stop_at}")
-print(f"End time .......: {case.controlDict.end_time}")
-print(f"Delta T ........: {case.controlDict.delta_t}")
-print(f"Write Interval .: {case.controlDict.write_interval}")
+print(f"Application ....: {handle.controlDict.application}")
+print(f"Start from .....: {handle.controlDict.start_from}")
+print(f"Start time .....: {handle.controlDict.start_time}")
+print(f"Stop at ........: {handle.controlDict.stop_at}")
+print(f"End time .......: {handle.controlDict.end_time}")
+print(f"Delta T ........: {handle.controlDict.delta_t}")
+print(f"Write Interval .: {handle.controlDict.write_interval}")
 
 # Update simulation control parameters
-case.controlDict.end_time = 1500
-case.controlDict.write_interval = 100
+handle.controlDict.end_time = 1500
+handle.controlDict.write_interval = 100
 
 print("\nModified parameters:")
-print(f"End Time .......: {case.controlDict.end_time}")
-print(f"Write Interval .: {case.controlDict.write_interval}")
+print(f"End Time .......: {handle.controlDict.end_time}")
+print(f"Write Interval .: {handle.controlDict.write_interval}")
 ```
 
 You can also convert the dictionary to a string in OpenFOAM format using the `to_foam()` method.
 
 ```{python}
 #| echo: true
-print(case.controlDict.to_foam())
+print(handle.controlDict.to_foam())
 ```
 
 One can also manage discretization schemes (`fvSchemes`) dynamically:
 
 ```{python}
 #| echo: true
-schemes = case.fvSchemes
+schemes = handle.fvSchemes
 
 print("ddtSchemes ..:", schemes.ddt_schemes.to_foam())
 print("gradSchemes .:", schemes.grad_schemes.to_foam())
@@ -96,7 +96,7 @@ The same is also possible for solver controls (`fvSolution`) dictionaries.
 
 ```{python}
 #| echo: true
-sol = case.fvSolution
+sol = handle.fvSolution
 print("Solvers block keys:", sol.solvers.keys())
 
 # Update solver tolerance for pressure 'p'
@@ -106,15 +106,15 @@ print("Updated p tolerance:", sol.get("solvers/p/tolerance"))
 
 ### Accessing initial/boundary field files
 
-For fields, the management is specialized through `FieldFile`. Field files in `0/` (or the user configured `zero_name` in `FoamCaseHandle`) are dynamically resolved by field variable name (e.g. `case.p`, `case.U`):
+For fields, the management is specialized through `FieldFile`. Field files in `0/` (or the user configured `zero_name` in `FoamCaseHandle`) are dynamically resolved by field variable name (e.g. `handle.p`, `handle.U`):
 
 ```{python}
 #| echo: true
-p_field = case.p
+p_field = handle.p
 print("p Dimensions:", p_field.dimensions)
 print("p Internal Field:", p_field.internal_field)
 
-U_field = case.U
+U_field = handle.U
 print("U Dimensions:", U_field.dimensions)
 ```
 
@@ -125,13 +125,24 @@ U_field.set("boundaryField/inlet/value", (15, 0, 0))
 print(U_field.to_foam())
 ```
 
+### Manipulating data field files
+
+Files (such as cloud points or mesh files) can be manipulated directly by points index:
+
+```{python}
+val = handle.get_dict("constant/cloudPositions")
+print(val.data)
+val[0] = (0.1, 0.1, 0.1)
+print(val.data)
+```
+
 ### Persisting modifications
 
-Call `case.save()` to write all modified dictionaries back to disk:
+Call `handle.save()` to write all modified dictionaries back to disk:
 
 ```{python}
 #| echo: true
-# case.save()
+# handle.save()
 ```
 
 ### For developers
@@ -250,9 +261,9 @@ Wraps PyO3 `FoamDict` and provides classmethods (`from_file`, `from_string`, `pa
 
 - **Case Validation**: `.is_valid` verifies that `constant/` is a directory and `system/controlDict` is a file.
 
-- **Dynamic Lookup (`__getattr__`)**: Automatically resolves dictionary names (e.g. `case.controlDict`, `case.fvSchemes`, `case.blockMeshDict`) or field variables (e.g. `case.p`, `case.U`) by searching candidate directories (`system/`, `constant/`, `0/`, root).
+- **Dynamic Lookup (`__getattr__`)**: Automatically resolves dictionary names (e.g. `handle.controlDict`, `handle.fvSchemes`, `handle.blockMeshDict`) or field variables (e.g. `handle.p`, `handle.U`) by searching candidate directories (`system/`, `constant/`, `0/`, root).
 
-- **Caching and Persistence**: Stores loaded dictionary instances in `_cache`. Calling `case.save()` writes all modified dictionaries back to disk.
+- **Caching and Persistence**: Stores loaded dictionary instances in `_cache`. Calling `handle.save()` writes all modified dictionaries back to disk.
 
 ---
 

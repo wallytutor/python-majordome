@@ -9,10 +9,14 @@ from .files import (
     DecomposeParDict,
     FieldFile,
     FoamCaseHandle,
+    FoamDataFieldFile,
     FvSchemes,
     FvSolution,
+    LabelListDataFile,
     NotACaseError,
+    ScalarDataFieldFile,
     SnappyHexMeshDict,
+    VectorDataFieldFile,
 )
 
 TUTORIALS_DIR = (
@@ -281,6 +285,115 @@ class TestMajordomeFoam(unittest.TestCase):
 
         with self.assertRaises(NotACaseError):
             _ = invalid_case.controlDict
+
+    def test_vector_data_field_file(self):
+        content = """/*--------------------------------*- C++ -*----------------------------------*\\
+  =========                 |
+  \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\\\    /   O peration     | Website:  https://openfoam.org
+    \\\\  /    A nd           | Version:  13
+     \\\\/     M anipulation  |
+\\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       vectorField;
+    location    "constant";
+    object      reactingCloud1Positions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+(
+(0.05 0.05 0.005)
+)
+// ************************************************************************* //
+"""
+        vf = VectorDataFieldFile.from_string(content)
+        self.assertEqual(vf.foam_class, "vectorField")
+        self.assertEqual(vf.location, "constant")
+        self.assertEqual(vf.object, "reactingCloud1Positions")
+        self.assertEqual(len(vf), 1)
+        self.assertEqual(vf[0], (0.05, 0.05, 0.005))
+
+        vf[0] = (0.1, 0.2, 0.3)
+        self.assertEqual(vf[0], (0.1, 0.2, 0.3))
+
+        vf.append((0.4, 0.5, 0.6))
+        self.assertEqual(len(vf), 2)
+        self.assertEqual(vf[1], (0.4, 0.5, 0.6))
+
+        serialized = vf.to_foam()
+        self.assertIn("vectorField", serialized)
+        self.assertIn("2", serialized)
+        self.assertIn("(0.1 0.2 0.3)", serialized)
+        self.assertIn("(0.4 0.5 0.6)", serialized)
+        self.assertNotIn(";", serialized.split("(")[-1])
+
+        vf_alias = VectorDataFieldFile(data=[(0.0, 0.0, 0.0)])
+        self.assertEqual(len(vf_alias), 1)
+
+    def test_scalar_data_field_file(self):
+        content = """FoamFile
+{
+    format      ascii;
+    class       scalarField;
+    location    "constant";
+    object      diameters;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+3
+(
+1.5e-05
+2.0e-05
+3.5e-05
+)
+// ************************************************************************* //
+"""
+        sf = ScalarDataFieldFile.from_string(content)
+        self.assertEqual(sf.foam_class, "scalarField")
+        self.assertEqual(len(sf), 3)
+        self.assertEqual(sf[0], 1.5e-05)
+        self.assertEqual(sf[2], 3.5e-05)
+
+        sf.append(4.0e-05)
+        self.assertEqual(len(sf), 4)
+
+    def test_label_list_data_field_file(self):
+        content = """FoamFile
+{
+    format      ascii;
+    class       labelList;
+    location    "constant";
+    object      owner;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+3
+(
+0
+1
+2
+)
+// ************************************************************************* //
+"""
+        lf = LabelListDataFile.from_string(content)
+        self.assertEqual(lf.foam_class, "labelList")
+        self.assertEqual(len(lf), 3)
+        self.assertEqual(lf[0], 0)
+        self.assertEqual(lf[2], 2)
+
+    def test_foam_case_handle_data_field_detection(self):
+        parcel_dir = (
+            Path(__file__).resolve().parents[3] /
+            "greenville-spherical-powder/openfoam/parcel"
+        )
+
+        if parcel_dir.exists():
+            case = FoamCaseHandle(root_dir=parcel_dir)
+            pos1 = case.get_dict("constant/cloudPositions")
+            self.assertIsInstance(pos1, VectorDataFieldFile)
+            self.assertEqual(len(pos1), 1)
+
+            pos2 = case.cloudPositions
+            self.assertIs(pos1, pos2)
 
 
 if __name__ == "__main__":

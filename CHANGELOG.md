@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Added `FoamDataFieldFile`, `VectorDataFieldFile`, `ScalarDataFieldFile`, and `LabelListDataFile` to `majordome.openfoam.files` to support key-less OpenFOAM field and list files (such as `cloudPositions`, `vectorField`, `scalarField`, `labelList`), with sequence protocols, OpenFOAM header metadata management, clean serialization, and automatic header-based class detection in `FoamCaseHandle`.
+
 - Added `CalphadStoichiometricSystem.scan_temperature` to tabulate a stoichiometric substance equilibria and thermodynamic properties. Updated documentation to illustrate its use.
 
 - Fixed infinite loop and Python session freeze when accessing OpenFOAM dictionaries containing subdictionaries with stray or double semicolons (such as in `fvSchemes`), and added support for parenthesis-nested key expressions with spaces and in-subdict directives and macros.
