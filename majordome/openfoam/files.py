@@ -149,7 +149,7 @@ class FoamDictFile:
 
         return val
 
-    def set(self, key_path: str, value: Any) -> None:
+    def set(self, key_path: str, value: Any, fmt: Any = None) -> None:
         """ Set entry value by slash-separated key path.
 
         Parameters
@@ -158,12 +158,17 @@ class FoamDictFile:
             Slash-separated key location.
         value : Any
             Value to assign.
+        fmt : Any
+            String formatter for the value.
 
         Returns
         -------
         None
             Updates internal AST structure.
         """
+        if fmt is not None:
+            value = fmt.format(value)
+
         self._inner.set(key_path, value)
 
     def set_constant(
