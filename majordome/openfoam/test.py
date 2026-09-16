@@ -381,13 +381,10 @@ FoamFile
         self.assertEqual(lf[2], 2)
 
     def test_foam_case_handle_data_field_detection(self):
-        parcel_dir = (
-            Path(__file__).resolve().parents[3] /
-            "greenville-spherical-powder/openfoam/parcel"
-        )
+        pitz_dir = TUTORIALS_DIR / "01-pitzDaily"
 
-        if parcel_dir.exists():
-            case = FoamCaseHandle(root_dir=parcel_dir)
+        if pitz_dir.exists():
+            case = FoamCaseHandle(root_dir=pitz_dir)
             pos1 = case.get_dict("constant/cloudPositions")
             self.assertIsInstance(pos1, VectorDataFieldFile)
             self.assertEqual(len(pos1), 1)

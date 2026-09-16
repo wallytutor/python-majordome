@@ -1307,8 +1307,9 @@ class FoamCaseHandle:
             self._root_dir = Path(root_dir).resolve()
 
         self._zero_name = zero_name
-        self._cache: dict[str, tuple[Path, FoamDictFile]] = {}
-        self._cache: dict[str, tuple[Path, FoamDictFile | FoamDataFieldFile]] = {}
+        self._cache: dict[
+            str, tuple[Path, FoamDictFile | FoamDataFieldFile]
+        ] = {}
 
     @property
     def root_dir(self) -> Path:
@@ -1330,8 +1331,6 @@ class FoamCaseHandle:
                 "(missing 'constant/' directory or 'system/controlDict' file)."
             )
 
-    def _select_cls(self, file_path: Path) -> type[FoamDictFile]:
-        """ Select the appropriate FoamDictFile class for a given file path. """
     def _detect_file_class(self, file_path):
         try:
             with open(file_path, "r", encoding="utf-8", errors="replace") as f:
@@ -1399,21 +1398,11 @@ class FoamCaseHandle:
         filename = file_path.name
 
         if filename in self.KNOWN_DICTS:
-            cls = self.KNOWN_DICTS[filename][0]
-        elif file_path.parent.name in ("0", "0.orig"):
-            cls = FieldFile
-        elif filename in FIELD_NAMES:
-            cls = FieldFile
-        else:
-            cls = FoamDictFile
             return self.KNOWN_DICTS[filename][0]
 
-        return cls
         if file_path.parent.name in ("0", "0.orig"):
             return FieldFile
 
-    def get_dict(self, relative_path: str | Path) -> FoamDictFile:
-        """ Load and cache a dictionary file by relative path from case root.
         if filename in FIELD_NAMES:
             return FieldFile
 
@@ -1434,13 +1423,10 @@ class FoamCaseHandle:
         Parameters
         ----------
         relative_path : str | Path
-            Relative path to dictionary file (e.g. "system/controlDict" or "0/p").
             Relative path to file (e.g. "system/controlDict").
 
         Returns
         -------
-        FoamDictFile
-            Loaded dictionary wrapper instance.
         FoamDictFile | FoamDataFieldFile
             Loaded dictionary or data field wrapper instance.
         """
@@ -1450,7 +1436,6 @@ class FoamCaseHandle:
         if rel_str in self._cache:
             return self._cache[rel_str][1]
 
-        file_path = self._root_dir / relative_path
         file_path = (self._root_dir / relative_path).resolve()
 
         for cached_path, cached_obj in self._cache.values():
@@ -1489,7 +1474,6 @@ class FoamCaseHandle:
 
             obj.save(path)
 
-    def __getattr__(self, name: str) -> FoamDictFile:
     def __getattr__(self, name: str) -> FoamDictFile | FoamDataFieldFile:
         if name.startswith("_"):
             raise AttributeError(
@@ -1503,7 +1487,6 @@ class FoamCaseHandle:
 
         if name in self.KNOWN_DICTS:
             cls, rel_path_str = self.KNOWN_DICTS[name]
-            file_path = self._root_dir / rel_path_str
             file_path = (self._root_dir / rel_path_str).resolve()
 
             if file_path.is_file():
@@ -1524,16 +1507,8 @@ class FoamCaseHandle:
         ]
 
         for file_path in candidates:
-            if file_path.is_file():
-                match file_path.parent.name:
-                    case self._zero_name:
-                        cls = FieldFile
-                    case _:
-                        cls = FoamDictFile
             resolved_path = file_path.resolve()
 
-                obj = cls.from_file(file_path)
-                self._cache[name] = (file_path, obj)
             if resolved_path.is_file():
                 for cached_path, cached_obj in self._cache.values():
                     if cached_path.resolve() == resolved_path:
