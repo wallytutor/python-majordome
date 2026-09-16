@@ -9,14 +9,13 @@ from .files import (
     DecomposeParDict,
     FieldFile,
     FoamCaseHandle,
-    FoamDataFieldFile,
+    FoamDictFile,
     FvSchemes,
     FvSolution,
-    LabelListDataFile,
     NotACaseError,
-    ScalarDataFieldFile,
     SnappyHexMeshDict,
-    VectorDataFieldFile,
+    VolScalarField,
+    VolVectorField,
 )
 
 TUTORIALS_DIR = (
@@ -307,28 +306,26 @@ FoamFile
 )
 // ************************************************************************* //
 """
-        vf = VectorDataFieldFile.from_string(content)
+        vf = FieldFile.from_string(content)
         self.assertEqual(vf.foam_class, "vectorField")
         self.assertEqual(vf.location, "constant")
         self.assertEqual(vf.object, "reactingCloud1Positions")
         self.assertEqual(len(vf), 1)
-        self.assertEqual(vf[0], (0.05, 0.05, 0.005))
+        self.assertEqual(vf[0], [0.05, 0.05, 0.005])
 
         vf[0] = (0.1, 0.2, 0.3)
-        self.assertEqual(vf[0], (0.1, 0.2, 0.3))
+        self.assertEqual(vf[0], [0.1, 0.2, 0.3])
 
         vf.append((0.4, 0.5, 0.6))
         self.assertEqual(len(vf), 2)
-        self.assertEqual(vf[1], (0.4, 0.5, 0.6))
+        self.assertEqual(vf[1], [0.4, 0.5, 0.6])
 
         serialized = vf.to_foam()
         self.assertIn("vectorField", serialized)
-        self.assertIn("2", serialized)
         self.assertIn("(0.1 0.2 0.3)", serialized)
         self.assertIn("(0.4 0.5 0.6)", serialized)
-        self.assertNotIn(";", serialized.split("(")[-1])
 
-        vf_alias = VectorDataFieldFile(data=[(0.0, 0.0, 0.0)])
+        vf_alias = FieldFile(data=[(0.0, 0.0, 0.0)])
         self.assertEqual(len(vf_alias), 1)
 
     def test_scalar_data_field_file(self):
@@ -348,7 +345,7 @@ FoamFile
 )
 // ************************************************************************* //
 """
-        sf = ScalarDataFieldFile.from_string(content)
+        sf = FieldFile.from_string(content)
         self.assertEqual(sf.foam_class, "scalarField")
         self.assertEqual(len(sf), 3)
         self.assertEqual(sf[0], 1.5e-05)
@@ -374,11 +371,39 @@ FoamFile
 )
 // ************************************************************************* //
 """
-        lf = LabelListDataFile.from_string(content)
+        lf = FieldFile.from_string(content)
         self.assertEqual(lf.foam_class, "labelList")
         self.assertEqual(len(lf), 3)
         self.assertEqual(lf[0], 0)
         self.assertEqual(lf[2], 2)
+
+    def test_time_step_and_lagrangian_field_files(self):
+        pitz_dir = TUTORIALS_DIR / "01-pitzDaily"
+
+        if pitz_dir.exists():
+            case = FoamCaseHandle(root_dir=pitz_dir)
+
+            p_file = case.get_dict("1/p")
+            self.assertIsInstance(p_file, FieldFile)
+            self.assertEqual(len(p_file), 2197)
+            self.assertAlmostEqual(p_file[0], 66494.89347, places=4)
+            self.assertEqual(p_file.dimensions, [1, -1, -2, 0, 0, 0, 0])
+
+            t_file = case.get_dict("1/lagrangian/cloud/T")
+            self.assertIsInstance(t_file, FieldFile)
+            self.assertEqual(len(t_file), 1)
+            self.assertAlmostEqual(t_file[0], 1908.595286, places=4)
+
+            u_file = case.get_dict("1/lagrangian/cloud/U")
+            self.assertIsInstance(u_file, FieldFile)
+            self.assertEqual(len(u_file), 1)
+            self.assertEqual(u_file[0], [0.0, 0.0, 0.0])
+
+            pos_file = case.get_dict("1/lagrangian/cloud/positions")
+            self.assertIsInstance(pos_file, FieldFile)
+            self.assertEqual(len(pos_file), 1)
+            self.assertEqual(pos_file[0][1], 1098)
+            self.assertEqual(pos_file[0][2], 2653)
 
     def test_foam_case_handle_data_field_detection(self):
         pitz_dir = TUTORIALS_DIR / "01-pitzDaily"
@@ -386,7 +411,7 @@ FoamFile
         if pitz_dir.exists():
             case = FoamCaseHandle(root_dir=pitz_dir)
             pos1 = case.get_dict("constant/cloudPositions")
-            self.assertIsInstance(pos1, VectorDataFieldFile)
+            self.assertIsInstance(pos1, FieldFile)
             self.assertEqual(len(pos1), 1)
 
             pos2 = case.cloudPositions

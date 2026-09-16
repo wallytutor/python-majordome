@@ -2,6 +2,12 @@
 
 ## Ongoing Development
 
+### 2026-09-16 - Added
+
+- **Field Data Parsing:** Added `FieldData` AST node and `FoamValue::Field` / `FoamValue::Compound` variants to support OpenFOAM field files, time-step solution results (e.g. `1/p` nonuniform lists), lagrangian cloud fields (`1/lagrangian/cloud/T`, `U`, `positions`), and standalone field lists (`constant/cloudPositions`).
+
+- **Python Data Sequence Bindings:** Added PyO3 bindings on `PyFoamDict` (`has_field_data`, `get_data`, `set_data`, `data_len`, `get_data_item`, `set_data_item`, `append_data`, `extend_data`, `pop_data`, `clear_data`) allowing high-performance sequence manipulation directly from Python.
+
 ### 2026-09-15 - Fixed
 
 - **Subdict Parsing Infinite Loop:** Fixed infinite loop in `parse_subdict` caused by not advancing the character iterator when encountering empty key names (e.g. stray semicolons `;`, double semicolons `;;`). Added explicit stray semicolon skipping, `#` directive and `$` macro reference parsing inside subdictionaries, and error handling for unexpected slash characters.

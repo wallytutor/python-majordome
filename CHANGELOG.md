@@ -2,7 +2,7 @@
 
 ## Ongoing Development
 
-- Added `FoamDataFieldFile`, `VectorDataFieldFile`, `ScalarDataFieldFile`, and `LabelListDataFile` to `majordome.openfoam.files` to support key-less OpenFOAM field and list files (such as `cloudPositions`, `vectorField`, `scalarField`, `labelList`), with sequence protocols, OpenFOAM header metadata management, clean serialization, and automatic header-based class detection in `FoamCaseHandle`.
+- Enhanced `FieldFile` and `FoamDictFile` in `majordome.openfoam.files` backed by the Rust crate `majordome-foam` to parse time-step result fields (such as `1/p`), lagrangian cloud data (`1/lagrangian/cloud/T`, `U`, `positions`), and standalone field lists (`constant/cloudPositions`), supporting sequence protocols, `.data` access, and OpenFOAM header metadata properties (`.header`, `.foam_class`, `.location`, `.object`, `.format`). Removed legacy `FoamDataFieldFile` and its subclasses in favor of the unified, high-performance Rust-backed `FieldFile`.
 
 - Added `CalphadStoichiometricSystem.scan_temperature` to tabulate a stoichiometric substance equilibria and thermodynamic properties. Updated documentation to illustrate its use.
 

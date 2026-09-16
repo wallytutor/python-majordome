@@ -4,7 +4,7 @@
 #![deny(unused_must_use)]
 #![deny(warnings)]
 
-use crate::ast::{FoamDict, FoamElement, FoamValue};
+use crate::ast::{FieldData, FoamDict, FoamElement, FoamValue};
 use std::fmt;
 
 #[derive(Debug)]
@@ -211,6 +211,12 @@ pub fn parse_foam_dict(input: &str) -> Result<FoamDict, FoamParseError> {
             }
 
             dict.elements.push(FoamElement::MacroRef(macro_name));
+            continue;
+        }
+
+        if is_field_data_start(&chars) {
+            let field_data = parse_standalone_field_data(&mut chars, &mut line_num)?;
+            dict.elements.push(FoamElement::FieldData(field_data));
             continue;
         }
 
@@ -591,7 +597,465 @@ fn skip_whitespace(chars: &mut std::iter::Peekable<std::str::Chars<'_>>, line_nu
     }
 }
 
-fn parse_value_str(s: &str) -> FoamValue {
+fn is_field_data_start(chars: &std::iter::Peekable<std::str::Chars<'_>>) -> bool {
+    let mut peek_iter = chars.clone();
+
+    if let Some(&c) = peek_iter.peek() {
+        if c == '(' {
+            return true;
+        }
+
+        if c.is_ascii_digit() {
+            while let Some(&ch) = peek_iter.peek() {
+                if ch.is_ascii_digit() {
+                    peek_iter.next();
+                } else {
+                    break;
+                }
+            }
+
+            while let Some(&ch) = peek_iter.peek() {
+                if ch.is_whitespace() {
+                    peek_iter.next();
+                } else {
+                    break;
+                }
+            }
+
+            if let Some(&'(') = peek_iter.peek() {
+                return true;
+            }
+        }
+
+        if c == 'n' {
+            let mut word = String::new();
+
+            while let Some(&ch) = peek_iter.peek() {
+                if ch.is_ascii_alphanumeric() || ch == '_' {
+                    word.push(ch);
+                    peek_iter.next();
+                } else {
+                    break;
+                }
+            }
+
+            if word == "nonuniform" {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
+fn parse_standalone_field_data(
+    chars: &mut std::iter::Peekable<std::str::Chars<'_>>,
+    line_num: &mut usize,
+) -> Result<FieldData, FoamParseError> {
+    skip_whitespace(chars, line_num);
+
+    let mut field_type: Option<String> = None;
+    let mut count: Option<usize> = None;
+    let mut compact_format = false;
+
+    let is_uniform = {
+        let mut test_chars = chars.clone();
+        let mut word = String::new();
+
+        while let Some(&ch) = test_chars.peek() {
+            if ch.is_ascii_alphanumeric() || ch == '_' {
+                word.push(ch);
+                test_chars.next();
+            } else {
+                break;
+            }
+        }
+
+        word == "uniform"
+    };
+
+    if is_uniform {
+        for _ in 0..7 {
+            chars.next();
+        }
+
+        skip_whitespace(chars, line_num);
+        let mut val_str = String::new();
+
+        while let Some(&ch) = chars.peek() {
+            if ch == ';' || ch == '\n' {
+                if ch == ';' {
+                    chars.next();
+                }
+
+                break;
+            }
+
+            val_str.push(ch);
+            chars.next();
+        }
+
+        let inner_val = parse_value_str_inner(val_str.trim());
+
+        return Ok(FieldData::uniform(inner_val, true));
+    }
+
+    let is_nonuniform = {
+        let mut test_chars = chars.clone();
+        let mut word = String::new();
+
+        while let Some(&ch) = test_chars.peek() {
+            if ch.is_ascii_alphanumeric() || ch == '_' {
+                word.push(ch);
+                test_chars.next();
+            } else {
+                break;
+            }
+        }
+
+        word == "nonuniform"
+    };
+
+    if is_nonuniform {
+        for _ in 0..10 {
+            chars.next();
+        }
+
+        skip_whitespace(chars, line_num);
+
+        if let Some(&c) = chars.peek() {
+            if c != '(' && !c.is_ascii_digit() {
+                let mut type_str = String::new();
+
+                while let Some(&ch) = chars.peek() {
+                    if ch.is_whitespace() || ch == '(' {
+                        break;
+                    }
+
+                    type_str.push(ch);
+                    chars.next();
+                }
+
+                if !type_str.is_empty() {
+                    field_type = Some(type_str);
+                }
+            }
+        }
+    }
+
+    skip_whitespace(chars, line_num);
+
+    if let Some(&c) = chars.peek() {
+        if c.is_ascii_digit() {
+            let mut num_str = String::new();
+
+            while let Some(&ch) = chars.peek() {
+                if ch.is_ascii_digit() {
+                    num_str.push(ch);
+                    chars.next();
+                } else {
+                    break;
+                }
+            }
+
+            if let Ok(n) = num_str.parse::<usize>() {
+                count = Some(n);
+            }
+
+            if let Some(&'(') = chars.peek() {
+                compact_format = true;
+            }
+        }
+    }
+
+    skip_whitespace(chars, line_num);
+
+    if let Some(&'(') = chars.peek() {
+        chars.next();
+    } else {
+        return Err(FoamParseError {
+            message: "Expected '(' in field data".to_string(),
+            line: *line_num,
+        });
+    }
+
+    let mut inside = String::new();
+    let mut depth: usize = 1;
+
+    while let Some(&ch) = chars.peek() {
+        if ch == '(' {
+            depth += 1;
+            inside.push(ch);
+            chars.next();
+        } else if ch == ')' {
+            depth -= 1;
+
+            if depth == 0 {
+                chars.next();
+                break;
+            }
+
+            inside.push(ch);
+            chars.next();
+        } else {
+            if ch == '\n' {
+                *line_num += 1;
+            }
+
+            inside.push(ch);
+            chars.next();
+        }
+    }
+
+    let mut has_semicolon = false;
+    let mut check_chars = chars.clone();
+    let mut check_line = *line_num;
+    skip_whitespace(&mut check_chars, &mut check_line);
+
+    if let Some(&';') = check_chars.peek() {
+        skip_whitespace(chars, line_num);
+        chars.next();
+        has_semicolon = true;
+    }
+
+    let values = parse_field_items(&inside, compact_format);
+
+    Ok(FieldData {
+        is_uniform: false,
+        field_type,
+        count,
+        values,
+        has_semicolon,
+        compact_format,
+    })
+}
+
+fn parse_field_items(input: &str, _compact: bool) -> Vec<FoamValue> {
+    let mut items = Vec::new();
+    let trimmed = input.trim();
+
+    if trimmed.is_empty() {
+        return items;
+    }
+
+    if trimmed.contains('(') {
+        let mut chars = trimmed.chars().peekable();
+
+        while let Some(&c) = chars.peek() {
+            if c.is_whitespace() {
+                chars.next();
+                continue;
+            }
+
+            if c == '/' {
+                chars.next();
+
+                if let Some(&'/') = chars.peek() {
+                    for ch in chars.by_ref() {
+                        if ch == '\n' {
+                            break;
+                        }
+                    }
+
+                    continue;
+                }
+            }
+
+            if c == '(' {
+                chars.next();
+                let mut paren_content = String::new();
+                let mut depth = 1;
+
+                while let Some(&ch) = chars.peek() {
+                    if ch == '(' {
+                        depth += 1;
+                        paren_content.push(ch);
+                        chars.next();
+                    } else if ch == ')' {
+                        depth -= 1;
+
+                        if depth == 0 {
+                            chars.next();
+                            break;
+                        }
+
+                        paren_content.push(ch);
+                        chars.next();
+                    } else {
+                        paren_content.push(ch);
+                        chars.next();
+                    }
+                }
+
+                let inner_nums: Vec<f64> = paren_content
+                    .split_whitespace()
+                    .filter_map(|s| s.parse::<f64>().ok())
+                    .collect();
+
+                let vector_val = FoamValue::Vector(inner_nums);
+
+                let mut trailing_line = String::new();
+
+                while let Some(&ch) = chars.peek() {
+                    if ch == '\n' {
+                        chars.next();
+                        break;
+                    }
+
+                    if ch == '(' {
+                        break;
+                    }
+
+                    trailing_line.push(ch);
+                    chars.next();
+                }
+
+                let trailing_tokens: Vec<&str> =
+                    trailing_line.split_whitespace().collect();
+
+                if trailing_tokens.is_empty() {
+                    items.push(vector_val);
+                } else {
+                    let mut comp = vec![vector_val];
+
+                    for tok in trailing_tokens {
+                        if let Ok(i) = tok.parse::<i64>() {
+                            comp.push(FoamValue::Int(i));
+                        } else if let Ok(f) = tok.parse::<f64>() {
+                            comp.push(FoamValue::Scalar(f));
+                        } else {
+                            comp.push(FoamValue::String(tok.to_string()));
+                        }
+                    }
+
+                    items.push(FoamValue::Compound(comp));
+                }
+            } else {
+                let mut token = String::new();
+
+                while let Some(&ch) = chars.peek() {
+                    if ch == '(' || ch.is_whitespace() {
+                        break;
+                    }
+
+                    token.push(ch);
+                    chars.next();
+                }
+
+                if let Some(&'(') = chars.peek() {
+                    chars.next();
+                    let mut paren_content = String::new();
+                    let mut depth = 1;
+
+                    while let Some(&ch) = chars.peek() {
+                        if ch == '(' {
+                            depth += 1;
+                            paren_content.push(ch);
+                            chars.next();
+                        } else if ch == ')' {
+                            depth -= 1;
+
+                            if depth == 0 {
+                                chars.next();
+                                break;
+                            }
+
+                            paren_content.push(ch);
+                            chars.next();
+                        } else {
+                            paren_content.push(ch);
+                            chars.next();
+                        }
+                    }
+
+                    let sub_items: Vec<FoamValue> = paren_content
+                        .split_whitespace()
+                        .map(|s| {
+                            if let Ok(i) = s.parse::<i64>() {
+                                FoamValue::Int(i)
+                            } else if let Ok(f) = s.parse::<f64>() {
+                                FoamValue::Scalar(f)
+                            } else {
+                                FoamValue::String(s.to_string())
+                            }
+                        })
+                        .collect();
+
+                    items.push(FoamValue::List(sub_items));
+                } else if !token.is_empty() {
+                    if let Ok(i) = token.parse::<i64>() {
+                        items.push(FoamValue::Int(i));
+                    } else if let Ok(f) = token.parse::<f64>() {
+                        items.push(FoamValue::Scalar(f));
+                    } else {
+                        items.push(FoamValue::String(token));
+                    }
+                }
+            }
+        }
+    } else {
+        for token in trimmed.split_whitespace() {
+            if let Ok(i) = token.parse::<i64>() {
+                items.push(FoamValue::Int(i));
+            } else if let Ok(f) = token.parse::<f64>() {
+                items.push(FoamValue::Scalar(f));
+            } else {
+                items.push(FoamValue::String(token.to_string()));
+            }
+        }
+    }
+
+    items
+}
+
+fn parse_field_data_from_str(s: &str) -> Option<FieldData> {
+    let s_clean = s.trim();
+
+    if let Some(rest) = s_clean.strip_prefix("uniform") {
+        let rest_clean = rest.trim();
+
+        if !rest_clean.is_empty() {
+            let inner_val = parse_value_str_inner(rest_clean);
+
+            return Some(FieldData::uniform(inner_val, true));
+        }
+    }
+
+    let is_field = s_clean.starts_with("nonuniform")
+        || s_clean.starts_with("List<")
+        || {
+            let first_token = s_clean.split_whitespace().next().unwrap_or("");
+
+            if let Some(pos) = first_token.find('(') {
+                pos > 0
+                    && first_token[..pos]
+                        .chars()
+                        .all(|c| c.is_ascii_digit())
+            } else if !first_token.is_empty()
+                && first_token.chars().all(|c| c.is_ascii_digit())
+            {
+                let after = s_clean[first_token.len()..].trim_start();
+                after.starts_with('(')
+            } else {
+                false
+            }
+        };
+
+    if is_field {
+        let mut chars = s_clean.chars().peekable();
+        let mut line_num = 1;
+
+        if let Ok(mut fd) = parse_standalone_field_data(&mut chars, &mut line_num) {
+            fd.has_semicolon = true;
+
+            return Some(fd);
+        }
+    }
+
+    None
+}
+
+fn parse_value_str_inner(s: &str) -> FoamValue {
     let s_clean = s.trim();
 
     if s_clean.is_empty() {
@@ -647,6 +1111,20 @@ fn parse_value_str(s: &str) -> FoamValue {
     }
 
     FoamValue::String(s_clean.to_string())
+}
+
+fn parse_value_str(s: &str) -> FoamValue {
+    let s_clean = s.trim();
+
+    if s_clean.is_empty() {
+        return FoamValue::String(String::new());
+    }
+
+    if let Some(fd) = parse_field_data_from_str(s_clean) {
+        return FoamValue::Field(fd);
+    }
+
+    parse_value_str_inner(s_clean)
 }
 
 #[cfg(test)]
@@ -714,6 +1192,88 @@ divSchemes
             assert!(dict.get_path("divSchemes/default").is_some());
             assert!(dict.get_path("divSchemes/div(phi,U)").is_some());
             assert!(dict.get_path("divSchemes/div((nuEff*dev2(T(grad(U)))))").is_some());
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_lagrangian_cloud_t() -> Result<(), Box<dyn std::error::Error>> {
+        let path = Path::new("../../docs/data/foam/cases/01-pitzDaily/1/lagrangian/cloud/T");
+
+        if path.exists() {
+            let content = std::fs::read_to_string(path)?;
+            let dict = parse_foam_dict(&content)?;
+            let fd = dict.field_data().expect("Expected field data in cloud/T");
+            assert_eq!(fd.count, Some(1));
+            assert_eq!(fd.values.len(), 1);
+            assert!(matches!(fd.values[0], FoamValue::Scalar(s) if (s - 1908.595286).abs() < 1e-5));
+            assert!(dict.to_foam().contains("1(1908.595286)"));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_lagrangian_cloud_u() -> Result<(), Box<dyn std::error::Error>> {
+        let path = Path::new("../../docs/data/foam/cases/01-pitzDaily/1/lagrangian/cloud/U");
+
+        if path.exists() {
+            let content = std::fs::read_to_string(path)?;
+            let dict = parse_foam_dict(&content)?;
+            let fd = dict.field_data().expect("Expected field data in cloud/U");
+            assert_eq!(fd.count, Some(1));
+            assert_eq!(fd.values.len(), 1);
+            assert!(matches!(&fd.values[0], FoamValue::Vector(v) if v.len() == 3));
+            assert!(dict.to_foam().contains("1((0 0 0))"));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_lagrangian_cloud_positions() -> Result<(), Box<dyn std::error::Error>> {
+        let path = Path::new("../../docs/data/foam/cases/01-pitzDaily/1/lagrangian/cloud/positions");
+
+        if path.exists() {
+            let content = std::fs::read_to_string(path)?;
+            let dict = parse_foam_dict(&content)?;
+            let fd = dict.field_data().expect("Expected field data in cloud/positions");
+            assert_eq!(fd.count, Some(1));
+            assert_eq!(fd.values.len(), 1);
+            assert!(dict.to_foam().contains("1098 2653 1"));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_pitz_daily_1_p() -> Result<(), Box<dyn std::error::Error>> {
+        let path = Path::new("../../docs/data/foam/cases/01-pitzDaily/1/p");
+
+        if path.exists() {
+            let content = std::fs::read_to_string(path)?;
+            let dict = parse_foam_dict(&content)?;
+            let internal = dict.get_path("internalField");
+            assert!(internal.is_some());
+
+            if let Some(FoamValue::Field(fd)) = internal {
+                assert_eq!(fd.count, Some(2197));
+                assert_eq!(fd.values.len(), 2197);
+                assert!(matches!(fd.values[0], FoamValue::Scalar(s) if (s - 66494.89347).abs() < 1e-4));
+            } else {
+                panic!("internalField should be FoamValue::Field");
+            }
+
+            let walls_val = dict.get_path("boundaryField/walls/value");
+            assert!(walls_val.is_some());
+
+            if let Some(FoamValue::Field(fd)) = walls_val {
+                assert_eq!(fd.count, Some(1014));
+                assert_eq!(fd.values.len(), 1014);
+            } else {
+                panic!("walls value should be FoamValue::Field");
+            }
         }
 
         Ok(())

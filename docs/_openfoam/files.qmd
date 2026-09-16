@@ -136,6 +136,30 @@ val[0] = (0.1, 0.1, 0.1)
 print(val.data)
 ```
 
+### Inspecting time-step results and lagrangian cloud data
+
+OpenFOAM writes time-step solution fields into numeric directories (such as `1/p`) and discrete phase information into lagrangian cloud subdirectories (such as `1/lagrangian/cloud/T`, `positions`). All such results are parsed into `FieldFile` by the Rust core, allowing direct inspection of scalar fields, vector fields, and compound particle cloud records via sequence indexing or `.data`:
+
+```{python}
+#| echo: true
+# Inspect time-step pressure field
+p_step = handle.get_dict("1/p")
+print(f"Time-step p cells count .: {len(p_step)}")
+print(f"Sample pressure at cell 0: {p_step[0]:.2f}")
+print(f"Physical dimensions .....: {p_step.dimensions}")
+
+# Inspect lagrangian cloud particle data
+t_cloud = handle.get_dict("1/lagrangian/cloud/T")
+print(f"Cloud particle class ....: {t_cloud.foam_class}")
+print(f"Cloud particle location .: {t_cloud.location}")
+print(f"Particle count ..........: {len(t_cloud)}")
+print(f"Particle 0 temperature ..: {t_cloud[0]:.2f} K")
+
+# Inspect particle positions and parcel/cell indices
+positions = handle.get_dict("1/lagrangian/cloud/positions")
+print(f"Particle 0 position data : {positions[0]}")
+```
+
 ### Persisting modifications
 
 Call `handle.save()` to write all modified dictionaries back to disk:
@@ -213,6 +237,11 @@ classDiagram
         +dimensions: list[int]
         +internal_field
         +boundary_field
+        +data: list
+        +append(value)
+        +extend(items)
+        +pop(index)
+        +clear()
     }
 
     class FoamCaseHandle {
@@ -239,7 +268,7 @@ classDiagram
 
 #### `FoamDictFile` base class
 
-Wraps PyO3 `FoamDict` and provides classmethods (`from_file`, `from_string`, `parse`), disk serialization (`save`, `to_foam`), and key path manipulation (`get`, `set`, `delete`, `contains`, `keys`, `__getitem__`, `__setitem__`).
+Wraps PyO3 `FoamDict` and provides classmethods (`from_file`, `from_string`, `parse`), disk serialization (`save`, `to_foam`), header metadata access (`.header`, `.foam_class`, `.location`, `.object`, `.format`), and key path manipulation (`get`, `set`, `delete`, `contains`, `keys`, `__getitem__`, `__setitem__`).
 
 #### Specialized dictionary wrappers
 
@@ -255,7 +284,7 @@ Wraps PyO3 `FoamDict` and provides classmethods (`from_file`, `from_string`, `pa
 
 - **`DecomposeParDict`**: `number_of_subdomains`, `method`, `set_simple_coeffs()`.
 
-- **`FieldFile` (`VolScalarField`, `VolVectorField`)**: Properties for `dimensions`, `internal_field`, `boundary_field`.
+- **`FieldFile` (`VolScalarField`, `VolVectorField`)**: Unified container for initial fields, time-step results (`1/p`), lagrangian cloud data (`1/lagrangian/cloud/T`, `positions`), and standalone field lists (`constant/cloudPositions`). Provides `dimensions`, `internal_field`, `boundary_field`, `.data`, sequence protocols (`len`, indexing, iteration), and header metadata properties.
 
 #### `FoamCaseHandle` and `NotACaseError`
 

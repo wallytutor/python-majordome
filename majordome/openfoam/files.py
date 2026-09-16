@@ -8,25 +8,6 @@ from typing import Any, Self
 from .._core import foam as _ext
 
 
-HEADER_BANNER = (
-    "/*--------------------------------*- C++ -*----------------------------------*\\\n"
-    "  =========                 |\n"
-    "  \\\\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox\n"
-    "   \\\\    /   O peration     | Website:  https://openfoam.org\n"
-    "    \\\\  /    A nd           | Version:  13\n"
-    "     \\\\/     M anipulation  |\n"
-    "\\*---------------------------------------------------------------------------*/"
-)
-
-HEADER_DIVIDER = (
-    "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //"
-)
-
-FOOTER_BANNER = (
-    "// ************************************************************************* //"
-)
-
-
 FIELD_NAMES = {
     # Common:
     "U",
@@ -50,14 +31,23 @@ class FoamDictFile:
 
     Parameters
     ----------
-    inner : _ext.FoamDict | None = None
+    inner : Any | None = None
         Underlying Rust PyO3 FoamDict instance.
+    path : str | Path | None = None
+        Associated file path location on disk.
     """
 
-    __slots__ = ("_inner",)
+    __slots__ = ("_inner", "_path")
 
-    def __init__(self, inner: Any | None = None) -> None:
+    def __init__(
+            self,
+            inner: Any | None = None,
+            path: str | Path | None = None,
+        ) -> None:
         self._inner = inner if inner is not None else _ext.FoamDict()
+        self._path: Path | None = (
+            Path(path).resolve() if path is not None else None
+        )
 
     @classmethod
     def from_file(cls, path: str | Path) -> Self:
@@ -75,7 +65,7 @@ class FoamDictFile:
         """
         path_str = str(path) if isinstance(path, Path) else path
         inner = _ext.FoamDict.from_file(path_str)
-        return cls(inner)
+        return cls(inner, path=path_str)
 
     @classmethod
     def from_string(cls, content: str) -> Self:
@@ -95,6 +85,45 @@ class FoamDictFile:
         return cls(inner)
 
     parse = from_string
+
+    @property
+    def path(self) -> Path | None:
+        """ Get file path on disk if associated with a file. """
+        return self._path
+
+    @property
+    def header(self) -> dict[str, str]:
+        """ Get FoamFile header entries dictionary. """
+        if self._inner.contains("FoamFile"):
+            val = self._inner.get("FoamFile")
+
+            if isinstance(val, _ext.FoamDict):
+                return {k: str(val[k]).strip('"\'') for k in val.keys()}
+
+            if isinstance(val, dict):
+                return {k: str(v).strip('"\'') for k, v in val.items()}
+
+        return {}
+
+    @property
+    def foam_class(self) -> str | None:
+        """ Get OpenFOAM class from FoamFile header. """
+        return self.header.get("class")
+
+    @property
+    def location(self) -> str | None:
+        """ Get OpenFOAM location from FoamFile header. """
+        return self.header.get("location")
+
+    @property
+    def object(self) -> str | None:
+        """ Get OpenFOAM object name from FoamFile header. """
+        return self.header.get("object")
+
+    @property
+    def format(self) -> str | None:
+        """ Get OpenFOAM format setting from FoamFile header. """
+        return self.header.get("format")
 
     def to_foam(self) -> str:
         """ Serialize dictionary to canonical OpenFOAM string format.
@@ -121,7 +150,14 @@ class FoamDictFile:
         """
         if path is not None:
             path_str = str(path) if isinstance(path, Path) else path
+            self._path = Path(path_str).resolve()
             self._inner.save(path_str)
+
+        elif self._path is not None:
+            self._inner.save(str(self._path))
+
+        else:
+            raise ValueError("No path specified for saving dictionary.")
 
     def get(self, key_path: str, default: Any = None) -> Any:
         """ Get entry value by slash-separated key path.
@@ -711,9 +747,30 @@ class DecomposeParDict(FoamDictFile):
 
 
 class FieldFile(FoamDictFile):
-    """ Strongly-typed interface for OpenFOAM initial field files (0/*). """
+    """ Container for OpenFOAM field files and time-step result files.
+
+    Parameters
+    ----------
+    inner : Any | None = None
+        Underlying Rust PyO3 FoamDict instance.
+    data : list[Any] | None = None
+        Initial data sequence items.
+    path : str | Path | None = None
+        Associated file path location on disk.
+    """
 
     __slots__ = ()
+
+    def __init__(
+            self,
+            inner: Any | None = None,
+            data: list[Any] | None = None,
+            path: str | Path | None = None,
+        ) -> None:
+        super().__init__(inner=inner, path=path)
+
+        if data is not None:
+            self.extend(data)
 
     @property
     def dimensions(self) -> list[int] | None:
@@ -740,6 +797,140 @@ class FieldFile(FoamDictFile):
         """ Get boundaryField patches dictionary. """
         return self.get("boundaryField")
 
+    @property
+    def data(self) -> list[Any]:
+        """ Get underlying field data sequence. """
+        if self._inner.has_field_data():
+            return self._inner.get_data()
+
+        if (internal := self.internal_field) is not None:
+            if isinstance(internal, list):
+                return internal
+
+        return self._inner.get_data()
+
+    @data.setter
+    def data(self, value: list[Any]) -> None:
+        """ Set underlying field data sequence. """
+        if self._inner.has_field_data():
+            self._inner.set_data(value)
+
+        elif self.contains("internalField"):
+            self.internal_field = value
+
+        else:
+            self._inner.set_data(value)
+
+    def append(self, value: Any) -> None:
+        """ Append single item to field data.
+
+        Parameters
+        ----------
+        value : Any
+            Item to append.
+
+        Returns
+        -------
+        None
+            Appends value to field data.
+        """
+        self._inner.append_data(value)
+
+    def extend(self, items: list[Any]) -> None:
+        """ Extend field data with sequence of items.
+
+        Parameters
+        ----------
+        items : list[Any]
+            Iterable sequence of items.
+
+        Returns
+        -------
+        None
+            Extends field data sequence.
+        """
+        self._inner.extend_data(items)
+
+    def pop(self, index: int = -1) -> Any:
+        """ Pop item from field data by index.
+
+        Parameters
+        ----------
+        index : int = -1
+            Index of item to pop.
+
+        Returns
+        -------
+        Any
+            Removed item.
+        """
+        return self._inner.pop_data(index)
+
+    def clear(self) -> None:
+        """ Clear all field data items.
+
+        Returns
+        -------
+        None
+            Empties field data list.
+        """
+        self._inner.clear_data()
+
+    def __len__(self) -> int:
+        if self._inner.has_field_data():
+            return self._inner.data_len()
+
+        if (internal := self.internal_field) is not None:
+            if hasattr(internal, "__len__"):
+                return len(internal)
+
+        return self._inner.data_len()
+
+    def __getitem__(self, key: int | str | slice) -> Any:
+        if isinstance(key, int):
+            if self._inner.has_field_data():
+                return self._inner.get_data_item(key)
+
+            if (internal := self.internal_field) is not None:
+                if hasattr(internal, "__getitem__"):
+                    return internal[key]
+
+            return self._inner.get_data_item(key)
+
+        if isinstance(key, slice):
+            return self.data[key]
+
+        return super().__getitem__(key)
+
+    def __setitem__(self, key: int | str, value: Any) -> None:
+        if isinstance(key, int):
+            if self._inner.has_field_data():
+                self._inner.set_data_item(key, value)
+
+            elif self.contains("internalField"):
+                internal = self.internal_field
+
+                if isinstance(internal, list):
+                    internal[key] = value
+                    self.internal_field = internal
+                else:
+                    self._inner.set_data_item(key, value)
+
+            else:
+                self._inner.set_data_item(key, value)
+
+        else:
+            super().__setitem__(key, value)
+
+    def __iter__(self):
+        return iter(self.data)
+
+    def __contains__(self, item: Any) -> bool:
+        if isinstance(item, str) and self._inner.contains(item):
+            return True
+
+        return item in self.data
+
 
 class VolScalarField(FieldFile):
     """ Volumetric scalar field initial conditions file. """
@@ -751,484 +942,6 @@ class VolVectorField(FieldFile):
     """ Volumetric vector field initial conditions file. """
 
     __slots__ = ()
-
-# TODO the base handling of FoamDataFieldFile needs to be moved to Rust
-# as it can become a bottleneck when dealing with large mesh files.
-
-class FoamDataFieldFile:
-    """ Base container class for OpenFOAM data fields and lists.
-
-    Parameters
-    ----------
-    data : list[Any] | None = None
-        Initial data sequence items.
-    header : dict[str, str] | None = None
-        FoamFile header key-value dictionary.
-    """
-
-    __slots__ = ("_data", "_header", "_path")
-
-    def __init__(
-            self,
-            data: list[Any] | None = None,
-            header: dict[str, str] | None = None,
-        ) -> None:
-        self._data: list[Any] = []
-        self._header: dict[str, str] = self._default_header()
-        self._path: Path | None = None
-
-        if header is not None:
-            self._header.update(header)
-
-        if data is not None:
-            for item in data:
-                self.append(item)
-
-    def _default_header(self):
-        return {
-            "format": "ascii",
-            "class": "dataField",
-            "location": "constant",
-            "object": "dataField",
-        }
-
-    def _normalize_item(self, item):
-        return item
-
-    def _format_item(self, item):
-        return str(item)
-
-    def _parse_body(self, body):
-        if not body:
-            self._data = []
-            return
-
-        if "(" in body and ")" in body:
-            self._data = self._parse_vector_items(body)
-        else:
-            tokens = body.split()
-            parsed = []
-
-            for token in tokens:
-                try:
-                    parsed.append(int(token))
-                except ValueError:
-                    try:
-                        parsed.append(float(token))
-                    except ValueError:
-                        parsed.append(token)
-
-            self._data = parsed
-
-    def _parse_vector_items(self, body):
-        items = []
-
-        for m in re.finditer(r"\(\s*([^\)]+)\s*\)", body):
-            parts = m.group(1).split()
-
-            if len(parts) >= 3:
-                try:
-                    items.append((
-                        float(parts[0]),
-                        float(parts[1]),
-                        float(parts[2]),
-                    ))
-                except ValueError:
-                    pass
-
-        return items
-
-    @classmethod
-    def _parse_header(cls, text):
-        header = {}
-        match = re.search(r"FoamFile\s*\{([^}]+)\}", text)
-
-        if match:
-            for line in match.group(1).splitlines():
-                line = line.strip()
-
-                if not line or line.startswith("//"):
-                    continue
-
-                if ";" in line:
-                    line = line.split(";")[0].strip()
-
-                parts = line.split()
-
-                if len(parts) >= 2:
-                    k = parts[0].strip()
-                    v = " ".join(parts[1:]).strip().strip('"')
-                    header[k] = v
-
-        return header
-
-    @classmethod
-    def _extract_list_body(cls, text):
-        ff_idx = text.find("FoamFile")
-
-        if ff_idx != -1:
-            brace_idx = text.find("}", ff_idx)
-            start_search = brace_idx + 1 if brace_idx != -1 else ff_idx
-        else:
-            start_search = 0
-
-        chars = text[start_search:]
-        i = 0
-        n = len(chars)
-        start_list = -1
-        depth = 0
-
-        while i < n:
-            if chars[i:i + 2] == "//":
-                nl = chars.find("\n", i + 2)
-
-                if nl == -1:
-                    break
-
-                i = nl + 1
-                continue
-
-            if chars[i:i + 2] == "/*":
-                end_c = chars.find("*/", i + 2)
-
-                if end_c == -1:
-                    break
-
-                i = end_c + 2
-                continue
-
-            ch = chars[i]
-
-            if ch == "(":
-                if depth == 0:
-                    start_list = i + 1
-
-                depth += 1
-
-            elif ch == ")":
-                if depth > 0:
-                    depth -= 1
-
-                    if depth == 0 and start_list != -1:
-                        return chars[start_list:i].strip()
-
-            i += 1
-
-        return ""
-
-    @classmethod
-    def from_string(cls, content: str) -> Self:
-        """ Parse OpenFOAM data field from string content.
-
-        Parameters
-        ----------
-        content : str
-            Raw OpenFOAM text contents.
-
-        Returns
-        -------
-        Self
-            Parsed data field instance.
-        """
-        header = cls._parse_header(content)
-        body = cls._extract_list_body(content)
-        instance = cls(header=header)
-        instance._parse_body(body)
-        return instance
-
-    parse = from_string
-
-    @classmethod
-    def from_file(cls, path: str | Path) -> Self:
-        """ Load and parse OpenFOAM data field from file.
-
-        Parameters
-        ----------
-        path : str | Path
-            Target data file path.
-
-        Returns
-        -------
-        Self
-            Parsed data field instance.
-        """
-        p = Path(path)
-
-        with p.open("r", encoding="utf-8", errors="replace") as f:
-            content = f.read()
-
-        instance = cls.from_string(content)
-        instance._path = p
-        return instance
-
-    def to_foam(self) -> str:
-        """ Serialize data field to canonical OpenFOAM string format.
-
-        Returns
-        -------
-        str
-            OpenFOAM formatted string representation.
-        """
-        lines = [HEADER_BANNER, "FoamFile", "{"]
-        align_width = 12
-
-        for k, v in self._header.items():
-            spacing = " " * max(1, align_width - len(k))
-            val_str = (
-                f'"{v}"' if k == "location" and not v.startswith('"')
-                else str(v)
-            )
-            lines.append(f"    {k}{spacing}{val_str};")
-
-        lines.extend(["}", HEADER_DIVIDER, ""])
-        lines.append(f"{len(self._data)}")
-        lines.append("(")
-
-        for item in self._data:
-            lines.append(self._format_item(item))
-
-        lines.extend([")", "", FOOTER_BANNER, ""])
-        return "\n".join(lines)
-
-    def save(self, path: str | Path | None = None) -> None:
-        """ Save OpenFOAM data field to disk.
-
-        Parameters
-        ----------
-        path : str | Path | None = None
-            Output path location. Defaults to cached path if loaded.
-
-        Returns
-        -------
-        None
-            File is written to disk.
-        """
-        target = path if path is not None else self._path
-
-        if target is not None:
-            p = Path(target)
-
-            if not p.parent.is_dir():
-                p.parent.mkdir(parents=True, exist_ok=True)
-
-            with p.open("w", encoding="utf-8", newline="\n") as f:
-                f.write(self.to_foam())
-
-            self._path = p
-
-    @property
-    def header(self) -> dict[str, str]:
-        """ Get dictionary of FoamFile header properties. """
-        return self._header
-
-    @property
-    def foam_class(self) -> str:
-        """ Get OpenFOAM class name specified in header. """
-        return self._header.get("class", "dataField")
-
-    @foam_class.setter
-    def foam_class(self, value: str) -> None:
-        """ Set OpenFOAM class name specified in header. """
-        self._header["class"] = value
-
-    @property
-    def location(self) -> str | None:
-        """ Get OpenFOAM case location directory path. """
-        return self._header.get("location")
-
-    @location.setter
-    def location(self, value: str) -> None:
-        """ Set OpenFOAM case location directory path. """
-        self._header["location"] = value
-
-    @property
-    def object(self) -> str | None:
-        """ Get OpenFOAM object identifier name. """
-        return self._header.get("object")
-
-    @object.setter
-    def object(self, value: str) -> None:
-        """ Set OpenFOAM object identifier name. """
-        self._header["object"] = value
-
-    @property
-    def format(self) -> str:
-        """ Get OpenFOAM file format (ascii/binary). """
-        return self._header.get("format", "ascii")
-
-    @format.setter
-    def format(self, value: str) -> None:
-        """ Set OpenFOAM file format (ascii/binary). """
-        self._header["format"] = value
-
-    @property
-    def data(self) -> list[Any]:
-        """ Get underlying data sequence list. """
-        return self._data
-
-    @data.setter
-    def data(self, values: Any) -> None:
-        """ Set underlying data sequence list. """
-        self._data = [self._normalize_item(v) for v in values]
-
-    def append(self, item: Any) -> None:
-        """ Append single element to data sequence.
-
-        Parameters
-        ----------
-        item : Any
-            Value to append.
-
-        Returns
-        -------
-        None
-            Appends item to internal sequence.
-        """
-        self._data.append(self._normalize_item(item))
-
-    def extend(self, items: Any) -> None:
-        """ Extend data sequence by appending elements from iterable.
-
-        Parameters
-        ----------
-        items : Any
-            Iterable collection of values.
-
-        Returns
-        -------
-        None
-            Appends all items to internal sequence.
-        """
-        for item in items:
-            self._data.append(self._normalize_item(item))
-
-    def insert(self, index: int, item: Any) -> None:
-        """ Insert single element before index.
-
-        Parameters
-        ----------
-        index : int
-            Position index before which to insert.
-        item : Any
-            Value to insert.
-
-        Returns
-        -------
-        None
-            Inserts item at index.
-        """
-        self._data.insert(index, self._normalize_item(item))
-
-    def pop(self, index: int = -1) -> Any:
-        """ Remove and return item at index.
-
-        Parameters
-        ----------
-        index : int = -1
-            Position index to pop. Defaults to last item (-1).
-
-        Returns
-        -------
-        Any
-            Popped element.
-        """
-        return self._data.pop(index)
-
-    def clear(self) -> None:
-        """ Remove all items from data sequence.
-
-        Returns
-        -------
-        None
-            Empties internal sequence.
-        """
-        self._data.clear()
-
-    def __len__(self) -> int:
-        return len(self._data)
-
-    def __getitem__(self, index: int | slice) -> Any:
-        return self._data[index]
-
-    def __setitem__(self, index: int, value: Any) -> None:
-        self._data[index] = self._normalize_item(value)
-
-    def __delitem__(self, index: int) -> None:
-        del self._data[index]
-
-    def __iter__(self) -> Any:
-        return iter(self._data)
-
-    def __contains__(self, item: Any) -> bool:
-        return item in self._data
-
-
-class VectorDataFieldFile(FoamDataFieldFile):
-    """ Container for OpenFOAM 3D vectorField data files. """
-
-    __slots__ = ()
-
-    def _default_header(self):
-        return {
-            "format": "ascii",
-            "class": "vectorField",
-            "location": "constant",
-            "object": "positions",
-        }
-
-    def _normalize_item(self, item):
-        if not hasattr(item, "__len__") or len(item) != 3:
-            raise ValueError(
-                f"Vector items must have 3 components, got {item!r}"
-            )
-
-        return (float(item[0]), float(item[1]), float(item[2]))
-
-    def _format_item(self, item):
-        return f"({item[0]} {item[1]} {item[2]})"
-
-    def _parse_body(self, body):
-        self._data = self._parse_vector_items(body)
-
-
-class ScalarDataFieldFile(FoamDataFieldFile):
-    """ Container for OpenFOAM scalarField data files. """
-
-    __slots__ = ()
-
-    def _default_header(self):
-        return {
-            "format": "ascii",
-            "class": "scalarField",
-            "location": "constant",
-            "object": "scalarField",
-        }
-
-    def _normalize_item(self, item):
-        return float(item)
-
-    def _parse_body(self, body):
-        self._data = [float(token) for token in body.split()]
-
-
-class LabelListDataFile(FoamDataFieldFile):
-    """ Container for OpenFOAM labelList data files. """
-
-    __slots__ = ()
-
-    def _default_header(self):
-        return {
-            "format": "ascii",
-            "class": "labelList",
-            "location": "constant",
-            "object": "labelList",
-        }
-
-    def _normalize_item(self, item):
-        return int(item)
-
-    def _parse_body(self, body):
-        self._data = [int(token) for token in body.split()]
 
 
 class NotACaseError(ValueError):
@@ -1313,7 +1026,7 @@ class FoamCaseHandle:
 
         self._zero_name = zero_name
         self._cache: dict[
-            str, tuple[Path, FoamDictFile | FoamDataFieldFile]
+            str, tuple[Path, FoamDictFile]
         ] = {}
 
     @property
@@ -1323,7 +1036,7 @@ class FoamCaseHandle:
 
     @property
     def is_valid(self) -> bool:
-        """ Check if root directory is a valid OpenFOAM case (contains constant/ and system/controlDict). """
+        """ Check if root directory is a valid OpenFOAM case. """
         constant_dir = self._root_dir / "constant"
         control_dict = self._root_dir / "system" / "controlDict"
         return constant_dir.is_dir() and control_dict.is_file()
@@ -1350,15 +1063,20 @@ class FoamCaseHandle:
             foam_class = match.group(1)
 
         match foam_class:
-            case "vectorField" | "pointField":
-                return VectorDataFieldFile
-            case "scalarField":
-                return ScalarDataFieldFile
-            case "labelList":
-                return LabelListDataFile
-            case "faceList":
-                return FoamDataFieldFile
-            case "volScalarField" | "volVectorField" | "surfaceScalarField":
+            case (
+                "vectorField"
+                | "pointField"
+                | "scalarField"
+                | "labelList"
+                | "faceList"
+                | "IOPosition"
+            ):
+                return FieldFile
+            case "volScalarField":
+                return VolScalarField
+            case "volVectorField":
+                return VolVectorField
+            case "surfaceScalarField":
                 return FieldFile
             case "dictionary":
                 return FoamDictFile
@@ -1380,14 +1098,27 @@ class FoamCaseHandle:
                     lines[0].startswith("(")
                     or re.match(r"^\d+\s*\(", lines[0])
                 ):
-                    return FoamDataFieldFile
+                    return FieldFile
 
         return None
+
+    @staticmethod
+    def _is_time_dir(path: Path) -> bool:
+        name = path.name
+
+        if name in ("0", "0.orig"):
+            return True
+
+        try:
+            float(name)
+            return True
+        except ValueError:
+            return False
 
     def _select_cls(
             self,
             file_path: Path,
-        ) -> type[FoamDictFile | FoamDataFieldFile]:
+        ) -> type[FoamDictFile]:
         """ Select the appropriate file wrapper class for a given path.
 
         Parameters
@@ -1397,7 +1128,7 @@ class FoamCaseHandle:
 
         Returns
         -------
-        type[FoamDictFile | FoamDataFieldFile]
+        type[FoamDictFile]
             Selected wrapper class type.
         """
         filename = file_path.name
@@ -1405,7 +1136,10 @@ class FoamCaseHandle:
         if filename in self.KNOWN_DICTS:
             return self.KNOWN_DICTS[filename][0]
 
-        if file_path.parent.name in ("0", "0.orig"):
+        if (
+            self._is_time_dir(file_path.parent)
+            or "lagrangian" in file_path.parts
+        ):
             return FieldFile
 
         if filename in FIELD_NAMES:
@@ -1422,7 +1156,7 @@ class FoamCaseHandle:
     def get_dict(
             self,
             relative_path: str | Path,
-        ) -> FoamDictFile | FoamDataFieldFile:
+        ) -> FoamDictFile:
         """ Load and cache a file by relative path from case root.
 
         Parameters
@@ -1432,7 +1166,7 @@ class FoamCaseHandle:
 
         Returns
         -------
-        FoamDictFile | FoamDataFieldFile
+        FoamDictFile
             Loaded dictionary or data field wrapper instance.
         """
         self.check_valid()
@@ -1479,7 +1213,7 @@ class FoamCaseHandle:
 
             obj.save(path)
 
-    def __getattr__(self, name: str) -> FoamDictFile | FoamDataFieldFile:
+    def __getattr__(self, name: str) -> FoamDictFile:
         if name.startswith("_"):
             raise AttributeError(
                 f"'{type(self).__name__}' object has no attribute '{name}'"
