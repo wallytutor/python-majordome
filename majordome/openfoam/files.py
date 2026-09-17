@@ -476,6 +476,16 @@ class ControlDict(FoamDictFile):
         """ Set runTimeModifiable boolean flag. """
         self.set("runTimeModifiable", value)
 
+    @property
+    def libs(self) -> list[str] | None:
+        """ Get runtime loaded libraries list. """
+        return self.get("libs")
+
+    @libs.setter
+    def libs(self, value: list[str]) -> None:
+        """ Set runtime loaded libraries list. """
+        self.set("libs", value)
+
 
 class FvSchemes(FoamDictFile):
     """ Strongly-typed interface for OpenFOAM fvSchemes files. """

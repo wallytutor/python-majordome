@@ -2,6 +2,10 @@
 
 ## Ongoing Development
 
+- Fixed string list quoting in `majordome-foam` and `majordome.openfoam`: string elements within lists (such as library names in `libs`) are now formatted with double quotes and indented across multiple lines, preventing OpenFOAM lexer token errors. Unquoted keywords in list structures (such as `hex` in `blockMeshDict` blocks) remain unquoted.
+
+- Fixed OpenFOAM dictionary serialization in `majordome-foam` and `majordome.openfoam`: named dictionary entries (e.g. `species Gauss multivariateSelection` in `fvSchemes`) now keep the dictionary name on the same line aligned with other values in the parent dictionary, with the block `{ ... };` cleanly indented below. Furthermore, all nested lists (such as `vertices` and `blocks` in `blockMeshDict`) are now indented with respect to their parent level, preserving canonical OpenFOAM file layout and readability.
+
 - Fixed nested list and sequence serialization in `majordome-foam` and `majordome.openfoam`: replaced 3-element vector length assumptions and incorrect `Compound` handling with uniform, recursive sequence conversion (`FoamValue::List`) and balanced-parenthesis parsing. Sequences across arbitrary dimensions (2D vectors, 3D vectors, tensors, coordinate pairs, nested lists like `levels ((dist0 level0) (dist1 level1));`) now serialize and parse with full parenthesis and type integrity. Also updated `FoamRefinementRegions.add` with type hints, numpydoc docstrings, and single-pair wrapping for distance refinement mode.
 
 - Improved `SutherlandFitting`, notably by type annotations and added `as_openfoam_dict` method (Linux-only) for generating the file required by `chemkinToFoam`.

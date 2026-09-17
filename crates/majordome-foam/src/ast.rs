@@ -127,53 +127,115 @@ pub enum FoamValue {
     Field(FieldData),
     Compound(Vec<FoamValue>),
 }
-
-impl fmt::Display for FoamValue {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl FoamValue {
+    /// Format value into OpenFOAM text representation with indentation.
+    pub fn to_foam_indent(&self, indent_level: usize) -> String {
         match self {
-            Self::Scalar(v) => write!(f, "{}", v),
-            Self::Int(v) => write!(f, "{}", v),
-            Self::String(v) => write!(f, "{}", v),
-            Self::Bool(v) => write!(f, "{}", if *v { "true" } else { "false" }),
-            Self::Vector(vec) => write!(
-                f,
+            Self::Scalar(v) => v.to_string(),
+
+            Self::Int(v) => v.to_string(),
+
+            Self::Bool(v) => (if *v { "true" } else { "false" }).to_string(),
+
+            Self::String(s) => s.clone(),
+
+            Self::Vector(vec) => format!(
                 "({})",
                 vec.iter()
                     .map(|x| x.to_string())
                     .collect::<Vec<_>>()
                     .join(" ")
             ),
-            Self::DimensionSet(dims) => write!(
-                f,
+
+            Self::DimensionSet(dims) => format!(
                 "[{}]",
                 dims.iter()
                     .map(|x| x.to_string())
                     .collect::<Vec<_>>()
                     .join(" ")
             ),
-            Self::List(items) => write!(
-                f,
-                "({})",
-                items
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<_>>()
-                    .join(" ")
-            ),
-            Self::Compound(items) => write!(
-                f,
-                "{}",
-                items
-                    .iter()
-                    .map(|x| x.to_string())
-                    .collect::<Vec<_>>()
-                    .join(" ")
-            ),
-            Self::Dict(d) => write!(f, "{}", d.to_foam_indent(0)),
-            Self::MacroRef(name) => write!(f, "${}", name),
-            Self::Raw(raw) => write!(f, "{}", raw),
-            Self::Field(field) => write!(f, "{}", field),
+
+            Self::List(items) => {
+                if items.is_empty() {
+                    return "()".to_string();
+                }
+
+                let has_nested = items.iter().any(|x| {
+                    matches!(x, FoamValue::List(_)) || matches!(x, FoamValue::String(_))
+                });
+
+                if !has_nested {
+                    return format!(
+                        "({})",
+                        items
+                            .iter()
+                            .map(|x| match x {
+                                FoamValue::String(s) => {
+                                    if s.starts_with('"') && s.ends_with('"') {
+                                        s.clone()
+                                    } else {
+                                        format!("\"{}\"", s)
+                                    }
+                                }
+                                _ => x.to_foam_indent(indent_level),
+                            })
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                    );
+                }
+
+                let pad = "    ".repeat(indent_level);
+                let inner_pad = "    ".repeat(indent_level + 1);
+                let mut out = String::from("(\n");
+
+                for item in items {
+                    let item_str = match item {
+                        FoamValue::String(s) => {
+                            if s.starts_with('"') && s.ends_with('"') {
+                                s.clone()
+                            } else {
+                                format!("\"{}\"", s)
+                            }
+                        }
+                        _ => item.to_foam_indent(indent_level + 1),
+                    };
+
+                    out.push_str(&format!("{}{}\n", inner_pad, item_str));
+                }
+
+                out.push_str(&format!("{})", pad));
+                out
+            }
+
+            Self::Compound(items) => items
+                .iter()
+                .map(|x| x.to_foam_indent(indent_level))
+                .collect::<Vec<_>>()
+                .join(" "),
+
+            Self::Dict(d) => {
+                let pad = "    ".repeat(indent_level);
+                let inner = d.to_foam_indent(indent_level + 1);
+
+                if inner.is_empty() {
+                    "{\n}".to_string()
+                } else {
+                    format!("{{\n{}\n{}}}", inner, pad)
+                }
+            }
+
+            Self::MacroRef(name) => format!("${}", name),
+
+            Self::Raw(raw) => raw.clone(),
+
+            Self::Field(field) => field.to_foam_indent(indent_level),
         }
+    }
+}
+
+impl fmt::Display for FoamValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.to_foam_indent(0))
     }
 }
 
@@ -223,8 +285,10 @@ impl FoamDict {
         for elem in &self.elements {
             match elem {
                 FoamElement::Entry { key, value } => {
-                    let val_str = value.to_string();
-                    if !val_str.contains('\n') && key.len() > max_key_len {
+                    let val_str = value.to_foam_indent(indent_level);
+                    let multiline_block = val_str.starts_with('(') || val_str.starts_with('{');
+
+                    if !multiline_block && key.len() > max_key_len {
                         max_key_len = key.len();
                     }
                 }
@@ -310,14 +374,67 @@ impl FoamDict {
                         }
 
                         _ => {
-                            let val_str = value.to_string();
+                            let val_str = value.to_foam_indent(indent_level);
+
                             if val_str.contains('\n') {
                                 if val_str.starts_with('(') || val_str.starts_with('{') {
                                     out.push_str(&format!("{}{}\n{}{};", pad, key, pad, val_str));
                                 } else {
-                                    out.push_str(&format!("{}{}\n{}", pad, key, val_str));
-                                    if !val_str.ends_with(';') {
-                                        out.push(';');
+                                    let mut lines = val_str.lines();
+                                    let first_line = lines.next().unwrap_or("").trim();
+
+                                    if align_width > key.len() {
+                                        let spacing = " ".repeat(align_width - key.len());
+                                        out.push_str(&format!(
+                                            "{}{}{}{}\n",
+                                            pad, key, spacing, first_line
+                                        ));
+                                    } else {
+                                        out.push_str(&format!("{}{} {}\n", pad, key, first_line));
+                                    }
+
+                                    let rest: Vec<&str> = lines.collect();
+                                    let base_indent = rest
+                                        .iter()
+                                        .find(|l| l.contains('{'))
+                                        .map(|l| {
+                                            l.chars().take_while(|c| c.is_whitespace()).count()
+                                        })
+                                        .unwrap_or(0);
+
+                                    let has_trailing_semicolon = val_str.trim_end().ends_with(';');
+
+                                    for (l_idx, line) in rest.iter().enumerate() {
+                                        let is_last = l_idx + 1 == rest.len();
+
+                                        if line.trim().is_empty() {
+                                            out.push('\n');
+                                            continue;
+                                        }
+
+                                        let line_indent = line
+                                            .chars()
+                                            .take_while(|c| c.is_whitespace())
+                                            .count();
+
+                                        let content = if line_indent >= base_indent {
+                                            &line[base_indent..]
+                                        } else {
+                                            line.trim_start()
+                                        };
+
+                                        if is_last
+                                            && !has_trailing_semicolon
+                                            && !content.ends_with(';')
+                                        {
+                                            out.push_str(&format!("{}{};\n", pad, content));
+                                        } else {
+                                            out.push_str(&format!("{}{}\n", pad, content));
+                                        }
+                                    }
+
+                                    if out.ends_with('\n') {
+                                        out.pop();
                                     }
                                 }
                             } else if align_width > key.len() {

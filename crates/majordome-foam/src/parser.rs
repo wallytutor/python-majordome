@@ -1142,7 +1142,13 @@ fn parse_list_items(inner: &str) -> Vec<FoamValue> {
             }
 
             if !token.is_empty() {
-                items.push(parse_value_str_inner(&token));
+                let parsed = parse_value_str_inner(&token);
+
+                if let FoamValue::String(s) = parsed {
+                    items.push(FoamValue::Raw(s));
+                } else {
+                    items.push(parsed);
+                }
             }
         }
     }
@@ -1386,7 +1392,7 @@ emptyList ();
         let dict = parse_foam_dict(input)?;
         assert_eq!(
             dict.get_path("refinementCylinderTip/mode"),
-            Some(&FoamValue::String("distance".to_string()))
+            Some(FoamValue::String("distance".to_string()))
         );
 
         let levels = dict.get_path("refinementCylinderTip/levels");
@@ -1400,7 +1406,10 @@ emptyList ();
                 assert_eq!(inner0[0], FoamValue::Scalar(0.059));
                 assert_eq!(inner0[1], FoamValue::Int(2));
             } else {
-                panic!("Expected inner list");
+                return Err(FoamParseError {
+                    message: "Expected inner list".to_string(),
+                    line: 0,
+                });
             }
 
             if let FoamValue::List(ref inner1) = outer[1] {
@@ -1408,26 +1417,32 @@ emptyList ();
                 assert_eq!(inner1[0], FoamValue::Scalar(0.118));
                 assert_eq!(inner1[1], FoamValue::Int(1));
             } else {
-                panic!("Expected inner list");
+                return Err(FoamParseError {
+                    message: "Expected inner list".to_string(),
+                    line: 0,
+                });
             }
         } else {
-            panic!("Expected outer list");
+            return Err(FoamParseError {
+                message: "Expected outer list".to_string(),
+                line: 0,
+            });
         }
 
         let two_d = dict.get_path("twoDVector");
         assert_eq!(
             two_d,
-            Some(&FoamValue::List(vec![FoamValue::Int(0), FoamValue::Int(1)]))
+            Some(FoamValue::List(vec![FoamValue::Int(0), FoamValue::Int(1)]))
         );
 
         let tensor = dict.get_path("tensor9");
         assert!(matches!(tensor, Some(FoamValue::List(v)) if v.len() == 9));
 
         let empty = dict.get_path("emptyList");
-        assert_eq!(empty, Some(&FoamValue::List(Vec::new())));
+        assert_eq!(empty, Some(FoamValue::List(Vec::new())));
 
         let serialized = dict.to_foam();
-        assert!(serialized.contains("levels  ((0.059 2) (0.118 1));"));
+        assert!(serialized.contains("levels\n    (\n        (0.059 2)\n        (0.118 1)\n    );"));
         assert!(serialized.contains("twoDVector  (0 1);"));
         assert!(serialized.contains("tensor9     (1 0 0 0 1 0 0 0 1);"));
 

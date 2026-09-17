@@ -4,6 +4,12 @@
 
 ### 2026-09-17 - Fixed
 
+- **String List Quoting:** Updated list formatting in `ast.rs` so that string items inside lists (such as library names in `libs`) are automatically enclosed in double quotes (`"..."`) and formatted across multiple lines with proper indentation. In `parser.rs`, unquoted identifier tokens within lists (e.g. `hex` in `blocks`) are preserved as raw unquoted tokens (`FoamValue::Raw`) to prevent keyword quotation in block definitions.
+
+- **Named Dictionary Alignment & Indentation:** Fixed dictionary key entry formatting in `ast.rs` so that keys whose value is a named dictionary (such as `species Gauss multivariateSelection` in `fvSchemes`) place the dictionary name/header on the same line as the key, aligned with other dictionary values, with the subdictionary block `{ ... };` indented below it. Also updated `max_key_len` calculation so that keys with named dictionary headers participate in column width alignment.
+
+- **Nested List Indentation:** Updated `FoamValue::to_foam_indent` in `ast.rs` to format all nested lists across multiple lines, indenting each nested list with respect to the parent indentation level. This preserves readable formatting in OpenFOAM dictionary files containing coordinate lists or nested blocks (such as `vertices` and `blocks` in `blockMeshDict`).
+
 - **Sequence & Nested List Handling:** Replaced fragile 3-element vector heuristic and improper `Compound` conversion in `py_to_foam_value` with uniform, recursive sequence handling (`FoamValue::List`). All sequences (2D/3D vectors, tensors, coordinate pairs, nested lists, and lists of tuples) now retain their enclosing parentheses and type fidelity across arbitrary dimensions.
 
 - **Generic Sequence Parsing:** Updated `parse_value_str_inner` with recursive balanced-parenthesis parsing, removing the 3-element vector length constraint and allowing multidimensional vectors, tensors, and nested lists (such as `levels ((dist0 level0) (dist1 level1));`) to be parsed directly into structured Python lists rather than raw strings.

@@ -422,17 +422,18 @@ FoamFile
         d1 = foam.FoamDict()
         d1.set("levels", [(0.059, 2), (0.118, 1)])
         self.assertEqual(d1.get("levels"), [[0.059, 2], [0.118, 1]])
-        self.assertIn("levels  ((0.059 2) (0.118 1));", d1.to_foam())
+        expected_levels = "levels\n(\n    (0.059 2)\n    (0.118 1)\n);"
+        self.assertIn(expected_levels, d1.to_foam())
 
         d2 = foam.FoamDict()
         d2.set("levels", ((0.059, 2), (0.118, 1)))
         self.assertEqual(d2.get("levels"), [[0.059, 2], [0.118, 1]])
-        self.assertIn("levels  ((0.059 2) (0.118 1));", d2.to_foam())
+        self.assertIn(expected_levels, d2.to_foam())
 
         d3 = foam.FoamDict()
         d3.set("levels", [[0.059, 2], [0.118, 1]])
         self.assertEqual(d3.get("levels"), [[0.059, 2], [0.118, 1]])
-        self.assertIn("levels  ((0.059 2) (0.118 1));", d3.to_foam())
+        self.assertIn(expected_levels, d3.to_foam())
 
         d4 = foam.FoamDict()
         d4.set("vector_2d", (0.0, 1.0))
@@ -462,7 +463,10 @@ FoamFile
         )
         self.assertEqual(parsed.get("levels"), [[0.059, 2], [0.118, 1]])
         self.assertEqual(parsed.get("twoD"), [0, 1])
-        self.assertIn("levels  ((0.059 2) (0.118 1));", parsed.to_foam())
+        self.assertIn(
+            "levels\n(\n    (0.059 2)\n    (0.118 1)\n);",
+            parsed.to_foam()
+        )
 
     def test_refinement_regions_helper(self):
         refinement = FoamDictFile()
@@ -490,9 +494,119 @@ FoamFile
         self.assertIn("mode   inside;", foam_str)
         self.assertIn("level  3;", foam_str)
         self.assertIn("refinementCylinderTip", foam_str)
-        self.assertIn("levels  ((0.059 2) (0.118 1));", foam_str)
+        self.assertIn(
+            "levels\n    (\n        (0.059 2)\n        (0.118 1)\n    );",
+            foam_str
+        )
         self.assertIn("refinementSinglePair", foam_str)
-        self.assertIn("levels  ((0.059 2));", foam_str)
+        self.assertIn(
+            "levels\n    (\n        (0.059 2)\n    );",
+            foam_str
+        )
+
+    def test_named_dictionary_alignment_and_indentation(self):
+        schemes_path = TUTORIALS_DIR / "01-pitzDaily/system/fvSchemes"
+
+        if schemes_path.exists():
+            schemes = FvSchemes.from_file(schemes_path)
+            foam_str = schemes.to_foam()
+
+            self.assertIn(
+                "species                        Gauss multivariateSelection",
+                foam_str
+            )
+            self.assertIn(
+                "    species"
+                "                        Gauss multivariateSelection\n"
+                "    {\n"
+                "        O2              limitedLinear01 1;",
+                foam_str
+            )
+            self.assertIn("    };", foam_str)
+
+            # Declare new named dictionary entry
+            schemes.set(
+                "divSchemes/multivariate",
+                "Gauss customScheme\n{\n    specA upwind;\n}"
+            )
+            updated_str = schemes.to_foam()
+            self.assertIn(
+                "multivariate                   Gauss customScheme\n"
+                "    {\n"
+                "        specA upwind;\n"
+                "    };",
+                updated_str
+            )
+
+    def test_block_mesh_dict_indentation(self):
+        bmd_content = (
+            "vertices\n"
+            "(\n"
+            "    (0 0 0)\n"
+            "    (1 0 0)\n"
+            "    (1 1 0)\n"
+            "    (0 1 0)\n"
+            ");\n"
+            "blocks\n"
+            "(\n"
+            "    hex (0 1 2 3 4 5 6 7) (10 10 10) simpleGrading (1 1 1)\n"
+            ");\n"
+            "edges ();\n"
+        )
+        parsed = foam.FoamDict.parse(bmd_content)
+        foam_str = parsed.to_foam()
+
+        self.assertIn(
+            "vertices\n"
+            "(\n"
+            "    (0 0 0)\n"
+            "    (1 0 0)\n"
+            "    (1 1 0)\n"
+            "    (0 1 0)\n"
+            ");",
+            foam_str
+        )
+        self.assertIn(
+            "blocks\n"
+            "(\n"
+            "    hex\n"
+            "    (0 1 2 3 4 5 6 7)\n"
+            "    (10 10 10)\n"
+            "    simpleGrading\n"
+            "    (1 1 1)\n"
+            ");",
+            foam_str
+        )
+        self.assertIn("edges  ();", foam_str)
+
+    def test_quoted_strings_in_lists(self):
+        cd = ControlDict()
+        cd.libs = [
+            "libextendedThermophysicalProperties.so",
+            "libextendedLagrangianParcel.so"
+        ]
+        self.assertEqual(
+            cd.libs,
+            [
+                "libextendedThermophysicalProperties.so",
+                "libextendedLagrangianParcel.so"
+            ]
+        )
+        foam_str = cd.to_foam()
+        expected = (
+            "libs\n"
+            "(\n"
+            '    "libextendedThermophysicalProperties.so"\n'
+            '    "libextendedLagrangianParcel.so"\n'
+            ");"
+        )
+        self.assertIn(expected, foam_str)
+
+        # Ensure strings with already-present quotes are not double quoted
+        cd2 = ControlDict()
+        cd2.libs = ['"libMyCustom.so"']
+        self.assertIn('"libMyCustom.so"', cd2.to_foam())
+        self.assertNotIn('""libMyCustom.so""', cd2.to_foam())
 
 
 if __name__ == "__main__":
