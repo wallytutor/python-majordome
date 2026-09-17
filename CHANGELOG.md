@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Standardized floating point scientific notation and numeric list formatting in `majordome-foam` and `majordome.openfoam`: scalars and vectors with extreme magnitudes (`abs < 1e-4` or `abs >= 1e5`) now automatically serialize using standardized 10-decimal scientific notation (`{:.10e}` with standard lowercase `e` and 2-digit signed exponent), eliminating bloated decimal outputs with trailing zeros. Numeric strings within lists are preserved as unquoted scalar tokens on single lines (e.g. polynomial coefficients `CpCoeffs<8>`, `muCoeffs<8>`, `kappaCoeffs<8>`), while retaining double-quoting for true string literals (such as `libs`). Also added sequence formatting support to `FoamDictFile.set(..., fmt=...)`.
+
 - Fixed string list quoting in `majordome-foam` and `majordome.openfoam`: string elements within lists (such as library names in `libs`) are now formatted with double quotes and indented across multiple lines, preventing OpenFOAM lexer token errors. Unquoted keywords in list structures (such as `hex` in `blockMeshDict` blocks) remain unquoted.
 
 - Fixed OpenFOAM dictionary serialization in `majordome-foam` and `majordome.openfoam`: named dictionary entries (e.g. `species Gauss multivariateSelection` in `fvSchemes`) now keep the dictionary name on the same line aligned with other values in the parent dictionary, with the block `{ ... };` cleanly indented below. Furthermore, all nested lists (such as `vertices` and `blocks` in `blockMeshDict`) are now indented with respect to their parent level, preserving canonical OpenFOAM file layout and readability.

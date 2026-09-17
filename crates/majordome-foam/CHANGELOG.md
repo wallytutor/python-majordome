@@ -4,6 +4,8 @@
 
 ### 2026-09-17 - Fixed
 
+- **Standardized Scientific Notation & Numeric String Formatting:** Implemented standardized scientific notation with 10 decimal digits (`{:.10e}` with 2-digit signed exponent) in `ast.rs` for scalar and vector numbers with extreme magnitudes (`abs < 1e-4` or `abs >= 1e5`), eliminating bloated decimal outputs with extensive trailing zeros. Also enhanced list serialization to identify numeric strings, keeping formatted numbers unquoted and compact in lists (such as polynomial coefficients `CpCoeffs<8>`, `muCoeffs<8>`, `kappaCoeffs<8>`) while preserving double quoting for true string literals (such as `libs`).
+
 - **String List Quoting:** Updated list formatting in `ast.rs` so that string items inside lists (such as library names in `libs`) are automatically enclosed in double quotes (`"..."`) and formatted across multiple lines with proper indentation. In `parser.rs`, unquoted identifier tokens within lists (e.g. `hex` in `blocks`) are preserved as raw unquoted tokens (`FoamValue::Raw`) to prevent keyword quotation in block definitions.
 
 - **Named Dictionary Alignment & Indentation:** Fixed dictionary key entry formatting in `ast.rs` so that keys whose value is a named dictionary (such as `species Gauss multivariateSelection` in `fvSchemes`) place the dictionary name/header on the same line as the key, aligned with other dictionary values, with the subdictionary block `{ ... };` indented below it. Also updated `max_key_len` calculation so that keys with named dictionary headers participate in column width alignment.

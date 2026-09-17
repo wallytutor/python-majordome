@@ -203,7 +203,13 @@ class FoamDictFile:
             Updates internal AST structure.
         """
         if fmt is not None:
-            value = fmt.format(value)
+            if isinstance(value, (list, tuple)):
+                value = [
+                    fmt.format(v) if isinstance(v, (int, float)) else v
+                    for v in value
+                ]
+            else:
+                value = fmt.format(value)
 
         self._inner.set(key_path, value)
 

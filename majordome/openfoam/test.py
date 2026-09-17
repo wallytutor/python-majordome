@@ -608,6 +608,48 @@ FoamFile
         self.assertIn('"libMyCustom.so"', cd2.to_foam())
         self.assertNotIn('""libMyCustom.so""', cd2.to_foam())
 
+    def test_numeric_strings_in_lists_not_quoted(self):
+        d = FoamDictFile()
+        d.set("CpCoeffs<8>", [
+            "1.2807359665e+03",
+            "8.8141280265e-02",
+            "-7.7836924710e-07",
+        ])
+        foam_str = d.to_foam()
+        expected = (
+            "CpCoeffs<8>  (1.2807359665e+03 8.8141280265e-02 "
+            "-7.7836924710e-07);"
+        )
+        self.assertIn(expected, foam_str)
+        self.assertNotIn('"', foam_str)
+
+    def test_scientific_notation_for_extreme_scalars(self):
+        d = FoamDictFile()
+        d.set("tiny", 2.886776383321853e-29)
+        d.set("small", -0.0000002156595924605777)
+        d.set("coeffs", [-0.0000002156595924605777, 2.886776383321853e-29])
+        foam_str = d.to_foam()
+
+        self.assertIn("tiny    2.8867763833e-29;", foam_str)
+        self.assertIn("small   -2.1565959246e-07;", foam_str)
+        self.assertIn(
+            "coeffs  (-2.1565959246e-07 2.8867763833e-29);",
+            foam_str
+        )
+
+    def test_set_with_fmt_on_lists(self):
+        d = FoamDictFile()
+        d.set(
+            "polyCoeffs",
+            [1280.735966518363, 0.08814128026451938],
+            fmt="{:.10e}"
+        )
+        foam_str = d.to_foam()
+        self.assertIn(
+            "polyCoeffs  (1.2807359665e+03 8.8141280265e-02);",
+            foam_str
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -127,11 +127,61 @@ pub enum FoamValue {
     Field(FieldData),
     Compound(Vec<FoamValue>),
 }
+fn format_scientific_10(v: f64) -> String {
+    let s = format!("{:.10e}", v);
+
+    if let Some(pos) = s.find('e') {
+        let (mantissa, exp_part) = s.split_at(pos);
+        let exp_str = &exp_part[1..];
+        let (sign, exp_digits) = if let Some(stripped) = exp_str.strip_prefix('-') {
+            ('-', stripped)
+        } else if let Some(stripped) = exp_str.strip_prefix('+') {
+            ('+', stripped)
+        } else {
+            ('+', exp_str)
+        };
+
+        if let Ok(exp_num) = exp_digits.parse::<i32>() {
+            return format!("{}e{}{:02}", mantissa, sign, exp_num);
+        }
+    }
+
+    s
+}
+
+fn format_scalar(v: f64) -> String {
+    if !v.is_finite() || v == 0.0 {
+        return v.to_string();
+    }
+
+    let abs = v.abs();
+
+    if abs < 1e-4 || abs >= 1e5 {
+        format_scientific_10(v)
+    } else {
+        v.to_string()
+    }
+}
+
+fn is_string_literal(s: &str) -> bool {
+    let trimmed = s.trim();
+
+    if trimmed.starts_with('"') && trimmed.ends_with('"') && trimmed.len() >= 2 {
+        return true;
+    }
+
+    if trimmed.parse::<f64>().is_ok() || trimmed.parse::<i64>().is_ok() {
+        return false;
+    }
+
+    true
+}
+
 impl FoamValue {
     /// Format value into OpenFOAM text representation with indentation.
     pub fn to_foam_indent(&self, indent_level: usize) -> String {
         match self {
-            Self::Scalar(v) => v.to_string(),
+            Self::Scalar(v) => format_scalar(*v),
 
             Self::Int(v) => v.to_string(),
 
@@ -142,7 +192,7 @@ impl FoamValue {
             Self::Vector(vec) => format!(
                 "({})",
                 vec.iter()
-                    .map(|x| x.to_string())
+                    .map(|x| format_scalar(*x))
                     .collect::<Vec<_>>()
                     .join(" ")
             ),
@@ -160,8 +210,10 @@ impl FoamValue {
                     return "()".to_string();
                 }
 
-                let has_nested = items.iter().any(|x| {
-                    matches!(x, FoamValue::List(_)) || matches!(x, FoamValue::String(_))
+                let has_nested = items.iter().any(|x| match x {
+                    FoamValue::List(_) => true,
+                    FoamValue::String(s) => is_string_literal(s),
+                    _ => false,
                 });
 
                 if !has_nested {
@@ -171,10 +223,14 @@ impl FoamValue {
                             .iter()
                             .map(|x| match x {
                                 FoamValue::String(s) => {
-                                    if s.starts_with('"') && s.ends_with('"') {
-                                        s.clone()
+                                    if is_string_literal(s) {
+                                        if s.starts_with('"') && s.ends_with('"') {
+                                            s.clone()
+                                        } else {
+                                            format!("\"{}\"", s)
+                                        }
                                     } else {
-                                        format!("\"{}\"", s)
+                                        s.clone()
                                     }
                                 }
                                 _ => x.to_foam_indent(indent_level),
@@ -191,10 +247,14 @@ impl FoamValue {
                 for item in items {
                     let item_str = match item {
                         FoamValue::String(s) => {
-                            if s.starts_with('"') && s.ends_with('"') {
-                                s.clone()
+                            if is_string_literal(s) {
+                                if s.starts_with('"') && s.ends_with('"') {
+                                    s.clone()
+                                } else {
+                                    format!("\"{}\"", s)
+                                }
                             } else {
-                                format!("\"{}\"", s)
+                                s.clone()
                             }
                         }
                         _ => item.to_foam_indent(indent_level + 1),
@@ -286,7 +346,8 @@ impl FoamDict {
             match elem {
                 FoamElement::Entry { key, value } => {
                     let val_str = value.to_foam_indent(indent_level);
-                    let multiline_block = val_str.starts_with('(') || val_str.starts_with('{');
+                    let multiline_block = val_str.contains('\n')
+                        && (val_str.starts_with('(') || val_str.starts_with('{'));
 
                     if !multiline_block && key.len() > max_key_len {
                         max_key_len = key.len();
