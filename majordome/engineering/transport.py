@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-from abc import ABC
-from textwrap import dedent
-from typing import Any, Callable, Self
 
 import cantera as ct
 import numpy as np
 import pandas as pd
+
+from abc import ABC
+from pathlib import Path
+from textwrap import dedent
+from typing import Any, Callable, Self
+
 from numpy.polynomial import Polynomial
 from numpy.typing import NDArray
 from ruamel.yaml import YAML
@@ -478,10 +481,12 @@ class SutherlandFitting:
     name = None
         Name of phase in mechanism if not a single one is present.
     """
+    __slots__ = ("_sol", "_data", "_visc",)
+
     def __init__(self, mech: str, *, name: str | None = None) -> None:
         self._sol = ct.composite.Solution(mech, name)
-        self._data = None
-        self._visc = None
+        self._data: pd.DataFrame | None = None
+        self._visc: pd.DataFrame | None = None
 
     def _get_species(self, species_names: list[str]):
         """ Return array of selected species for fitting. """
@@ -493,9 +498,13 @@ class SutherlandFitting:
 
         return allowed_species
 
-    def fit(self, T: NDArray[np.float64], P: float = ct.one_atm,
-            species_names: list[str] = None,
-            p0: tuple[float, float] = (1.0, 1000)) -> None:
+    def fit(
+            self,
+            T: NDArray[np.float64],
+            P: float = ct.one_atm,
+            species_names: list[str] | None = None,
+            p0: tuple[float, float] = (1.0, 1000)
+        ) -> pd.DataFrame:
         """ Manage fitting of selected species from mechanism.
 
         Parameters
@@ -520,6 +529,8 @@ class SutherlandFitting:
         visc = pd.DataFrame({"T": T})
         arr = ct.composite.SolutionArray(self._sol, shape=(T.shape[0],))
 
+        species_names = species_names or self._sol.species_names
+
         for name in self._get_species(species_names):
             arr.TPY = T, P, {name: 1}
             visc[name] = mu = 1e6 * arr.viscosity
@@ -536,7 +547,11 @@ class SutherlandFitting:
         return self._data
 
     @staticmethod
-    def bydef(T: NDArray[np.float64], As: float, Ts: float) -> NDArray[np.float64]:
+    def bydef(
+            T: NDArray[np.float64],
+            As: float,
+            Ts: float
+        ) -> NDArray[np.float64]:
         """ Sutherland transport parametric model as used in OpenFOAM.
 
         Function provided to be used in curve fitting to establish Sutherland
@@ -617,6 +632,52 @@ class SutherlandFitting:
         data["As [uPa.s]"] *= 1.0e-06
 
         return "".join(fmt.format(*row) for _, row in data.iterrows())
+
+    def as_openfoam_dict(
+            self,
+            saveas: str | Path | None = None
+        ) -> object:
+        """ Direct creation of an FoamDictFile (Linux-only).
+
+        OpenFOAM does not currently support the conversion of transport
+        properties into Sutherland format from Chemkin files. This
+        method creates the dictionary that you should do that manually
+        otherwise. The documentation of chemkinToFoam is wrong, the
+        transport file needs to be the one dumped here, not in the
+        Chemkin format as stated there.
+
+        Parameters
+        ----------
+        saveas: str | Path | None = None
+            Path to the output file, if any.
+        """
+        from ..openfoam.files import FoamDictFile
+
+        if self._data is None:
+            raise ValueError("Fit data before calling this method")
+
+        transport = FoamDictFile()
+        transport.set("FoamFile/format", "ascii")
+        transport.set("FoamFile/class", "dictionary")
+        transport.set("FoamFile/location", "constant/chemkin")
+        transport.set("FoamFile/object", "transportProperties")
+
+        data = pd.DataFrame(self._data.copy())
+        data["As"] = 1.0e-06 * data["As [uPa.s]"]
+        data["Ts"] = data["Ts [K]"]
+
+        for _, row in data.iterrows():
+            path = f"{row['species']}/transport"
+            transport.set(f"{path}/As", f"{row['As']:.10e}")
+            transport.set(f"{path}/Ts", f"{row['Ts']:.10f}")
+
+        if saveas:
+            if Path(saveas).exists():
+                warn(f"Skipping ovewritting {saveas}")
+            else:
+                transport.save(path=saveas)
+
+        return transport
 
 
 class AbstractRadiationModel(ABC):

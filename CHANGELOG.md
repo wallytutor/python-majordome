@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Improved `SutherlandFitting`, notably by type annotations and added `as_openfoam_dict` method (Linux-only) for generating the file required by `chemkinToFoam`.
+
 - Enhanced `FieldFile` and `FoamDictFile` in `majordome.openfoam.files` backed by the Rust crate `majordome-foam` to parse time-step result fields (such as `1/p`), lagrangian cloud data (`1/lagrangian/cloud/T`, `U`, `positions`), and standalone field lists (`constant/cloudPositions`), supporting sequence protocols, `.data` access, and OpenFOAM header metadata properties (`.header`, `.foam_class`, `.location`, `.object`, `.format`). Removed legacy `FoamDataFieldFile` and its subclasses in favor of the unified, high-performance Rust-backed `FieldFile`.
 
 - Added `CalphadStoichiometricSystem.scan_temperature` to tabulate a stoichiometric substance equilibria and thermodynamic properties. Updated documentation to illustrate its use.
