@@ -28,12 +28,32 @@ divSchemes
 {
     default             none;
 
+    species             Gauss multivariateSelection
+    {
+        O2              limitedLinear01 1;
+        C3H8            limitedLinear01 1;
+        CO              limitedLinear01 1;
+        CO2             limitedLinear01 1;
+        H2              limitedLinear01 1;
+        H2O             limitedLinear01 1;
+        H               limitedLinear01 1;
+        O               limitedLinear01 1;
+        OH              limitedLinear01 1;
+        HO2             limitedLinear01 1;
+        H2O2            limitedLinear01 1;
+        N2              limitedLinear01 1;
+        h               limitedLinear 1;
+    };
+
+    div(phi,Yi_h)                        $species;
+
     div(phi,U)          Gauss linearUpwind grad(U);
     div(phi,k)          Gauss upwind;
     div(phi,epsilon)    Gauss upwind;
     div(phi,R)          Gauss upwind;
     div(R)              Gauss linear;
     div(phi,nuTilda)    Gauss upwind;
+
 
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 }

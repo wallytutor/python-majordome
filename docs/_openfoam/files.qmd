@@ -43,7 +43,7 @@ print(f"Invalid case check: {invalid_handle.is_valid}")
 try:
     _ = invalid_handle.controlDict
 except NotACaseError as e:
-    print(f"Caught expected error: {e}")
+    print(f"Caught expected error")
 ```
 
 ### Inspecting and modifying system dictionaries
