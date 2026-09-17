@@ -1288,14 +1288,45 @@ class FoamSearchableSurfaces:
 
 class FoamRefinementRegions:
     """ Helper class for the creation of refinement regions. """
+
     @staticmethod
-    def add(parent, name, mode, level):
+    def add(
+            parent: FoamDictFile | Any,
+            name: str,
+            mode: str,
+            level: int | tuple[Any, ...] | list[Any],
+        ) -> None:
+        """ Add refinement region specification to dictionary.
+
+        Parameters
+        ----------
+        parent : FoamDictFile | Any
+            Parent dictionary to add region to.
+        name : str
+            Name of the refinement region surface.
+        mode : str
+            Refinement mode (e.g. 'inside', 'outside', 'distance').
+        level : int | tuple[Any, ...] | list[Any]
+            Refinement level or sequence of (distance, level) pairs.
+
+        Returns
+        -------
+        None
+            Sets refinement parameters in parent dictionary.
+        """
         parent.set(f"{name}/mode", mode)
 
         if isinstance(level, int):
             parent.set(f"{name}/level", level)
 
         elif isinstance(level, (list, tuple)):
+            if (
+                mode == "distance"
+                and len(level) == 2
+                and not isinstance(level[0], (list, tuple))
+            ):
+                level = [level]
+
             parent.set(f"{name}/levels", level)
 
         else:

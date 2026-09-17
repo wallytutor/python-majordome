@@ -2,6 +2,12 @@
 
 ## Ongoing Development
 
+### 2026-09-17 - Fixed
+
+- **Sequence & Nested List Handling:** Replaced fragile 3-element vector heuristic and improper `Compound` conversion in `py_to_foam_value` with uniform, recursive sequence handling (`FoamValue::List`). All sequences (2D/3D vectors, tensors, coordinate pairs, nested lists, and lists of tuples) now retain their enclosing parentheses and type fidelity across arbitrary dimensions.
+
+- **Generic Sequence Parsing:** Updated `parse_value_str_inner` with recursive balanced-parenthesis parsing, removing the 3-element vector length constraint and allowing multidimensional vectors, tensors, and nested lists (such as `levels ((dist0 level0) (dist1 level1));`) to be parsed directly into structured Python lists rather than raw strings.
+
 ### 2026-09-16 - Added
 
 - **Field Data Parsing:** Added `FieldData` AST node and `FoamValue::Field` / `FoamValue::Compound` variants to support OpenFOAM field files, time-step solution results (e.g. `1/p` nonuniform lists), lagrangian cloud fields (`1/lagrangian/cloud/T`, `U`, `positions`), and standalone field lists (`constant/cloudPositions`).

@@ -2,6 +2,8 @@
 
 ## Ongoing Development
 
+- Fixed nested list and sequence serialization in `majordome-foam` and `majordome.openfoam`: replaced 3-element vector length assumptions and incorrect `Compound` handling with uniform, recursive sequence conversion (`FoamValue::List`) and balanced-parenthesis parsing. Sequences across arbitrary dimensions (2D vectors, 3D vectors, tensors, coordinate pairs, nested lists like `levels ((dist0 level0) (dist1 level1));`) now serialize and parse with full parenthesis and type integrity. Also updated `FoamRefinementRegions.add` with type hints, numpydoc docstrings, and single-pair wrapping for distance refinement mode.
+
 - Improved `SutherlandFitting`, notably by type annotations and added `as_openfoam_dict` method (Linux-only) for generating the file required by `chemkinToFoam`.
 
 - Enhanced `FieldFile` and `FoamDictFile` in `majordome.openfoam.files` backed by the Rust crate `majordome-foam` to parse time-step result fields (such as `1/p`), lagrangian cloud data (`1/lagrangian/cloud/T`, `U`, `positions`), and standalone field lists (`constant/cloudPositions`), supporting sequence protocols, `.data` access, and OpenFOAM header metadata properties (`.header`, `.foam_class`, `.location`, `.object`, `.format`). Removed legacy `FoamDataFieldFile` and its subclasses in favor of the unified, high-performance Rust-backed `FieldFile`.

@@ -390,24 +390,10 @@ fn py_to_foam_value(value: &Bound<'_, PyAny>) -> PyResult<FoamValue> {
         return Ok(FoamValue::String(s));
     }
 
-    if let Ok(py_tuple) = value.cast::<pyo3::types::PyTuple>() {
-        if let Ok(tuple) = py_tuple.extract::<(f64, f64, f64)>() {
-            return Ok(FoamValue::Vector(vec![tuple.0, tuple.1, tuple.2]));
-        }
-
+    if let Ok(seq) = value.extract::<Vec<Bound<'_, PyAny>>>() {
         let mut vec = Vec::new();
 
-        for item in py_tuple.iter() {
-            vec.push(py_to_foam_value(&item)?);
-        }
-
-        return Ok(FoamValue::Compound(vec));
-    }
-
-    if let Ok(list) = value.extract::<Vec<Bound<'_, PyAny>>>() {
-        let mut vec = Vec::new();
-
-        for item in &list {
+        for item in &seq {
             vec.push(py_to_foam_value(item)?);
         }
 

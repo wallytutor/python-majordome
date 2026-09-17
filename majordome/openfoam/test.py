@@ -10,6 +10,7 @@ from .files import (
     FieldFile,
     FoamCaseHandle,
     FoamDictFile,
+    FoamRefinementRegions,
     FvSchemes,
     FvSolution,
     NotACaseError,
@@ -416,6 +417,82 @@ FoamFile
 
             pos2 = case.cloudPositions
             self.assertIs(pos1, pos2)
+
+    def test_nested_tuples_and_lists_foam_dict(self):
+        d1 = foam.FoamDict()
+        d1.set("levels", [(0.059, 2), (0.118, 1)])
+        self.assertEqual(d1.get("levels"), [[0.059, 2], [0.118, 1]])
+        self.assertIn("levels  ((0.059 2) (0.118 1));", d1.to_foam())
+
+        d2 = foam.FoamDict()
+        d2.set("levels", ((0.059, 2), (0.118, 1)))
+        self.assertEqual(d2.get("levels"), [[0.059, 2], [0.118, 1]])
+        self.assertIn("levels  ((0.059 2) (0.118 1));", d2.to_foam())
+
+        d3 = foam.FoamDict()
+        d3.set("levels", [[0.059, 2], [0.118, 1]])
+        self.assertEqual(d3.get("levels"), [[0.059, 2], [0.118, 1]])
+        self.assertIn("levels  ((0.059 2) (0.118 1));", d3.to_foam())
+
+        d4 = foam.FoamDict()
+        d4.set("vector_2d", (0.0, 1.0))
+        self.assertEqual(d4.get("vector_2d"), [0.0, 1.0])
+        self.assertIn("vector_2d  (0 1);", d4.to_foam())
+
+        d5 = foam.FoamDict()
+        d5.set("vector_3d", (0.0, 1.0, 2.0))
+        self.assertEqual(d5.get("vector_3d"), [0.0, 1.0, 2.0])
+        self.assertIn("vector_3d  (0 1 2);", d5.to_foam())
+
+        d6 = foam.FoamDict()
+        d6.set("tensor_9", (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0))
+        self.assertEqual(
+            d6.get("tensor_9"),
+            [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        )
+        self.assertIn("tensor_9  (1 0 0 0 1 0 0 0 1);", d6.to_foam())
+
+        d7 = foam.FoamDict()
+        d7.set("single_pair", (0.059, 2))
+        self.assertEqual(d7.get("single_pair"), [0.059, 2])
+        self.assertIn("single_pair  (0.059 2);", d7.to_foam())
+
+        parsed = foam.FoamDict.parse(
+            "levels ((0.059 2) (0.118 1));\ntwoD (0 1);"
+        )
+        self.assertEqual(parsed.get("levels"), [[0.059, 2], [0.118, 1]])
+        self.assertEqual(parsed.get("twoD"), [0, 1])
+        self.assertIn("levels  ((0.059 2) (0.118 1));", parsed.to_foam())
+
+    def test_refinement_regions_helper(self):
+        refinement = FoamDictFile()
+        FoamRefinementRegions.add(
+            parent=refinement,
+            name="refinementBurner",
+            mode="inside",
+            level=3
+        )
+        FoamRefinementRegions.add(
+            parent=refinement,
+            name="refinementCylinderTip",
+            mode="distance",
+            level=[(0.059, 2), (0.118, 1)]
+        )
+        FoamRefinementRegions.add(
+            parent=refinement,
+            name="refinementSinglePair",
+            mode="distance",
+            level=(0.059, 2)
+        )
+
+        foam_str = refinement.to_foam()
+        self.assertIn("refinementBurner", foam_str)
+        self.assertIn("mode   inside;", foam_str)
+        self.assertIn("level  3;", foam_str)
+        self.assertIn("refinementCylinderTip", foam_str)
+        self.assertIn("levels  ((0.059 2) (0.118 1));", foam_str)
+        self.assertIn("refinementSinglePair", foam_str)
+        self.assertIn("levels  ((0.059 2));", foam_str)
 
 
 if __name__ == "__main__":

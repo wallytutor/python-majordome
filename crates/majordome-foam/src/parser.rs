@@ -1055,6 +1055,101 @@ fn parse_field_data_from_str(s: &str) -> Option<FieldData> {
     None
 }
 
+fn parse_list_items(inner: &str) -> Vec<FoamValue> {
+    let mut items = Vec::new();
+    let mut chars = inner.chars().peekable();
+
+    while let Some(&c) = chars.peek() {
+        if c.is_whitespace() {
+            chars.next();
+            continue;
+        }
+
+        if c == '/' {
+            let mut clone = chars.clone();
+            clone.next();
+
+            if let Some('/') = clone.peek() {
+                chars.next();
+                chars.next();
+
+                for ch in chars.by_ref() {
+                    if ch == '\n' {
+                        break;
+                    }
+                }
+
+                continue;
+            }
+        }
+
+        if c == '(' {
+            chars.next();
+            let mut sub_content = String::new();
+            let mut depth = 1;
+
+            while let Some(&ch) = chars.peek() {
+                if ch == '(' {
+                    depth += 1;
+                    sub_content.push(ch);
+                    chars.next();
+                } else if ch == ')' {
+                    depth -= 1;
+                    chars.next();
+
+                    if depth == 0 {
+                        break;
+                    }
+
+                    sub_content.push(ch);
+                } else {
+                    sub_content.push(ch);
+                    chars.next();
+                }
+            }
+
+            let sub_val = parse_value_str_inner(
+                &format!("({})", sub_content.trim())
+            );
+
+            items.push(sub_val);
+        } else if c == '"' || c == '\'' {
+            let quote = c;
+            chars.next();
+            let mut s = String::new();
+
+            while let Some(&ch) = chars.peek() {
+                chars.next();
+
+                if ch == quote {
+                    break;
+                }
+
+                s.push(ch);
+            }
+
+            items.push(FoamValue::String(s));
+        } else {
+            let mut token = String::new();
+
+            while let Some(&ch) = chars.peek() {
+                if ch.is_whitespace() || ch == '(' || ch == ')' || ch == ';' {
+                    break;
+                }
+
+                token.push(ch);
+                chars.next();
+            }
+
+            if !token.is_empty() {
+                items.push(parse_value_str_inner(&token));
+            }
+        }
+    }
+
+    items
+}
+
 fn parse_value_str_inner(s: &str) -> FoamValue {
     let s_clean = s.trim();
 
@@ -1080,16 +1175,13 @@ fn parse_value_str_inner(s: &str) -> FoamValue {
 
     if s_clean.starts_with('(') && s_clean.ends_with(')') {
         let inner = s_clean[1..s_clean.len() - 1].trim();
-        let parts: Vec<&str> = inner.split_whitespace().collect();
 
-        if let Some(numbers) = parts
-            .iter()
-            .map(|p| p.parse::<f64>())
-            .collect::<Result<Vec<f64>, _>>()
-            .ok()
-            .filter(|n| n.len() == 3)
-        {
-            return FoamValue::Vector(numbers);
+        if inner.is_empty() {
+            return FoamValue::List(Vec::new());
+        }
+
+        if !inner.contains('{') {
+            return FoamValue::List(parse_list_items(inner));
         }
     }
 
@@ -1275,6 +1367,69 @@ divSchemes
                 panic!("walls value should be FoamValue::Field");
             }
         }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_parse_nested_and_multidimensional_lists() -> Result<(), FoamParseError> {
+        let input = r#"
+refinementCylinderTip
+{
+    mode    distance;
+    levels  ((0.059 2) (0.118 1));
+}
+twoDVector (0 1);
+tensor9 (1 0 0 0 1 0 0 0 1);
+emptyList ();
+"#;
+        let dict = parse_foam_dict(input)?;
+        assert_eq!(
+            dict.get_path("refinementCylinderTip/mode"),
+            Some(&FoamValue::String("distance".to_string()))
+        );
+
+        let levels = dict.get_path("refinementCylinderTip/levels");
+        assert!(levels.is_some());
+
+        if let Some(FoamValue::List(outer)) = levels {
+            assert_eq!(outer.len(), 2);
+
+            if let FoamValue::List(ref inner0) = outer[0] {
+                assert_eq!(inner0.len(), 2);
+                assert_eq!(inner0[0], FoamValue::Scalar(0.059));
+                assert_eq!(inner0[1], FoamValue::Int(2));
+            } else {
+                panic!("Expected inner list");
+            }
+
+            if let FoamValue::List(ref inner1) = outer[1] {
+                assert_eq!(inner1.len(), 2);
+                assert_eq!(inner1[0], FoamValue::Scalar(0.118));
+                assert_eq!(inner1[1], FoamValue::Int(1));
+            } else {
+                panic!("Expected inner list");
+            }
+        } else {
+            panic!("Expected outer list");
+        }
+
+        let two_d = dict.get_path("twoDVector");
+        assert_eq!(
+            two_d,
+            Some(&FoamValue::List(vec![FoamValue::Int(0), FoamValue::Int(1)]))
+        );
+
+        let tensor = dict.get_path("tensor9");
+        assert!(matches!(tensor, Some(FoamValue::List(v)) if v.len() == 9));
+
+        let empty = dict.get_path("emptyList");
+        assert_eq!(empty, Some(&FoamValue::List(Vec::new())));
+
+        let serialized = dict.to_foam();
+        assert!(serialized.contains("levels  ((0.059 2) (0.118 1));"));
+        assert!(serialized.contains("twoDVector  (0 1);"));
+        assert!(serialized.contains("tensor9     (1 0 0 0 1 0 0 0 1);"));
 
         Ok(())
     }
