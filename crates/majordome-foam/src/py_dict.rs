@@ -73,6 +73,7 @@ impl PyFoamDict {
         py: Python<'_>,
         key_path: &str,
     ) -> PyResult<Option<Py<PyAny>>> {
+        // Query AST dictionary tree; convert value to Python object if found.
         match self.inner.get_path(key_path) {
             Some(val) => {
                 let py_obj = foam_value_to_py(py, &val)?;
@@ -126,6 +127,7 @@ impl PyFoamDict {
 
     /// Retrieve field data items as a Python list.
     pub fn get_data(&self, py: Python<'_>) -> PyResult<Option<Py<PyAny>>> {
+        // Return Python list if dictionary contains field data; otherwise None.
         if let Some(fd) = self.inner.field_data() {
             let py_list = PyList::empty(py);
 
@@ -150,6 +152,7 @@ impl PyFoamDict {
 
         let count = Some(new_vals.len());
 
+        // Update existing field data block if present; otherwise instantiate new.
         if let Some(fd) = self.inner.field_data_mut() {
             fd.values = new_vals;
             fd.count = count;
@@ -176,10 +179,12 @@ impl PyFoamDict {
         py: Python<'_>,
         index: isize,
     ) -> PyResult<Py<PyAny>> {
+        // Access field data elements with Python-style negative index wrap.
         if let Some(fd) = self.inner.field_data() {
             let len = fd.values.len() as isize;
             let actual_idx = if index < 0 { len + index } else { index };
 
+            // Bounds check resolved index.
             if actual_idx >= 0 && (actual_idx as usize) < fd.values.len() {
                 return foam_value_to_py(py, &fd.values[actual_idx as usize]);
             }
@@ -198,10 +203,12 @@ impl PyFoamDict {
     ) -> PyResult<()> {
         let foam_val = py_to_foam_value(value)?;
 
+        // Mutate field data element with Python-style negative index wrap.
         if let Some(fd) = self.inner.field_data_mut() {
             let len = fd.values.len() as isize;
             let actual_idx = if index < 0 { len + index } else { index };
 
+            // Bounds check resolved index.
             if actual_idx >= 0 && (actual_idx as usize) < fd.values.len() {
                 fd.values[actual_idx as usize] = foam_val;
                 return Ok(());
@@ -217,6 +224,7 @@ impl PyFoamDict {
     pub fn append_data(&mut self, value: &Bound<'_, PyAny>) -> PyResult<()> {
         let foam_val = py_to_foam_value(value)?;
 
+        // Append to existing field data, or initialize new list with element.
         if let Some(fd) = self.inner.field_data_mut() {
             fd.values.push(foam_val);
             fd.count = Some(fd.values.len());
@@ -245,10 +253,12 @@ impl PyFoamDict {
         py: Python<'_>,
         index: isize,
     ) -> PyResult<Py<PyAny>> {
+        // Remove field data element with Python-style negative index wrap.
         if let Some(fd) = self.inner.field_data_mut() {
             let len = fd.values.len() as isize;
             let actual_idx = if index < 0 { len + index } else { index };
 
+            // Bounds check resolved index.
             if actual_idx >= 0 && (actual_idx as usize) < fd.values.len() {
                 let removed = fd.values.remove(actual_idx as usize);
                 fd.count = Some(fd.values.len());
@@ -263,6 +273,7 @@ impl PyFoamDict {
 
     /// Clear all field data items.
     pub fn clear_data(&mut self) {
+        // Reset field data values to empty list and count to zero.
         if let Some(fd) = self.inner.field_data_mut() {
             fd.values.clear();
             fd.count = Some(0);
@@ -274,6 +285,7 @@ impl PyFoamDict {
         py: Python<'_>,
         key_path: &str,
     ) -> PyResult<Py<PyAny>> {
+        // Map missing key to Python KeyError.
         match self.get(py, key_path)? {
             Some(obj) => Ok(obj),
             None => {
@@ -299,6 +311,7 @@ fn foam_value_to_py(
     py: Python<'_>,
     val: &FoamValue,
 ) -> PyResult<Py<PyAny>> {
+    // Convert Rust FoamValue AST enum variants into native Python types.
     match val {
         FoamValue::Scalar(v) => {
             Ok(v.into_pyobject(py)?.to_owned().into_any().unbind())
@@ -352,6 +365,7 @@ fn foam_value_to_py(
         }
 
         FoamValue::Field(fd) => {
+            // Uniform fields serialize as "uniform <val>"; nonuniform as list.
             if fd.is_uniform {
                 let val_str = if let Some(first) = fd.values.first() {
                     format!("uniform {}", first)
@@ -374,22 +388,27 @@ fn foam_value_to_py(
 }
 
 fn py_to_foam_value(value: &Bound<'_, PyAny>) -> PyResult<FoamValue> {
+    // Extract bool first because Python's bool is a subclass of int.
     if let Ok(b) = value.extract::<bool>() {
         return Ok(FoamValue::Bool(b));
     }
 
+    // 64-bit integer conversion.
     if let Ok(i) = value.extract::<i64>() {
         return Ok(FoamValue::Int(i));
     }
 
+    // Floating-point scalar conversion.
     if let Ok(f) = value.extract::<f64>() {
         return Ok(FoamValue::Scalar(f));
     }
 
+    // String literal conversion.
     if let Ok(s) = value.extract::<String>() {
         return Ok(FoamValue::String(s));
     }
 
+    // Sequence / list conversion (recursive elements).
     if let Ok(seq) = value.extract::<Vec<Bound<'_, PyAny>>>() {
         let mut vec = Vec::new();
 
@@ -400,10 +419,12 @@ fn py_to_foam_value(value: &Bound<'_, PyAny>) -> PyResult<FoamValue> {
         return Ok(FoamValue::List(vec));
     }
 
+    // Subdictionary conversion.
     if let Ok(dict) = value.extract::<PyRef<'_, PyFoamDict>>() {
         return Ok(FoamValue::Dict(dict.inner.clone()));
     }
 
+    // Error for unmapped Python types.
     Err(PyValueError::new_err(format!(
         "Unsupported type for FoamValue: {}",
         value
