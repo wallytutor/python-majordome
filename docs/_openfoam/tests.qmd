@@ -1,0 +1,442 @@
+## Direct file parsing and validation tests
+
+To comprehensively assess the parser capabilities and limitations across real-world OpenFOAM cases, representative files from OpenFOAM 13 tutorials were organized under `docs/data/foam/dangling/` based on features rather than sheer nomenclature. This database contains isolated dictionaries, mesh topology files in `polyMesh/`, and initial fields in `zero/`.
+
+Files are inspected through direct AST parsing using `FoamDictFile`, specialized wrappers (`ControlDict`, `FvSchemes`, `FvSolution`, `BlockMeshDict`, `SnappyHexMeshDict`, `DecomposeParDict`), and field containers (`FieldFile`, `VolScalarField`, `VolVectorField`).
+
+Each test case below exercises the direct file parsing interface and applies error handling to ensure all parsing successes, limitations, and syntactic edge cases are cleanly reported without aborting the documentation pipeline.
+
+```{python}
+import multiprocessing
+from pathlib import Path
+from majordome.openfoam.files import (
+    FoamDictFile,
+    ControlDict,
+    FvSchemes,
+    FvSolution,
+    BlockMeshDict,
+    SnappyHexMeshDict,
+    DecomposeParDict,
+    FieldFile,
+    VolScalarField,
+    VolVectorField,
+)
+
+DATA_DIR = Path("../data/foam/dangling")
+
+def _parse_worker(path_str, cls, conn):
+    try:
+        target_cls = cls if cls is not None else FoamDictFile
+        obj = target_cls.from_file(path_str)
+        keys = list(obj.keys()) if hasattr(obj, "keys") else []
+        field_len = len(obj) if hasattr(obj, "__len__") else 0
+        conn.send({
+            "status": "SUCCESS",
+            "class": type(obj).__name__,
+            "header_class": getattr(obj, "foam_class", None),
+            "header_object": getattr(obj, "object", None),
+            "keys_count": len(keys),
+            "field_len": field_len,
+            "keys_sample": keys[:5],
+            "error": None,
+        })
+    except Exception as exc:
+        conn.send({
+            "status": "ERROR",
+            "class": cls.__name__ if cls else "FoamDictFile",
+            "error": f"{type(exc).__name__}: {exc}",
+        })
+
+def run_parse_test(filename: str, wrapper_cls=None, timeout: float = 1.5) -> dict:
+    file_path = DATA_DIR / filename
+    if not file_path.exists():
+        return {"status": "MISSING", "error": f"File not found: {file_path}"}
+
+    parent_conn, child_conn = multiprocessing.Pipe()
+    p = multiprocessing.Process(
+        target=_parse_worker,
+        args=(str(file_path), wrapper_cls, child_conn)
+    )
+    p.start()
+    p.join(timeout=timeout)
+
+    if p.is_alive():
+        p.terminate()
+        p.join()
+        return {
+            "status": "LIMITATION (TIMEOUT)",
+            "class": wrapper_cls.__name__ if wrapper_cls else "FoamDictFile",
+            "error": (
+                f"Parsing timed out after {timeout}s (parser encountered "
+                "an infinite loop on unparenthesized adjacent vectors/tokens)"
+            ),
+        }
+
+    if parent_conn.poll():
+        return parent_conn.recv()
+
+    return {"status": "CRASH", "error": f"Process terminated with exit code {p.exitcode}"}
+
+def display_test_result(filename: str, res: dict):
+    print(f"File ..........: {filename}")
+    print(f"Wrapper Type ..: {res.get('class', 'Unknown')}")
+    print(f"Outcome .......: {res.get('status')}")
+    if res.get("status") == "SUCCESS":
+        print(f"Foam Class ....: {res.get('header_class')}")
+        print(f"Foam Object ...: {res.get('header_object')}")
+        print(f"Entries/Blocks : {res.get('keys_count')}")
+        if res.get("field_len"):
+            print(f"Field Items ...: {res.get('field_len')}")
+        if res.get("keys_sample"):
+            print(f"Sample Keys ...: {res.get('keys_sample')}")
+    else:
+        print(f"Issue Detail ..: {res.get('error')}")
+```
+
+### controlDict
+
+Simulation control dictionary defining solver runtime parameters, time step controls, output formatting, and function objects.
+
+```{python}
+#| echo: true
+res = run_parse_test("controlDict", ControlDict)
+display_test_result("controlDict", res)
+```
+
+### fvSchemes
+
+Numerical discretization schemes dictionary defining derivative and interpolation operators across equations.
+
+```{python}
+#| echo: true
+res = run_parse_test("fvSchemes", FvSchemes)
+display_test_result("fvSchemes", res)
+```
+
+### fvSolution
+
+Linear solver settings, residual tolerances, and pressure-velocity coupling algorithms (SIMPLE/PIMPLE).
+
+```{python}
+#| echo: true
+res = run_parse_test("fvSolution", FvSolution)
+display_test_result("fvSolution", res)
+```
+
+### blockMeshDict
+
+Parametric structured hexahedral mesh generation dictionary with vertices, blocks, and boundary patch definitions.
+
+```{python}
+#| echo: true
+res = run_parse_test("blockMeshDict", BlockMeshDict)
+display_test_result("blockMeshDict", res)
+```
+
+### decomposeParDict
+
+Parallel domain decomposition dictionary configuring processor count and geometric/graph partition algorithms.
+
+```{python}
+#| echo: true
+res = run_parse_test("decomposeParDict", DecomposeParDict)
+display_test_result("decomposeParDict", res)
+```
+
+### snappyHexMeshDict
+
+Body-fitted Cartesian hex-dominant meshing dictionary controlling castellated mesh generation, snapping, and boundary layer addition.
+
+```{python}
+#| echo: true
+res = run_parse_test("snappyHexMeshDict", SnappyHexMeshDict)
+display_test_result("snappyHexMeshDict", res)
+```
+
+### meshQualityDict
+
+Mesh quality criteria dictionary defining orthogonality, skewness, and aspect ratio tolerances, illustrating the use of `#includeEtc`.
+
+```{python}
+#| echo: true
+res = run_parse_test("meshQualityDict", FoamDictFile)
+display_test_result("meshQualityDict", res)
+```
+
+### surfaceFeaturesDict
+
+Feature edge extraction dictionary used for surface mesh refinement and edge snapping.
+
+```{python}
+#| echo: true
+res = run_parse_test("surfaceFeaturesDict", FoamDictFile)
+display_test_result("surfaceFeaturesDict", res)
+```
+
+### extrudeMeshDict
+
+Mesh extrusion dictionary specifying linear, wedge, or rotational cell layer extrusion.
+
+```{python}
+#| echo: true
+res = run_parse_test("extrudeMeshDict", FoamDictFile)
+display_test_result("extrudeMeshDict", res)
+```
+
+### createZonesDict
+
+Dictionary for defining cell and face zones from surface geometry or bounding boxes.
+
+```{python}
+#| echo: true
+res = run_parse_test("createZonesDict", FoamDictFile)
+display_test_result("createZonesDict", res)
+```
+
+### createBafflesDict
+
+Internal face conversion dictionary splitting selected internal faces into boundary patches.
+
+```{python}
+#| echo: true
+res = run_parse_test("createBafflesDict", FoamDictFile)
+display_test_result("createBafflesDict", res)
+```
+
+### dynamicMeshDict
+
+Dynamic mesh handling dictionary specifying solid body motion, mesh morphing, or adaptive refinement.
+
+```{python}
+#| echo: true
+res = run_parse_test("dynamicMeshDict", FoamDictFile)
+display_test_result("dynamicMeshDict", res)
+```
+
+### functions
+
+Standalone function objects dictionary defining runtime post-processing tasks, probes, and force calculations.
+
+```{python}
+#| echo: true
+res = run_parse_test("functions", FoamDictFile)
+display_test_result("functions", res)
+```
+
+### fvConstraints
+
+Finite volume constraints dictionary imposing bound limits or explicit field corrections.
+
+```{python}
+#| echo: true
+res = run_parse_test("fvConstraints", FoamDictFile)
+display_test_result("fvConstraints", res)
+```
+
+### fvModels
+
+Finite volume physics models dictionary adding source terms and inter-phase momentum exchanges.
+
+```{python}
+#| echo: true
+res = run_parse_test("fvModels", FoamDictFile)
+display_test_result("fvModels", res)
+```
+
+### combustionProperties
+
+Combustion chemistry and flame propagation model configuration dictionary.
+
+```{python}
+#| echo: true
+res = run_parse_test("combustionProperties", FoamDictFile)
+display_test_result("combustionProperties", res)
+```
+
+### radiationProperties
+
+Thermal radiation modeling dictionary configuring P1, fvDOM, or view factor solvers.
+
+```{python}
+#| echo: true
+res = run_parse_test("radiationProperties", FoamDictFile)
+display_test_result("radiationProperties", res)
+```
+
+### phaseProperties
+
+Multiphase flow phase declarations and inter-phase interaction properties.
+
+```{python}
+#| echo: true
+res = run_parse_test("phaseProperties", FoamDictFile)
+display_test_result("phaseProperties", res)
+```
+
+### physicalProperties
+
+Thermophysical model selection and material constant properties.
+
+```{python}
+#| echo: true
+res = run_parse_test("physicalProperties", FoamDictFile)
+display_test_result("physicalProperties", res)
+```
+
+### thermophysicalTransport
+
+Turbulent thermal and species transport modeling dictionary.
+
+```{python}
+#| echo: true
+res = run_parse_test("thermophysicalTransport", FoamDictFile)
+display_test_result("thermophysicalTransport", res)
+```
+
+### momentumTransport
+
+Turbulence model selection and Reynolds stress transport controls.
+
+```{python}
+#| echo: true
+res = run_parse_test("momentumTransport", FoamDictFile)
+display_test_result("momentumTransport", res)
+```
+
+### cloudProperties
+
+Lagrangian dispersed particle cloud modeling dictionary defining sub-models and tracking controls.
+
+```{python}
+#| echo: true
+res = run_parse_test("cloudProperties", FoamDictFile)
+display_test_result("cloudProperties", res)
+```
+
+### g
+
+Gravitational acceleration vector dictionary defining physical dimensions and coordinate values.
+
+```{python}
+#| echo: true
+res = run_parse_test("g", FoamDictFile)
+display_test_result("g", res)
+```
+
+### pRef
+
+Reference pressure dictionary specifying reference cell and pressure value for closed incompressible domains.
+
+```{python}
+#| echo: true
+res = run_parse_test("pRef", FoamDictFile)
+display_test_result("pRef", res)
+```
+
+### pointDisplacement
+
+Point displacement field file defining moving wall and mesh deformation boundary conditions.
+
+```{python}
+#| echo: true
+res = run_parse_test("pointDisplacement", FoamDictFile)
+display_test_result("pointDisplacement", res)
+```
+
+### polyMesh/points
+
+PolyMesh geometry points file containing a 3D coordinate vector array (`vectorField`) defining mesh vertex positions in Euclidean space.
+
+```{python}
+#| echo: true
+res = run_parse_test("polyMesh/points", FieldFile)
+display_test_result("polyMesh/points", res)
+```
+
+### polyMesh/cells
+
+PolyMesh cell-to-face connectivity topology file (`cellList`), illustrating nested list data structures (`6(0 1 2 ...)`) representing polygon face groupings per cell. This file serves as the canonical representative for nested lists (subsuming `faces`).
+
+```{python}
+#| echo: true
+res = run_parse_test("polyMesh/cells", FieldFile)
+display_test_result("polyMesh/cells", res)
+```
+
+### polyMesh/neighbour
+
+PolyMesh cell adjacency list file (`labelList`), illustrating a flat list of cell index labels. This file serves as the canonical representative for single 1D label lists (subsuming `owner`).
+
+```{python}
+#| echo: true
+res = run_parse_test("polyMesh/neighbour", FieldFile)
+display_test_result("polyMesh/neighbour", res)
+```
+
+### polyMesh/boundary
+
+PolyMesh boundary dictionary list file (`polyBoundaryMesh`), defining patch groupings, start face indices, face counts, and physical patch types.
+
+```{python}
+#| echo: true
+res = run_parse_test("polyMesh/boundary", FoamDictFile)
+display_test_result("polyMesh/boundary", res)
+```
+
+### zero/alpha.water
+
+Multiphase phase fraction initial condition field (`volScalarField`), selected to illustrate key features:
+- **Empty dimension set**: explicitly declared with `dimensions [];` representing dimensionless quantities.
+- **Preprocessor directive `#includeEtc`**: uses `#includeEtc "caseDicts/setConstraintTypes"` within the `boundaryField` block.
+- **Mixed boundary conditions**: demonstrates both `fixedValue` and `inletOutlet` condition specifications.
+
+```{python}
+#| echo: true
+res = run_parse_test("zero/alpha.water", VolScalarField)
+display_test_result("zero/alpha.water", res)
+```
+
+### zero/U
+
+Fluid velocity initial condition field (`volVectorField`), selected to illustrate key features:
+- **Vector-valued physical field**: vector dimension `[0 1 -1 0 0 0 0]` and `uniform (0 0 0)` internal field.
+- **Missing header location**: illustrates handling when `FoamFile/location` is omitted from the header.
+- **Regex-like patch grouping**: groups multiple physical boundaries in a single block using `"(walls|sides)"`.
+- **Macro variable substitution**: accesses `$internalField` to assign boundary values dynamically (`value $internalField;`).
+- **Actual regex pattern matching**: uses `"outlet.*"` to match multiple outlet patches.
+
+```{python}
+#| echo: true
+res = run_parse_test("zero/U", VolVectorField)
+display_test_result("zero/U", res)
+```
+
+### createPatchDict
+
+Boundary patch creation dictionary. Demonstrates the parser limitation when encountering unparenthesized adjacent vector sequences (`(min) (max)`).
+
+```{python}
+#| echo: true
+res = run_parse_test("createPatchDict", FoamDictFile)
+display_test_result("createPatchDict", res)
+```
+
+### refineMeshDict
+
+Mesh directional refinement dictionary. Demonstrates the parser limitation when encountering unparenthesized adjacent vector sequences (`(min) (max)`).
+
+```{python}
+#| echo: true
+res = run_parse_test("refineMeshDict", FoamDictFile)
+display_test_result("refineMeshDict", res)
+```
+
+### setFieldsDict
+
+Field initialization dictionary. Demonstrates the parser limitation when encountering unparenthesized bounding box vector pairs (`box (minX minY minZ) (maxX maxY maxZ);`).
+
+```{python}
+#| echo: true
+res = run_parse_test("setFieldsDict", FoamDictFile)
+display_test_result("setFieldsDict", res)
+```

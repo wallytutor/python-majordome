@@ -1,0 +1,293 @@
+## Library architecture and development roadmap
+
+This document outlines the internal architecture, current feature set, known limitations, and development roadmap for `majordome.openfoam.files` and its core Rust AST crate `majordome-foam`.
+
+### Summary of features
+
+- **High-Performance Rust AST Core (`majordome-foam`)**:
+  - Full C++ comment preservation supporting both single-line (`//`) and multi-line (`/* ... */`) comments, as well as the standard OpenFOAM header banner.
+  - Parsing and AST representation for OpenFOAM primitive values: scalars, integers, booleans (`true`/`false`, `on`/`off`, `yes`/`no`), vectors (`(x y z)`), dimension sets (`[0 2 -2 0 0 0 0]`), and nested dictionary blocks (`{ ... }`).
+  - Key-name tokenizer with support for quoted strings and nested parentheses in expressions (e.g. `div(phi,U)` or `div((nuEff*dev2(T(grad(U)))))`).
+  - Field data extraction engine capable of parsing uniform fields, non-uniform scalar lists, vector lists, and lagrangian compound position records (`(x y z) parcelId cellId`).
+  - Canonical serialization engine (`to_foam`) that computes column alignment (`max_key_len + 2`), indentation levels, and formats extreme floating-point numbers in scientific notation (`abs < 1e-4` or `abs >= 1e5`).
+  - Recursive slash-delimited key-path manipulation (`get_path`, `set_path`, `delete_path`) enabling deep inspection and mutation (e.g. `solvers/p/tolerance`).
+  - Direct PyO3 boundary integration mapping native Rust AST types seamlessly into Python lists, floats, ints, bools, and dictionary handles.
+
+- **Base Dictionary Container (`FoamDictFile`)**:
+  - Thin Python wrapper around `majordome._core.foam.FoamDict`.
+  - Constructors for loading directly from file paths (`from_file`) or raw text strings (`from_string`, `parse`).
+  - Header inspection properties: `.header`, `.foam_class`, `.location`, `.object`, and `.format`.
+  - Comprehensive dictionary protocol support: `keys()`, `contains()`, `get()`, `set()`, `delete()`, `__getitem__`, `__setitem__`, `__contains__`, and `to_foam()`.
+  - Safe in-place file synchronization via `save()`.
+
+- **Strongly-Typed Dictionary Wrappers**:
+  - `ControlDict`: Properties for simulation controls (`application`, `solver`, `start_time`, `end_time`, `delta_t`, `write_control`, `write_interval`, `purge_write`, `write_format`, `write_precision`, `run_time_modifiable`, `adjust_time_step`, `max_co`, `libs`).
+  - `FvSchemes`: Accessors for discretization schemes (`ddt_schemes`, `grad_schemes`, `div_schemes`, `laplacian_schemes`, `interpolation_schemes`, `sn_grad_schemes`, `flux_required`) and `set_div_scheme()` helper.
+  - `FvSolution`: Linear solver configurations (`solvers`), algorithm control blocks (`simple`, `pimple`, `piso`), relaxation factors (`relaxation_factors`), and `set_solver_option()` / `set_solver()` helpers.
+  - `BlockMeshDict`: Coordinate scaling (`scale`, `convert_to_meters`), vertices list, block declarations, curved edges, and boundary patch definitions.
+  - `SnappyHexMeshDict`: Boolean meshing step flags (`castellated_mesh`, `snap`, `add_layers`) and control blocks (`geometry`, `castellated_mesh_controls`, `snap_controls`, `add_layers_controls`, `mesh_quality_controls`).
+  - `DecomposeParDict`: Number of subdomains (`number_of_subdomains`), decomposition method (`method`), and `set_simple_coeffs()` helper.
+
+- **Field Files and PolyMesh Topology Lists (`FieldFile`)**:
+  - Unified container handling initial condition fields (`zero/U`, `zero/alpha.water`), time-step fields (`1/p`), lagrangian clouds (`1/lagrangian/cloud/T`, `positions`), and polyMesh topology lists (`points`, `cells`, `neighbour`).
+  - Physical dimensions retrieval (`dimensions`).
+  - Python sequence protocol compliance supporting `len()`, index lookup `[i]`, item mutation `[i] = val`, list iteration, `.data`, `.append()`, `.extend()`, `.pop()`, and `.clear()`.
+  - Specialized subclasses `VolScalarField` and `VolVectorField`.
+
+- **High-Level Case Management (`FoamCaseHandle`)**:
+  - Automated case validation verifying existence of `constant/` directory and `system/controlDict` file (raising `NotACaseError` on invalid directories).
+  - Dynamic dictionary resolution via `__getattr__` searching across `system/`, `constant/`, initial condition directory (`0/` or configured `zero_name`), and case root.
+  - Case-wide caching of loaded dictionary handles preventing duplicate disk reads.
+  - Atomic persistence with `handle.save()`.
+
+- **Meshing Utility Helpers**:
+  - `FoamSearchableSurfaces`: Declarative helper for generating geometry definitions in `snappyHexMeshDict`.
+  - `FoamRefinementRegions`: Declarative helper for adding inside/distance refinement regions.
+
+---
+
+### Improvement points
+
+- **[CRITICAL] Infinite loop when parsing unparenthesized adjacent vectors/tuples**:
+  - *Symptom*: When a dictionary entry contains consecutive vectors on a single line without an enclosing list container (e.g. bounding boxes in `setFieldsDict`, `refineMeshDict`, and `createPatchDict`: `box (minX minY minZ) (maxX maxY maxZ);` or `box (min)(max);`), the parser enters an infinite loop and freezes execution indefinitely.
+  - *Root Cause*: In `parser.rs`, `parse_value_str_inner` checks `s_clean.starts_with('(') && s_clean.ends_with(')')`. For `(0 0 -1) (0.14 0.29 1)`, it strips the outer parentheses assuming a single parenthesized group, leaving `0 0 -1) (0.14 0.29 1`. Inside `parse_list_items`, when the scanner encounters the unconsumed closing parenthesis `)`, the token branch terminates immediately without advancing the character iterator (`chars.next()`), repeatedly encountering the same character.
+  - *Remediation*: Implement balanced delimiter verification to ensure outer `(` and `)` belong to the same group before stripping; ensure the character iterator always advances on unexpected delimiters in `parse_list_items`.
+
+- **[CRITICAL] Macro variable expansion and dictionary inheritance**:
+  - *Symptom*: Entries referencing macros (e.g., `div(phi,Yi_h) $species;` in `fvSchemes` or `$xyBox;` in `refineMeshDict`) store the literal token `$name` rather than resolving or merging the referenced values or subdictionaries.
+  - *Remediation*: Implement an AST macro expansion evaluation pass that resolves variable names and subdictionary templates within the file or across included files.
+
+- **[HIGH] In-memory `#include` and `#includeEtc` directive resolution**:
+  - *Symptom*: Directives such as `#include "filename"` and `#includeEtc "caseDicts/..."` are retained as AST elements upon write, but their contents are not loaded or merged into the parsing AST. Dictionaries relying on shared include files cannot access the included keys dynamically.
+  - *Remediation*: Add an optional include resolver in `FoamDict::from_file` that parses referenced files relative to the case directory or `$WM_PROJECT_DIR/etc`.
+
+- **[HIGH] Binary OpenFOAM file stream parsing**:
+  - *Symptom*: OpenFOAM time-step solution fields and polyMesh files written with `format binary;` cannot currently be parsed by the ASCII text parser.
+  - *Remediation*: Inspect the `FoamFile` header for `format binary;` and implement binary decoding for double/single-precision float and integer byte streams.
+
+- **[MEDIUM] Lists of anonymous subdictionaries**:
+  - *Symptom*: Constructs like `features ( { file "model.eMesh"; level 2; } );` in `snappyHexMeshDict` or `regions ( boxToCell { ... } );` in `setFieldsDict` define dictionaries inside lists. Currently, `parse_list_items` skips or parses these blocks as raw tokens rather than structured `FoamDict` AST nodes.
+  - *Remediation*: Enhance `parse_list_items` to detect `{` and invoke `parse_subdict` recursively, storing `FoamValue::Dict` inside the list.
+
+- **[MEDIUM] Transparent `.gz` file decompression**:
+  - *Symptom*: PolyMesh files (`faces.gz`, `points.gz`) or large fields compressed with gzip require external decompression before loading into `FoamDictFile`.
+  - *Remediation*: Add automatic gzip streaming/decompression in `FoamDict::from_file` when the file path ends with `.gz`.
+
+- **[LOW] Strict floating-point formatting round-trip**:
+  - *Symptom*: Serialization applies standard 10-digit scientific formatting for numbers `< 1e-4` or `>= 1e5`, which may cause minute character variations when comparing raw text against original tutorial files.
+  - *Remediation*: Optionally preserve original token text representation for untouched AST scalar entries.
+
+- **[LOW] Expansion of dedicated dictionary wrappers**:
+  - *Symptom*: Many common OpenFOAM files (e.g., `MomentumTransport`, `PhysicalProperties`, `ThermophysicalTransport`, `DynamicMeshDict`, `SetFieldsDict`) currently use generic `FoamDictFile`.
+  - *Remediation*: Add specialized wrappers for physical and transport property dictionaries.
+
+---
+
+### Library structure
+
+The architectural relationship between the core Rust AST crate (`majordome-foam`), the Python PyO3 boundary, and the high-level object model in `majordome.openfoam.files` is illustrated below:
+
+```{mermaid}
+classDiagram
+    direction TB
+
+    %% Rust core
+    class FoamDict {
+        <<Rust PyO3 Struct>>
+        +elements: Vec~FoamElement~
+        +from_file(path)
+        +parse(content)
+        +to_foam() String
+        +save(path)
+        +get_path(key_path)
+        +set_path(key_path, value)
+        +delete_path(key_path)
+        +keys() Vec~String~
+        +has_field_data() bool
+        +get_data()
+        +set_data(values)
+    }
+
+    class FoamElement {
+        <<Rust AST Enum>>
+        Comment(String)
+        HeaderBanner(String)
+        Directive(name, value)
+        Entry(key, value)
+        Block(name, dict, has_semi)
+        MacroRef(name)
+        FieldData(data)
+    }
+
+    class FieldData {
+        <<Rust Struct>>
+        +is_uniform: bool
+        +field_type: Option~String~
+        +count: Option~usize~
+        +values: Vec~FoamValue~
+        +has_semicolon: bool
+        +compact_format: bool
+    }
+
+    FoamDict o-- FoamElement : contains
+    FoamElement o-- FieldData : contains
+
+    %% Python Layer
+    class FoamDictFile {
+        +_inner: FoamDict
+        +_path: Path
+        +from_file(path)
+        +from_string(content)
+        +to_foam() String
+        +save(path)
+        +get(key_path)
+        +set(key_path, value)
+        +delete(key_path)
+        +keys()
+        +header: dict
+        +foam_class: str
+        +location: str
+        +object: str
+        +format: str
+    }
+
+    class ControlDict {
+        +application: str
+        +solver: str
+        +start_from: str
+        +start_time: float
+        +stop_at: str
+        +end_time: float
+        +delta_t: float
+        +write_control: str
+        +write_interval: float
+        +run_time_modifiable: bool
+        +adjust_time_step: bool
+        +max_co: float
+        +libs: list
+    }
+
+    class FvSchemes {
+        +ddt_schemes
+        +grad_schemes
+        +div_schemes
+        +laplacian_schemes
+        +interpolation_schemes
+        +sn_grad_schemes
+        +flux_required
+        +set_div_scheme(field, scheme)
+    }
+
+    class FvSolution {
+        +solvers
+        +simple
+        +pimple
+        +piso
+        +relaxation_factors
+        +set_solver(var, config)
+        +set_solver_option(var, option, value)
+    }
+
+    class BlockMeshDict {
+        +scale: float
+        +convert_to_meters: float
+        +vertices: list
+        +blocks: list
+        +edges: list
+        +boundary: list
+    }
+
+    class SnappyHexMeshDict {
+        +castellated_mesh: bool
+        +snap: bool
+        +add_layers: bool
+        +geometry: dict
+        +castellated_mesh_controls: dict
+        +snap_controls: dict
+        +add_layers_controls: dict
+        +mesh_quality_controls: dict
+    }
+
+    class DecomposeParDict {
+        +number_of_subdomains: int
+        +method: str
+        +coeffs: dict
+        +set_simple_coeffs(n)
+    }
+
+    class FieldFile {
+        +dimensions: list
+        +internal_field
+        +boundary_field
+        +data: list
+        +append(value)
+        +extend(items)
+        +pop(index)
+        +clear()
+    }
+
+    class VolScalarField
+    class VolVectorField
+
+    class FoamCaseHandle {
+        -_root_dir: Path
+        -_cache: dict
+        +is_valid: bool
+        +check_valid()
+        +get_dict(relative_path)
+        +save()
+        +__getattr__(name)
+    }
+
+    class FoamSearchableSurfaces {
+        +add(parent, name, ...)$
+    }
+
+    class FoamRefinementRegions {
+        +add(parent, name, ...)$
+    }
+
+    FoamDictFile *-- FoamDict : wraps
+    FoamDictFile <|-- ControlDict
+    FoamDictFile <|-- FvSchemes
+    FoamDictFile <|-- FvSolution
+    FoamDictFile <|-- BlockMeshDict
+    FoamDictFile <|-- SnappyHexMeshDict
+    FoamDictFile <|-- DecomposeParDict
+    FoamDictFile <|-- FieldFile
+    FieldFile <|-- VolScalarField
+    FieldFile <|-- VolVectorField
+
+    FoamCaseHandle --> FoamDictFile : manages
+    SnappyHexMeshDict ..> FoamSearchableSurfaces : configured by
+    SnappyHexMeshDict ..> FoamRefinementRegions : configured by
+```
+
+#### Adding a New OpenFOAM Dictionary Wrapper
+
+To add a new strongly-typed wrapper:
+
+1. Open `majordome/openfoam/files.py`.
+2. Subclass `FoamDictFile` and define typed property accessors:
+
+   ```python
+   class ThermophysicalProperties(FoamDictFile):
+       """ Interface for thermophysicalProperties dictionary. """
+       __slots__ = ()
+
+       @property
+       def thermo_type(self) -> Any:
+           return self.get("thermoType")
+
+       @property
+       def mixture(self) -> Any:
+           return self.get("mixture")
+   ```
+
+3. Register the class in `FoamCaseHandle.KNOWN_DICTS`:
+
+   ```python
+   "thermophysicalProperties": (ThermophysicalProperties, "constant/thermophysicalProperties"),
+   ```
+
+4. Export the class in `majordome/openfoam/__init__.py`.
