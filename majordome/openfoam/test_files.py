@@ -542,7 +542,7 @@ FoamFile
                 "    species"
                 "                        Gauss multivariateSelection\n"
                 "    {\n"
-                "        O2              limitedLinear01 1;",
+                "        O2    limitedLinear01 1;",
                 foam_str
             )
             self.assertIn("    };", foam_str)
@@ -769,7 +769,7 @@ class TestDanglingFiles(unittest.TestCase):
         self.assertIn('"(walls|sides)"', u.boundary_field.keys())
         self.assertIn('"outlet.*"', u.boundary_field.keys())
         self.assertEqual(
-            u.get("boundaryField/inlet/value"), "internalField"
+            u.get("boundaryField/inlet/value"), "$internalField"
         )
         self.assertIn("$internalField", u.to_foam())
 

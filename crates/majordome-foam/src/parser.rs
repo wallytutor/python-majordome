@@ -1380,7 +1380,26 @@ fn parse_value_str_inner(s: &str) -> FoamValue {
         }
     }
 
-
+    // Compound named block value branch: 'SchemeName { ... }'.
+    if let Some(brace_idx) = s_clean.find('{') {
+        let trimmed_end = s_clean.trim_end();
+        if trimmed_end.ends_with('}') || trimmed_end.ends_with("};") {
+            let prefix = s_clean[..brace_idx].trim();
+            if !prefix.is_empty() && !prefix.starts_with('(') && !prefix.starts_with('[') {
+                let inside = &s_clean[brace_idx + 1..];
+                let mut inside_chars = inside.chars().peekable();
+                let mut line_num = 1;
+                let subdict = parse_subdict(&mut inside_chars, &mut line_num).unwrap_or_default();
+                let mut d = FoamDict::new();
+                d.elements.push(FoamElement::Block {
+                    name: prefix.to_string(),
+                    dict: subdict,
+                    has_semicolon: true,
+                });
+                return FoamValue::Dict(d);
+            }
+        }
+    }
 
     // Dimension set branch: bracketed 7-element vector '[0 2 -1 0 0 0 0]'.
     if s_clean.starts_with('[') && s_clean.ends_with(']') {

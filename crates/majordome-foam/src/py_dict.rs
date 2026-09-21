@@ -428,7 +428,8 @@ fn foam_value_to_py(
         }
 
         FoamValue::MacroRef(m) => {
-            Ok(m.as_str().into_pyobject(py)?.to_owned().into_any().unbind())
+            let s = format!("${}", m);
+            Ok(s.as_str().into_pyobject(py)?.to_owned().into_any().unbind())
         }
         FoamValue::Raw(r) => {
             Ok(r.as_str().into_pyobject(py)?.to_owned().into_any().unbind())
@@ -473,8 +474,12 @@ fn py_to_foam_value(value: &Bound<'_, PyAny>) -> PyResult<FoamValue> {
         return Ok(FoamValue::Scalar(f));
     }
 
-    // String literal conversion.
+    // String literal conversion (preserving macro substitutions).
     if let Ok(s) = value.extract::<String>() {
+        if let Some(rest) = s.strip_prefix('$') {
+            return Ok(FoamValue::MacroRef(rest.to_string()));
+        }
+
         return Ok(FoamValue::String(s));
     }
 

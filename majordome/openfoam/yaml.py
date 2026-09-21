@@ -103,6 +103,33 @@ def _format_foam_value(val: Any, indent_level: int = 0) -> str:
     if isinstance(val, str):
         return val
 
+    if isinstance(val, dict):
+        pad = "    " * indent_level
+        lines_dict: list[str] = []
+
+        if len(val) == 1:
+            k, v = next(iter(val.items()))
+
+            if isinstance(v, dict):
+                lines_dict.append(f"{k}")
+                lines_dict.append(f"{pad}{{")
+
+                for ik, iv in v.items():
+                    sub_val_str = _format_foam_value(iv, indent_level + 1)
+                    lines_dict.append(f"{pad}    {ik} {sub_val_str};")
+
+                lines_dict.append(f"{pad}}}")
+                return "\n".join(lines_dict)
+
+        lines_dict.append("{")
+
+        for k, v in val.items():
+            sub_val_str = _format_foam_value(v, indent_level + 1)
+            lines_dict.append(f"{pad}    {k} {sub_val_str};")
+
+        lines_dict.append(f"{pad}}}")
+        return "\n".join(lines_dict)
+
     if isinstance(val, list):
         if not val:
             return "()"
@@ -113,7 +140,7 @@ def _format_foam_value(val: Any, indent_level: int = 0) -> str:
             if len(val) == 3:
                 return f"({' '.join(str(x) for x in val)})"
 
-        items_str = " ".join(_format_foam_value(x) for x in val)
+        items_str = " ".join(_format_foam_value(x, indent_level) for x in val)
         return f"({items_str})"
 
     return str(val)
@@ -188,6 +215,23 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
             continue
 
         if isinstance(val, dict):
+            if len(val) == 1:
+                sub_k, sub_v = next(iter(val.items()))
+
+                if isinstance(sub_v, dict) and (
+                    " " in sub_k or sub_k.startswith("Gauss")
+                ):
+                    lines.append(f"{pad}{key:<16} {sub_k}")
+                    lines.append(f"{pad}{{")
+                    inner = _dict_to_foam_str(sub_v, indent_level + 1)
+
+                    if inner:
+                        lines.append(inner)
+
+                    lines.append(f"{pad}}};")
+                    lines.append("")
+                    continue
+
             lines.append(f"{pad}{key}")
             lines.append(f"{pad}{{")
             inner = _dict_to_foam_str(val, indent_level + 1)
@@ -206,7 +250,7 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
             lines.append(f"{pad}(")
 
             for item in val:
-                lines.append(f"{pad}    {_format_foam_value(item)}")
+                lines.append(f"{pad}    {_format_foam_value(item, indent_level + 1)}")
 
             lines.append(f"{pad});")
             lines.append("")
@@ -221,11 +265,42 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
     return "\n".join(lines)
 
 
+def _is_numeric_sequence(seq: list[Any]) -> bool:
+    """ Check if sequence contains only numeric types or nested numeric lists.
+
+    Parameters
+    ----------
+    seq : list[Any]
+        List to inspect.
+
+    Returns
+    -------
+    bool
+        True if all elements are numbers, booleans, or nested numeric lists.
+    """
+    if not seq:
+        return True
+
+    for item in seq:
+        if isinstance(item, (int, float, bool)):
+            continue
+
+        if isinstance(item, list) and all(
+            isinstance(sub, (int, float, bool)) for sub in item
+        ):
+            continue
+
+        return False
+
+    return True
+
+
 def _format_yaml_maps(data: Any, is_root: bool = True) -> Any:
     """ Recursively format mappings and lists for clean YAML output.
 
-    Applies flow style (bracket formatting) to lists and blank lines
-    between dictionaries.
+    Applies flow style (bracket formatting) to numeric lists and itemized
+    format to string lists and dictionaries, with blank lines separating
+    dictionary blocks.
 
     Parameters
     ----------
@@ -243,7 +318,10 @@ def _format_yaml_maps(data: Any, is_root: bool = True) -> Any:
         cs = CommentedSeq(
             [_format_yaml_maps(item, is_root=False) for item in data]
         )
-        cs.fa.set_flow_style()
+
+        if _is_numeric_sequence(data):
+            cs.fa.set_flow_style()
+
         return cs
 
     if not isinstance(data, dict):

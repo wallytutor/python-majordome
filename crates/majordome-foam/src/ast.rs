@@ -494,6 +494,38 @@ impl FoamDict {
                             }
                         }
 
+                        FoamValue::Dict(d) if d.elements.len() == 1 => {
+                            if let Some(FoamElement::Block {
+                                name,
+                                dict,
+                                has_semicolon,
+                            }) = d.elements.first()
+                            {
+                                let spacing = if align_width > key.len() {
+                                    " ".repeat(align_width - key.len())
+                                } else {
+                                    " ".to_string()
+                                };
+                                out.push_str(&format!(
+                                    "{}{}{}{}\n{}{{\n",
+                                    pad, key, spacing, name, pad
+                                ));
+                                let inner = dict.to_foam_indent(indent_level + 1);
+                                if !inner.is_empty() {
+                                    out.push_str(&inner);
+                                    out.push('\n');
+                                }
+                                if *has_semicolon {
+                                    out.push_str(&format!("{}}};", pad));
+                                } else {
+                                    out.push_str(&format!("{}}}", pad));
+                                }
+                            } else {
+                                let val_str = value.to_foam_indent(indent_level);
+                                out.push_str(&format!("{}{}\n{}{};", pad, key, pad, val_str));
+                            }
+                        }
+
                         // General values (scalars, strings, vectors, lists, sub-dicts).
                         _ => {
                             let val_str = value.to_foam_indent(indent_level);
