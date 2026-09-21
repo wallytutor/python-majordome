@@ -1193,6 +1193,15 @@ fn parse_list_items(inner: &str) -> Vec<FoamValue> {
             }
         }
 
+        // Block dictionary element enclosed in braces '{...}'
+        if c == '{' {
+            chars.next();
+            let mut line_num = 1;
+            let subdict = parse_subdict(&mut chars, &mut line_num).unwrap_or_default();
+            items.push(FoamValue::Dict(subdict));
+            continue;
+        }
+
         // Sublist or vector enclosed in parentheses '(...)'
         if c == '(' {
             chars.next();
@@ -1241,12 +1250,12 @@ fn parse_list_items(inner: &str) -> Vec<FoamValue> {
             }
 
             items.push(FoamValue::String(s));
-        // Unquoted token branch (number, bool, or unquoted identifier).
+        // Unquoted token branch (number, bool, or unquoted identifier / named sub-block).
         } else {
             let mut token = String::new();
 
             while let Some(&ch) = chars.peek() {
-                if ch.is_whitespace() || ch == '(' || ch == ')' || ch == ';' {
+                if ch.is_whitespace() || ch == '(' || ch == ')' || ch == '{' || ch == '}' || ch == ';' {
                     break;
                 }
 
@@ -1255,13 +1264,39 @@ fn parse_list_items(inner: &str) -> Vec<FoamValue> {
             }
 
             if !token.is_empty() {
-                let parsed = parse_value_str_inner(&token);
+                // Check if next non-whitespace char is '{' (named sub-block inside list, e.g. solid { ... })
+                let mut is_named_block = false;
+                while let Some(&next_c) = chars.peek() {
+                    if next_c.is_whitespace() {
+                        chars.next();
+                    } else if next_c == '{' {
+                        is_named_block = true;
+                        chars.next();
+                        break;
+                    } else {
+                        break;
+                    }
+                }
 
-                // Preserve non-numeric unquoted identifiers as Raw tokens.
-                if let FoamValue::String(s) = parsed {
-                    items.push(FoamValue::Raw(s));
+                if is_named_block {
+                    let mut line_num = 1;
+                    let inner_dict = parse_subdict(&mut chars, &mut line_num).unwrap_or_default();
+                    let mut d = FoamDict::new();
+                    d.elements.push(FoamElement::Block {
+                        name: token,
+                        dict: inner_dict,
+                        has_semicolon: false,
+                    });
+                    items.push(FoamValue::Dict(d));
                 } else {
-                    items.push(parsed);
+                    let parsed = parse_value_str_inner(&token);
+
+                    // Preserve non-numeric unquoted identifiers as Raw tokens.
+                    if let FoamValue::String(s) = parsed {
+                        items.push(FoamValue::Raw(s));
+                    } else {
+                        items.push(parsed);
+                    }
                 }
             } else {
                 chars.next();
@@ -1308,11 +1343,44 @@ fn parse_value_str_inner(s: &str) -> FoamValue {
             return FoamValue::List(Vec::new());
         }
 
-        // Only parse as list if inner content has no nested block dictionaries.
-        if !inner.contains('{') {
-            return FoamValue::List(parse_list_items(inner));
+        return FoamValue::List(parse_list_items(inner));
+    }
+
+    // Table property function branch: 'table ( ... )'.
+    if let Some(after) = s_clean.strip_prefix("table") {
+        let after_clean = after.trim();
+        if is_enclosed_in_parens(after_clean) {
+            let inner = after_clean[1..after_clean.len() - 1].trim();
+            if inner.starts_with("#include") {
+                let inc_val = inner
+                    .strip_prefix("#include")
+                    .unwrap_or("")
+                    .trim()
+                    .trim_matches(';')
+                    .trim()
+                    .trim_matches('"');
+                let mut d = FoamDict::new();
+                d.add_include(inc_val);
+                let mut wrap = FoamDict::new();
+                wrap.elements.push(FoamElement::Block {
+                    name: "table".to_string(),
+                    dict: d,
+                    has_semicolon: false,
+                });
+                return FoamValue::Dict(wrap);
+            } else {
+                let table_items = parse_list_items(inner);
+                let mut d = FoamDict::new();
+                d.elements.push(FoamElement::Entry {
+                    key: "table".to_string(),
+                    value: FoamValue::List(table_items),
+                });
+                return FoamValue::Dict(d);
+            }
         }
     }
+
+
 
     // Dimension set branch: bracketed 7-element vector '[0 2 -1 0 0 0 0]'.
     if s_clean.starts_with('[') && s_clean.ends_with(']') {

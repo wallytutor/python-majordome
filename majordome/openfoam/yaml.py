@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Self
 
 from ruamel.yaml import YAML
-from ruamel.yaml.comments import CommentedMap
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 from .._core import foam as _ext
 from ..utilities import ColorPrint as _C
@@ -37,6 +37,8 @@ FOAM_EOF = (
 def _foamdict_to_py(obj: Any) -> Any:
     """ Recursively convert a PyO3 AST object into Python primitives.
 
+    Preserves exact declaration order of entries, blocks, and directives.
+
     Parameters
     ----------
     obj : Any
@@ -47,7 +49,23 @@ def _foamdict_to_py(obj: Any) -> Any:
     Any
         Nested Python dictionary, list, or primitive type.
     """
-    if hasattr(obj, "keys"):
+    if hasattr(obj, "items"):
+        res: dict[str, Any] = {}
+
+        for key, val in obj.items():
+            converted_val = _foamdict_to_py(val)
+
+            if key in res:
+                if isinstance(res[key], list):
+                    res[key].append(converted_val)
+                else:
+                    res[key] = [res[key], converted_val]
+            else:
+                res[key] = converted_val
+
+        return res
+
+    elif hasattr(obj, "keys"):
         res: dict[str, Any] = {}
 
         for key in obj.keys():
@@ -59,138 +77,6 @@ def _foamdict_to_py(obj: Any) -> Any:
         return [_foamdict_to_py(item) for item in obj]
 
     return obj
-
-
-def _extract_directives_with_paths(
-        file_path: Path,
-    ) -> list[tuple[list[str], str, str]]:
-    """ Extract preprocessor directives and dictionary hierarchy paths.
-
-    Parameters
-    ----------
-    file_path : Path
-        Path to candidate OpenFOAM dictionary file.
-
-    Returns
-    -------
-    list[tuple[list[str], str, str]]
-        List of tuples (path_stack, directive_name, directive_value).
-    """
-    directives: list[tuple[list[str], str, str]] = []
-
-    try:
-        content = file_path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return directives
-
-    lines = content.splitlines()
-    path_stack: list[str] = []
-    in_block_comment = False
-    pending_key: str | None = None
-
-    for line in lines:
-        line_str = line.strip()
-
-        if in_block_comment:
-            if "*/" in line_str:
-                in_block_comment = False
-            continue
-
-        if line_str.startswith("/*"):
-            if "*/" not in line_str:
-                in_block_comment = True
-            continue
-
-        if line_str.startswith("//") or not line_str:
-            continue
-
-        if line_str.startswith("#"):
-            match = re.match(
-                r"(#(?:includeEtc|includeFunc|include|calc))\s*(.*)",
-                line_str,
-            )
-
-            if match:
-                dir_name = match.group(1)
-                dir_val = match.group(2).rstrip(";").strip()
-
-                if (dir_val.startswith('"') and dir_val.endswith('"')) or (
-                    dir_val.startswith("<") and dir_val.endswith(">")
-                ):
-                    dir_val = dir_val[1:-1]
-
-                directives.append((list(path_stack), dir_name, dir_val))
-                pending_key = None
-                continue
-
-        if "{" in line_str:
-            before_brace = line_str.split("{")[0].strip()
-
-            if before_brace:
-                key = before_brace.split()[-1]
-                path_stack.append(key)
-            elif pending_key:
-                path_stack.append(pending_key)
-
-            pending_key = None
-        else:
-            if (
-                not line_str.endswith(";")
-                and not line_str.endswith("}")
-                and not line_str.endswith(")")
-            ):
-                tokens = line_str.split()
-
-                if len(tokens) == 1 and not tokens[0].startswith(
-                    ("#", "//", "/*")
-                ):
-                    pending_key = tokens[0]
-                else:
-                    pending_key = None
-            else:
-                pending_key = None
-
-        if "}" in line_str:
-            if path_stack:
-                path_stack.pop()
-            pending_key = None
-
-    return directives
-
-
-def _attach_directives(
-        data: dict[str, Any],
-        directives: list[tuple[list[str], str, str]],
-    ) -> None:
-    """ Attach extracted directives into nested dictionary representation.
-
-    Parameters
-    ----------
-    data : dict[str, Any]
-        Nested dictionary to mutate.
-    directives : list[tuple[list[str], str, str]]
-        Extracted directives with dictionary hierarchy paths.
-    """
-    for path, dir_name, dir_val in directives:
-        curr = data
-        valid = True
-
-        for p in path:
-            if p in curr and isinstance(curr[p], dict):
-                curr = curr[p]
-            else:
-                valid = False
-                break
-
-        if valid:
-            if dir_name in curr:
-                if isinstance(curr[dir_name], list):
-                    if dir_val not in curr[dir_name]:
-                        curr[dir_name].append(dir_val)
-                elif curr[dir_name] != dir_val:
-                    curr[dir_name] = [curr[dir_name], dir_val]
-            else:
-                curr[dir_name] = dir_val
 
 
 def _format_foam_value(val: Any, indent_level: int = 0) -> str:
@@ -336,20 +222,30 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
 
 
 def _format_yaml_maps(data: Any, is_root: bool = True) -> Any:
-    """ Recursively format dictionaries with blank lines between files.
+    """ Recursively format mappings and lists for clean YAML output.
+
+    Applies flow style (bracket formatting) to lists and blank lines
+    between dictionaries.
 
     Parameters
     ----------
     data : Any
-        Nested dictionary or primitive value.
+        Nested dictionary, list, or primitive value.
     is_root : bool, default True
         Whether the current mapping represents the root container.
 
     Returns
     -------
     Any
-        `CommentedMap` structure containing newline formatting rules.
+        `CommentedMap` or `CommentedSeq` structure with formatting rules.
     """
+    if isinstance(data, list):
+        cs = CommentedSeq(
+            [_format_yaml_maps(item, is_root=False) for item in data]
+        )
+        cs.fa.set_flow_style()
+        return cs
+
     if not isinstance(data, dict):
         return data
 
@@ -454,7 +350,7 @@ def _collect_case_candidates(
     Returns
     -------
     list[Path]
-        List of candidate file paths.
+        List of candidate file paths in case-insensitive alphabetical order.
     """
     candidates: list[Path] = []
 
@@ -464,7 +360,10 @@ def _collect_case_candidates(
         if not sub_path.is_dir():
             continue
 
-        for path in sorted(sub_path.rglob("*")):
+        for path in sorted(
+            sub_path.rglob("*"),
+            key=lambda p: tuple(part.lower() for part in p.parts),
+        ):
             if not path.is_file() or path.is_symlink():
                 continue
 
@@ -512,7 +411,7 @@ def _find_case_files(
     Returns
     -------
     list[Path]
-        Filtered list of absolute file paths belonging to the case.
+        Filtered list of absolute file paths in case-insensitive order.
     """
     subdirs = ["0.orig", "0", "constant", "system"]
     skip_pattern = re.compile(skip_regex) if skip_regex else None
@@ -537,14 +436,22 @@ def _find_case_files(
     included_files = all_included_targets & candidate_set
 
     if verbose:
-        for inc_file in sorted(included_files):
+        for inc_file in sorted(
+            included_files,
+            key=lambda p: tuple(part.lower() for part in p.parts),
+        ):
             _C.yellow(
                 f"  Excluding included file (#include): '{inc_file.relative_to(case_dir)}'"
             )
 
     final_files = [p for p in candidate_files if p not in included_files]
 
-    return sorted(final_files)
+    return sorted(
+        final_files,
+        key=lambda p: tuple(
+            part.lower() for part in p.relative_to(case_dir).parts
+        ),
+    )
 
 
 def _contains_foam_file(d: Any) -> bool:
@@ -667,8 +574,6 @@ def foam_to_yaml(
         try:
             dict_file = FoamDictFile.from_file(path)
             data = _foamdict_to_py(dict_file._inner)
-            directives = _extract_directives_with_paths(path)
-            _attach_directives(data, directives)
 
             curr = master_dict
 

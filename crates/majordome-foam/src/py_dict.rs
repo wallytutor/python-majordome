@@ -120,6 +120,76 @@ impl PyFoamDict {
         self.inner.keys()
     }
 
+    /// Return list of (key, value) pairs in original AST declaration order.
+    pub fn items(&self, py: Python<'_>) -> PyResult<Vec<(String, Py<PyAny>)>> {
+        let mut items = Vec::new();
+
+        for elem in &self.inner.elements {
+            match elem {
+                crate::ast::FoamElement::Entry { key, value } => {
+                    let py_val = foam_value_to_py(py, value)?;
+                    items.push((key.clone(), py_val));
+                }
+
+                crate::ast::FoamElement::Block { name, dict, .. } => {
+                    let py_dict = PyFoamDict {
+                        inner: dict.clone(),
+                    };
+                    let py_obj = py_dict.into_pyobject(py)?.into_any().unbind();
+                    items.push((name.clone(), py_obj));
+                }
+
+                crate::ast::FoamElement::Directive { name, value } => {
+                    let clean_val = value
+                        .trim()
+                        .trim_matches('"')
+                        .trim_matches('<')
+                        .trim_matches('>');
+                    let py_val = clean_val
+                        .into_pyobject(py)?
+                        .to_owned()
+                        .into_any()
+                        .unbind();
+                    items.push((name.clone(), py_val));
+                }
+
+                crate::ast::FoamElement::MacroRef(m) => {
+                    let key = format!("${}", m);
+                    items.push((key, py.None()));
+                }
+
+                crate::ast::FoamElement::FieldData(fd) => {
+                    if fd.is_uniform {
+                        let val_str = if let Some(first) = fd.values.first() {
+                            format!("uniform {}", first)
+                        } else {
+                            "uniform".to_string()
+                        };
+                        let py_val = val_str
+                            .into_pyobject(py)?
+                            .to_owned()
+                            .into_any()
+                            .unbind();
+                        items.push(("internalField".to_string(), py_val));
+                    } else {
+                        let py_list = PyList::empty(py);
+                        for item in &fd.values {
+                            py_list.append(foam_value_to_py(py, item)?)?;
+                        }
+                        items.push((
+                            "internalField".to_string(),
+                            py_list.into_any().unbind(),
+                        ));
+                    }
+                }
+
+                _ => {}
+            }
+        }
+
+        Ok(items)
+    }
+
     /// Check if dictionary represents or contains field data.
     pub fn has_field_data(&self) -> bool {
         self.inner.field_data().is_some()
