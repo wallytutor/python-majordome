@@ -22,6 +22,27 @@ impl fmt::Display for FoamParseError {
 
 impl std::error::Error for FoamParseError {}
 
+fn is_enclosed_in_parens(s: &str) -> bool {
+    if !s.starts_with('(') || !s.ends_with(')') {
+        return false;
+    }
+    let mut depth: usize = 0;
+    for (i, ch) in s.char_indices() {
+        if ch == '(' {
+            depth += 1;
+        } else if ch == ')' {
+            if depth == 0 {
+                return false;
+            }
+            depth -= 1;
+            if depth == 0 && i + ch.len_utf8() < s.len() {
+                return false;
+            }
+        }
+    }
+    depth == 0
+}
+
 fn parse_key_name(
     chars: &mut std::iter::Peekable<std::str::Chars<'_>>,
     line_num: &mut usize,
@@ -1242,6 +1263,8 @@ fn parse_list_items(inner: &str) -> Vec<FoamValue> {
                 } else {
                     items.push(parsed);
                 }
+            } else {
+                chars.next();
             }
         }
     }
@@ -1278,7 +1301,7 @@ fn parse_value_str_inner(s: &str) -> FoamValue {
     }
 
     // Parenthesized list or vector branch: '( ... )'.
-    if s_clean.starts_with('(') && s_clean.ends_with(')') {
+    if is_enclosed_in_parens(s_clean) {
         let inner = s_clean[1..s_clean.len() - 1].trim();
 
         if inner.is_empty() {

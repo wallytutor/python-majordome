@@ -1,6 +1,6 @@
 # Changelog
 
-## Ongoing Development
+- Added bidirectional YAML case conversion interface in `majordome.openfoam.yaml` (`foam_to_yaml`, `yaml_to_foam`, `FoamYamlCase`), preserving preprocessor directives (`#include`, `#includeEtc`, `#includeFunc`), OpenFOAM 13 header decoration banners, and end-of-file comments, with blank-line separation between dictionary mappings when dumping YAML.
 
 - Standardized floating point scientific notation and numeric list formatting in `majordome-foam` and `majordome.openfoam`: scalars and vectors with extreme magnitudes (`abs < 1e-4` or `abs >= 1e5`) now automatically serialize using standardized 10-decimal scientific notation (`{:.10e}` with standard lowercase `e` and 2-digit signed exponent), eliminating bloated decimal outputs with trailing zeros. Numeric strings within lists are preserved as unquoted scalar tokens on single lines (e.g. polynomial coefficients `CpCoeffs<8>`, `muCoeffs<8>`, `kappaCoeffs<8>`), while retaining double-quoting for true string literals (such as `libs`). Also added sequence formatting support to `FoamDictFile.set(..., fmt=...)`.
 
