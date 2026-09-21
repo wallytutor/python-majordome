@@ -56,6 +56,8 @@ classifiers = [
 containerize = "majordome.entrypoints:containerize"
 majordome = "majordome.entrypoints:majordome"
 diffusion_solver = "majordome.entrypoints:diffusion_solver"
+yaml2foam = "majordome.openfoam.yaml:yaml_to_foam"
+foam2yaml = "majordome.openfoam.yaml:foam_to_yaml"
 
 [project.urls]
 Homepage = "https://github.com/wallytutor/python-majordome"
