@@ -1249,7 +1249,7 @@ fn parse_list_items(inner: &str) -> Vec<FoamValue> {
                 s.push(ch);
             }
 
-            items.push(FoamValue::String(s));
+            items.push(FoamValue::String(format!("\"{}\"", s)));
         // Unquoted token branch (number, bool, or unquoted identifier / named sub-block).
         } else {
             let mut token = String::new();

@@ -206,12 +206,17 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
                 )
                 lines.append(f"{pad}{key} {val_str};")
 
-            lines.append("")
+            if indent_level == 0:
+                lines.append("")
+
             continue
 
         if key.startswith("$"):
             lines.append(f"{pad}{key};")
-            lines.append("")
+
+            if indent_level == 0:
+                lines.append("")
+
             continue
 
         if isinstance(val, dict):
@@ -229,7 +234,10 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
                         lines.append(inner)
 
                     lines.append(f"{pad}}};")
-                    lines.append("")
+
+                    if indent_level == 0:
+                        lines.append("")
+
                     continue
 
             lines.append(f"{pad}{key}")
@@ -240,7 +248,9 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
                 lines.append(inner)
 
             lines.append(f"{pad}}}")
-            lines.append("")
+
+            if indent_level == 0:
+                lines.append("")
         elif (
             isinstance(val, list)
             and val
@@ -250,14 +260,31 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
             lines.append(f"{pad}(")
 
             for item in val:
-                lines.append(f"{pad}    {_format_foam_value(item, indent_level + 1)}")
+                if key in ("libs", "surfaces") or (
+                    isinstance(item, str)
+                    and any(
+                        item.endswith(ext)
+                        for ext in (".so", ".stl", ".eMesh", ".obj", ".ftr")
+                    )
+                ):
+                    item_fmt = (
+                        item if item.startswith('"') else f'"{item}"'
+                    )
+                else:
+                    item_fmt = _format_foam_value(item, indent_level + 1)
+
+                lines.append(f"{pad}    {item_fmt}")
 
             lines.append(f"{pad});")
-            lines.append("")
+
+            if indent_level == 0:
+                lines.append("")
         else:
             val_str = _format_foam_value(val, indent_level)
             lines.append(f"{pad}{key:<16} {val_str};")
-            lines.append("")
+
+            if indent_level == 0:
+                lines.append("")
 
     if indent_level == 0:
         lines.append(FOAM_EOF)
