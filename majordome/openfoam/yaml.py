@@ -280,7 +280,11 @@ def _dict_to_foam_str(data: dict[str, Any], indent_level: int = 0) -> str:
             if indent_level == 0:
                 lines.append("")
         else:
-            val_str = _format_foam_value(val, indent_level)
+            if key == "dimensions" and isinstance(val, list):
+                val_str = f"[{' '.join(str(x) for x in val)}]"
+            else:
+                val_str = _format_foam_value(val, indent_level)
+
             lines.append(f"{pad}{key:<16} {val_str};")
 
             if indent_level == 0:

@@ -193,6 +193,51 @@ ddtSchemes { default Euler; }
         case["constant"] = {}
         self.assertIn("constant", case)
 
+    def test_empty_dimensions_and_quoted_lists(self) -> None:
+        """ Test that empty dimensions format as [] and libs are quoted. """
+        case_dict = {
+            "0": {
+                "C3H8": {
+                    "FoamFile": {
+                        "format": "ascii",
+                        "class": "volScalarField",
+                        "location": '"0"',
+                        "object": "C3H8",
+                    },
+                    "dimensions": [],
+                    "internalField": "uniform 0",
+                }
+            },
+            "system": {
+                "controlDict": {
+                    "FoamFile": {
+                        "format": "ascii",
+                        "class": "dictionary",
+                        "location": '"system"',
+                        "object": "controlDict",
+                    },
+                    "libs": [
+                        "libextendedThermophysicalProperties.so",
+                        "libextendedLagrangianParcel.so",
+                    ],
+                }
+            },
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dst_dir = Path(tmpdir) / "case"
+            yaml_to_foam(case_dict, case_dir=dst_dir, verbose=False)
+
+            c3h8_content = (dst_dir / "0" / "C3H8").read_text(encoding="utf-8")
+            self.assertIn("dimensions       [];", c3h8_content)
+
+            control_content = (dst_dir / "system" / "controlDict").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn(
+                '"libextendedThermophysicalProperties.so"', control_content
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
