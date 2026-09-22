@@ -8,6 +8,7 @@ import shutil
 import sys
 
 from argparse import ArgumentParser
+from datetime import datetime
 from pathlib import Path
 from subprocess import run, STDOUT, PIPE
 from time import perf_counter, time_ns
@@ -470,6 +471,7 @@ class FoamCleaner:
     @staticmethod
     def logs(
             root_dir: Path | None = None,
+            archive_mode: bool = False,
         ) -> None:
         """ Clean execution log files matching log.* pattern.
 
@@ -477,13 +479,24 @@ class FoamCleaner:
         ----------
         root_dir : Path | None = None
             Case directory path to clean. Defaults to current working dir.
-
+        archive_mode: bool = False
+            If true, instead of deleting archive logs to a `logs/<time>`
+            directory for future processing.
         Returns
         -------
         None
             Log files matching log.* are removed in-place.
         """
         cwd = Path(root_dir) if root_dir else Path.cwd()
+
+        if archive_mode:
+            logs = Path(f"logs/{datetime.now():%Y-%m-%d_%H%M%S}")
+            logs.mkdir(parents=True, exist_ok=True)
+
+            for file in cwd.glob(r"log.*"):
+                shutil.move(file, logs / file.name)
+
+            return
 
         for log_file in cwd.glob("log.*"):
             if log_file.is_file():
