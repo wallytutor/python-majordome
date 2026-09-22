@@ -10,7 +10,9 @@ import sys
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from subprocess import run, STDOUT, PIPE
+from subprocess import STDOUT, PIPE
+from subprocess import CompletedProcess
+from subprocess import run as _run
 from time import perf_counter, time_ns
 from typing import Any, Callable, Sequence
 
@@ -22,6 +24,8 @@ if sys.platform != "linux":
 
 TIME_DIR_REGEX = r"^[0-9]+(\.[0-9]+)?([eE][+-]?[0-9]+)?$"
 
+SESSION: list[dict[str, Any]] = []
+
 
 def _skip(tool: str, reason: str) -> None:
     ColorPrint.yellow(f"> Skipping {tool}: {reason}")
@@ -29,6 +33,12 @@ def _skip(tool: str, reason: str) -> None:
 
 def _warn(tool: str, reason: str) -> None:
     ColorPrint.red(f"> Warning {tool}: {reason}")
+
+
+def run(*args, **kwargs) -> CompletedProcess[Any]:
+    global SESSION
+    SESSION.append({"args": args, **kwargs})
+    return _run(*args, **kwargs)
 
 
 class FoamHelpers:
