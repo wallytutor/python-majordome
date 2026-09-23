@@ -37,8 +37,22 @@ def _warn(tool: str, reason: str) -> None:
 
 def run(*args, **kwargs) -> CompletedProcess[Any]:
     global SESSION
-    SESSION.append({"args": args, **kwargs})
+
+    if isinstance(args[0], str) and len(args) == 1:
+        args = shlex.split(args[0])
+
+    SESSION.append({"args": list(args), **kwargs})
     return _run(*args, **kwargs)
+
+
+def session_commands():
+    # WIP checking all possible uses or args.
+    for entry in SESSION:
+        args = entry["args"][0]
+        # if isinstance(args, (list, tuple)):
+        #     print(" ".join(args))
+        # else:
+        print(args)
 
 
 class FoamHelpers:
@@ -65,6 +79,24 @@ class FoamHelpers:
         None
             Updates active environment variables in os.environ directly.
         """
+        # TODO this is a possibly temporary patch and it is problematic;
+        # actually we may want to source the bashrc from elsewhere (often
+        # the user OpenFOAM directory) but that does not mean that we are
+        # changing the value of `foam_root`; this was to be reworked in
+        # a consistent way. Also, calling this function at the end of
+        # FoamArguments.common is not well placed, as they were not yet
+        # parsed and we cannot provide foam_root as an argument. There
+        # is something to workout here to get stable.
+        if (alt_rc := os.environ.get("FOAM_USER_RC", None)):
+            try:
+                if (alt_rc := Path(alt_rc).resolve()).exists():
+                    foam_root = alt_rc.parents[1]
+                    ColorPrint.green(f"> Using alternative rc: {alt_rc}")
+            except Exception as err:
+                raise FileNotFoundError(
+                    f"Invalid FOAM_USER_RC: {alt_rc}"
+                ) from err
+
         # Do not source if already sourced, it's slow...
         wm_project_dir = os.environ.get("WM_PROJECT_DIR", None)
         if (
@@ -74,7 +106,7 @@ class FoamHelpers:
             return
 
         ColorPrint.green(f"> Sourcing OpenFOAM environment for {shell}")
-        rc = Path(foam_root) / f"etc/{shell}rc"
+        rc = alt_rc or Path(foam_root) / f"etc/{shell}rc"
 
         if not rc.exists():
             raise FileNotFoundError(
