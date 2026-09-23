@@ -735,7 +735,14 @@ class FoamRunner:
             raise FileExistsError(log_file)
 
         with log_file.open("w") as f:
-            run(args, stdout=f, stderr=STDOUT, check=True)
+            try:
+                run(args, stdout=f, stderr=STDOUT, check=True)
+            except Exception as err:
+                # Capture environment for debug!
+                for var, val in os.environ.items():
+                    print(var, val, file=f)
+
+                raise Exception(f"While running {args}") from err
 
     @classmethod
     def parallel(
