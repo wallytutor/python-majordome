@@ -300,11 +300,32 @@ class FoamHelpers:
         if not source.exists():
             raise FileNotFoundError(f"Template file not found: {source}")
 
+        if source.resolve().as_posix() == target.resolve().as_posix():
+            raise ValueError("Source and target are the same file.")
+
         if target.exists():
             target.unlink()
 
         shutil.copy(source, target)
         return str(target.as_posix())
+
+    @classmethod
+    def _decompose_set_method(
+            cls,
+            dict_orig: str | Path | None,
+            cores: int,
+            method: str,
+        ) -> str:
+        """ Set the decomposition method for decomposeParDict. """
+        file = cls.copy_dict_orig(
+            dict_orig or Path("system/decomposeParDict.orig"),
+            Path("system/decomposeParDict")
+        )
+
+        FoamRunner.dict_set_entry(file, "numberOfSubdomains", f"{cores}")
+        FoamRunner.dict_set_entry(file, "method", f"{method}")
+
+        return file
 
     @classmethod
     def decompose_simple_coefs(
@@ -320,18 +341,42 @@ class FoamHelpers:
         cores : int
             Number of processor subdomains.
         func : Callable[[int], str]
-            Function that returns the simple coefficients string for a given core count.
+            Function that returns the simple coefficients string for
+            a given core count.
         dict_orig : str | Path | None = None
             Original decomposeParDict file path.
         """
-        if dict_orig is None:
-            dict_orig = Path("system/decomposeParDict.orig")
-
-        dict_file = Path("system/decomposeParDict")
-        file = cls.copy_dict_orig(dict_orig, dict_file)
-
-        FoamRunner.dict_set_entry(file, "numberOfSubdomains", f"{cores}")
+        file = cls._decompose_set_method(dict_orig, cores, "simple")
         FoamRunner.dict_set_entry(file, "simpleCoeffs/n", func(cores))
+
+    @classmethod
+    def decompose_hierarchical_coefs(
+            cls,
+            cores: int,
+            func: Callable[[int], tuple[str, str]],
+            dict_orig: str | Path | None = None
+        ) -> None:
+        """ Manage decomposition with hierarchical coefficients.
+
+        Parameters
+        ----------
+        cores : int
+            Number of processor subdomains.
+        func : Callable[[int], tuple[str, str]]
+            Function that returns the hierarchical coefficients and
+            order string for a given core count.
+        dict_orig : str | Path | None = None
+            Original decomposeParDict file path.
+        """
+        coefs, order = func(cores)
+
+        # Length test is required, as set("xyzz") = {"x", "y", "z"}!
+        if (len(order) != 3) or (set(order) != {"x", "y", "z"}):
+            raise ValueError("Order must be a string with `xyz` permutation.")
+
+        file = cls._decompose_set_method(dict_orig, cores, "hierarchical")
+        FoamRunner.dict_set_entry(file, "hierarchicalCoeffs/n", coefs)
+        FoamRunner.dict_set_entry(file, "hierarchicalCoeffs/order", order)
 
 
 class FoamArguments:
