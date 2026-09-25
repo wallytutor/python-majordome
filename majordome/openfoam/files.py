@@ -125,6 +125,22 @@ class FoamDictFile:
         """ Get OpenFOAM format setting from FoamFile header. """
         return self.header.get("format")
 
+    def fill_foam_file(
+            self,
+            format_type: str = "ascii",
+            foam_class: str | None = None,
+            location: str | None = None,
+            object_name: str | None = None,
+        ):
+        foam_class  = f'"{foam_class or "dictionary"}"'
+        location    = f'"{location or self.path.parent.stem}"'
+        object_name = f'"{object_name or self.path.stem}"'
+
+        self.set("FoamFile/format",   format_type)
+        self.set("FoamFile/class",    foam_class)
+        self.set("FoamFile/location", location)
+        self.set("FoamFile/object",   object_name)
+
     def to_foam(self) -> str:
         """ Serialize dictionary to canonical OpenFOAM string format.
 
@@ -791,12 +807,7 @@ class FieldFile(FoamDictFile):
             self.extend(data)
 
     def fill_foam_file(self):
-        path = self.path
-
-        self.set("FoamFile/format", 'ascii')
-        self.set("FoamFile/class", f'"{self.__class__.FIELD_NAME}"')
-        self.set("FoamFile/location", f'"{path.parent.stem}"')
-        self.set("FoamFile/object", f'"{path.stem}"')
+        super().fill_foam_file(foam_class=self.__class__.FIELD_NAME)
 
     def set_boundary(
             self,
