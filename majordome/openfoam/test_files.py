@@ -263,6 +263,19 @@ class TestMajordomeFoam(unittest.TestCase):
 
         field.dimensions = [1, -1, -2, 0, 0, 0, 0]
         self.assertEqual(field.dimensions, [1, -1, -2, 0, 0, 0, 0])
+        self.assertIn("dimensions     [1 -1 -2 0 0 0 0];", field.to_foam())
+
+    def test_field_dimensions_square_brackets(self) -> None:
+        """ Test square bracket formatting for field physical dimensions. """
+        field = VolScalarField()
+        field.dimensions = [1, -1, -1, 0, 0, 0, 0]
+        foam_str = field.to_foam()
+        self.assertIn("dimensions  [1 -1 -1 0 0 0 0];", foam_str)
+        self.assertNotIn("(", foam_str)
+
+        field.dimensions = []
+        foam_str_empty = field.to_foam()
+        self.assertIn("dimensions  [];", foam_str_empty)
 
     def test_foam_case_handle(self) -> None:
         """ Test FoamCaseHandle case exploration and validation. """

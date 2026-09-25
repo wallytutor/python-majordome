@@ -149,11 +149,13 @@ class FoamDictFile:
             File is written to disk.
         """
         if path is not None:
-            path_str = str(path) if isinstance(path, Path) else path
-            self._path = Path(path_str).resolve()
-            self._inner.save(path_str)
+            target_path = Path(path).resolve()
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            self._path = target_path
+            self._inner.save(str(target_path))
 
         elif self._path is not None:
+            self._path.parent.mkdir(parents=True, exist_ok=True)
             self._inner.save(str(self._path))
 
         else:

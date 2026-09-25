@@ -1,5 +1,7 @@
 # Changelog
 
+- Fixed physical dimensions set formatting in `majordome-foam` and `majordome.openfoam.files`: physical field `dimensions` properties (such as `dimensions` in `VolScalarField`) and lists/strings set for `dimensions` keys now consistently format using canonical OpenFOAM square brackets `[...]` instead of parenthesized lists `(...)`.
+
 - Workflow improvements in `majordome.openfoam.post` for handling different separators in report files. Previously it was assumed that only tabs were used, but in fact there is no standard separator. Some reports, such as `#includeFunc probes` can generate several files inside the report, so a regular expression based parameter `select` has been added to `FoamPostProcessingLoaded.load_report`, allowing for selection of the right one.
 
 - Added `FoamHelpers.decompose_hierarchical_coefs` to `majordome.openfoam.run` to support hierarchical domain decomposition. Added an extra safety layer to `FoamHelpers.copy_dict_orig` and made some minor class improvements.

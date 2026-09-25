@@ -89,7 +89,7 @@ impl PyFoamDict {
         key_path: &str,
         value: &Bound<'_, PyAny>,
     ) -> PyResult<()> {
-        let foam_val = py_to_foam_value(value)?;
+        let foam_val = py_to_foam_value_with_key(Some(key_path), value)?;
         self.inner.set_path(key_path, foam_val);
 
         Ok(())
@@ -459,6 +459,55 @@ fn foam_value_to_py(
 }
 
 fn py_to_foam_value(value: &Bound<'_, PyAny>) -> PyResult<FoamValue> {
+    py_to_foam_value_with_key(None, value)
+}
+
+fn py_to_foam_value_with_key(
+    key_path: Option<&str>,
+    value: &Bound<'_, PyAny>,
+) -> PyResult<FoamValue> {
+    let is_dimensions_key = key_path.map_or(false, |kp| kp == "dimensions" || kp.ends_with("/dimensions"));
+
+    if is_dimensions_key {
+        if let Ok(s) = value.extract::<String>() {
+            let s_clean = s.trim();
+            let inner = if s_clean.starts_with('[') && s_clean.ends_with(']') {
+                s_clean[1..s_clean.len() - 1].trim()
+            } else {
+                s_clean
+            };
+            let parts: Vec<&str> = inner.split_whitespace().collect();
+
+            if let Ok(dims) = parts
+                .iter()
+                .map(|p| p.parse::<i32>())
+                .collect::<Result<Vec<i32>, _>>()
+            {
+                return Ok(FoamValue::DimensionSet(dims));
+            }
+        }
+
+        if let Ok(seq) = value.extract::<Vec<Bound<'_, PyAny>>>() {
+            let mut dims = Vec::new();
+            let mut all_int = true;
+
+            for item in seq {
+                if let Ok(i) = item.extract::<i32>() {
+                    dims.push(i);
+                } else if let Ok(f) = item.extract::<f64>() {
+                    dims.push(f as i32);
+                } else {
+                    all_int = false;
+                    break;
+                }
+            }
+
+            if all_int {
+                return Ok(FoamValue::DimensionSet(dims));
+            }
+        }
+    }
+
     // Extract bool first because Python's bool is a subclass of int.
     if let Ok(b) = value.extract::<bool>() {
         return Ok(FoamValue::Bool(b));
@@ -480,6 +529,21 @@ fn py_to_foam_value(value: &Bound<'_, PyAny>) -> PyResult<FoamValue> {
             return Ok(FoamValue::MacroRef(rest.to_string()));
         }
 
+        let s_clean = s.trim();
+
+        if s_clean.starts_with('[') && s_clean.ends_with(']') {
+            let inner = s_clean[1..s_clean.len() - 1].trim();
+            let parts: Vec<&str> = inner.split_whitespace().collect();
+
+            if let Ok(dims) = parts
+                .iter()
+                .map(|p| p.parse::<i32>())
+                .collect::<Result<Vec<i32>, _>>()
+            {
+                return Ok(FoamValue::DimensionSet(dims));
+            }
+        }
+
         return Ok(FoamValue::String(s));
     }
 
@@ -488,7 +552,7 @@ fn py_to_foam_value(value: &Bound<'_, PyAny>) -> PyResult<FoamValue> {
         let mut vec = Vec::new();
 
         for item in &seq {
-            vec.push(py_to_foam_value(item)?);
+            vec.push(py_to_foam_value_with_key(None, item)?);
         }
 
         return Ok(FoamValue::List(vec));
