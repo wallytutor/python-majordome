@@ -21,12 +21,12 @@ class AbstractFoamDataLoader(ABC):
         Additional keyword arguments to pass to the loader function.
     """
 
-    __slots__ = ("_df",)
+    __slots__ = ("_df", "_columns")
 
     def __init__(self, files: list[Path], **kwargs) -> None:
-        data_frames = [self.loader(file, **kwargs) for file in files]
+        data_frames = [self.loader(f, **kwargs) for f in files]
         self._df = pd.concat(data_frames, ignore_index=True)
-        self._df.columns = self.get_header(files[0])
+        self._df.columns = self._columns
 
     @property
     def table(self) -> pd.DataFrame:
@@ -53,6 +53,9 @@ class AbstractFoamDataLoader(ABC):
     def loader(self, fname: Path, **kwargs) -> pd.DataFrame:
         """ Loads body of data file.
 
+        Important: it is up to the loader to create `self._columns`.
+        Take care of this when inheriting from this class.
+
         Parameters
         ----------
         fname : Path
@@ -71,7 +74,25 @@ class AbstractFoamDataLoader(ABC):
 class FoamTabularData(AbstractFoamDataLoader):
     """ Class to represent tabular data from OpenFOAM reports. """
 
-    __slots__ = ()
+    __slots__ = ("_sep", "_backend")
+
+    @staticmethod
+    def _scan_buffer(fname: str | Path) -> str:
+        """ Identify last line of the comments block. """
+        last_line = None
+
+        # Read until a line is not a comment:
+        with open(fname) as f:
+            for line in f:
+                if not line.startswith("#"):
+                    break
+
+                last_line = line
+
+        if last_line is None:
+            raise ValueError(f"No header found in report '{fname}'.")
+
+        return last_line.lstrip("#").rstrip("\n")
 
     def get_header(self, fname: str | Path) -> list[str]:
         """ Get the header line for a specific report.
@@ -86,22 +107,22 @@ class FoamTabularData(AbstractFoamDataLoader):
         list[str]
             The list of header column names.
         """
-        last_line = None
+        last_line = self._scan_buffer(fname)
 
-        # Read until a line is not a comment:
-        with open(fname) as f:
-            for line in f:
-                if not line.startswith("#"):
-                    break
+        if "\t" in last_line:
+            # This is a classic OpenFOAM report:
+            last_line = last_line.replace("\t", ",")
+            self._sep = "\t"
+            self._backend = "polars"
+        else:
+            # Lets assume has no whitespace in headings:
+            last_line = ",".join([w for w in last_line.split(" ") if w])
+            self._sep = r"\s+"
+            self._backend = "pandas"
 
-                last_line = line
-
-        if last_line is None:
-            raise ValueError(f"No header found in report '{fname}'.")
-
-        last_line = last_line.lstrip("#").replace("\t", ",")
         last_line = re.sub(r"\s+", " ", last_line).strip()
-        return [h.strip() for h in last_line.split(",")]
+        heads = [h.strip() for h in last_line.split(",")]
+        return heads
 
     def loader(self, fname: Path, **kwargs) -> pd.DataFrame:
         """ Load OpenFOAM xy files into a pandas DataFrame.
@@ -118,7 +139,11 @@ class FoamTabularData(AbstractFoamDataLoader):
         pd.DataFrame
             The parsed data as a pandas DataFrame.
         """
-        backend = kwargs.pop("backend", "polars")
+        if not hasattr(self, "_columns") or self._columns is None:
+            self._columns = self.get_header(fname)
+
+        kwargs.setdefault("sep", self._sep)
+        backend = kwargs.pop("backend", self._backend)
         return _handle_loader_backend(fname, backend, **kwargs)
 
 
@@ -198,6 +223,9 @@ class FoamLagrangianTable(AbstractFoamDataLoader):
         pd.DataFrame
             The parsed data as a pandas DataFrame.
         """
+        if not hasattr(self, "_columns") or self._columns is None:
+            self._columns = self.get_header(fname)
+
         backend = kwargs.pop("backend", "polars")
 
         with open(fname, "r", encoding="utf-8") as f:
@@ -274,15 +302,19 @@ class FoamPostProcessingLoader:
         """ Get a list of available reports for the current domain. """
         return [d.name for d in self._domain_dir.iterdir() if d.is_dir()]
 
-    def _get_report_files(self, report: str) -> list[Path]:
+    def _get_report_files(self, report: str, select: str) -> list[Path]:
         """ Get a list of files for a specific report. """
         if not (report_dir := self._domain_dir / report).is_dir():
             raise ValueError(f"No such report '{report_dir}'.")
 
-        return [f.resolve() for f in report_dir.rglob('*') if f.is_file()]
+        files = [f.resolve() for f in report_dir.rglob(select) if f.is_file()]
+        files.sort()
+
+        return files
 
     def load_report(self,
             report: str,
+            select: str = r"**/*",
             loader: AbstractFoamDataLoader = FoamTabularData,
             n_last: int | None = None,
             **kwargs
@@ -294,6 +326,10 @@ class FoamPostProcessingLoader:
         report : str
             The name of the report to load, must be one of the available
             reports as returned by `available_reports`.
+        select : str = r"*"
+            Glob pattern to select files to load. Defaults to "*", which
+            selects all files. This is useful for reports such as probes,
+            that save multiple files.
         loader : FoamDataLoader = FoamTabularData.loader
             A custom loader function that takes a file path and returns
             a DataFrame. By default, it uses `openfoam_tabular_loader`
@@ -305,7 +341,7 @@ class FoamPostProcessingLoader:
         kwargs
             Additional keyword arguments to pass to the loader function.
         """
-        if not (files := self._get_report_files(report)):
+        if not (files := self._get_report_files(report, select)):
             raise ValueError(f"No files found for report '{report}'.")
 
         if n_last is not None and len(files) > n_last:
@@ -338,7 +374,7 @@ def _handle_loader_backend(
                              header=None, **kwargs)
         case "polars":
             df = pl.read_csv(source, separator=sep, comment_prefix=comment,
-                             has_header= False, **kwargs).to_pandas()
+                             has_header=False, **kwargs).to_pandas()
         case _:
             raise ValueError(f"Unsupported backend '{backend}'.")
 
