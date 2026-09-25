@@ -790,6 +790,23 @@ class FieldFile(FoamDictFile):
         if data is not None:
             self.extend(data)
 
+    def fill_foam_file(self):
+        path = self.path
+
+        self.set("FoamFile/format", 'ascii')
+        self.set("FoamFile/class", f'"{self.__class__.FIELD_NAME}"')
+        self.set("FoamFile/location", f'"{path.parent.stem}"')
+        self.set("FoamFile/object", f'"{path.stem}"')
+
+    def set_boundary(
+            self,
+            patch_name: str,
+            key: str,
+            value: Any
+        ) -> None:
+        """ Set boundaryField patches value. """
+        self.set(f"boundaryField/{patch_name}/{key}", value)
+
     @property
     def dimensions(self) -> list[int] | None:
         """ Get field physical dimensions array [m kg s K mol A cd]. """
@@ -953,11 +970,15 @@ class FieldFile(FoamDictFile):
 class VolScalarField(FieldFile):
     """ Volumetric scalar field initial conditions file. """
 
+    FIELD_NAME = "volScalarField"
+
     __slots__ = ()
 
 
 class VolVectorField(FieldFile):
     """ Volumetric vector field initial conditions file. """
+
+    FIELD_NAME = "volVectorField"
 
     __slots__ = ()
 
