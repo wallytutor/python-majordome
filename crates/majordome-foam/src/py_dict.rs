@@ -466,6 +466,10 @@ fn py_to_foam_value_with_key(
     key_path: Option<&str>,
     value: &Bound<'_, PyAny>,
 ) -> PyResult<FoamValue> {
+    if value.is_none() {
+        return Ok(FoamValue::MacroRef(String::new()));
+    }
+
     let is_dimensions_key = key_path.map_or(false, |kp| kp == "dimensions" || kp.ends_with("/dimensions"));
 
     if is_dimensions_key {
