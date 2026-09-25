@@ -501,6 +501,36 @@ class ControlDict(FoamDictFile):
         self.set("runTimeModifiable", value)
 
     @property
+    def write_compression(self) -> bool | None:
+        """ Get writeCompression boolean setting. """
+        return self.get("writeCompression")
+
+    @write_compression.setter
+    def write_compression(self, value: bool) -> None:
+        """ Set writeCompression boolean setting. """
+        self.set("writeCompression", value)
+
+    @property
+    def time_format(self) -> str | None:
+        """ Get timeFormat setting. """
+        return self.get("timeFormat")
+
+    @time_format.setter
+    def time_format(self, value: str) -> None:
+        """ Set timeFormat setting. """
+        self.set("timeFormat", value)
+
+    @property
+    def time_precision(self) -> int | None:
+        """ Get timePrecision setting. """
+        return self.get("timePrecision")
+
+    @time_precision.setter
+    def time_precision(self, value: int) -> None:
+        """ Set timePrecision setting. """
+        self.set("timePrecision", value)
+
+    @property
     def libs(self) -> list[str] | None:
         """ Get runtime loaded libraries list. """
         return self.get("libs")
@@ -509,6 +539,23 @@ class ControlDict(FoamDictFile):
     def libs(self, value: list[str]) -> None:
         """ Set runtime loaded libraries list. """
         self.set("libs", value)
+
+    def set_debug_switch(self, switch_name: str, value: Any) -> None:
+        """ Set DebugSwitches setting value.
+
+        Parameters
+        ----------
+        switch_name : str
+            Debug switch identifier (e.g. "SolverPerformance").
+        value : Any
+            Debug switch value.
+
+        Returns
+        -------
+        None
+            Updates DebugSwitches block.
+        """
+        self.set(f"DebugSwitches/{switch_name}", value)
 
 
 class FvSchemes(FoamDictFile):
@@ -546,6 +593,40 @@ class FvSchemes(FoamDictFile):
         """ Get surface-normal gradient snGradSchemes block. """
         return self.get("snGradSchemes")
 
+    def set_ddt_scheme(self, key: str, value: str) -> None:
+        """ Set time derivative discretization ddtSchemes entry.
+
+        Parameters
+        ----------
+        key : str
+            Field name or 'default'.
+        value : str
+            Discretization scheme string.
+
+        Returns
+        -------
+        None
+            Updates ddtSchemes block entry.
+        """
+        self.set(f"ddtSchemes/{key}", value)
+
+    def set_grad_scheme(self, key: str, value: str) -> None:
+        """ Set gradient discretization gradSchemes entry.
+
+        Parameters
+        ----------
+        key : str
+            Field name or 'default'.
+        value : str
+            Discretization scheme string.
+
+        Returns
+        -------
+        None
+            Updates gradSchemes block entry.
+        """
+        self.set(f"gradSchemes/{key}", value)
+
     def set_div_scheme(self, field_name: str, scheme: str) -> None:
         """ Set divergence scheme for a specific field expression.
 
@@ -562,6 +643,57 @@ class FvSchemes(FoamDictFile):
             Updates divSchemes block entry.
         """
         self.set(f"divSchemes/{field_name}", scheme)
+
+    def set_laplacian_scheme(self, key: str, value: str) -> None:
+        """ Set Laplacian discretization laplacianSchemes entry.
+
+        Parameters
+        ----------
+        key : str
+            Field name or 'default'.
+        value : str
+            Discretization scheme string.
+
+        Returns
+        -------
+        None
+            Updates laplacianSchemes block entry.
+        """
+        self.set(f"laplacianSchemes/{key}", value)
+
+    def set_interpolation_scheme(self, key: str, value: str) -> None:
+        """ Set interpolationSchemes entry.
+
+        Parameters
+        ----------
+        key : str
+            Field name or 'default'.
+        value : str
+            Discretization scheme string.
+
+        Returns
+        -------
+        None
+            Updates interpolationSchemes block entry.
+        """
+        self.set(f"interpolationSchemes/{key}", value)
+
+    def set_sn_grad_scheme(self, key: str, value: str) -> None:
+        """ Set surface-normal gradient snGradSchemes entry.
+
+        Parameters
+        ----------
+        key : str
+            Field name or 'default'.
+        value : str
+            Discretization scheme string.
+
+        Returns
+        -------
+        None
+            Updates snGradSchemes block entry.
+        """
+        self.set(f"snGradSchemes/{key}", value)
 
 
 class FvSolution(FoamDictFile):
@@ -631,6 +763,81 @@ class FvSolution(FoamDictFile):
         """
         self.set(f"solvers/{var_name}/{option}", value)
 
+    def set_pimple(self, key: str, value: Any) -> None:
+        """ Set PIMPLE algorithm control entry.
+
+        Parameters
+        ----------
+        key : str
+            PIMPLE parameter key (e.g. "nCorrectors").
+        value : Any
+            Value to assign.
+
+        Returns
+        -------
+        None
+            Updates PIMPLE block.
+        """
+        self.set(f"PIMPLE/{key}", value)
+
+    def set_simple(self, key: str, value: Any) -> None:
+        """ Set SIMPLE algorithm control entry.
+
+        Parameters
+        ----------
+        key : str
+            SIMPLE parameter key (e.g. "nNonOrthogonalCorrectors").
+        value : Any
+            Value to assign.
+
+        Returns
+        -------
+        None
+            Updates SIMPLE block.
+        """
+        self.set(f"SIMPLE/{key}", value)
+
+    def set_piso(self, key: str, value: Any) -> None:
+        """ Set PISO algorithm control entry.
+
+        Parameters
+        ----------
+        key : str
+            PISO parameter key (e.g. "nCorrectors").
+        value : Any
+            Value to assign.
+
+        Returns
+        -------
+        None
+            Updates PISO block.
+        """
+        self.set(f"PISO/{key}", value)
+
+    def set_relaxation_factor(
+            self,
+            category: str,
+            field_name: str,
+            value: float | int
+        ) -> None:
+        """ Set equation or field relaxation factor.
+
+        Parameters
+        ----------
+        category : str
+            Target category ("fields" or "equations").
+        field_name : str
+            Field or equation name (e.g. "p" or "'.*'").
+        value : float | int
+            Relaxation factor value.
+
+        Returns
+        -------
+        None
+            Updates relaxationFactors block.
+        """
+        self.set(f"relaxationFactors/{category}/{field_name}", value)
+
 
 class SnappyHexMeshDict(FoamDictFile):
     """ Strongly-typed interface for OpenFOAM snappyHexMeshDict files. """
@@ -692,6 +899,93 @@ class SnappyHexMeshDict(FoamDictFile):
         """ Get meshQualityControls block. """
         return self.get("meshQualityControls")
 
+    def set_geometry(self, name: str, key: str, value: Any) -> None:
+        """ Set geometry surface or region entry.
+
+        Parameters
+        ----------
+        name : str
+            Geometry surface or region name.
+        key : str
+            Property key (e.g. "type", "file").
+        value : Any
+            Property value.
+
+        Returns
+        -------
+        None
+            Updates geometry block.
+        """
+        self.set(f"geometry/{name}/{key}", value)
+
+    def set_castellated_control(self, key: str, value: Any) -> None:
+        """ Set castellatedMeshControls entry.
+
+        Parameters
+        ----------
+        key : str
+            Control key name.
+        value : Any
+            Control value.
+
+        Returns
+        -------
+        None
+            Updates castellatedMeshControls block.
+        """
+        self.set(f"castellatedMeshControls/{key}", value)
+
+    def set_snap_control(self, key: str, value: Any) -> None:
+        """ Set snapControls entry.
+
+        Parameters
+        ----------
+        key : str
+            Control key name.
+        value : Any
+            Control value.
+
+        Returns
+        -------
+        None
+            Updates snapControls block.
+        """
+        self.set(f"snapControls/{key}", value)
+
+    def set_add_layers_control(self, key: str, value: Any) -> None:
+        """ Set addLayersControls entry.
+
+        Parameters
+        ----------
+        key : str
+            Control key name.
+        value : Any
+            Control value.
+
+        Returns
+        -------
+        None
+            Updates addLayersControls block.
+        """
+        self.set(f"addLayersControls/{key}", value)
+
+    def set_mesh_quality_control(self, key: str, value: Any) -> None:
+        """ Set meshQualityControls entry.
+
+        Parameters
+        ----------
+        key : str
+            Control key name.
+        value : Any
+            Control value.
+
+        Returns
+        -------
+        None
+            Updates meshQualityControls block.
+        """
+        self.set(f"meshQualityControls/{key}", value)
+
 
 class BlockMeshDict(FoamDictFile):
     """ Strongly-typed interface for OpenFOAM blockMeshDict files. """
@@ -738,6 +1032,28 @@ class BlockMeshDict(FoamDictFile):
         """ Get blockMesh boundary patches list. """
         return self.get("boundary")
 
+    def set_default_patch(
+            self,
+            name: str,
+            patch_type: str = "internal"
+        ) -> None:
+        """ Set defaultPatch name and type.
+
+        Parameters
+        ----------
+        name : str
+            Default patch name.
+        patch_type : str = "internal"
+            Default patch type.
+
+        Returns
+        -------
+        None
+            Updates defaultPatch block.
+        """
+        self.set("defaultPatch/name", name)
+        self.set("defaultPatch/type", patch_type)
+
 
 class DecomposeParDict(FoamDictFile):
     """ Strongly-typed interface for OpenFOAM decomposeParDict files. """
@@ -764,6 +1080,26 @@ class DecomposeParDict(FoamDictFile):
         """ Set domain decomposition method (simple, hierarchical, etc). """
         self.set("method", value)
 
+    @property
+    def distributed(self) -> bool | None:
+        """ Get distributed decomposition flag. """
+        return self.get("distributed")
+
+    @distributed.setter
+    def distributed(self, value: bool) -> None:
+        """ Set distributed decomposition flag. """
+        self.set("distributed", value)
+
+    @property
+    def roots(self) -> list[str] | None:
+        """ Get roots list for distributed decomposition. """
+        return self.get("roots")
+
+    @roots.setter
+    def roots(self, value: list[str]) -> None:
+        """ Set roots list for distributed decomposition. """
+        self.set("roots", value)
+
     def set_simple_coeffs(self, n_vector: list[int]) -> None:
         """ Set simpleCoeffs sub-domain division vector.
 
@@ -778,6 +1114,46 @@ class DecomposeParDict(FoamDictFile):
             Updates simpleCoeffs/n entry.
         """
         self.set("simpleCoeffs/n", n_vector)
+
+    def set_hierarchical_coeffs(
+            self,
+            n: list[int] | None = None,
+            order: str | None = None
+        ) -> None:
+        """ Set hierarchical domain decomposition coefficients.
+
+        Parameters
+        ----------
+        n : list[int] | None = None
+            Subdomain division per coordinate axis (e.g. [4, 1, 1]).
+        order : str | None = None
+            Decomposition order string (e.g. "xyz").
+
+        Returns
+        -------
+        None
+            Updates hierarchicalCoeffs block.
+        """
+        if n is not None:
+            self.set("hierarchicalCoeffs/n", n)
+
+        if order is not None:
+            self.set("hierarchicalCoeffs/order", order)
+
+    def set_manual_coeffs(self, data_file: str) -> None:
+        """ Set manual domain decomposition coefficient dataFile.
+
+        Parameters
+        ----------
+        data_file : str
+            Path to manual decomposition data file.
+
+        Returns
+        -------
+        None
+            Updates manualCoeffs/dataFile entry.
+        """
+        self.set("manualCoeffs/dataFile", data_file)
 
 
 class FieldFile(FoamDictFile):
