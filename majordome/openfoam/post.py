@@ -9,6 +9,22 @@ from pathlib import Path
 import pandas as pd
 import polars as pl
 
+# After some fragile behavior identified with polars, it was decided
+# to test pandas as the preferred backend, even for large files.
+PREFERRED_BACKEND = "pandas"
+
+
+def set_preferred_backend(backend: str) -> None:
+    """ Set the preferred backend for loading data.
+
+    Parameters
+    ----------
+    backend : str
+        The preferred backend, either "polars" or "pandas".
+    """
+    global PREFERRED_BACKEND
+    PREFERRED_BACKEND = backend
+
 
 class AbstractFoamDataLoader(ABC):
     """ Abstract interface for loading multiple postProcessing files.
@@ -113,7 +129,7 @@ class FoamTabularData(AbstractFoamDataLoader):
             # This is a classic OpenFOAM report:
             last_line = last_line.replace("\t", ",")
             self._sep = "\t"
-            self._backend = "polars"
+            self._backend = PREFERRED_BACKEND
         else:
             # Lets assume has no whitespace in headings:
             last_line = ",".join([w for w in last_line.split(" ") if w])
