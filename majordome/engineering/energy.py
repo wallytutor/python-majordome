@@ -27,7 +27,22 @@ class CombustionPowerOp(NamedTuple):
 
 
 class CombustionFlowOp(NamedTuple):
-    """ Combustion flow operation parameters. """
+    """ Combustion flow operation parameters.
+
+    Parameters
+    ----------
+    mode: str
+        Flow control model, either "mass" (kg/s) or "mole" (mol/s).
+        This provides the units of `fuel_xdot` and `oxid_xdot`.
+    fuel_xdot: float
+        Flow rate of fuel, in units defined by `mode`.
+    oxid_xdot: float
+        Flow rate of oxidizer, in units defined by `mode`.
+    fuel_state: StateType
+        State of fuel.
+    oxid_state: StateType
+        State of oxidizer.
+    """
     mode: str
     fuel_xdot: float
     oxid_xdot: float
@@ -750,7 +765,10 @@ def _init_combustion_energy_source(cls):
 
 @_init_combustion_energy_source
 class CombustionEnergySource(GasFlowEnergySource):
-    """ Combustion based energy source. """
+    """ Combustion based energy source.
+
+
+    """
     __slots__ = ("_fuel", "_oxid", "_qty_flue", "_qty_fuel", "_qty_oxid")
 
     def __init__(self, *args, **kwargs) -> None:
