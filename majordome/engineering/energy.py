@@ -65,9 +65,15 @@ class CombustionAtmosphereCHON:
     def __init__(
             self,
             mechanism: str,
+            *,
             phase: str | None = None,
             basis: str = "mass"
         ) -> None:
+        if basis not in ("mass", "mole"):
+            raise ValueError(
+                f"Invalid basis '{basis}', expected 'mass' or 'mole'"
+            )
+
         self._solution = Solution(mechanism, name=phase)
         self._basis = basis
 
@@ -234,7 +240,11 @@ class CombustionPowerSupply(AbstractReportable):
     """
     __slots__ = (
         "_mechanism",
+        "_phase",
         "_power",
+        "_equivalence",
+        "_species",
+        "_basis",
         "_lhv",
         "_mdot_c",
         "_mdot_o",
@@ -256,6 +266,7 @@ class CombustionPowerSupply(AbstractReportable):
             fuel: CompositionType,
             oxidizer: CompositionType,
             mechanism: str,
+            *,
             phase: str | None = None,
             species: str = "O2",
             emissions: bool = True,
@@ -263,25 +274,57 @@ class CombustionPowerSupply(AbstractReportable):
         ) -> None:
         super().__init__()
 
-        self._ca = CombustionAtmosphereCHON(mechanism, phase, basis)
+        if power <= 0.0:
+            raise ValueError(f"Power must be positive, got {power}")
 
-        lhc, mdot_c, mdot_o = self._ca.combustion_setup(
+        if equivalence <= 0.0:
+            raise ValueError(
+                f"Equivalence ratio must be positive, got {equivalence}"
+            )
+
+        if basis not in ("mass", "mole"):
+            raise ValueError(
+                f"Invalid basis '{basis}', expected 'mass' or 'mole'"
+            )
+
+        self._mechanism   = mechanism
+        self._phase       = phase
+        self._power       = float(power)
+        self._equivalence = float(equivalence)
+        self._species     = species
+        self._basis       = basis
+        self._Xc          = fuel
+        self._Xo          = oxidizer
+
+        self._ca = CombustionAtmosphereCHON(
+            mechanism, phase=phase, basis=basis
+        )
+
+        lhv, mdot_c, mdot_o = self._ca.combustion_setup(
             power, equivalence, fuel, oxidizer, species=species
         )
 
-        self._lhv    = lhc
+        self._lhv    = lhv
         self._mdot_c = mdot_c
         self._mdot_o = mdot_o
-        self._power  = power
-        self._Xc     = fuel
-        self._Xo     = oxidizer
 
         if emissions:
-            self._m_h2o, self._m_co2 = self._emissions(mechanism)
+            self._m_h2o, self._m_co2 = self._emissions(
+                mechanism, phase=phase
+            )
 
-    def _emissions(self, mechanism, h2o="H2O", co2="CO2"):
+    def _emissions(
+            self,
+            mechanism: str,
+            phase: str | None = None,
+            h2o: str = "H2O",
+            co2: str = "CO2"
+        ) -> tuple[float, float]:
         """ Evaluate complete combustion products for a gas. """
-        mixer = CombustionAtmosphereMixer(mechanism)
+        if self._mdot_o <= 0.0 and self._mdot_c <= 0.0:
+            return 0.0, 0.0
+
+        mixer = CombustionAtmosphereMixer(mechanism, phase=phase)
 
         if self._mdot_o > 0.0:
             mixer.add_quantity(self._mdot_o, self._Xo)
@@ -303,6 +346,36 @@ class CombustionPowerSupply(AbstractReportable):
     def power(self) -> float:
         """ Access to combustion power [kW]. """
         return self._power
+
+    @property
+    def equivalence(self) -> float:
+        """ Access to oxidizer-fuel equivalence ratio. """
+        return self._equivalence
+
+    @property
+    def lhv(self) -> float:
+        """ Access to mixture lower heating value [MJ/kg]. """
+        return self._lhv
+
+    @property
+    def mechanism(self) -> str:
+        """ Access to kinetics mechanism name. """
+        return self._mechanism
+
+    @property
+    def phase(self) -> str | None:
+        """ Access to phase name. """
+        return self._phase
+
+    @property
+    def basis(self) -> str:
+        """ Access to equivalence ratio computation basis. """
+        return self._basis
+
+    @property
+    def species(self) -> str:
+        """ Access to reference oxidizer species. """
+        return self._species
 
     @property
     def fuel_mass(self) -> float:
@@ -412,15 +485,28 @@ class CombustionAtmosphereMixer:
     ----------
     mechanism: str
         Kinetics mechanism/database to use in computations.
+    phase: str | None = None
+        Phase name, if mechanism contains multiple phases.
+    basis: str = "mole"
+        Basis on which to interpret compositions.
     """
-    def __init__(self, mechanism: str, basis: str = "mole") -> None:
+    def __init__(
+            self,
+            mechanism: str,
+            *,
+            phase: str | None = None,
+            basis: str = "mole"
+        ) -> None:
         self._mechanism = mechanism
+        self._phase = phase
         self._quantity = None
         self._basis = basis
 
     def _new_quantity(self, mass, T, P, X):
         """ Create a new quantity with provided state. """
-        solution = Solution(self._mechanism, basis=self._basis)
+        solution = Solution(
+            self._mechanism, name=self._phase, basis=self._basis
+        )
         solution.TPX = T, P, X
         return ct.Quantity(solution, mass=mass)
 
@@ -859,13 +945,16 @@ class CombustionEnergySource(GasFlowEnergySource):
             # XXX: the hard-coded "O2: 1" is here by definition! The heating
             # value is always computed with respect to pure oxidizer. Notice
             # that the oxidizer must be parametrized in the future!
-            ca = CombustionAtmosphereCHON(tmp.source, basis="mole")
+            ca = CombustionAtmosphereCHON(
+                tmp.source, phase=tmp.phase, basis="mole"
+            )
             lhv = ca.solution_heating_value(self._fuel, "O2: 1")
             power = lhv * mdot_fuel * 1000.0
         elif isinstance(operation, CombustionPowerOp):
             supply = CombustionPowerSupply(
                 operation.power, operation.equivalence, self._fuel,
-                self._oxid, tmp.source, emissions=False, basis="mole")
+                self._oxid, tmp.source, phase=tmp.phase, emissions=False,
+                basis="mole")
 
             mdot_fuel = supply.fuel_mass
             mdot_oxid = supply.oxidizer_mass
@@ -876,7 +965,9 @@ class CombustionEnergySource(GasFlowEnergySource):
         T_fuel = operation.fuel_state.T
         T_oxid = operation.oxid_state.T
 
-        mixture = CombustionAtmosphereMixer(tmp.source, basis="mass")
+        mixture = CombustionAtmosphereMixer(
+            tmp.source, phase=tmp.phase, basis="mass"
+        )
         self._qty_fuel = mixture.add_quantity(mdot_fuel, self._fuel, T_fuel)
         self._qty_oxid = mixture.add_quantity(mdot_oxid, self._oxid, T_oxid)
         self._qty_flue = mixture.solution

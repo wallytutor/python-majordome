@@ -1,5 +1,7 @@
 # Changelog
 
+- Improved `CombustionPowerSupply` and related classes in `majordome.engineering.energy`: added input validation for power, equivalence ratio, and calculation basis; resolved `__slots__` missing attributes and assigned instance attributes; added multi-phase mechanism support (`phase`) across `CombustionPowerSupply`, `CombustionAtmosphereCHON`, and `CombustionAtmosphereMixer`; ensured backward compatibility for legacy positional arguments; exposed additional inspection properties (`lhv`, `equivalence`, `mechanism`, `phase`, `basis`, `species`); and added safe zero-mass checks for emission calculations.
+
 - Documented constructor parameters in `majordome.engineering.energy` for energy source classes inheriting from `AbstractEnergySource` (`CanteraEnergySource`, `GasFlowEnergySource`, `HeatedGasEnergySource`, and `CombustionEnergySource`).
 
 - Fixed physical dimensions set formatting in `majordome-foam` and `majordome.openfoam.files`: physical field `dimensions` properties (such as `dimensions` in `VolScalarField`) and lists/strings set for `dimensions` keys now consistently format using canonical OpenFOAM square brackets `[...]` instead of parenthesized lists `(...)`.
