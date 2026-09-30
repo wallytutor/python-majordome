@@ -57,11 +57,18 @@ class CombustionAtmosphereCHON:
     ----------
     mechanism: str
         Kinetics mechanism/database to use in computations.
+    phase: str | None = None
+        Phase name, if mechanism contains multiple phases.
     basis: str = "mass"
         Basis on which to compute equivalence ratio.
     """
-    def __init__(self, mechanism: str, basis: str = "mass") -> None:
-        self._solution = Solution(mechanism)
+    def __init__(
+            self,
+            mechanism: str,
+            phase: str | None = None,
+            basis: str = "mass"
+        ) -> None:
+        self._solution = Solution(mechanism, name=phase)
         self._basis = basis
 
     def _state_standard(self, X):
@@ -201,54 +208,6 @@ class CombustionAtmosphereCHON:
         return 3600 * mdot / self.normal_density(X)
 
 
-def _init_combustion_power_supply(cls):
-    """ Decorator to enhance CombustionPowerSupply with argument parsing. """
-    orig_init = cls.__init__
-
-    parser = FuncArguments(greedy_args=False, pop_kw=True)
-    parser.add("power", 0)
-    parser.add("equivalence", 1)
-    parser.add("fuel", 2)
-    parser.add("oxidizer", 3)
-    parser.add("mechanism", 4)
-    parser.add("species", default="O2")
-    parser.add("emissions", default=True)
-    parser.add("basis", default="mass")
-    # TODO support phase name
-
-    @wraps(orig_init)
-    def new_init(self, *args, **kwargs):
-        parser.update(*args, **kwargs)
-        power       = parser.get("power")
-        equivalence = parser.get("equivalence")
-        fuel        = parser.get("fuel")
-        oxidizer    = parser.get("oxidizer")
-        mechanism   = parser.get("mechanism")
-        species     = parser.get("species")
-        emissions   = parser.get("emissions")
-        basis       = parser.get("basis")
-
-        orig_init(self, *parser.args, **parser.kwargs)
-        parser.close()
-
-        self._ca = CombustionAtmosphereCHON(mechanism, basis=basis)
-        self._lhv, self._mdot_c, self._mdot_o = self._ca.combustion_setup(
-            power, equivalence, fuel, oxidizer, species=species)
-
-        self._power = power
-        self._Xc    = fuel
-        self._Xo    = oxidizer
-
-        if emissions:
-            self._m_h2o, self._m_co2 = self._emissions(mechanism)
-
-        return None
-
-    cls.__init__ = update_wrapper(new_init, orig_init)
-    return cls
-
-
-@_init_combustion_power_supply
 class CombustionPowerSupply(AbstractReportable):
     """ Provides combustion calculations for given power supply.
 
@@ -264,6 +223,8 @@ class CombustionPowerSupply(AbstractReportable):
         Composition of oxidizer in species mole fractions.
     mechanism: str
         Kinetics mechanism/database to use in computations.
+    phase: str | None = None
+        Phase name, if mechanism contains multiple phases.
     species: str = "O2"
         Reference species for oxidizer mass balance.
     emissions: bool = True
@@ -271,12 +232,52 @@ class CombustionPowerSupply(AbstractReportable):
     basis: str = "mass"
         Basis on which to compute equivalence ratio.
     """
-    __slots__ = ("_mechanism", "_power", "_lhv", "_mdot_c", "_mdot_o",
-                 "_Xc", "_Xo", "_ca", "_m_h2o", "_m_co2",
-                 "_rho_c", "_rho_o", "_qdot_c", "_qdot_o")
+    __slots__ = (
+        "_mechanism",
+        "_power",
+        "_lhv",
+        "_mdot_c",
+        "_mdot_o",
+        "_Xc",
+        "_Xo",
+        "_ca",
+        "_m_h2o",
+        "_m_co2",
+        "_rho_c",
+        "_rho_o",
+        "_qdot_c",
+        "_qdot_o"
+    )
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(
+            self,
+            power: float,
+            equivalence: float,
+            fuel: CompositionType,
+            oxidizer: CompositionType,
+            mechanism: str,
+            phase: str | None = None,
+            species: str = "O2",
+            emissions: bool = True,
+            basis: str = "mass"
+        ) -> None:
+        super().__init__()
+
+        self._ca = CombustionAtmosphereCHON(mechanism, phase, basis)
+
+        lhc, mdot_c, mdot_o = self._ca.combustion_setup(
+            power, equivalence, fuel, oxidizer, species=species
+        )
+
+        self._lhv    = lhc
+        self._mdot_c = mdot_c
+        self._mdot_o = mdot_o
+        self._power  = power
+        self._Xc     = fuel
+        self._Xo     = oxidizer
+
+        if emissions:
+            self._m_h2o, self._m_co2 = self._emissions(mechanism)
 
     def _emissions(self, mechanism, h2o="H2O", co2="CO2"):
         """ Evaluate complete combustion products for a gas. """
@@ -522,7 +523,17 @@ def _init_cantera_energy_source(cls):
 
 @_init_cantera_energy_source
 class CanteraEnergySource(AbstractEnergySource):
-    """ An abstract Cantera based energy source. """
+    """ An abstract Cantera based energy source.
+
+    Parameters
+    ----------
+    source: str
+        Kinetics mechanism/database to use in computations.
+    power: float = 0.0
+        Total supplied power [kW].
+    phase: str = ""
+        Phase name in the mechanism.
+    """
     __slots__ = ("_power", "_source", "_phase", "_fluid")
 
     def __init__(self, *args, **kwargs) -> None:
@@ -604,7 +615,21 @@ def _init_gas_flow_energy_source(cls):
 
 @_init_gas_flow_energy_source
 class GasFlowEnergySource(CanteraEnergySource):
-    """ An abstract gas flow energy source. """
+    """ An abstract gas flow energy source.
+
+    Parameters
+    ----------
+    source: str
+        Kinetics mechanism/database to use in computations.
+    power: float = 0.0
+        Total supplied power [kW].
+    mass_flow_rate: float = -1.0
+        Gas mass flow rate [kg/s].
+    cross_area: float = 1.0
+        Reference cross-sectional area [m²].
+    phase: str = ""
+        Phase name in the mechanism.
+    """
     __slots__ = ("_mdot", "_area", "_rho")
 
     def __init__(self, *args, **kwargs) -> None:
@@ -678,7 +703,27 @@ def _init_heated_gas_energy_source(cls):
 
 @_init_heated_gas_energy_source
 class HeatedGasEnergySource(GasFlowEnergySource):
-    """ Non-reacting heated gas flow energy source. """
+    """ Non-reacting heated gas flow energy source.
+
+    Parameters
+    ----------
+    source: str
+        Kinetics mechanism/database to use in computations.
+    power: float = 0.0
+        Total supplied power [kW].
+    mass_flow_rate: float = -1.0
+        Gas mass flow rate [kg/s].
+    cross_area: float = 1.0
+        Reference cross-sectional area [m²].
+    temperature_ref: float = constants.T_REFERENCE
+        Reference temperature in kelvin [K].
+    pressure_ref: float = constants.P_NORMAL
+        Reference pressure in pascal [Pa].
+    Y: CompositionType = {}
+        Reference composition in mass fractions.
+    phase: str = ""
+        Phase name in the mechanism.
+    """
     __slots__ = ("_temp_ref", "_pres_ref", "_temp_ops", "_comp_ref")
 
     def __init__(self, *args, **kwargs) -> None:
@@ -767,7 +812,16 @@ def _init_combustion_energy_source(cls):
 class CombustionEnergySource(GasFlowEnergySource):
     """ Combustion based energy source.
 
-
+    Parameters
+    ----------
+    source: str
+        Kinetics mechanism/database to use in computations.
+    operation: CombustionPowerOp | CombustionFlowOp
+        Combustion operation specifications.
+    cross_area: float = 1.0
+        Reference cross-sectional area [m²].
+    phase: str = ""
+        Phase name in the mechanism.
     """
     __slots__ = ("_fuel", "_oxid", "_qty_flue", "_qty_fuel", "_qty_oxid")
 
