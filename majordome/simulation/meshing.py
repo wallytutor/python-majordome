@@ -838,6 +838,41 @@ class GeometricProgression:
         return best_n, d_end / d_mid
 
 
+class RefinementManager:
+    __slots__ = (
+
+    )
+
+    def __init__(
+            self,
+            n_ref: int,
+            L_ref: float,
+            r_ref: float,
+            min_size: float,
+            max_size: float,
+            atol: float = 1.0e-12,
+        ) -> None:
+        pass
+
+    def get_first_size_geom(self, ) -> float:
+        pass
+
+    def get_last_size_geom(self, ) -> float:
+        pass
+
+    def get_first_size_bump(self, ) -> float:
+        pass
+
+    def get_last_size_bump(self, ) -> float:
+        pass
+
+    def refine_geom(self, level: int) -> tuple[int, float]:
+        pass
+
+    def refine_bump(self, level: int) -> tuple[int, float]:
+        pass
+
+
 class RingBuilder:
     """ Create a ring-shaped geometry with inner and outer boundaries.
 
