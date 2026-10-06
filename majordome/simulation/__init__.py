@@ -32,4 +32,7 @@ __getattr__, __dir__ = setup_lazy_exports(__name__, globals(), {
     "hexagon_points_xy": ".meshing",
     "square_points_xy": ".meshing",
     "get_extrusion_tags": ".meshing",
+
+    # post:
+    "import_headless_pyvista": ".post",
 })
