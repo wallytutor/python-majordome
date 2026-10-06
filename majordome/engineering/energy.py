@@ -477,6 +477,44 @@ class CombustionPowerSupply(AbstractReportable):
         kwargs.setdefault("headers", ["Property", "Unit", "Value"])
         return super().report(*args, **kwargs)
 
+    def into_flue(
+            self,
+            T: float = 298.15,
+            P: float = 101325,
+        ) -> ct.Solution:
+        """ Evaluate adiabatic combustion flue gas solution.
+
+        Parameters
+        ----------
+        T: float = 298.15
+            Temperature [K].
+        P: float = 101325
+            Pressure [Pa].
+
+        Returns
+        -------
+        ct.Solution
+            Solution of flue gas at adiabatic combustion conditions.
+        """
+        mix = CombustionAtmosphereMixer(
+            mechanism = self.mechanism,
+            phase     = self.phase,
+            basis     = self.basis,
+        )
+        mix.add_quantity(
+            mass = self.fuel_mass,
+            X    = self._Xc,
+        )
+        mix.add_quantity(
+            mass = self.oxidizer_mass,
+            X    = self._Xo,
+        )
+
+        mix.TP = T, P
+        mix.solution.equilibrate("HP")
+
+        return mix.solution
+
 
 class CombustionAtmosphereMixer:
     """ Provides addition of thermochemical quantities.
