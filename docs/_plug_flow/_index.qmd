@@ -1,0 +1,5 @@
+# Plug-flow
+
+*aka majordome.plug_flow*
+
+{{< include pfr.qmd >}}

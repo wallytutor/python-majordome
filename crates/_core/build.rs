@@ -26,9 +26,52 @@ fn main() {
     println!("cargo:rustc-env=GIT_VERSION={}", version);
     eprintln!("\x1b[32m✓ Version set to: {}\x1b[0m", version);
 
+    // Build plug-flow extension on Linux if Cantera is available
+    build_plug_flow();
+
     // Rebuild if git state changes
     println!("cargo:rerun-if-changed=../.git/HEAD");
     println!("cargo:rerun-if-changed=../.git/index");
+    println!("cargo:rerun-if-changed=majordome/plug_flow/ct_pfr.pyx");
+    println!("cargo:rerun-if-changed=majordome/plug_flow/src");
+    println!("cargo:rerun-if-changed=majordome/plug_flow/_build.py");
+}
+
+fn build_plug_flow() {
+    #[cfg(target_os = "linux")]
+    {
+        let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
+            .unwrap_or_else(|_| ".".to_string());
+        let build_script = std::path::Path::new(&manifest_dir)
+            .join("majordome")
+            .join("plug_flow")
+            .join("_build.py");
+
+        if !build_script.exists() {
+            return;
+        }
+
+        let python = std::env::var("PYO3_PYTHON")
+            .or_else(|_| std::env::var("PYTHON_SYS_EXECUTABLE"))
+            .unwrap_or_else(|_| "python3".to_string());
+
+        let res = Command::new(&python)
+            .arg(&build_script)
+            .current_dir(&manifest_dir)
+            .status();
+
+        match res {
+            Ok(status) if status.success() => {
+                eprintln!("\x1b[32m✓ Plug-flow build hook executed successfully\x1b[0m");
+            }
+            Ok(status) => {
+                eprintln!("\x1b[33m⚠ Plug-flow build hook exited with code {}\x1b[0m", status);
+            }
+            Err(e) => {
+                eprintln!("\x1b[33m⚠ Plug-flow build hook could not run Python: {}\x1b[0m", e);
+            }
+        }
+    }
 }
 
 fn comply_pep440(version: &str) -> String {

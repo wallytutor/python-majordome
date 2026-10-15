@@ -30,6 +30,30 @@ If you just prefer to compile locally without delving into the development envir
 
 :::
 
+## Linux-only
+
+While Majordome strives for maximum cross-platform portability by strictly avoiding C/C++ build dependencies for its core functionality, high-performance plug-flow reactor models in `majordome.plug_flow` require native C++ integration with [Cantera](https://cantera.org) and SUNDIALS IDAS.
+
+To maintain a frictionless development workflow across all platforms without separate build steps:
+
+- A single call to `uv` (`uv pip install -e .` or `maturin develop`) drives the entire build process.
+- During compilation, Cargo executes an automated hook in `build.rs` on Linux systems that probes for Cantera 3.2+ development headers and shared libraries.
+- If Cantera and SUNDIALS are detected, the C++ extension `majordome.plug_flow.ct_pfr` is compiled automatically.
+- If Cantera is absent, or when building on non-Linux platforms (Windows/macOS), the compilation is skipped gracefully, and the rest of Majordome builds and installs without error.
+
+### Requirements for `majordome.plug_flow`
+
+To enable the plug-flow reactor module, the following system dependencies must be available on your Linux environment (or inside an Apptainer/Docker container):
+
+- **Platform**: Linux (x86_64 or aarch64)
+- **C++ Compiler**: GCC (`g++`) or Clang supporting `-std=c++17`
+- **Cantera**: Cantera >= 3.2.0 (compiled with shared libraries `libcantera_shared.so` or `libcantera.so`)
+- **SUNDIALS**: SUNDIALS IDAS and NVector Serial (`libsundials_ida`, `libsundials_nvecserial`)
+- **Linear Algebra**: OpenBLAS and LAPACK development libraries (`libopenblas`, `liblapack`)
+- **MPI & Eigen**: OpenMPI and Eigen3 headers (if Cantera was built with MPI support)
+
+When these dependencies are installed, running standard `uv` commands automatically produces a functional `majordome.plug_flow` module without any extra user intervention.
+
 ## Development
 
 The development focuses on portability and ease of setup, so by default any dependency relying on a C/C++ compiler is forbidden. This means that the development environment can be set up on any platform without needing to install additional compilers or tools.

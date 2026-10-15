@@ -107,14 +107,56 @@ plot_etc((T, k_gas, k_eff_m)).resize(10, 5)
 
 ### Dimensionless solution
 
-A dimensionless numbers calculator is provided for gas flows; it currently has a certain number of groups which are all evaluated by definition (which might change according to your field, please check the docs). The mechanics of using the class can be resumed to:
+When analyzing chemically reacting flows and designing reactor systems, evaluating dimensionless groups is essential for delineating flow regimes, assessing convective versus diffusive transport, and checking buoyancy effects [@Bird2001].
 
-1. loading a mechanism file (Cantera YAML)
-2. setting the state of the solution
-3. evaluating the required properties
-4. (optional) displaying a report
+#### Definitions and Physical Significance
 
-The meaning of the tuple of arguments provided to `set_state` is specified by `tuple_name="TPX"`, which defaults to temperature, pressure, and molar proportions. Any triplet allowed by [Cantera](https://cantera.org/stable/python/thermo.html#id3) can be specified here.
+- **Reynolds Number ($\mathrm{Re}$)**: Named for Osborne Reynolds (1842–1912), $\mathrm{Re}$ delineates flow regimes by comparing inertial to viscous forces. For circular tubes of diameter $D$:
+
+  $$\mathrm{Re} = \frac{\rho \langle v_{z} \rangle D}{\mu}$$
+
+  where $\langle v_{z} \rangle$ is the average axial velocity, $\rho$ is density, and $\mu$ is dynamic viscosity. For $\mathrm{Re} < 2100$, steady flow in smooth tubes remains laminar [@Bird2001].
+
+- **Prandtl Number ($\mathrm{Pr}$)**: Named for Ludwig Prandtl (1875–1953), $\mathrm{Pr}$ compares momentum diffusivity (kinematic viscosity $\nu = \mu/\rho$) to thermal diffusivity $\alpha = k/(\rho C_p)$:
+
+  $$\mathrm{Pr} = \frac{\nu}{\alpha} = \frac{C_p \mu}{k}$$
+
+  When transport data is unavailable, $\mathrm{Pr}$ can be estimated at low pressures for non-polar molecules via Eucken's formula:
+
+  $$\mathrm{Pr} \approx \frac{C_p}{C_p + \frac{5}{4}\mathcal{R}}$$
+
+- **Schmidt Number ($\mathrm{Sc}$)**: Named for Ernst Schmidt (1892–1975), $\mathrm{Sc}$ compares momentum diffusivity to mass diffusivity $D_k$:
+
+  $$\mathrm{Sc}_k = \frac{\nu}{D_k}$$
+
+  In multicomponent gas mixtures, each chemical species has its own binary or mixture-averaged diffusivity $D_{k,\mathrm{mix}}$. `SolutionDimless` evaluates both $\mathrm{Sc}$ based on the maximum diffusivity and the multicomponent **bounds** across all species via `schmidt_bounds()`:
+
+  $$\mathrm{Sc}_{\min} = \frac{\nu}{\max_k D_k}, \qquad \mathrm{Sc}_{\max} = \frac{\nu}{\min_k D_k}$$
+
+- **Péclet Numbers ($\mathrm{Pe}$)**: Named for Jean-Claude-Eugène Péclet (1793–1857), $\mathrm{Pe}$ characterizes the ratio of convective transport to diffusive transport:
+
+  $$\mathrm{Pe}_{\mathrm{th}} = \mathrm{Re} \cdot \mathrm{Pr} = \frac{u L}{\alpha}$$
+
+  $$\mathrm{Pe}_{\mathrm{ch}} = \mathrm{Re} \cdot \mathrm{Sc} = \frac{u L}{D_k}$$
+
+  In chemical reactors (such as plug-flow reactors), a high axial Péclet number ($\mathrm{Pe} \gg 1$) justifies neglecting axial dispersion. The multicomponent bounds $(\mathrm{Pe}_{\mathrm{ch},\min}, \mathrm{Pe}_{\mathrm{ch},\max})$ are evaluated via `peclet_chemical(U, L)`.
+
+- **Grashof ($\mathrm{Gr}$) and Rayleigh ($\mathrm{Ra}$) Numbers**: The Grashof number (Franz Grashof, 1826–1893) characterizes natural convection by approximating the ratio of buoyancy forces to viscous forces:
+
+  $$\mathrm{Gr} = \frac{g \beta D^3 (T_w - T)}{\nu^2}$$
+
+  where $\beta = -\frac{1}{\rho}\left(\frac{\partial \rho}{\partial T}\right)_p$ is the isobaric thermal expansion coefficient (for an ideal gas, $\beta = 1/T$), and $g$ is gravity acceleration. The Rayleigh number is the product:
+
+  $$\mathrm{Ra} = \mathrm{Gr} \cdot \mathrm{Pr}$$
+
+#### Usage and Evaluation
+
+The mechanics of using `SolutionDimless` can be resumed to:
+
+1. Loading a mechanism file (Cantera YAML) or wrapping an active Cantera `ct.Solution` via `SolutionDimless.from_solution(gas)`.
+2. Setting the state of the solution via `set_state()`.
+3. Evaluating the required dimensionless properties (e.g. `reynolds`, `prandtl`, `schmidt_bounds`, `peclet_chemical`, `grashof`, `rayleigh`).
+4. Displaying a formatted summary with `report()`.
 
 ```{python}
 #| echo: true
@@ -126,24 +168,44 @@ L = 1.0      # Pipe length [m]
 calculator = SolutionDimless("airish.yaml")
 calculator.set_state(300.0, 101325.0, "N2: 1", tuple_name="TPX")
 
-Re   = calculator.reynolds(U, D)
-Pr   = calculator.prandtl()
-Sc   = calculator.schmidt()
+re = calculator.reynolds(U, D)
+pr = calculator.prandtl()
+sc = calculator.schmidt()
+sc_min, sc_max = calculator.schmidt_bounds()
+pe_m = calculator.peclet_mass(U, L)
+pe_h = calculator.peclet_heat(U, L)
+pe_ch_min, pe_ch_max = calculator.peclet_chemical(U, L)
+gr = calculator.grashof(Tw, D)
+ra = calculator.rayleigh(Tw, D)
+
 print(calculator.report())
+print(f"Schmidt bounds   : [{sc_min:.4f}, {sc_max:.4f}]")
+print(f"Chemical Peclet  : [{pe_ch_min:.2f}, {pe_ch_max:.2f}]")
 ```
 
-If you prefer to have direct access to the internal solution, you can set properties as usual in Cantera, but you need to keep in mind to call `update()` to refresh the internal state of the calculator. Every time the properties are updated, the internal buffer of computed dimensionless numbers is refreshed, as you migth notice in the following table.
+If you prefer to have direct access to the internal solution or wrap an existing `ct.Solution`, you can use `SolutionDimless.from_solution` and update properties as usual in Cantera, calling `update()` to refresh the internal state of the calculator:
 
 ```{python}
 #| echo: true
-calculator.solution.TPX = 300.0, 101325.0, "N2: 1"
-calculator.update()
+gas = ct.Solution("airish.yaml")
+gas.TPX = 600.0, 101325.0, "N2: 0.79, O2: 0.21"
 
-Pe_m = calculator.peclet_mass(U, L)
-Pe_h = calculator.peclet_heat(U, L)
-Gr   = calculator.grashof(Tw, D)
-Ra   = calculator.rayleigh(Tw, D)
-print(calculator.report())
+calc_gas = SolutionDimless.from_solution(gas)
+calc_gas.update()
+print(f"Re at 600 K: {calc_gas.reynolds(U, D):.1f}")
+print(f"Pr at 600 K: {calc_gas.prandtl():.4f}")
+```
+
+Direct functional wrappers (`Re`, `Pr`, `Sc`, `Pe`, `Gr`, `Ra`) are also available for convenient evaluations given a Cantera gas solution:
+
+```{python}
+#| echo: true
+re_val = Re(gas, U, D)
+pr_val = Pr(gas)
+sc_bounds = Sc(gas)
+print(f"Re (functional): {re_val:.1f}")
+print(f"Pr (functional): {pr_val:.4f}")
+print(f"Sc bounds (functional): [{sc_bounds[0]:.4f}, {sc_bounds[1]:.4f}]")
 ```
 
 ### Boundary layer wall grading

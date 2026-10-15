@@ -16,6 +16,7 @@ __getattr__, __dir__ = setup_submodules_exports(
     submodules=[
         ".engineering",
         ".openfoam",
+        ".plug_flow",
         ".simulation",
         ".utilities",
     ],
