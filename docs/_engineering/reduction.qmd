@@ -1,0 +1,86 @@
+## Reaction Mechanism Reduction
+
+Detailed chemical kinetic mechanisms for hydrocarbon combustion and reacting flows often contain hundreds of species and thousands of elementary reactions. Simulating these mechanisms in multidimensional CFD or reactor networks requires skeletal reduction [@Lu2005].
+
+Module `majordome.engineering.reduction` implements the **Directed Relation Graph (DRG)** reduction framework, network analysis tools, and modern submechanism extraction utilities.
+
+### Submechanism Extraction
+
+Cantera 3.2+ provides standard YAML mechanism formats. Function `extract_submechanism` filters an existing mechanism or Cantera solution to retain only the specified species set, automatically pruning reactions that involve excluded species:
+
+```python
+from majordome.engineering import extract_submechanism
+import cantera as ct
+
+gas = ct.Solution("h2o2.yaml")
+retained = ["H2", "O2", "H2O", "H", "O", "OH", "HO2", "AR"]
+
+# Extract skeletal mechanism and optionally write to YAML
+sub_gas = extract_submechanism(gas, retained, yaml_out="h2o2_skeletal.yaml")
+print(f"Original reactions: {len(gas.reactions())}")
+print(f"Skeletal reactions: {len(sub_gas.reactions())}")
+```
+
+### Directed Relation Graph (DRG) Method
+
+The DRG method [@Lu2005] quantifies the coupling between species by constructing a directed graph where nodes represent chemical species and weighted directed edges quantify the dependence of species $A$ on species $B$:
+
+$$r_{AB} = \frac{\sum_{i=1}^{N_R} \left| \nu_{A,i} \dot{q}_i \delta_{B,i} \right|}{\sum_{i=1}^{N_R} \left| \nu_{A,i} \dot{q}_i \right|}$$
+
+where:
+- $\dot{q}_i$ is the rate of progress of the $i$-th reaction.
+- $\nu_{A,i}$ is the net stoichiometric coefficient of species $A$ in reaction $i$.
+- $\delta_{B,i} = 1$ if reaction $i$ involves species $B$, and $0$ otherwise.
+
+Given a user-selected target species set (e.g., fuel, oxidizer, key radicals) and a threshold $\varepsilon \in (0, 1)$, a graph search identifies all essential species reachable from the targets with edge weight $r \ge \varepsilon$.
+
+### Graph Analysis and Adjacency
+
+```python
+import cantera as ct
+from majordome.engineering import DirectedGraph, plot_adjmatrix, plot_deghist
+
+gas = ct.Solution("h2o2.yaml")
+graph = DirectedGraph(gas)
+
+print(f"Species count (Order) : {graph.order()}")
+print(f"Interactions (Size)   : {graph.size()}")
+print(f"Graph density         : {graph.density:.4f}")
+
+# Adjacency matrix representation
+adj = graph.adjacency_matrix()
+plot_adjmatrix(adj, saveas="h2o2_adj.png")
+
+# Node degree distribution
+plot_deghist(graph.degree_histogram(), saveas="h2o2_deghist.png")
+```
+
+### Workflow Automation with `SimplifyDRGManager`
+
+`SimplifyDRGManager` automates generating sample states across parameter sweeps (temperature, pressure, composition, flow rates), evaluating DRG weights, and producing skeletal mechanisms across threshold values:
+
+```python
+from majordome.engineering import (
+    SimplifyDRGManager,
+    SimplifySetup,
+    StateSpace
+)
+
+space = StateSpace(
+    t=[1000.0, 1500.0, 2000.0],
+    p=[101325.0],
+    x=["H2:2, O2:1, AR:0.1"]
+)
+
+setup = SimplifySetup(
+    start_set=["H2", "O2", "H2O"],
+    space=space
+)
+setup.integ = 1e-3
+setup.threshold_min = 0.01
+setup.threshold_max = 0.20
+setup.nsimp = 10
+
+# Execute DRG simplification
+skeletal_files = SimplifyDRGManager.manage("h2o2.yaml", setup)
+```

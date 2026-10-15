@@ -100,23 +100,38 @@ class SolutionDimless:
     name = None
         Name of phase in mechanism if not a single one is present.
     """
-    def __init__(self, mech: str, *, name = None) -> None:
+    def __init__(self, mech: str | ct.Solution, *, name = None) -> None:
         supported = ["mixture-averaged"]
-        self._sol = ct.composite.Solution(mech, name)
+        if isinstance(mech, (ct.Solution, ct.composite.Solution)):
+            self._sol = mech
+        else:
+            self._sol = ct.composite.Solution(mech, name)
 
-        if (model := self._sol.transport_model) not in supported:
-            raise ValueError(f"Unsupported transport model {model}")
+        if hasattr(self._sol, "transport_model"):
+            if (model := self._sol.transport_model) not in supported:
+                warn(f"Transport model '{model}' may not be fully supported")
 
-        # XXX: this alsow will create all the symbols on first call
+        # XXX: this also will create all the symbols on first call
         self._reset_memory()
+        try:
+            self.update()
+        except Exception:
+            pass
+
+    @classmethod
+    def from_solution(cls, sol: ct.Solution) -> Self:
+        """ Construct from active Cantera Solution instance. """
+        return cls(sol)
 
     def _reset_memory(self):
         """ Reset all previously computed numbers. """
         self._re, self._re_data = None, None
         self._pr, self._pr_data = None, None
         self._sc, self._sc_data = None, None
+        self._sc_bounds = None
         self._pe_mass, self._pe_mass_data = None, None
         self._pe_heat, self._pe_heat_data = None, None
+        self._pe_ch_bounds = None
         self._gr, self._gr_data = None, None
         self._ra, self._ra_data = None, None
 
@@ -129,6 +144,26 @@ class SolutionDimless:
         """ Return required diffusion coefficients. """
         D = getattr(self._sol, vname)
         return D[D > 0]
+
+    def _get_mu(self, mu: float | None = None) -> float:
+        if mu is not None:
+            return float(mu)
+        if hasattr(self, "_mu") and self._mu is not None:
+            return self._mu
+        try:
+            return float(self._sol.viscosity)
+        except Exception:
+            raise ValueError("Missing dynamic viscosity")
+
+    def _get_k(self, k: float | None = None) -> float:
+        if k is not None:
+            return float(k)
+        if hasattr(self, "_k") and self._k is not None:
+            return self._k
+        try:
+            return float(self._sol.thermal_conductivity)
+        except Exception:
+            raise ValueError("Missing thermal conductivity")
 
     # -----------------------------------------------------------------
     # BY DEFINITION
@@ -168,7 +203,12 @@ class SolutionDimless:
     # WRAPPERS
     # -----------------------------------------------------------------
 
-    def reynolds(self, U: float, L: float) -> float:
+    def reynolds(
+        self,
+        U: float,
+        L: float,
+        mu: float | None = None
+    ) -> float:
         """ Evaluates Reynolds number for solution.
 
         Parameters
@@ -177,34 +217,110 @@ class SolutionDimless:
             Flow characteristic velocity [m/s].
         L : float
             Problem characteristic length [m].
+        mu : float | None = None
+            Optional override for dynamic viscosity [Pa.s].
         """
-        self._re = self.bydef_reynolds(self._rho, self._mu, U, L)
+        visc = self._get_mu(mu)
+        self._re = self.bydef_reynolds(self._rho, visc, U, L)
         self._re_data = f"U={U}, L={L}"
         return self._re
 
-    def prandtl(self) -> float:
-        """ Evaluates Prandtl number for solution. """
-        self._pr = self.bydef_prandtl(self._cp, self._mu, self._k)
-        self._pr_data = ""
-        return self._pr
-
-    def schmidt(self, vname: str = "mix_diff_coeffs") -> float:
-        """ Evaluates Schmidt number for solution.
+    def prandtl(
+        self,
+        mu: float | None = None,
+        k: float | None = None
+    ) -> float:
+        """ Evaluates Prandtl number for solution.
 
         Parameters
         ----------
-        vname: str = "mix_diff_coeffs"
-            Name of diffusion coefficient attribute to use, depending on
-            the mass/mole units needs in your calculations. For more details
-            please consult `cantera.Solution` documentation.
+        mu : float | None = None
+            Optional override for dynamic viscosity [Pa.s].
+        k : float | None = None
+            Optional override for thermal conductivity [W/(m.K)].
         """
-        D = max(self._diff_coefs(vname))
-        self._sc = self.bydef_schmidt(self._rho, self._mu, D)
+        visc = self._get_mu(mu)
+        cond = self._get_k(k)
+        self._pr = self.bydef_prandtl(self._cp, visc, cond)
+        self._pr_data = ""
+        return self._pr
+
+    def schmidt(
+        self,
+        vname: str = "mix_diff_coeffs",
+        mu: float | None = None,
+        dab: float | None = None
+    ) -> float:
+        """ Evaluates minimum Schmidt number for solution.
+
+        Parameters
+        ----------
+        vname : str = "mix_diff_coeffs"
+            Name of diffusion coefficient attribute to use.
+        mu : float | None = None
+            Optional override for dynamic viscosity [Pa.s].
+        dab : float | None = None
+            Optional override for mass diffusivity [m^2/s].
+        """
+        try:
+            D = max(self._diff_coefs(vname))
+        except Exception:
+            if dab is None:
+                raise ValueError("Missing diffusivity")
+            D = float(dab)
+
+        visc = self._get_mu(mu)
+        self._sc = self.bydef_schmidt(self._rho, visc, D)
         self._sc_data = vname
         return self._sc
 
-    def peclet_mass(self, U: float, L: float,
-                    vname: str = "mix_diff_coeffs") -> float:
+    def schmidt_bounds(
+        self,
+        vname: str = "mix_diff_coeffs",
+        mu: float | None = None,
+        dab: float | None = None
+    ) -> tuple[float, float]:
+        """ Evaluates minimum and maximum Schmidt number bounds.
+
+        Parameters
+        ----------
+        vname : str = "mix_diff_coeffs"
+            Name of diffusion coefficient attribute to use.
+        mu : float | None = None
+            Optional override for dynamic viscosity [Pa.s].
+        dab : float | None = None
+            Optional override for mass diffusivity [m^2/s].
+
+        Returns
+        -------
+        tuple[float, float]
+            Minimum and maximum Schmidt numbers.
+        """
+        try:
+            diffs = self._diff_coefs(vname)
+            d_min = float(min(diffs))
+            d_max = float(max(diffs))
+        except Exception:
+            if dab is None:
+                raise ValueError("Missing diffusivity")
+            d_min = float(dab)
+            d_max = float(dab)
+
+        visc = self._get_mu(mu)
+        sc_min = self.bydef_schmidt(self._rho, visc, d_max)
+        sc_max = self.bydef_schmidt(self._rho, visc, d_min)
+        self._sc = sc_min
+        self._sc_bounds = (sc_min, sc_max)
+        self._sc_data = f"[{sc_min:.4f}, {sc_max:.4f}] ({vname})"
+        return (sc_min, sc_max)
+
+    def peclet_mass(
+        self,
+        U: float,
+        L: float,
+        vname: str = "mix_diff_coeffs",
+        dab: float | None = None
+    ) -> float:
         """ Evaluates the mass Péclet number for solution.
 
         Parameters
@@ -213,17 +329,62 @@ class SolutionDimless:
             Flow characteristic velocity [m/s].
         L : float
             Problem characteristic axial length [m].
-        vname: str = "mix_diff_coeffs"
-            Name of diffusion coefficient attribute to use, depending on
-            the mass/mole units needs in your calculations. For more details
-            please consult `cantera.Solution` documentation.
+        vname : str = "mix_diff_coeffs"
+            Name of diffusion coefficient attribute to use.
+        dab : float | None = None
+            Optional override for mass diffusivity [m^2/s].
         """
-        D = max(self._diff_coefs(vname))
+        try:
+            D = max(self._diff_coefs(vname))
+        except Exception:
+            if dab is None:
+                raise ValueError("Missing diffusivity")
+            D = float(dab)
+
         self._pe_mass = self.bydef_peclet(U, L, D)
         self._pe_mass_data = f"U={U}, L={L}, {vname}"
         return self._pe_mass
 
-    def peclet_heat(self, U: float, L: float) -> float:
+    def peclet_chemical(
+        self,
+        U: float,
+        L: float,
+        vname: str = "mix_diff_coeffs",
+        mu: float | None = None,
+        dab: float | None = None
+    ) -> tuple[float, float]:
+        """ Evaluates chemical Péclet number bounds for solution.
+
+        Parameters
+        ----------
+        U : float
+            Flow characteristic velocity [m/s].
+        L : float
+            Problem characteristic axial length [m].
+        vname : str = "mix_diff_coeffs"
+            Name of diffusion coefficient attribute to use.
+        mu : float | None = None
+            Optional override for dynamic viscosity [Pa.s].
+        dab : float | None = None
+            Optional override for mass diffusivity [m^2/s].
+
+        Returns
+        -------
+        tuple[float, float]
+            Minimum and maximum chemical Péclet numbers.
+        """
+        sc_min, sc_max = self.schmidt_bounds(vname=vname, mu=mu, dab=dab)
+        re_val = self.reynolds(U, L, mu=mu)
+        pe_ch = (re_val * sc_min, re_val * sc_max)
+        self._pe_ch_bounds = pe_ch
+        return pe_ch
+
+    def peclet_heat(
+        self,
+        U: float,
+        L: float,
+        k: float | None = None
+    ) -> float:
         """ Evaluates the heat Péclet number for solution.
 
         Parameters
@@ -232,13 +393,22 @@ class SolutionDimless:
             Flow characteristic velocity [m/s].
         L : float
             Problem characteristic axial length [m].
+        k : float | None = None
+            Optional override for thermal conductivity [W/(m.K)].
         """
-        self._pe_heat = self.bydef_peclet(U, L, self._alpha)
+        cond = self._get_k(k)
+        alpha = cond / (self._rho * self._cp)
+        self._pe_heat = self.bydef_peclet(U, L, alpha)
         self._pe_heat_data = f"U={U}, L={L}"
         return self._pe_heat
 
-    def grashof(self, Tw: float, H: float,
-                g: float = constants.GRAVITY) -> float:
+    def grashof(
+        self,
+        Tw: float,
+        H: float,
+        g: float = constants.GRAVITY,
+        mu: float | None = None
+    ) -> float:
         """ Evaluates the Grashof number for solution.
 
         Parameters
@@ -247,16 +417,27 @@ class SolutionDimless:
             Reactor characteristic wall temperature [K].
         H : float
             Problem characteristic (often vertical) length [m].
-        g: float = constants.GRAVITY
+        g : float = constants.GRAVITY
             Acceleration of gravity at location [m/s²].
+        mu : float | None = None
+            Optional override for dynamic viscosity [Pa.s].
         """
-        self._gr = self.bydef_grashof(Tw, self._sol.T, self._beta,
-                                      self._nu, g, H)
+        visc = self._get_mu(mu)
+        nu = visc / self._rho
+        self._gr = self.bydef_grashof(
+            Tw, self._sol.T, self._beta, nu, g, H
+        )
         self._gr_data = f"Tw={Tw}, H={H}, g={g}"
         return self._gr
 
-    def rayleigh(self, Tw: float, H: float,
-                 g: float = constants.GRAVITY) -> float:
+    def rayleigh(
+        self,
+        Tw: float,
+        H: float,
+        g: float = constants.GRAVITY,
+        mu: float | None = None,
+        k: float | None = None
+    ) -> float:
         """ Evaluates the Rayleigh number for solution.
 
         Parameters
@@ -265,11 +446,20 @@ class SolutionDimless:
             Reactor characteristic wall temperature [K].
         H : float
             Problem characteristic (often vertical) length [m].
-        g: float = constants.GRAVITY
+        g : float = constants.GRAVITY
             Acceleration of gravity at location [m/s²].
+        mu : float | None = None
+            Optional override for dynamic viscosity [Pa.s].
+        k : float | None = None
+            Optional override for thermal conductivity [W/(m.K)].
         """
-        self._ra = self.bydef_rayleigh(Tw, self._sol.T, self._alpha,
-                                       self._beta, self._nu, g, H)
+        visc = self._get_mu(mu)
+        cond = self._get_k(k)
+        nu = visc / self._rho
+        alpha = cond / (self._rho * self._cp)
+        self._ra = self.bydef_rayleigh(
+            Tw, self._sol.T, alpha, self._beta, nu, g, H
+        )
         self._ra_data = f"Tw={Tw}, H={H}, g={g}"
         return self._ra
 
@@ -319,6 +509,181 @@ class SolutionDimless:
         return tabulate(data)
 
 
+def Re(
+    gas: ct.Solution,
+    Uz: float,
+    D: float,
+    mu: float | None = None
+) -> float:
+    """ Compute Reynolds number.
+
+    Parameters
+    ----------
+    gas : ct.Solution
+        Cantera gas solution.
+    Uz : float
+        Fluid velocity in meters per second.
+    D : float
+        Characteristic diameter in meters.
+    mu : float | None = None
+        Dynamic viscosity in pascal second.
+
+    Returns
+    -------
+    float
+        Reynolds number.
+    """
+    return SolutionDimless(gas).reynolds(Uz, D, mu=mu)
+
+
+def Pr(
+    gas: ct.Solution,
+    mu: float | None = None,
+    k: float | None = None
+) -> float:
+    """ Compute Prandtl number.
+
+    Parameters
+    ----------
+    gas : ct.Solution
+        Cantera gas solution.
+    mu : float | None = None
+        Dynamic viscosity in pascal second.
+    k : float | None = None
+        Thermal conductivity in W/(m*K).
+
+    Returns
+    -------
+    float
+        Prandtl number.
+    """
+    return SolutionDimless(gas).prandtl(mu=mu, k=k)
+
+
+def Sc(
+    gas: ct.Solution,
+    mu: float | None = None,
+    Dab: float | None = None
+) -> tuple[float, float]:
+    """ Compute Schmidt number bounds.
+
+    Parameters
+    ----------
+    gas : ct.Solution
+        Cantera gas solution.
+    mu : float | None = None
+        Dynamic viscosity in pascal second.
+    Dab : float | None = None
+        Diffusivity in square meters per second.
+
+    Returns
+    -------
+    tuple[float, float]
+        Minimum and maximum Schmidt numbers.
+    """
+    return SolutionDimless(gas).schmidt_bounds(mu=mu, dab=Dab)
+
+
+def Pe(
+    gas: ct.Solution,
+    Uz: float,
+    D: float,
+    mu: float | None = None,
+    Dab: float | None = None,
+    k: float | None = None
+) -> tuple[float, tuple[float, float]]:
+    """ Compute thermal and chemical Peclet numbers.
+
+    Parameters
+    ----------
+    gas : ct.Solution
+        Cantera gas solution.
+    Uz : float
+        Fluid velocity in meters per second.
+    D : float
+        Characteristic diameter in meters.
+    mu : float | None = None
+        Dynamic viscosity in pascal second.
+    Dab : float | None = None
+        Diffusivity in square meters per second.
+    k : float | None = None
+        Thermal conductivity in W/(m*K).
+
+    Returns
+    -------
+    tuple[float, tuple[float, float]]
+        Thermal and chemical Peclet numbers.
+    """
+    sim = SolutionDimless(gas)
+    re_val = sim.reynolds(Uz, D, mu=mu)
+    pr_val = sim.prandtl(mu=mu, k=k)
+    sc_min, sc_max = sim.schmidt_bounds(mu=mu, dab=Dab)
+    return re_val * pr_val, (re_val * sc_min, re_val * sc_max)
+
+
+def Gr(
+    gas: ct.Solution,
+    D: float,
+    Tw: float,
+    mu: float | None = None,
+    g: float = constants.GRAVITY
+) -> float:
+    """ Compute Grashof number.
+
+    Parameters
+    ----------
+    gas : ct.Solution
+        Cantera gas solution.
+    D : float
+        Characteristic diameter in meters.
+    Tw : float
+        Wall temperature in kelvin.
+    mu : float | None = None
+        Dynamic viscosity in pascal second.
+    g : float = constants.GRAVITY
+        Gravity acceleration in m/s^2.
+
+    Returns
+    -------
+    float
+        Grashof number.
+    """
+    return SolutionDimless(gas).grashof(Tw, D, g=g, mu=mu)
+
+
+def Ra(
+    gas: ct.Solution,
+    D: float,
+    Tw: float,
+    mu: float | None = None,
+    k: float | None = None,
+    g: float = constants.GRAVITY
+) -> float:
+    """ Compute Rayleigh number.
+
+    Parameters
+    ----------
+    gas : ct.Solution
+        Cantera gas solution.
+    D : float
+        Characteristic diameter in meters.
+    Tw : float
+        Wall temperature in kelvin.
+    mu : float | None = None
+        Dynamic viscosity in pascal second.
+    k : float | None = None
+        Thermal conductivity in W/(m*K).
+    g : float = constants.GRAVITY
+        Gravity acceleration in m/s^2.
+
+    Returns
+    -------
+    float
+        Rayleigh number.
+    """
+    return SolutionDimless(gas).rayleigh(Tw, D, g=g, mu=mu, k=k)
+
+
 # XXX WIP
 class SkinFrictionFactor:
     """ Skin friction factors for y+ calculations. """
@@ -344,7 +709,9 @@ class SkinFrictionFactor:
         Re: float
             Reynolds number of flow.
         check: bool = True
-            Whether to check if Reynolds number is in the valid range for this approximation, which is [4e3; 1e5]. If not, a warning is printed.
+            Whether to check if Reynolds number is in the valid range
+            for this approximation, which is [4e3; 1e5]. If not, a
+            warning is printed.
         """
         if check and not (4_000 < Re < 100_000):
             warn(f"Out-of-range Re = {Re:.2e} not in [4e3; 1e5]")

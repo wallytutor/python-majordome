@@ -10,3 +10,4 @@
 {{< include vision.qmd >}}
 {{< include diffusion.qmd >}}
 {{< include calphad.qmd >}}
+{{< include reduction.qmd >}}

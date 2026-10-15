@@ -23,6 +23,7 @@ dependencies = [
     "ipython>=9.13.0",
     "markdown-it-py>=4.0.0",
     "matplotlib>=3.10.9",
+    "networkx>=3.0",
     "numpy>=2.4.4",
     "pandas[excel]>=3.0.2",
     "pdf2image>=1.17.0",
