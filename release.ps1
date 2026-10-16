@@ -138,23 +138,9 @@ function Start-ReleaseBuild {
 }
 
 function Start-DocumentationBuild {
-    Write-Host -ForegroundColor Green "`n> Building documentation..."
+    Write-Host -ForegroundColor Green "`n> Publishing documentation..."
 
-    $pythonPath = "$script:VenvPath\Scripts\python.exe"
-
-    if (-not (Test-Path $script:VenvPath)) {
-        uv venv $script:VenvPath
-    }
-
-    & "$script:VenvPath\Scripts\Activate.ps1"
-    uv pip install '.[docs]'
-
-    $env:QUARTO_PYTHON = $pythonPath
-    quarto render "docs" --to html
-    if ($LASTEXITCODE -ne 0) { throw "Documentation build failed." }
-    Write-Host -ForegroundColor Green "`n> Documentation built successfully."
-
-    quarto publish gh-pages --no-prompt --no-browser docs
+    quarto publish gh-pages --no-render --no-prompt --no-browser docs
     if ($LASTEXITCODE -ne 0) { throw "Documentation publish failed." }
     Write-Host -ForegroundColor Green "`n> Documentation published successfully."
 }

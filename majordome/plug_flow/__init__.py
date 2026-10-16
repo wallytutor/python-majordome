@@ -8,9 +8,6 @@ __getattr__, __dir__ = setup_lazy_exports(
     linux_exports={
         "CPFR": ".solver",
         "cPFR": ".solver",
-        "Plotter": ".plot",
-        "plot_pfr": ".plot",
-        "plotPFR": ".plot",
         "PyPFR": ".ct_pfr",
     }
 )

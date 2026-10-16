@@ -2,10 +2,12 @@
 from pathlib import Path
 import tempfile
 import time
-from typing import Callable, Mapping, Union
+from typing import Any, Callable, Mapping, Union
 
 import majordome.data
 import pandas as pd
+
+from ..utilities import MajordomePlot
 
 try:
     from .ct_pfr import PyPFR
@@ -118,14 +120,14 @@ class CPFR:
         htc: float,
         tw: Union[float, Callable[[float], float], None] = None
     ) -> None:
-        """ Set wall heat transfer coefficient and wall temperature profile.
+        """ Set wall heat transfer and wall temperature.
 
         Parameters
         ----------
         htc : float
             Wall heat transfer coefficient in W/(m^2 K).
         tw : float or callable, optional
-            Wall temperature in kelvin (constant or function of position).
+            Wall temperature in kelvin (scalar or profile).
         """
         self.htc = float(htc)
 
@@ -216,70 +218,72 @@ class CPFR:
 
         return 0
 
+    @MajordomePlot.new(shape=(2, 2), size=(10, 6))
     def plot(
         self,
         species: Mapping[str, str],
         data: pd.DataFrame | None = None,
         saveas: Path | str | None = None,
         dpi: int = 300,
-        figsize: tuple[float, float] = (10, 6),
         axes: Mapping[str, str] | None = None,
-        style: str = "classic",
-    ) -> object:
+        *,
+        plot: MajordomePlot | None = None,
+        **kwargs: Any
+    ) -> MajordomePlot:
         """ Plot PFR integration profiles using MajordomePlot.
 
         Parameters
         ----------
         species : Mapping[str, str]
             Species column names and display labels.
-        data : pd.DataFrame, optional
+        data : pd.DataFrame | None = None
             Table of reactor solution data. Defaults to self.data.
-        saveas : Path | str, optional
+        saveas : Path | str | None = None
             Destination image file path.
         dpi : int = 300
             Output image resolution.
-        figsize : tuple[float, float] = (10, 6)
-            Figure dimensions (width, height) in inches.
-        axes : Mapping[str, str], optional
+        axes : Mapping[str, str] | None = None
             Custom axis label mapping.
-        style : str = 'classic'
-            Matplotlib style sheet name.
+        plot : MajordomePlot | None = None
+            Plot instance injected by MajordomePlot.new decorator.
 
         Returns
         -------
         MajordomePlot
-            Plot handle instance.
+            Standardized plot instance.
         """
-        from ..utilities import MajordomePlot
+        if (figsize := kwargs.pop("figsize", None)) is not None:
+            plot.resize(*figsize)
+        elif (size := kwargs.pop("size", None)) is not None:
+            plot.resize(*size)
 
         df = self.data if data is None else data
 
         if df is None:
             raise ValueError(
-                'No solution data available. Run solve() or pass data.'
+                "No solution data available. Run solve() or pass data."
             )
 
         axes_default = {
-            'x': 'Position ($\\mathrm{m}$)',
-            'T': 'Temperature ($\\mathrm{K}$)',
-            'rho': 'Density ($\\mathrm{kg\\,m^{3}}$)',
-            'u': 'Velocity ($\\mathrm{m\\,s^{-1}}$)',
-            'p': 'Pressure ($\\mathrm{Pa}$)',
-            'Y': 'Mass fraction'
+            "x": "Position ($\\mathrm{m}$)",
+            "T": "Temperature ($\\mathrm{K}$)",
+            "rho": "Density ($\\mathrm{kg\\,m^{3}}$)",
+            "u": "Velocity ($\\mathrm{m\\,s^{-1}}$)",
+            "p": "Pressure ($\\mathrm{Pa}$)",
+            "Y": "Mass fraction",
         }
         axis_map = dict(axes_default)
 
         if axes is not None:
             axis_map.update(axes)
 
-        xaxis = 'x'
-        uaxis = 'u'
-        paxis = 'p'
-        yaxis = 'Y'
-        taxis = 'T' if 'T' in df.columns else 'rho'
+        xaxis = "x"
+        uaxis = "u"
+        paxis = "p"
+        yaxis = "Y"
+        taxis = "T" if "T" in df.columns else "rho"
 
-        plot = MajordomePlot(shape=(2, 2), style=style, size=figsize)
-        fig, ax = plot.subplots()
+        _, ax = plot.subplots()
 
         ax[0].plot(df[xaxis], df[taxis])
         ax[0].set_xlabel(axis_map[xaxis])
@@ -301,14 +305,10 @@ class CPFR:
         ax[3].set_ylabel(axis_map[yaxis])
         ax[3].legend()
 
-        fig.tight_layout()
-
         if saveas is not None:
             plot.savefig(saveas, dpi=dpi)
-
-        return plot
 
 
 cPFR = CPFR
 
-__all__ = ['CPFR', 'cPFR']
+__all__ = ["CPFR", "cPFR"]
