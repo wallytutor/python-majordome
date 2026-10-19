@@ -1,18 +1,28 @@
 # -*- coding: utf-8 -*-
+
 from importlib import resources
-import os
 from pathlib import Path
-import cantera as ct
 
 DATA = Path(str(resources.files("majordome").joinpath("data")))
 """ Path to project data folder. """
 
-ct.add_directory(DATA)
-ct.add_directory(DATA / "thermo")
 
-# Pretty sure this is not required
-# current_env = os.environ.get("CANTERA_DATA", "")
-# thermo_str = str(DATA / "thermo")
-# data_str = str(DATA)
-# paths = [p for p in [data_str, thermo_str, current_env] if p]
-# os.environ["CANTERA_DATA"] = os.pathsep.join(paths)
+def enable_cantera() -> None:
+    """ Make cantera data available. """
+    import os
+    import cantera as ct
+
+    ct.add_directory(DATA)
+    ct.add_directory(DATA / "thermo")
+
+    # Pretty sure this is not required: yes it is, somehow...
+    os.environ["CANTERA_DATA"] = os.pathsep.join(
+        [
+            str(DATA),
+            str(DATA / "thermo"),
+            os.environ.get("CANTERA_DATA", "")
+        ]
+    )
+
+
+enable_cantera()

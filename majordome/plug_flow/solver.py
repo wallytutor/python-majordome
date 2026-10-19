@@ -307,8 +307,3 @@ class CPFR:
 
         if saveas is not None:
             plot.savefig(saveas, dpi=dpi)
-
-
-cPFR = CPFR
-
-__all__ = ["CPFR", "cPFR"]

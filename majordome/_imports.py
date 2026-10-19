@@ -60,10 +60,15 @@ def setup_lazy_exports(
         module_globals: dict[str, Any],
         exports: dict[str, Any],
         linux_exports: dict[str, Any] | None = None,
+        load_data: bool = False,
     ) -> tuple[Any, Any]:
     """ Sets up PEP 562 lazy imports for a module. """
     if linux_exports and sys.platform == "linux":
         exports.update(linux_exports)
+
+    if load_data:
+        from .data import DATA
+        module_globals["DATA"] = DATA
 
     mngr = ManagedExports(package, module_globals, exports)
     return mngr.getattr, mngr.dir
