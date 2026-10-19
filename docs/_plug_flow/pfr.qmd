@@ -1,64 +1,62 @@
 ## Plug-Flow Reactor Models
 
+## Mathematical Formulation
+
 A plug-flow reactor (PFR) model represents the limit of a tubular reactor where the axial Péclet number is sufficiently high that axial diffusion is negligible compared to convection. Fluid elements travel through the reactor in a single direction without axial dispersion or back-mixing.
 
 The cross-sectional state is assumed homogeneous at every axial coordinate $z$. Module `majordome.plug_flow` solves the coupled differential-algebraic equations (DAE) for steady-state reacting flows in constant-area circular tubes [@Kee2003].
 
-### Governing Equations
+- $\rho$: Gas mixture density, $\mathrm{kg\,m^{-3}}$
+- $u$: Axial flow velocity, $\mathrm{m\,s^{-1}}$
+- $p$: Static pressure, $\mathrm{Pa}$
+- $T$: Fluid temperature, $\mathrm{K}$
+- $T_w$: Wall temperature, $\mathrm{K}$
+- $\mu$: Dynamic viscosity, $\mathrm{Pa\,s}$
+- $C_p$: Mixture specific heat capacity at constant pressure, $\mathrm{J\,kg^{-1}\,K^{-1}}$
+- $Y_k$: Mass fraction of species $k$, $-$
+- $W_k$: Molecular weight of species $k$, $\mathrm{kg\,kmol^{-1}}$
+- $\bar{W}$: Mean molecular weight of mixture, $\mathrm{kg\,kmol^{-1}}$
+- $\dot{\omega}_k$: Molar production rate of species $k$, $\mathrm{kmol\,m^{-3}\,s^{-1}}$
+- $h_k$: Specific enthalpy of species $k$, $\mathrm{J\,kg^{-1}}$
+- $R$: Reactor tube radius, $\mathrm{m}$
+- $\hat{h}$: Convective heat transfer coefficient, $\mathrm{W\,m^{-2}\,K^{-1}}$
+- $\mathcal{P}_a$: Perimeter-to-area ratio ($4/D_i$), $\mathrm{m^{-1}}$
 
-| Symbol | Description | Units |
-|---|---|---|
-| $\rho$ | Gas mixture density | $\mathrm{kg\,m^{-3}}$ |
-| $u$ | Axial flow velocity | $\mathrm{m\,s^{-1}}$ |
-| $p$ | Static pressure | $\mathrm{Pa}$ |
-| $T$ | Fluid temperature | $\mathrm{K}$ |
-| $T_w$ | Wall temperature | $\mathrm{K}$ |
-| $\mu$ | Dynamic viscosity | $\mathrm{Pa\,s}$ |
-| $C_p$ | Mixture specific heat capacity at constant pressure | $\mathrm{J\,kg^{-1}\,K^{-1}}$ |
-| $Y_k$ | Mass fraction of species $k$ | $-$ |
-| $W_k$ | Molecular weight of species $k$ | $\mathrm{kg\,kmol^{-1}}$ |
-| $\bar{W}$ | Mean molecular weight of mixture | $\mathrm{kg\,kmol^{-1}}$ |
-| $\dot{\omega}_k$ | Molar production rate of species $k$ | $\mathrm{kmol\,m^{-3}\,s^{-1}}$ |
-| $h_k$ | Specific enthalpy of species $k$ | $\mathrm{J\,kg^{-1}}$ |
-| $R$ | Reactor tube radius | $\mathrm{m}$ |
-| $\hat{h}$ | Convective heat transfer coefficient | $\mathrm{W\,m^{-2}\,K^{-1}}$ |
-| $\mathcal{P}_a$ | Perimeter-to-area ratio ($4/D_i$) | $\mathrm{m^{-1}}$ |
+**Mass conservation** Assuming steady compressible flow without mass sources at the wall:
 
-#### 1. Mass Conservation
+$$
+\rho \frac{\partial u}{\partial z} + u \frac{\partial \rho}{\partial z} = 0
+$$
 
-Assuming steady compressible flow without mass sources at the wall:
+**Species conservation** For each gas-phase chemical species $k \in \{1, \ldots, N_s\}$:
 
-$$\rho \frac{\partial u}{\partial z} + u \frac{\partial \rho}{\partial z} = 0$$
+$$
+\rho u \frac{\partial Y_{k}}{\partial z} - \dot{\omega}_{k} W_{k} = 0
+$$
 
-#### 2. Species Conservation
+**Momentum Conservation** Accounting for viscous wall shear stress in the laminar regime:
 
-For each gas-phase chemical species $k \in \{1, \ldots, N_s\}$:
+$$
+\rho u \frac{\partial u}{\partial z} + \frac{\partial p}{\partial z} + 8 \frac{\mu u}{R^2} = 0
+$$
 
-$$\rho u \frac{\partial Y_{k}}{\partial z} - \dot{\omega}_{k} W_{k} = 0$$
-
-#### 3. Momentum Conservation
-
-Accounting for viscous wall shear stress in the laminar regime:
-
-$$\rho u \frac{\partial u}{\partial z} + \frac{\partial p}{\partial z} + 8 \frac{\mu u}{R^2} = 0$$
-
-#### 4. Equation of State
-
-Coupled through the ideal gas law:
+**Equation of State** The system is coupled through the ideal gas law:
 
 $$p \bar{W} = \rho \mathcal{R} T$$
 
 where $\mathcal{R}$ is the universal gas constant.
 
-#### 5. Energy Conservation
+**Energy Conservation**
 
-$$\rho u C_{p} \frac{\partial T}{\partial z} + \sum_{k} h_{k} \dot{\omega}_{k} W_{k} - \mathcal{P}_{a} \hat{h}(T_{w} - T) = 0$$
+$$
+\rho u C_{p} \frac{\partial T}{\partial z} + \sum_{k} h_{k} \dot{\omega}_{k} W_{k} - \mathcal{P}_{a} \hat{h}(T_{w} - T) = 0
+$$
 
 In the **isothermal** model, the energy equation is omitted ($T(z) = T_0$). In the **adiabatic** model, $\hat{h} = 0$, eliminating wall heat transfer. In the **heat wall** model, $T_w(z)$ can be either constant or an arbitrary user-defined spatial function.
 
-### DAE System and SUNDIALS IDAS
+## Implementation
 
-`majordome.plug_flow` implements this problem as a system of differential-algebraic equations:
+Module `majordome.plug_flow` implements this problem as a system of differential-algebraic equations (DAEs):
 
 $$F\left(z, y, \frac{\mathrm{d}y}{\mathrm{d}z}\right) = 0$$
 
@@ -68,32 +66,65 @@ $$y = [Y_1, Y_2, \ldots, Y_{N_s}, u, \rho, p, T]^T$$
 
 The initial derivative vector $\dot{y}_0$ is determined at $z=0$ by evaluating the consistent algebraic initial conditions:
 
-$$\begin{aligned}
+$$
+\begin{aligned}
 \dot{\omega}_{k,0} W_{k} &= \rho_{0} u_{0} Y^{\prime}_{k,0} \\
+%
 0 &= \rho_{0} u^{\prime}_{0} + u_{0} \rho^{\prime}_{0} \\
+%
 -8\frac{\mu_{0} u_{0}}{R^2} &= \rho_{0} u_{0} u^{\prime}_{0} + p^{\prime}_{0} \\
+%
 0 &= p_{0}\frac{\bar{W}^{2}_{0}}{W_{k,0}}Y^{\prime}_{k,0} + \mathcal{R}T_{0}\rho^{\prime}_{0} - \bar{W}_{0}p^{\prime}_{0} + \rho_{0}\mathcal{R}T^{\prime}_{0} \\
+%
 -\sum_{k}h_{k,0}\dot{\omega}_{k,0} W_{k} + \mathcal{P}_{a}\hat{h}(T_{w,0}-T_{0}) &= \rho_{0} u_{0} C_{p,0} T^{\prime}_{0}
-\end{aligned}$$
+\end{aligned}
+$$
 
 Integration along the axial coordinate $z$ is executed by the SUNDIALS `IdasIntegrator` with variable-order, variable-step BDF algorithms.
+---
 
-### Simulation with `CPFR`
-
-```python
+```{python}
+import cantera as ct
 import numpy as np
-from majordome.plug_flow import CPFR
+import pandas as pd
+import majordome as mj
+from scipy.integrate import solve_ivp
+```
 
-# Initialize reactor using bundled mechanism
-reactor = CPFR(
-    mech="c2h2/dalmazsi-2017.yaml",
-    phase="gas",
-    Di=0.025,       # Reactor diameter [m]
-    T0=1200.0,      # Inlet temperature [K]
-    p0=101325.0,    # Inlet pressure [Pa]
-    X0="C2H2:0.1, N2:0.9",  # Inlet mole fractions
-    Q0=150.0        # Volume flow rate [sccm]
-)
+## Simulation with CPFR
+
+```{python}
+#| echo: true
+mechanism = "c2h2/dalmazsi-2017.yaml"
+
+# Inlet mole fractions
+X = "C2H2:0.1, N2:0.9"
+
+# Reactor diameter [m]
+D = 0.025
+
+# Cross-sectional area [m²]
+Ac = np.pi * (D / 2.0)**2
+
+# Inlet pressure [Pa]
+p = 101325.0
+
+# Inlet temperature [K]
+T = 1200.0
+
+# Heat transfer coefficient [W m⁻² K⁻¹]
+htc = 25.0
+
+# Wall temperature [K]
+tw = 1350.0
+
+# Volume flow rate [sccm]
+Q = 150.0
+```
+
+```{python}
+#| echo: true
+reactor = mj.CPFR(mechanism, D, Q, T, p, X)
 
 # Imposed wall heat transfer profile
 reactor.set_wall_conditions(htc=25.0, tw=1350.0)
@@ -110,37 +141,102 @@ plot_handle = reactor.plot(
 )
 ```
 
-### Verification Against Marching ODE (SciPy VODE)
+To verify the DAE solver accuracy, the 1D steady PFR can be formulated as a marching initial value problem (IVP) integrated with `scipy.integrate.solve_ivp` using an implicit, stiff integrator such as `Radau` or `BDF`:
 
-To verify the DAE solver accuracy, the 1D steady PFR can be formulated as a marching initial value ODE integrated with `scipy.integrate.ode` (`method='bdf'`):
+$$
+\begin{aligned}
+\frac{\mathrm{d}Y_k}{\mathrm{d}x} &= \frac{\dot{\omega}_k W_k}{\rho u}\\
+%
+\frac{\mathrm{d}T}{\mathrm{d}x} &=
+\frac
+    {-\sum_k \dot{\omega}_k h_k W_k + \mathcal{P}_a \hat{h}(T_w - T)}
+    {\rho u C_p}
+\end{aligned}
+$$
 
-$$\frac{\mathrm{d}Y_k}{\mathrm{d}x} = \frac{\dot{\omega}_k W_k}{\rho u}$$
+```{python}
+#| echo: false
+def simulate_manual():
+    gas = ct.Solution(mechanism)
 
-$$\frac{\mathrm{d}T}{\mathrm{d}x} = -\frac{\sum_k \dot{\omega}_k h_k}{\rho u C_p}$$
+    # Standard reference density for SCCM volume flow rate
+    gas.TPX = 273.15, ct.one_atm, X
+    mass_flow_rate = gas.density * (Q * 1.0e-06 / 60.0)
 
-```python
-import cantera as ct
-from scipy.integrate import ode
+    # Set state at reactor inlet
+    gas.TPX = T, p, X
+    N = gas.n_species
 
-gas = ct.Solution("c2h2/dalmazsi-2017.yaml")
-gas.TPX = 1200.0, 101325.0, "C2H2:0.1, N2:0.9"
+    def pfr_ode(x, y):
+        Y = np.clip(y[:N], 0.0, 1.0)
+        Y /= np.sum(Y)
+        T = y[N]
 
-Ac = np.pi * (0.025 / 2.0)**2
-u0 = 0.015
-mass_flow_rate = u0 * gas.density * Ac
-N = gas.n_species
+        gas.set_unnormalized_mass_fractions(Y)
+        gas.TP = T, p
 
-def pfr_rhs(x, y):
-    gas.set_unnormalized_mass_fractions(y[:N])
-    gas.TP = y[-1], 101325.0
-    rho = gas.density
-    u = mass_flow_rate / (rho * Ac)
-    
-    ydot = np.zeros(N + 1)
-    ydot[:N] = gas.net_production_rates * gas.molecular_weights / (rho * u)
-    ydot[-1] = -np.sum(gas.net_production_rates * gas.partial_molar_enthalpies) / (rho * u * gas.cp)
-    return ydot
+        rho  = gas.density
+        u    = mass_flow_rate / (rho * Ac)
+        wdot = gas.net_production_rates      # kmol / (m^3 * s)
+        W    = gas.molecular_weights         # kg / kmol
+        hk   = gas.partial_molar_enthalpies  # J / kmol
+        cp   = gas.cp                        # J / (kg * K)
 
-solver = ode(pfr_rhs).set_integrator("vode", method="bdf")
-solver.set_initial_value(np.hstack((gas.Y, 1200.0)), 0.0)
+        q_wall = (4.0 / D) * htc * (tw - T)
+        dY_dx  = (wdot * W) / (rho * u)
+        dT_dx  = (-np.sum(wdot * hk) + q_wall) / (rho * u * cp)
+        return np.hstack((dY_dx, dT_dx))
+
+
+    y0 = np.hstack((gas.Y, T))
+    x_eval = np.linspace(0.0, 0.5, 101)
+
+    sol = solve_ivp(
+        pfr_ode,
+        (0.0, 0.5),
+        y0,
+        method="Radau",
+        t_eval=x_eval,
+        rtol=1e-6,
+        atol=1e-12,
+    )
+    return gas, sol
+```
+
+```{python}
+#| echo: false
+#| fig-cap: Comparison of PFR temperature and C2H2 mass fraction profiles.
+#| fig-align: center
+@mj.MajordomePlot.new(size=(8, 4), shape=(1, 2), sharex=False)
+def plot_pfr_comparison(*, plot):
+    gas, sol = simulate_manual()
+
+    df_cpfr = reactor.data
+    c2h2_idx = gas.species_index("C2H2")
+
+    fig, ax = plot.subplots()
+
+    x1 = df_cpfr["x"]
+    x2 = sol.t
+
+    y1 = df_cpfr["T"]
+    y2 = sol.y[-1]
+
+    ax[0].plot(x1, y1, label="CPFR (IDAS DAE)", color="black", lw=2)
+    ax[0].plot(x2, y2, "--", label="solve_ivp (Radau)", color="crimson", lw=2)
+    ax[0].set_xlabel("Reactor Length [m]")
+    ax[0].set_ylabel("Temperature [K]")
+    ax[0].legend(loc=4, fontsize="small")
+
+    y1 = df_cpfr["C2H2"]
+    y2 = sol.y[c2h2_idx]
+
+    ax[1].plot(x1, y1, label="CPFR (IDAS DAE)", color="black", lw=2)
+    ax[1].plot(x2, y2, "--", label="solve_ivp (Radau)", color="crimson", lw=2)
+    ax[1].set_xlabel("Reactor Length [m]")
+    ax[1].set_ylabel(r"$Y_{\mathrm{C_2H_2}}$ [-]")
+    ax[1].legend(loc=1, fontsize="small")
+
+
+_ = plot_pfr_comparison()
 ```

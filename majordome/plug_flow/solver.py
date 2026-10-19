@@ -22,70 +22,72 @@ class CPFR:
 
     Parameters
     ----------
-    mech : str
+    mechanism : str
         Mechanism file path or name.
     phase : str
         Phase name in the mechanism file.
-    Di : float
+    diameter : float
         Reactor inner diameter in meters.
-    T0 : float
-        Inlet temperature in kelvin.
-    p0 : float
-        Inlet pressure in pascal.
-    X0 : str
-        Inlet composition in Cantera format.
-    Q0 : float
+    flowrate : float
         Inlet volume flow rate in sccm.
+    T : float
+        Inlet temperature in kelvin.
+    P : float
+        Inlet pressure in pascal.
+    X : str
+        Inlet composition in Cantera format.
     """
 
     __slots__ = (
-        'mech',
-        'phase',
-        'Di',
-        'T0',
-        'p0',
-        'X0',
-        'Q0',
-        'rtol',
-        'atol',
-        'initstep',
-        'maxsteps',
-        'htc',
-        'tw',
-        'data',
+        "rtol",
+        "atol",
+        "initstep",
+        "maxsteps",
+        "mechanism",
+        "phase",
+        "D",
+        "T",
+        "P",
+        "X",
+        "Q",
+        "htc",
+        "tw",
+        "data",
     )
 
     def __init__(
-        self,
-        mech: str,
-        phase: str,
-        Di: float,
-        T0: float,
-        p0: float,
-        X0: str,
-        Q0: float
-    ) -> None:
-        self.mech = str(mech)
-        self.phase = str(phase)
-        self.Di = float(Di)
-        self.T0 = float(T0)
-        self.p0 = float(p0)
-        self.X0 = str(X0)
-        self.Q0 = float(Q0)
-
+            self,
+            mechanism: str,
+            diameter: float,
+            flowrate: float,
+            T: float,
+            P: float,
+            X: str,
+            *,
+            phase: str = "",
+        ) -> None:
         self.rtol = 1.0e-06
         self.atol = 1.0e-15
         self.initstep = 1.0e-05
         self.maxsteps = 10000
+
+        self.mechanism = str(mechanism)
+        self.phase = str(phase)
+        self.D = float(diameter)
+        self.Q = float(flowrate)
+        self.T = float(T)
+        self.P = float(P)
+        self.X = str(X)
+
         self.htc = 0.0
-        self.tw: TwType = float(T0)
+        self.tw: TwType = float(self.T)
         self.data: pd.DataFrame | None = None
 
     def set_tolerances(
-        self,
-        rtol: float = 1.0e-06,
-        atol: float = 1.0e-15
-    ) -> None:
+            self,
+            rtol: float = 1.0e-06,
+            atol: float = 1.0e-15
+        ) -> None:
         """ Set relative and absolute tolerances.
 
         Parameters
@@ -99,10 +101,10 @@ class CPFR:
         self.atol = float(atol)
 
     def set_steps(
-        self,
-        initstep: float = 1.0e-05,
-        maxsteps: int = 10000
-    ) -> None:
+            self,
+            initstep: float = 1.0e-05,
+            maxsteps: int = 10000
+        ) -> None:
         """ Set initial step size and maximum number of steps.
 
         Parameters
@@ -116,10 +118,10 @@ class CPFR:
         self.maxsteps = int(maxsteps)
 
     def set_wall_conditions(
-        self,
-        htc: float,
-        tw: Union[float, Callable[[float], float], None] = None
-    ) -> None:
+            self,
+            htc: float,
+            tw: Union[float, Callable[[float], float], None] = None
+        ) -> None:
         """ Set wall heat transfer and wall temperature.
 
         Parameters
@@ -132,16 +134,16 @@ class CPFR:
         self.htc = float(htc)
 
         if tw is None:
-            self.tw = float(self.T0)
+            self.tw = float(self.T)
         else:
             self.tw = tw
 
     def solve(
-        self,
-        length: float,
-        step: Union[float, None] = None,
-        saveas: Union[str, Path, None] = None
-    ) -> int:
+            self,
+            length: float,
+            step: Union[float, None] = None,
+            saveas: Union[str, Path, None] = None
+        ) -> int:
         """ Integrate problem along reactor length.
 
         Parameters
@@ -160,23 +162,23 @@ class CPFR:
         """
         if PyPFR is None:
             raise RuntimeError(
-                'Cantera PFR C++ extension (ct_pfr) is not compiled. '
-                'Please compile majordome.plug_flow on Linux with Cantera.'
+                "Cantera PFR C++ extension (ct_pfr) is not compiled. "
+                "Please compile majordome.plug_flow on Linux with Cantera."
             )
 
         dx = float(length / 100.0) if step is None else float(step)
 
         pfr = PyPFR(
-            rtype='heatwall',
-            mech=self.mech,
-            phase=self.phase,
-            Di=self.Di,
-            T0=self.T0,
-            p0=self.p0,
-            X0=self.X0,
-            Q0=self.Q0,
-            htc=self.htc,
-            Tw=self.tw,
+            rtype = "heatwall",
+            mech  = self.mechanism,
+            phase = self.phase,
+            Di    = self.D,
+            T0    = self.T,
+            p0    = self.P,
+            X0    = self.X,
+            Q0    = self.Q,
+            htc   = self.htc,
+            Tw    = self.tw,
         )
 
         pfr.set_tolerances(self.rtol, self.atol)
@@ -220,16 +222,16 @@ class CPFR:
 
     @MajordomePlot.new(shape=(2, 2), size=(10, 6))
     def plot(
-        self,
-        species: Mapping[str, str],
-        data: pd.DataFrame | None = None,
-        saveas: Path | str | None = None,
-        dpi: int = 300,
-        axes: Mapping[str, str] | None = None,
-        *,
-        plot: MajordomePlot | None = None,
-        **kwargs: Any
-    ) -> MajordomePlot:
+            self,
+            species: Mapping[str, str],
+            data: pd.DataFrame | None = None,
+            saveas: Path | str | None = None,
+            dpi: int = 300,
+            axes: Mapping[str, str] | None = None,
+            *,
+            plot: MajordomePlot | None = None,
+            **kwargs: Any
+        ) -> MajordomePlot:
         """ Plot PFR integration profiles using MajordomePlot.
 
         Parameters
@@ -265,12 +267,12 @@ class CPFR:
             )
 
         axes_default = {
-            "x": "Position ($\\mathrm{m}$)",
-            "T": "Temperature ($\\mathrm{K}$)",
+            "x":   "Position ($\\mathrm{m}$)",
+            "T":   "Temperature ($\\mathrm{K}$)",
             "rho": "Density ($\\mathrm{kg\\,m^{3}}$)",
-            "u": "Velocity ($\\mathrm{m\\,s^{-1}}$)",
-            "p": "Pressure ($\\mathrm{Pa}$)",
-            "Y": "Mass fraction",
+            "u":   "Velocity ($\\mathrm{m\\,s^{-1}}$)",
+            "p":   "Pressure ($\\mathrm{Pa}$)",
+            "Y":   "Mass fraction",
         }
         axis_map = dict(axes_default)
 
