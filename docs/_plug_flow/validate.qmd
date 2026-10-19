@@ -1,0 +1,282 @@
+## Experimental Validation: Acetylene Pyrolysis
+
+In this section, we validate the `CPFR` model against experimental data for the thermal decomposition of acetylene in a non-isothermal tubular reactor [@DalMazSilva2017PhD]. We compare predictions from three kinetic mechanisms:
+
+1. `c2h2/dalmazsi-2017.yaml`: Skeletal mechanism for acetylene pyrolysis and soot inception [@DalMazSilva2017PhD].
+2. `c2h2/graf-2007.yaml`: Global kinetic mechanism [@Graf2007].
+3. `c2h2/norinaga-2009.yaml`: Detailed mechanism for acetylene pyrolysis and PAH formation [@Norinaga2009].
+
+The non-isothermal wall temperature profiles measured across reactor setpoints and the set of experimental operating points are loaded from `profiles.csv` and `table_9.csv`.
+
+```{python}
+#| echo: false
+from pathlib import Path
+import cantera as ct
+import numpy as np
+import pandas as pd
+from scipy.interpolate import CubicSpline
+import majordome as mj
+
+ct.suppress_thermo_warnings(suppress=True)
+
+try:
+    # When running from notebook:
+    DATA_DIR = Path(__file__).parent / "../data/dalmazsi17"
+    PROFILES = pd.read_csv(DATA_DIR / "profiles.csv")
+    TABLE_9 = pd.read_csv(DATA_DIR / "table9.csv")
+except FileNotFoundError:
+    # When generating docs:
+    PROFILES = pd.read_csv("../data/dalmazsi17/profiles.csv")
+    TABLE_9 = pd.read_csv("../data/dalmazsi17/table9.csv")
+
+
+MECHS = [
+    "c2h2/dalmazsi-2017.yaml",
+    "c2h2/graf-2007.yaml",
+    "c2h2/norinaga-2009.yaml",
+]
+```
+
+```{python}
+#| echo: true
+# Reactor length [m]
+L = 0.52
+
+# Reactor inner diameter [m]
+D = 0.028
+
+# Laminar heat transfer in circular tube (Nu = 3.66)
+Nu = 3.66
+
+# Gas thermal conductivity [W/(m K)]
+k_gas = 0.025
+
+# Heat transfer coefficient [W/(m^2 K)]
+htc = Nu * k_gas / D
+
+# Inlet temperature [K]
+T_in = 298.15
+```
+
+Acetylene storage cylinders contain a small amount of acetone as solvent. Depending on whether the mechanism includes acetone chemistry, the inlet feed accounts for impurities according to @Norinaga2009:
+
+```{python}
+#| echo: true
+def initial_mixture(sol: ct.Solution, fraction: float) -> dict[str, float]:
+    """ Compute feed composition accounting for cylinder impurities. """
+    if "CH3COCH3" in sol.species_names:
+        X = {
+            "C2H2": 0.980 * fraction,
+            "CH4": 0.002 * fraction,
+            "CH3COCH3": 0.018 * fraction,
+        }
+    else:
+        X = {
+            "C2H2": 0.998 * fraction,
+            "CH4": 0.002 * fraction,
+        }
+
+    X["N2"] = 1.0 - sum(X.values())
+    return X
+```
+
+```{python}
+#| echo: true
+def mass_to_mole_fractions(df: pd.DataFrame, sol: ct.Solution) -> pd.DataFrame:
+    """ Convert species mass fractions to mole fractions. """
+    # TODO use ct.SolutionArray instead
+    avail_specs = [s for s in sol.species_names if s in df.columns]
+    columns = [f"X_{s}" for s in avail_specs]
+
+    Y = df[avail_specs].to_numpy()
+    W = np.array([
+        sol.molecular_weights[sol.species_index(s)] for s in avail_specs
+    ])
+
+    moles = Y / W
+    X = moles / moles.sum(axis=1, keepdims=True)
+    return pd.DataFrame(X, columns=columns, index=df.index)
+```
+
+```{python}
+#| echo: true
+def simulate_case(
+        mech: str,
+        fraction: float,
+        flowrate: float,
+        pressure_hpa: float,
+        tw_callable: CubicSpline,
+        step: float = 0.005,
+        rtol: float = 1.0e-06,
+        atol: float = 1.0e-12,
+        initstep: float = 1.0e-04,
+        maxsteps: int = 10000,
+    ) -> tuple[mj.CPFR, pd.DataFrame]:
+    """ Simulate PFR with CPFR and return reactor and mole fraction DataFrame. """
+    sol = ct.Solution(mech)
+
+    X = initial_mixture(sol, fraction)
+    X_str = ", ".join(f"{k}:{v:.6f}" for k, v in X.items())
+
+    p_pa = pressure_hpa * 100.0
+
+    # with mj.Capturing():
+    reactor = mj.CPFR(
+        mechanism=mech,
+        diameter=D,
+        flowrate=flowrate,
+        T=T_in,
+        P=p_pa,
+        X=X_str,
+    )
+    reactor.set_wall_conditions(htc=htc, tw=tw_callable)
+    reactor.set_tolerances(rtol=rtol, atol=atol)
+    reactor.set_steps(initstep, maxsteps)
+    reactor.solve(length=L, step=step)
+
+    df_x = mass_to_mole_fractions(reactor.data, sol)
+    res = pd.concat([reactor.data[["x", "T", "p", "u", "rho"]], df_x], axis=1)
+    return reactor, res
+```
+
+### Reference Case
+
+The reference case from @DalMazSilva2017PhD corresponds to pyrolysis of 36% mol/mol $\mathrm{C_2H_2}$ diluted in $\mathrm{N_2}$ at 50 hPa, 222 SCCM, and a nominal furnace temperature of 1173 K.
+
+::: {.callout-note title="Detailed Norinaga (2009) Mechanism"}
+The comprehensive mechanism by @Norinaga2009 comprises 243 species and 902 reactions. While `CPFR` interfaces directly with SUNDIALS IDAS to solve such large DAE systems, resolving its stiff radical kinetics along the steep thermal entrance profile requires significant computational time:
+:::
+
+```{python}
+#| echo: true
+T_LABEL = "1173"
+tw_ref = CubicSpline(PROFILES["z"], PROFILES[T_LABEL])
+
+conf = dict(
+    fraction     = 0.36,
+    flowrate     = 222.0,
+    pressure_hpa = 50.0,
+    tw_callable  = tw_ref
+)
+
+with mj.Capturing():
+    _, df_dal  = simulate_case(MECHS[0], **conf)
+    _, df_graf = simulate_case(MECHS[1], **conf)
+
+    # Currently not working
+    # _, df_nor  = simulate_case(
+    #     MECHS[2],
+    #     step=1.0e-04,
+    #     rtol=1.0e-02,
+    #     atol=1.0e-05,
+    #     initstep=1.0e-08,
+    #     maxsteps=5000,
+    #     **conf,
+    # )
+```
+
+```{python}
+#| echo: false
+#| fig-cap: Axial profiles of temperature and main species mole percentages for the reference case (1173 K, 50 hPa, 222 SCCM).
+#| fig-align: center
+@mj.MajordomePlot.new(size=(9, 6), shape=(2, 2), sharex=False)
+def plot_reference_profiles(df, *, plot):
+    x = df["x"].to_numpy()
+    fig, ax = plot.subplots()
+
+    # Temperature profile
+    ax[0].plot(x, df["T"], "k-", lw=1.8, label="Fluid $T$")
+    ax[0].plot(x, tw_ref(x), "k--", lw=1.2, alpha=0.7, label="Wall $T_w$")
+    ax[0].set_ylabel("Temperature (K)")
+    ax[0].legend(loc=4, fontsize="small")
+
+    # Major species (C2H2)
+    y = 100.0 * df["X_C2H2"]
+    ax[1].plot(x, y, "k-", lw=1.8, label=r"$\mathrm{C_2H_2}$")
+    ax[1].set_ylabel("Mole percentage (%)")
+    ax[1].legend(loc=1, fontsize="small")
+
+    # Intermediate species
+    if "X_H2" in df.columns:
+        y = 100.0 * df["X_H2"]
+        ax[2].plot(x, y, "k-", lw=1.5, label=r"$\mathrm{H_2}$")
+    if "X_C4H4" in df.columns:
+        y = 100.0 * df["X_C4H4"]
+        ax[2].plot(x, y, "r-", lw=1.5, label=r"$\mathrm{C_4H_4}$")
+    ax[2].set_ylabel("Mole percentage (%)")
+    ax[2].legend(loc=2, fontsize="small")
+
+    # Minor products
+    if "X_CH4" in df.columns:
+        y = 100.0 * df["X_CH4"]
+        ax[3].plot(x, y, "k-", lw=1.5, label=r"$\mathrm{CH_4}$")
+
+    if "X_C2H4" in df.columns:
+        y = 100.0 * df["X_C2H4"]
+        ax[3].plot(x, y, "r-", lw=1.5, label=r"$\mathrm{C_2H_4}$")
+
+    if "X_C6H6" in df.columns:
+        y = 100.0 * df["X_C6H6"]
+        ax[3].plot(x, y, "b-", lw=1.5, label=r"$\mathrm{C_6H_6}$")
+
+    ax[3].set_ylabel("Mole percentage (%)")
+    ax[3].legend(loc=2, fontsize="small")
+
+    for a in ax:
+        a.set_xlabel("Position (m)")
+        a.grid(True, alpha=0.25)
+
+
+_ = plot_reference_profiles(df_dal)
+```
+
+#### Parametric Scan (Table 5.9)
+
+We evaluate all 14 experimental conditions from Table 5.9 across temperatures (773–1273 K), pressures (30–100 hPa), and flow rates (222–378 SCCM):
+
+```{python}
+#| echo: true
+summary = TABLE_9.copy()
+
+for mech in MECHS[:2]:
+    mech_name = Path(mech).stem.replace("-", "_")
+    col_x = f"X_{mech_name}"
+    col_err = f"err_{mech_name}"
+    x_calc = []
+
+    for _, row in TABLE_9.iterrows():
+        t_name = str(int(row["T"]))
+        tw_spline = CubicSpline(PROFILES["z"], PROFILES[t_name])
+        _, res = simulate_case(mech, 0.36, row["Q"], row["P"], tw_spline)
+        x_calc.append(res["X_C2H2"].iloc[-1])
+
+    summary[col_x] = np.round(x_calc, 4)
+    summary[col_err] = np.round(100.0 * (summary[col_x] / summary["X_meas"] - 1.0), 2)
+
+summary
+```
+
+<!--
+::: {.callout-note title="Parametric Scan with Norinaga (2009)"}
+Running the full 14-condition scan with the Norinaga mechanism is similarly available by iterating over `MECHS[2]`:
+
+```{python}
+#| echo: true
+#| eval: false
+x_calc_nor = []
+for _, row in TABLE_9.iterrows():
+    tw_spline = CubicSpline(PROFILES["z"], PROFILES[str(int(row["T"]))])
+    _, res = simulate_case(MECHS[2], 0.36, row["Q"], row["P"], tw_spline)
+    x_calc_nor.append(res["X_C2H2"].iloc[-1])
+```
+:::
+-->
+
+```{python}
+#| echo: false
+#| tbl-cap: Root-mean-square relative error (RMSE) for acetylene conversion across all 14 conditions.
+err_cols = [c for c in summary.columns if c.startswith("err")]
+rmse_series = np.sqrt((summary[err_cols]**2).mean())
+rmse_df = pd.DataFrame(rmse_series, columns=["RMSE (%)"]).T
+rmse_df
+```

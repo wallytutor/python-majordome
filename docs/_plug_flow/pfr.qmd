@@ -1,6 +1,6 @@
 ## Plug-Flow Reactor Models
 
-## Mathematical Formulation
+### Mathematical Formulation
 
 A plug-flow reactor (PFR) model represents the limit of a tubular reactor where the axial Péclet number is sufficiently high that axial diffusion is negligible compared to convection. Fluid elements travel through the reactor in a single direction without axial dispersion or back-mixing.
 
@@ -54,7 +54,7 @@ $$
 
 In the **isothermal** model, the energy equation is omitted ($T(z) = T_0$). In the **adiabatic** model, $\hat{h} = 0$, eliminating wall heat transfer. In the **heat wall** model, $T_w(z)$ can be either constant or an arbitrary user-defined spatial function.
 
-## Implementation
+### Implementation
 
 Module `majordome.plug_flow` implements this problem as a system of differential-algebraic equations (DAEs):
 
@@ -81,7 +81,8 @@ $$
 $$
 
 Integration along the axial coordinate $z$ is executed by the SUNDIALS `IdasIntegrator` with variable-order, variable-step BDF algorithms.
----
+
+### Simulation with CPFR
 
 ```{python}
 import cantera as ct
@@ -90,8 +91,6 @@ import pandas as pd
 import majordome as mj
 from scipy.integrate import solve_ivp
 ```
-
-## Simulation with CPFR
 
 ```{python}
 #| echo: true
