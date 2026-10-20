@@ -1,0 +1,5 @@
+# Development docs
+
+{{< include guidelines.qmd >}}
+{{< include manual.qmd >}}
+{{< include automated.qmd >}}

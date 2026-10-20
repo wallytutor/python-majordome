@@ -1,0 +1,46 @@
+## Automated release
+
+In addition to what is described in the manual release section below, developers may also need to publish the docs, update the [version](https://docs.astral.sh/uv/guides/package/#updating-your-version), and publish the new version to GitHub and PyPI. This is fully automated by `release.ps1` to ensure consistency in actions.
+
+- Make sure the package builds in both Windows and Linux, and that the documentation builds (many tests are included in the documentation, so this is a good sanity check for the code as well). The following commands provide a good starting point for the verifications in Windows:
+
+    ```bash
+    # If not yet available, install set-version:
+    cargo install cargo-set-version
+
+    # Check the sanity of the package:
+    cargo check
+
+    # Run Rust tests:
+    cargo test
+
+    # Run Python tests:
+    uv sync --all-extras
+    uv run pytest -v
+
+    # Manually generate a wheel and check it:
+    uv build --wheel
+    uv run python -m zipfile -l dist/*.whl
+    ```
+
+- From WSL or a Linux machine, repeat the above but also try generating the Linux wheel inside the compliant manylinux container:
+
+    ```bash
+    ./release.sh
+    ```
+
+- Once verifications are done, run one of the following:
+
+    ```bash
+    # - You fixed something small:
+    ./release.ps1 patch
+
+    # - You added a new (non-breaking) feature:
+    ./release.ps1 minor
+
+    # - You made a breaking change:
+    ./release.ps1 major
+
+    # - Avoid this, unless you know exactly what you are doing:
+    ./release.ps1 1.0.0
+    ```
