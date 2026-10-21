@@ -26,15 +26,20 @@ fn main() {
     println!("cargo:rustc-env=GIT_VERSION={}", version);
     eprintln!("\x1b[32m✓ Version set to: {}\x1b[0m", version);
 
-    // Build plug-flow extension on Linux if Cantera is available
-    build_plug_flow();
+    // Build native Linux extensions if dependencies are available
+    build_linux_extensions();
 
     // Rebuild if git state changes
     println!("cargo:rerun-if-changed=../.git/HEAD");
     println!("cargo:rerun-if-changed=../.git/index");
     println!("cargo:rerun-if-changed=majordome/plug_flow/ct_pfr.pyx");
-    println!("cargo:rerun-if-changed=majordome/plug_flow/src");
+    println!("cargo:rerun-if-changed=majordome/plug_flow/ct_pfr.cpp");
     println!("cargo:rerun-if-changed=majordome/plug_flow/_build.py");
+    println!("cargo:rerun-if-changed=src/pluglib");
+}
+
+fn build_linux_extensions() {
+    build_plug_flow();
 }
 
 fn build_plug_flow() {

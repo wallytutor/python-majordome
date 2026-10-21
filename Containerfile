@@ -92,6 +92,7 @@ ENV PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:${PKG_C
 COPY pyproject.toml Cargo.toml Cargo.lock README.md LICENSE /io/
 COPY crates /io/crates
 COPY majordome /io/majordome
+COPY src /io/src
 
 # Build manylinux_2_28-compatible wheel for CPython 3.12
 RUN uvx maturin build \

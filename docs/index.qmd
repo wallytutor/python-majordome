@@ -14,7 +14,7 @@ Installation is recommended from source through `uv`:
 uv pip install "majordome @ git+https://github.com/wallytutor/python-majordome.git"
 ```
 
-Linux users willing to have access to extra compiled libraries should check the development documentation for details.
+Linux users willing to have access to extra compiled libraries should check the [development documentation](_devel/_index.qmd) for details.
 
 ## Using as a Jupyter kernel
 
@@ -32,10 +32,10 @@ majordome --install-kernel `
     --display-name "Majordome (dev)"
 ```
 
-If you don't fit in the first group, you can build the package from source. For that, please refer to the development section below.
+If you don't fit in the first group, you can build the package from source. For that, please refer to the [development documentation](_devel/_index.qmd).
 
 ::: {.callout-tip}
 
-If you just prefer to compile locally without delving into the development environment, you can install both Rust and `uv` and then run `uv build --wheel` to generate the wheel for your platform. This will generate a wheel that you can install with `uv pip install dist/*.whl` or `pip install dist/*.whl` in the current environment. Note that this wheel will be specific to your platform and may not be compatible with other platforms, so it is recommended to use the release wheels for distribution. For more details, check the development section below.
+If you just prefer to compile locally without delving into the development environment, you can install both Rust and `uv` and then run `uv build --wheel` to generate the wheel for your platform. This will generate a wheel that you can install with `uv pip install dist/*.whl` or `pip install dist/*.whl` in the current environment. Note that this wheel will be specific to your platform and may not be compatible with other platforms, so it is recommended to use the release wheels for distribution. For more details, check the [development documentation](_devel/_index.qmd).
 
 :::

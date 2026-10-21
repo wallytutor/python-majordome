@@ -1,46 +1,44 @@
 ## Automated release
 
-In addition to what is described in the manual release section below, developers may also need to publish the docs, update the [version](https://docs.astral.sh/uv/guides/package/#updating-your-version), and publish the new version to GitHub and PyPI. This is fully automated by `release.ps1` to ensure consistency in actions.
+Once all manual sanity checks have passed and code changes are verified, the release process can be executed using `release.ps1`. This PowerShell script automates the manual release steps described in the previous section to ensure consistency and prevent accidental omissions.
 
-- Make sure the package builds in both Windows and Linux, and that the documentation builds (many tests are included in the documentation, so this is a good sanity check for the code as well). The following commands provide a good starting point for the verifications in Windows:
+::: {.callout-warning}
 
-    ```bash
-    # If not yet available, install set-version:
-    cargo install cargo-set-version
+`release.ps1` should only be used for releases **after** you have tested the build and verified tests manually as outlined in the manual steps.
 
-    # Check the sanity of the package:
-    cargo check
+:::
 
-    # Run Rust tests:
-    cargo test
+### What the automated script executes
 
-    # Run Python tests:
-    uv sync --all-extras
-    uv run pytest -v
+When invoked, `release.ps1` performs the following steps in sequence:
 
-    # Manually generate a wheel and check it:
-    uv build --wheel
-    uv run python -m zipfile -l dist/*.whl
-    ```
+1. **Working tree validation**: Checks for uncommitted modifications in git (aborts if dirty, unless `-Force` is provided).
 
-- From WSL or a Linux machine, repeat the above but also try generating the Linux wheel inside the compliant manylinux container:
+2. **Version synchronization**: Updates version in `pyproject.toml` using `uv version` and synchronizes `Cargo.toml` using `cargo set-version`.
 
-    ```bash
-    ./release.sh
-    ```
+3. **Artifact cleanup**: Cleans the `dist/` output directory.
 
-- Once verifications are done, run one of the following:
+4. **Windows wheel compilation**: Builds the local Windows wheel with `uv build --wheel`.
 
-    ```bash
-    # - You fixed something small:
-    ./release.ps1 patch
+5. **Linux wheel compilation & docs rendering**: Dispatches `./release.sh` into the WSL Ubuntu environment, which executes the isolated `Containerfile` build with Podman, extracts the `manylinux_2_28` wheel, and renders documentation with `majordome-build-qmd`.
 
-    # - You added a new (non-breaking) feature:
-    ./release.ps1 minor
+6. **Git commit and tag**: Commits the version files (`Cargo.toml`, `pyproject.toml`, `Cargo.lock`, `uv.lock`) and creates the signed/annotated git tag.
 
-    # - You made a breaking change:
-    ./release.ps1 major
+7. **Documentation publication**: Publishes the rendered documentation to GitHub Pages via `quarto publish gh-pages`.
 
-    # - Avoid this, unless you know exactly what you are doing:
-    ./release.ps1 1.0.0
-    ```
+8. **GitHub release creation**: Uploads all wheels in `dist/` to a new release on GitHub using `gh release create`.
+
+### Running the script
+
+Run the script from Windows PowerShell at the repository root, specifying the version bump type:
+
+```powershell
+# For bug fixes or minor patches:
+./release.ps1 patch
+
+# For new features:
+./release.ps1 minor
+
+# For breaking API changes:
+./release.ps1 major
+```

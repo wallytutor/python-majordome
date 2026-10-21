@@ -1,75 +1,88 @@
 ###############################################################################
-##  majordome.plug_flow C++ library Makefile
+##  Shared and static C/C++ libraries Makefile for Majordome
 ###############################################################################
 
-CXX          := g++
-AR           := ar
-ARFLAGS      := rcs
-RM           := rm -rf
-MKDIR_P      := mkdir -p
+CXX               := g++
+AR                := ar
+ARFLAGS           := rcs
+RM                := rm -rf
+MKDIR_P           := mkdir -p
 
-OPTIONS      := -O3 -std=c++17 -Wall -Wextra
-INCLUDES     := -Isrc \
-                -I/usr/local/include \
-                -I/usr/include/eigen3 \
-                -I/usr/lib/x86_64-linux-gnu/openmpi/include
+OPTIONS           := -O3 -std=c++17 -Wall -Wextra
 
-LIBRARIES    := -L/usr/local/lib -Wl,-rpath,/usr/local/lib \
-                -L/usr/lib/x86_64-linux-gnu/openmpi/lib \
-                -lcantera_shared \
-                -lsundials_ida \
-                -lsundials_nvecserial \
-                -lopenblas \
-                -llapack \
-                -lpthread
+BUILD_DIR         := build
+LIB_DIR           := lib
 
-CPPFLAGS     := $(OPTIONS) -fPIC $(INCLUDES)
+# =============================================================================
+#  pluglib configuration
+# =============================================================================
 
-SRC_DIR      := src
-BUILD_DIR    := build
-LIB_DIR      := lib
+PLUGLIB_SRC_DIR   := pluglib
+PLUGLIB_BUILD_DIR := $(BUILD_DIR)/pluglib
 
-CPP_SRCS     := $(wildcard $(SRC_DIR)/*.cpp)
-CPP_OBJS     := $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(CPP_SRCS))
+PLUGLIB_INCLUDES  := -I$(PLUGLIB_SRC_DIR) \
+                     -I/usr/local/include \
+                     -I/usr/include/eigen3 \
+                     -I/usr/lib/x86_64-linux-gnu/openmpi/include
 
-C_SRCS       := $(wildcard $(SRC_DIR)/*.c)
-C_OBJS       := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(C_SRCS))
+PLUGLIB_LIBS      := -L/usr/local/lib -Wl,-rpath,/usr/local/lib \
+                     -L/usr/lib/x86_64-linux-gnu/openmpi/lib \
+                     -lcantera_shared \
+                     -lsundials_ida \
+                     -lsundials_nvecserial \
+                     -lopenblas \
+                     -llapack \
+                     -lpthread
 
-ALL_OBJS     := $(CPP_OBJS) $(C_OBJS)
+PLUGLIB_CPPFLAGS  := $(OPTIONS) -fPIC $(PLUGLIB_INCLUDES)
 
-STATIC_LIB   := $(LIB_DIR)/libCanteraPFR.a
-SHARED_LIB   := $(LIB_DIR)/libCanteraPFR_shared.so
+PLUGLIB_CPP_SRCS  := $(wildcard $(PLUGLIB_SRC_DIR)/*.cpp)
+PLUGLIB_CPP_OBJS  := $(patsubst $(PLUGLIB_SRC_DIR)/%.cpp,$(PLUGLIB_BUILD_DIR)/%.o,$(PLUGLIB_CPP_SRCS))
+
+PLUGLIB_C_SRCS    := $(wildcard $(PLUGLIB_SRC_DIR)/*.c)
+PLUGLIB_C_OBJS    := $(patsubst $(PLUGLIB_SRC_DIR)/%.c,$(PLUGLIB_BUILD_DIR)/%.o,$(PLUGLIB_C_SRCS))
+
+PLUGLIB_ALL_OBJS  := $(PLUGLIB_CPP_OBJS) $(PLUGLIB_C_OBJS)
+
+PLUGLIB_STATIC    := $(LIB_DIR)/libCanteraPFR.a
+PLUGLIB_SHARED    := $(LIB_DIR)/libCanteraPFR_shared.so
 
 ###############################################################################
 ##  TARGETS
 ###############################################################################
 
-.PHONY: all static shared clean distclean
+.PHONY: all
+all: pluglib
 
-all: shared static
+.PHONY: pluglib
+pluglib: pluglib_shared pluglib_static
 
-shared: $(SHARED_LIB)
+.PHONY: pluglib_shared
+pluglib_shared: $(PLUGLIB_SHARED)
 
-static: $(STATIC_LIB)
+.PHONY: pluglib_static
+pluglib_static: $(PLUGLIB_STATIC)
 
-$(STATIC_LIB): $(ALL_OBJS) | $(LIB_DIR)
+$(PLUGLIB_STATIC): $(PLUGLIB_ALL_OBJS) | $(LIB_DIR)
 	$(AR) $(ARFLAGS) $@ $^
 
-$(SHARED_LIB): $(ALL_OBJS) | $(LIB_DIR)
-	$(CXX) -shared -fPIC -o $@ $^ $(LIBRARIES)
+$(PLUGLIB_SHARED): $(PLUGLIB_ALL_OBJS) | $(LIB_DIR)
+	$(CXX) -shared -fPIC -o $@ $^ $(PLUGLIB_LIBS)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
-	$(CXX) $(CPPFLAGS) -c $< -o $@
+$(PLUGLIB_BUILD_DIR)/%.o: $(PLUGLIB_SRC_DIR)/%.cpp | $(PLUGLIB_BUILD_DIR)
+	$(CXX) $(PLUGLIB_CPPFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	$(CXX) $(CPPFLAGS) -x c++ -c $< -o $@
+$(PLUGLIB_BUILD_DIR)/%.o: $(PLUGLIB_SRC_DIR)/%.c | $(PLUGLIB_BUILD_DIR)
+	$(CXX) $(PLUGLIB_CPPFLAGS) -x c++ -c $< -o $@
 
-$(BUILD_DIR) $(LIB_DIR):
+$(PLUGLIB_BUILD_DIR) $(LIB_DIR):
 	$(MKDIR_P) $@
 
+.PHONY: clean
 clean:
 	$(RM) $(BUILD_DIR)
 
+.PHONY: distclean
 distclean: clean
 	$(RM) $(LIB_DIR)
 

@@ -1,0 +1,59 @@
+## Isolated Linux builds with Containerfile
+
+To ensure reliable, reproducible builds across different Linux distributions and developer machines, Majordome provides a `Containerfile` based on `quay.io/pypa/manylinux_2_28_x86_64`. The core Python and Rust modules can be built on any operating system without C/C++ dependencies. However, native C++ extensions such as `majordome.plug_flow` require specific C++ libraries:
+
+- **Cantera** (>= 3.2.0) built with shared libraries (`libcantera_shared.so` or `libcantera.so`)
+- **SUNDIALS** (>= 7.2.0) with IDAS and NVector Serial
+- **OpenBLAS**, **LAPACK**, and **Eigen3**
+- A C++17 compliant compiler and compatible GLIBC ABI
+
+Installing and maintaining these dependencies on host machines can be cumbersome or conflict with system packages. The container provides a fully configured environment where SUNDIALS and Cantera are built from source with the exact flags required by Majordome. Building inside this container produces standard `manylinux_2_28_x86_64` wheels compatible with any modern Linux distribution.
+
+### Building the image
+
+You can build the container image using either [Podman](https://podman.io/) (recommended) or Docker:
+
+```bash
+# Using Podman:
+podman build -f Containerfile -t majordome-manylinux .
+
+# Using Docker:
+docker build -f Containerfile -t majordome-manylinux .
+```
+
+The build process installs Rust, `uv`, SCons, compiles SUNDIALS 7.2.0, compiles Cantera 3.2.0, copies the Majordome repository files (including `src/` for native libraries), and runs `maturin build --release --compatibility manylinux_2_28`.
+
+### Extracting built wheels
+
+After the container image has finished building, extract the generated wheels into your local `dist/` directory:
+
+```bash
+# Create a temporary container instance:
+podman create --name majordome-wheel-export majordome-manylinux
+
+# Copy the compiled wheels out:
+mkdir -p dist
+podman cp majordome-wheel-export:/io/target/wheels/ ./dist
+
+# Clean up the temporary container:
+podman rm majordome-wheel-export
+
+# Inspect the extracted wheel:
+python -m zipfile -l dist/*.whl
+```
+
+### Automated script (`release.sh`)
+
+On Linux or Windows WSL, the helper script `release.sh` automates the image build, wheel extraction, and documentation rendering:
+
+```bash
+./release.sh
+```
+
+### Interactive development inside the container
+
+If you need to debug compilation, inspect environment variables, or run tests inside the container environment interactively:
+
+```bash
+podman run --rm -it -v "$PWD":/io:Z majordome-manylinux bash
+```

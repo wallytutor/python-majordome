@@ -29,6 +29,10 @@ book:
       - _utilities/_index.qmd
       - magic.qmd
 
+    - part: "Development"
+      chapters:
+      - _devel/_index.qmd
+
     - references.qmd
 
 bibliography: https://raw.githubusercontent.com/wallytutor/wallytutor.github.io/refs/heads/main/shorts/_assets/references.bib

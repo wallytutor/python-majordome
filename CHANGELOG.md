@@ -1,5 +1,9 @@
 # Changelog
 
+- Restructured native C/C++ library sources and build system: updated `majordome/plug_flow/_build.py` to compile from `src/pluglib`, modularized `src/Makefile` with scoped variables and dedicated targets (`pluglib_shared`, `pluglib_static`, `all`), added `build_linux_extensions` hook in `crates/_core/build.rs`, and updated `Containerfile` to include `src/` for manylinux builds.
+
+- Reorganized and updated development documentation under `docs/_devel`: resolved internal consistency issues and outdated path references, added `container.qmd` detailing isolated Linux builds using `Containerfile` and Podman/Docker, refined the manual release and verification workflow in `manual.qmd` as a mandatory baseline before automated release scripts, updated `automated.qmd` and `guidelines.qmd`, and linked the new Development chapter in `docs/_quarto.yaml` and `docs/index.qmd`.
+
 - Improved encapsulation of data loading in `majordome.data` and automation of module-dependent data paths in `majordome._imports`. Now a flag can be used, *e.g.* from `majordome.plug_flow` such that module data is preloaded on demand. That is preferred over manually importing the data module as if it is modified, a single update has to be done in the imports manager.
 
 - Refactored `CPFR.plot` in `majordome.plug_flow.solver` with the `@MajordomePlot.new(shape=(2, 2))` decorator pattern, merging plotting functionality directly into `CPFR` and streamlining module exports. Adapted `Containerfile` to include a minimal, portable build of SUNDIALS 7.2.0 and Cantera 3.2.0 C++ libraries for manylinux distributions, and moved Quarto documentation generation into `release.sh` so that interactive plots of Linux-only modules are rendered during release builds.
